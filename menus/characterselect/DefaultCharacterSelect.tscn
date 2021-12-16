@@ -1,0 +1,105 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/menus/characterselect/DefaultCharacterSelect.gd" type="Script" id=1]
+
+[node name="DefaultCharacterSelect" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="."]
+anchor_right = 1.0
+anchor_bottom = 0.1
+text = "Select your character !"
+align = 1
+valign = 1
+
+[node name="L" type="Control" parent="."]
+anchor_top = 0.1
+anchor_right = 0.35
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="L"]
+anchor_right = 1.0
+anchor_bottom = 0.1
+text = "Player 1"
+align = 1
+valign = 1
+
+[node name="Ready" type="Label" parent="L"]
+anchor_top = 0.9
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Ready!"
+align = 1
+valign = 1
+
+[node name="Options" type="Label" parent="L"]
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 0.9
+text = "Selecting :
+Character Name"
+align = 1
+valign = 1
+
+[node name="R" type="Control" parent="."]
+anchor_left = 0.65
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="R"]
+anchor_right = 1.0
+anchor_bottom = 0.1
+text = "Player 1"
+align = 1
+valign = 1
+
+[node name="Ready" type="Label" parent="R"]
+anchor_top = 0.9
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Ready!"
+align = 1
+valign = 1
+
+[node name="Options" type="Label" parent="R"]
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 0.9
+text = "Selecting :
+Character Name"
+align = 1
+valign = 1
+
+[node name="C" type="Control" parent="."]
+anchor_left = 0.35
+anchor_top = 0.1
+anchor_right = 0.65
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Options" type="Label" parent="C"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Char 1
+> Char 2
+Char 3 <
+> Char 4 <"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}

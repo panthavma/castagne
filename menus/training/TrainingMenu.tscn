@@ -1,0 +1,45 @@
+[gd_scene format=2]
+
+[node name="PauseMenu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Back" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0.176471, 0.176471, 0.176471, 0.482353 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Menu" type="ColorRect" parent="."]
+anchor_left = 0.3
+anchor_top = 0.3
+anchor_right = 0.7
+anchor_bottom = 0.7
+color = Color( 0.160784, 0.160784, 0.192157, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="Menu"]
+anchor_right = 1.0
+anchor_bottom = 0.2
+text = "Pause !"
+align = 1
+valign = 1
+
+[node name="Options" type="Label" parent="Menu"]
+anchor_top = 0.2
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "> Resume <
+Quit"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}

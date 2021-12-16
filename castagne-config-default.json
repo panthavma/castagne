@@ -1,0 +1,23 @@
+
+{
+	"EnginePath":"res://castagne/engine/CastagneEngine.tscn",
+	"CharacterPaths":[],
+	"StagePaths":[],
+	"InputProviders":{"local":"res://castagne/engine/input/InputLocal.tscn", "online":"res://castagne/engine/input/InputOnline.tscn",
+		"ai":"res://castagne/engine/input/InputAI.tscn", "dummy":"res://castagne/engine/input/InputDummy.tscn",
+		"replay":"res://castagne/engine/input/InputReplay.tscn"},
+	"Functions-Base":["res://castagne/engine/functions/Basic.tscn", "res://castagne/engine/functions/Physics.tscn", "res://castagne/engine/functions/Attacks.tscn"],
+	"Functions-Custom":[],
+	"Tools":{
+		"Common":["res://castagne/engine/tools/graphics/Graphics2HalfD.tscn", "res://castagne/menus/battleui/DefaultUI.tscn"],
+		"Training":["res://castagne/engine/tools/modes/ModeTraining.tscn"],
+		"Battle":["res://castagne/engine/tools/modes/ModeBattle.tscn"],
+	},
+	
+	"MainMenu":"res://castagne/menus/mainmenu/DefaultMainMenu.tscn",
+	"CharacterSelect":"res://castagne/menus/characterselect/DefaultCharacterSelect.tscn",
+	"PostBattle":"res://castagne/menus/postbattle/DefaultPostBattle.tscn",
+	
+	"GameTitle":"Untitled Castagne Game",
+	"GameVersion":"Unspecified Version",
+}

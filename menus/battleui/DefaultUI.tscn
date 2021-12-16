@@ -1,0 +1,258 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/menus/battleui/DefaultUI.gd" type="Script" id=1]
+
+[node name="DefaultUI" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="R" type="Control" parent="."]
+anchor_left = 0.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HPBar" type="Control" parent="R"]
+anchor_left = 0.1
+anchor_right = 0.95
+anchor_bottom = 0.09
+
+[node name="Backdrop" type="ColorRect" parent="R/HPBar"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 8.0
+margin_bottom = 8.0
+color = Color( 0, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HandleRed" type="Control" parent="R/HPBar"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HPBar" type="ColorRect" parent="R/HPBar/HandleRed"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 1, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Handle" type="Control" parent="R/HPBar"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HPBar" type="ColorRect" parent="R/HPBar/Handle"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0.486275, 1, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Rounds" type="Control" parent="R"]
+anchor_left = 0.15
+anchor_top = 0.125
+anchor_right = 0.2
+anchor_bottom = 0.175
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="1" type="Control" parent="R/Rounds"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="TextureRect" type="ColorRect" parent="R/Rounds/1"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+
+[node name="Active" type="ColorRect" parent="R/Rounds/1"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 2.0
+margin_top = 2.0
+margin_right = -2.0
+margin_bottom = -2.0
+color = Color( 1, 0.72549, 0, 1 )
+
+[node name="2" type="Control" parent="R/Rounds"]
+anchor_left = 1.5
+anchor_right = 2.5
+anchor_bottom = 1.0
+
+[node name="TextureRect" type="ColorRect" parent="R/Rounds/2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+
+[node name="Active" type="ColorRect" parent="R/Rounds/2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 2.0
+margin_top = 2.0
+margin_right = -2.0
+margin_bottom = -2.0
+color = Color( 1, 0.72549, 0, 1 )
+
+[node name="L" type="Control" parent="."]
+anchor_left = 0.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_scale = Vector2( -1, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HPBar" type="Control" parent="L"]
+anchor_left = 0.1
+anchor_right = 0.95
+anchor_bottom = 0.09
+
+[node name="Backdrop" type="ColorRect" parent="L/HPBar"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = 8.0
+margin_bottom = 8.0
+color = Color( 0, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HandleRed" type="Control" parent="L/HPBar"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HPBar" type="ColorRect" parent="L/HPBar/HandleRed"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 1, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Handle" type="Control" parent="L/HPBar"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HPBar" type="ColorRect" parent="L/HPBar/Handle"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0.486275, 1, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Rounds" type="Control" parent="L"]
+anchor_left = 0.15
+anchor_top = 0.125
+anchor_right = 0.2
+anchor_bottom = 0.175
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="1" type="Control" parent="L/Rounds"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="TextureRect" type="ColorRect" parent="L/Rounds/1"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+
+[node name="Active" type="ColorRect" parent="L/Rounds/1"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 2.0
+margin_top = 2.0
+margin_right = -2.0
+margin_bottom = -2.0
+color = Color( 1, 0.72549, 0, 1 )
+
+[node name="2" type="Control" parent="L/Rounds"]
+anchor_left = 1.5
+anchor_right = 2.5
+anchor_bottom = 1.0
+
+[node name="TextureRect" type="ColorRect" parent="L/Rounds/2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+
+[node name="Active" type="ColorRect" parent="L/Rounds/2"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 2.0
+margin_top = 2.0
+margin_right = -2.0
+margin_bottom = -2.0
+color = Color( 1, 0.72549, 0, 1 )
+
+[node name="C" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Timer" type="Control" parent="C"]
+anchor_left = 0.45
+anchor_right = 0.55
+anchor_bottom = 0.15
+
+[node name="Panel" type="Panel" parent="C/Timer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Label" type="Label" parent="C/Timer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Timer
+99"
+align = 1
+valign = 1
+
+[node name="Text" type="Control" parent="C"]
+anchor_left = 0.4
+anchor_top = 0.4
+anchor_right = 0.6
+anchor_bottom = 0.6
+
+[node name="ColorRect" type="ColorRect" parent="C/Text"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.411765 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="C/Text"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Text"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
