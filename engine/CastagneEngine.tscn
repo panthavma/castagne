@@ -2,5 +2,7 @@
 
 [ext_resource path="res://castagne/engine/CastagneEngine.gd" type="Script" id=1]
 
-[node name="CastagneEngine" type="Spatial"]
+[node name="CastagneEngine" type="Spatial" groups=[
+"network_sync",
+]]
 script = ExtResource( 1 )

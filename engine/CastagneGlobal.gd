@@ -1,9 +1,19 @@
 # Globally accessible class for Castagne
 # Is the main interface for the Castagne Engine
 
+# :TODO:Panthavma:20211230:Start working on castagne menus
+# :TODO:Panthavma:20211230:Move debug code to the dev folder (or editor/dev)
+# :TODO:Panthavma:20211230:Rework input to be more modular
+# :TODO:Panthavma:20211230:More flexible tool loading (have short names for the default ones)
+
+# :TODO:Panthavma:20211230:General code documentation
+# :TODO:Panthavma:20211230:Site documentation
+# :TODO:Panthavma:20211230:Automatic documentation of modules
+
 extends Node
 
 onready var Parser = $Parser
+onready var Net = $Net
 onready var Menus
 # Dict with options
 
@@ -78,10 +88,12 @@ func GetDefaultConfig():
 	
 	return parse_json(fileText)
 
+# :TODO:Panthavma:20211230:Make it more modular
 func GetDefaultBattleInitData():
 	return {
-		"map":0, "music":0, "mode":"Training",
+		"map":0, "music":0, "mode":"Training", "online":false,
 		"p1":0, "p1-control-type":"local", "p1-control-param":"k1", "p1-palette":0,
+		"p1-onlinepeer":1, "p2-onlinepeer":1,
 		#"p2":0, "p2-control-type":"dummy", "p2-control-param":"",
 		"p2":0, "p2-control-type":"local", "p2-control-param":"c1", "p2-palette":1,
 		"p1Points":0, "p2Points":0,

@@ -1,5 +1,10 @@
 extends Spatial
 
+# :TODO:Panthavma:20211230:More flexible loop
+# :TODO:Panthavma:20211230:Init phase
+# :TODO:Panthavma:20211230:Rollback lol
+# :TODO:Panthavma:20211230:Clean up
+
 var initOnReady = true
 
 var trueFrameID = 0
@@ -18,6 +23,8 @@ const CAMERA_SIZE = 55000
 
 var tools = []
 const POSITION_SCALE = 0.0001
+
+var useOnline = false
 
 #-------------------------------------------------------------------------------
 # Initialize
@@ -46,13 +53,17 @@ func Init(battleInitData):
 	var fighter1 = InitPlayerAndInput("p1", battleInitData)
 	var fighter2 = InitPlayerAndInput("p2", battleInitData)
 	
+	if(fighter1 == null or fighter2 == null):
+		queue_free()
+		Castagne.Error("One of the two fighters didn't init correctly. Aborting.")
+		return
+	
 	# Init
 	InitGameStatePlayer("p1", fighter1)
 	InitGameStatePlayer("p2", fighter2)
 	InitGameStateGlobal()
 	
 	# Load tools
-	
 	var toolsList = Castagne.data["Tools"]["Common"] + Castagne.data["Tools"][battleInitData["mode"]]
 	for tPath in toolsList:
 		var t = Load(tPath).instance()
@@ -66,10 +77,18 @@ func Init(battleInitData):
 	UpdateGraphics(gameState)
 	
 	Castagne.Log("Init Ended\n----------------")
+	
+	# Finished update
+	#if(useOnline):
+	#	call_deferred("rpc", "_OnlineReady")
 
 func InitPlayerAndInput(player, battleInitData):
 	var characterPath = Castagne.data["CharacterPaths"][battleInitData[player]]
 	var fighter = Castagne.Parser.CreateFullCharacter(characterPath)
+	
+	if(fighter == null):
+		Castagne.Error("Character isn't initialized properly.")
+		return null
 	
 	# Load Model
 	var playerModelPrefab = Load(fighter["Character"]["Model"])
@@ -81,6 +100,9 @@ func InitPlayerAndInput(player, battleInitData):
 	# Load Input
 	var prefabInputProvider = Load(Castagne.data["InputProviders"][battleInitData[player+"-control-type"]])
 	var inputProvider = prefabInputProvider.instance()
+	inputProvider.set_name("input-"+str(player))
+	if(useOnline):
+		inputProvider.set_network_master(battleInitData[player+"-onlinepeer"])
 	inputProvider.Init(battleInitData[player+"-control-param"])
 	add_child(inputProvider)
 	
@@ -410,17 +432,100 @@ func Render():
 
 
 
+# ------------------------------------------------------------------------------
+# Networking
+var _onlineStart = false
+var _onlineNbReady = 0
 
 
+
+func _save_state() -> Dictionary:
+	#return {"nostate":true}
+	return gameState
+
+func _load_state(state: Dictionary) -> void:
+	#Castagne.Net.Log("Load state : " + str(state))
+	gameState = state
+	_lastGraphicsFrameUpdate = -1
+
+# :TODO:Panthavma:20220111:Wait for everybody before starting
+# :TODO:Panthavma:20220111:Adjust input to work
+
+#func _get_local_input() -> Dictionary:
+#	var input := {}
+#	input["hello"] = true
+#	return input
+
+#func _predict_remote_input(previous_input: Dictionary, ticks_since_real_input: int) -> Dictionary:
+#	var input = previous_input.duplicate()
+#	return input
+
+func _network_process(input: Dictionary) -> void:
+	#if(_onlineAllReady):
+	#return
+	if(_onlineStart):
+		gameState = FrameAdvance(gameState, instances["p1"]["Input"].onlineLastInput, instances["p2"]["Input"].onlineLastInput)
+	#gameState = FrameAdvance(gameState, instances["p1"]["Input"].PollRaw(), instances["p2"]["Input"].PollRaw())
+
+func _network_spawn(data: Dictionary):
+	return
+	Init(Castagne.battleInitData)
+	rpc("_OnlineReady")
+
+remotesync func _OnlineReady():
+	if(!get_tree().is_network_server()):
+		return
+	_onlineNbReady += 1
+	Castagne.Net.Log("Engine : Online Ready " + str(_onlineNbReady))
+	if(_onlineNbReady == 2):
+		#get_tree().paused = false
+		Castagne.Net.Log("Engine : Online All Ready, starting...")
+		Castagne.Net.StartSync()
+#		rpc("_NetStartMatch")
+
+#remotesync func _NetStartMatch():
+#	get_tree().paused = false
+
+
+func _on_SyncManager_sync_started() -> void:
+	Castagne.Net.Log("Engine : SyncManager Sync Started")
+	_onlineStart = true
+
+func _OnlineInit():
+	#SyncManager.connect("scene_spawned", self, "_on_SyncManager_scene_spawned")
+	SyncManager.connect("sync_started", self, "_on_SyncManager_sync_started")
+	#get_tree().paused = true
+	set_network_master(1)
+	Castagne.Net.StartLogging()
+	
+	Init(Castagne.battleInitData)
+	
+	rpc("_OnlineReady")
+
+
+
+remotesync func OnlineEndMatch():
+	Castagne.Net.StopSync()
+	queue_free()
+
+
+# ---------------------
 
 
 func _ready():
-	if(initOnReady):
+	useOnline = Castagne.battleInitData["online"]
+	if(useOnline):
+		_OnlineInit()
+	elif(initOnReady):
 		Init(Castagne.battleInitData)
 
 func _physics_process(_delta):
 	# Physics process is fixed at 60 FPS
-	gameState = FrameAdvance(gameState, instances["p1"]["Input"].PollRaw(), instances["p2"]["Input"].PollRaw())
+	#if(useOnline and _onlineStart):
+	#	gameState = FrameAdvance(gameState, instances["p1"]["Input"].onlineLastInput, instances["p2"]["Input"].onlineLastInput)
+	if(!useOnline):
+	#if(!useOnline or _onlineStart):
+		gameState = FrameAdvance(gameState, instances["p1"]["Input"].PollRaw(), instances["p2"]["Input"].PollRaw())
 
 var _lastGraphicsFrameUpdate = -1
 func _process(_delta):

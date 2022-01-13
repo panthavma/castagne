@@ -2,7 +2,8 @@
 Castagne allows you to make fighting games more easily. It is a layer built upon Godot that manages the internal logic needed, so that you can focus on making the game itself.
 
 # Current Status
-The project is currently still unstable, and will be until I implement rollback netcode, as it might cause some internal architecture shifts. Castagne is however still usable to start making a local multiplayer fighting game, albeit with some of the more graphical aspects missing.
+The project is currently still unstable, and will be until I completely implement rollback netcode, as it might cause some internal architecture shifts. Castagne is however still usable to start making a local multiplayer fighting game, albeit with some of the more graphical aspects missing.
+Rollback is currently working, but is unstable (some desyncs, no real lobbies, no error management).
 
 Most of the development of Castagne will follow the development of Kronian Titans itself.
 
@@ -17,13 +18,16 @@ A set up example project can be found here : [https://github.com/panthavma/casta
 # Projects Using Castagne
 - [Kronian Titans](https://oddgeargames.itch.io/kronian-titans)
 
+# Used Projects
+- [dsnopek's Rollback addon]()
+
 
 # Roadmap
 
 ## Currently worked on
 
 - [X] Usable version
-- [ ] Implement Rollback netcode
+- [ ] Implement Rollback netcode (in progress !)
 - [ ] Add support for multiple entities
 - [ ] Add sound-related functions
 - [ ] Add replays

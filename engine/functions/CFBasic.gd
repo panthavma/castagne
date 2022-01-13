@@ -1,25 +1,57 @@
 extends "CastagneFunctions.gd"
 
 func Setup():
-	RegisterFunction("Anim", [1, 2])
-	RegisterFunction("Transition", [1,2,3], ["TransitionFunc"])
-	RegisterFunction("InstantTransition", [1,2,3], ["TransitionFunc"])
-	RegisterFunction("ResetFrameID", [0], ["TransitionFunc"])
-	RegisterFunction("Flag", [1])
-	RegisterFunction("Unflag", [1])
+	
+	# :TODO:Panthavma:20211230:Move some functions to graphics/physics/other/fightinggame
+	# :TODO:Panthavma:20211230:Entity function
+	
+	# :TODO:Panthavma:20211230:Document the module
+	# :TODO:Panthavma:20211230:Document the functions
+	# :TODO:Panthavma:20211230:Document the variables
+	
+	# Category : Variables
+	RegisterCategory("Variables")
 	RegisterFunction("Set", [2])
 	RegisterFunction("SetStr", [2])
-	RegisterFunction("Type", [1])
+	RegisterFunction("Flag", [1])
+	RegisterFunction("Unflag", [1])
+	# :TODO:Panthavma:20211230:Booleans (as consts)
+	# :TODO:Panthavma:20211230:Add/Mult/Sub/Divide as math functions
+	
+	
+	# Category : States
+	RegisterCategory("States")
+	RegisterFunction("Transition", [1,2,3], ["TransitionFunc"])
+	RegisterFunction("InstantTransition", [1,2,3], ["TransitionFunc"])
+	RegisterFunction("Type", [1]) # Depreciate
 	RegisterFunction("Call", [1], ["FrameFunc", "TransitionFunc", "FullData"])
 	RegisterFunction("CallParent", [1], ["FrameFunc", "TransitionFunc", "FullData"])
+	RegisterFunction("ResetFrameID", [0], ["TransitionFunc"])
+	
+	# Category : Entities
+	RegisterCategory("Entities")
+	# CreateEntity
+	# SelectEntity
+	# SelectMainEntity
+	# GetEntityID
+	# SelectOpponentEntity
+	
+	# Category : Debug
+	RegisterCategory("Debug")
 	RegisterFunction("Log", [1], ["FrameFunc"])
 	RegisterFunction("LogT", [1], ["TransitionFunc"])
 	RegisterFunction("LogB", [1], ["FrameFunc", "TransitionFunc"])
+	
+	# To move
+	RegisterFunction("Anim", [1, 2])
 	RegisterFunction("SwitchFacing", [0])
 	RegisterFunction("PlaySound", [1], ["TransitionFunc", "FullData"])
+	
+	
 
 
 func StateSetup(pid, state, engine):
+	# :TODO:Panthavma:20211230:Cleanup this
 	state[pid]["HP"] = int(state[pid]["HPMax"])#int(engine.constants[pid]["HPMax"])
 	state[pid]["Meter"] = 0
 	state[pid]["State"] = engine.constants[pid]["InitialState"]
@@ -144,6 +176,7 @@ func SwitchFacing(_args, pid, state):
 	state[pid]["Facing"] = -state[pid]["Facing"]
 
 func PlaySound(args, pid, state, engine, _neededFlag):
+	return # Protect my ears
 	var soundName = GetStrArg(0, null, args, pid, state)
 	var soundRoot = engine.instances[pid]["Sounds"]
 	if(soundRoot == null):

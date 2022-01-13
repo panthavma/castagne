@@ -1,6 +1,18 @@
 extends "CastagneFunctions.gd"
 
 func Setup():
+	# :TODO:Panthavma:20211230:Create more attack functions
+	# :TODO:Panthavma:20211230:Document the attack flags
+	# :TODO:Panthavma:20211230:Better Gatling Interface/Rework to allow limited gatlings
+	# :TODO:Panthavma:20211230:Attack multiplexer params
+	# :TODO:Panthavma:20211230:Have recovery as a standard variable ?
+	
+	# :TODO:Panthavma:20211230:Document the module
+	# :TODO:Panthavma:20211230:Document the functions
+	# :TODO:Panthavma:20211230:Document the variables
+	
+	# :TODO:Panthavma:20211230:SetFrameAdvantage
+	# :TODO:Panthavma:20211230:Hitstop
 	
 	RegisterFunction("Attack", [3])
 	RegisterFunction("AttackBlock", [1])

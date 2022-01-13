@@ -1,6 +1,13 @@
 extends "CastagneFunctions.gd"
 
 func Setup():
+	# :TODO:Panthavma:20211230:Document the module
+	# :TODO:Panthavma:20211230:Document the functions
+	# :TODO:Panthavma:20211230:Document the variables
+	
+	# :TODO:Panthavma:20211230:Gravity as a standard implementation
+	# :TODO:Panthavma:20211230:More physics functions for flexible movement
+	
 	RegisterFunction("Move", [2])
 	RegisterFunction("MoveAbsolute", [2])
 	RegisterFunction("AddMomentum", [2])

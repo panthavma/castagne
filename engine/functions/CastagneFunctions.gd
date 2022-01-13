@@ -2,6 +2,18 @@ extends Node
 
 var castagne
 
+# :TODO:Panthavma:20211230:Register Variables & Flags
+# :TODO:Panthavma:20211230:Register Module
+# :TODO:Panthavma:20211230:Rename to tool or module
+# :TODO:Panthavma:20211230:More flexible tool loading
+# :TODO:Panthavma:20211230:Make individual function interface more flexible but also parallelizable
+# :TODO:Panthavma:20211230:Review the different callbacks
+# :TODO:Panthavma:20211230:Implement the init callback and cycle
+# :TODO:Panthavma:20211230:Ability to document module, functions, variables, and flags.
+# :TODO:Panthavma:20211230:Move some functions to graphics, presentation, or fighting game
+# :TODO:Panthavma:20211230:Control the internal loop a bit more (different castagne engine ? or through callbacks ?)
+# :TODO:Panthavma:20211230:Clear module subclass sandbox
+
 func Setup():
 	pass
 func InitTool(_engine, _battleInitData):
@@ -33,7 +45,39 @@ func OnHit(_attackData, _defenderPID, _attackerPID, _state, _defenderEvents):
 func OnBlock(_attackData, _defenderPID, _attackerPID, _state, _defenderEvents):
 	pass
 
-func RegisterFunction(functionName, nbArguments, flags = null):
+
+
+
+
+
+
+
+
+
+
+
+var currentCategory = null
+func RegisterCategory(categoryName, _categoryDescription = null):
+	# TODO
+	currentCategory = categoryName
+
+func RegisterVariable(_variableName, _defaultValue):
+	pass
+
+func GetDefaultDocumentation(functionName, nbArguments, _flags):
+	var d = {
+		"Name":functionName,
+		"NbArgs": nbArguments,
+		"ArgsDesc":[],
+		"Description":"Unspecified."
+	}
+	
+	for _i in range(nbArguments.size()):
+		d["ArgsDesc"].append("Unspecified.")
+	
+	return d
+
+func RegisterFunction(functionName, nbArguments, flags = null, documentation = null):
 	var parseFunc = null
 	var actionFunc = null
 	
@@ -53,12 +97,18 @@ func RegisterFunction(functionName, nbArguments, flags = null):
 		castagne.Error(functionName+" : Parse function or Action func couldn't be found.")
 		return
 	
+	var docs = GetDefaultDocumentation(functionName, nbArguments, flags)
+	if(documentation != null):
+		Castagne.FuseDataOverwrite(docs, documentation)
+	
 	castagne.functions[functionName] = {
 		"Name": functionName,
 		"NbArgs": nbArguments,
 		"ParseFunc": parseFunc,
 		"ActionFunc": actionFunc,
 		"Flags": flags,
+		"Documentation":docs,
+		"Category":currentCategory,
 	}
 
 

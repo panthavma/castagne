@@ -4,11 +4,10 @@ extends Node
 # CreateFullCharacter will actually parse everything, while GetCharacterMetadata
 # will only parse the :Character: block.
 
-# TODO :
-# - Better Error reporting
-# - Use Constants like #DEFINEs
-# - More flexibility
-# - Types rework
+# :TODO:Panthavma:20211230:Constants like #DEFINEs
+# :TODO:Panthavma:20211230:More flexibility
+# :TODO:Panthavma:20211230:Actual conditions
+# :TODO:Panthavma:20211230:Better error reporting (requires moving stuff)
 
 func GetCharacterMetadata(filePath):
 	_StartParsing(filePath)

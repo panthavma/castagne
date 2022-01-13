@@ -2,5 +2,7 @@
 
 [ext_resource path="res://castagne/engine/input/InputLocal.gd" type="Script" id=1]
 
-[node name="InputLocal" type="Node"]
+[node name="InputLocal" type="Node" groups=[
+"network_sync",
+]]
 script = ExtResource( 1 )

@@ -5,6 +5,8 @@ onready var fighterData = $Data
 onready var states = $States
 onready var modelRoot = $Model
 
+# :TODO:Panthavma:20211230:Remove this, it's not needed.
+
 func InitFighter(fightingEngine):
 	engine = fightingEngine
 	fighterData.SetMany({
