@@ -13,3 +13,7 @@ __meta__ = {
 [node name="StatePrinter" type="Control" parent="."]
 margin_right = 40.0
 margin_bottom = 40.0
+
+[node name="TextEdit" type="TextEdit" parent="."]
+margin_right = 453.0
+margin_bottom = 297.0

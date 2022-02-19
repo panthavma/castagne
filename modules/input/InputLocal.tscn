@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/modules/input/InputLocal.gd" type="Script" id=1]
+
+
+[node name="InputLocal" type="Node" groups=[
+"network_sync",
+]]
+script = ExtResource( 1 )

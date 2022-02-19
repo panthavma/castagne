@@ -1,4 +1,4 @@
-extends "res://castagne/engine/functions/CastagneFunctions.gd"
+extends "res://castagne/modules/CastagneModule.gd"
 
 # Big ugly menu I stole from the Kronian Titans demo and changed a bit.
 # Will be updated at a later date.
@@ -9,7 +9,7 @@ var hpRedTargetDelay = {"p1":10000, "p2":10000}
 
 var isTrainingMode = false
 
-func InitTool(engine, battleInitData):
+func InitTool(_engine, battleInitData):
 	isTrainingMode = battleInitData["mode"] == "Training"
 	
 	get_node("L/Rounds/1/Active").set_visible(battleInitData["p1Points"] > 0)
@@ -20,8 +20,8 @@ func InitTool(engine, battleInitData):
 
 
 func UpdateGraphics(state, _engine):
-	UpdatePlayer(state, "p1", "L")
-	UpdatePlayer(state, "p2", "R")
+	UpdatePlayer(state[state["Players"][0]["MainEntity"]], "p1", "L")
+	UpdatePlayer(state[state["Players"][1]["MainEntity"]], "p2", "R")
 	
 	var timerRoot = get_node("C/Timer")
 	if(isTrainingMode):
@@ -29,9 +29,6 @@ func UpdateGraphics(state, _engine):
 	else:
 		var currentTimer = state["Timer"]/60
 		currentTimer = int(clamp(currentTimer, 0, 99))
-		
-		var leftNumber = currentTimer / 10
-		var rightNumber = currentTimer % 10
 		timerRoot.get_node("Label").set_text("Timer\n"+str(currentTimer))
 	
 	var middleText = get_node("C/Text")
@@ -54,13 +51,13 @@ func UpdateGraphics(state, _engine):
 			middleText.get_node("Label").set_text("Fight!")
 			middleText.show()
 
-func UpdatePlayer(gameState, playerID, uiSide):
-	var hpMax = gameState[playerID]["HPMax"]
-	var hp = gameState[playerID]["HP"]
+func UpdatePlayer(eState, playerID, uiSide):
+	var hpMax = eState["HPMax"]
+	var hp = eState["HP"]
 	var hpRatio = float(hp)/float(hpMax)
 	hpRatio = clamp(hpRatio, 0.0, 1.0)
 	
-	if(!Castagne.HasFlag("Hitstun", playerID, gameState)):
+	if(!HasFlag(eState, "Hitstun")):
 		hpRedTarget[playerID] = hpRedTargetDelay[playerID]
 		hpRedTargetDelay[playerID] = hp
 	

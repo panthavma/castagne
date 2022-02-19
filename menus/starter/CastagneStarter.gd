@@ -22,10 +22,10 @@ func LocalBattle():
 	call_deferred("LoadLevel", "res://castagne/engine/CastagneEngine.tscn")
 
 func Training():
-	Castagne.battleInitData["p1"] = 0
-	Castagne.battleInitData["p1-palette"] = 0
-	Castagne.battleInitData["p2"] = 0
-	Castagne.battleInitData["p2-palette"] = 1
+	Castagne.battleInitData["p1"] = 1
+	Castagne.battleInitData["p1-palette"] = 6
+	Castagne.battleInitData["p2"] = 1
+	Castagne.battleInitData["p2-palette"] = 7
 	Castagne.battleInitData["p1-control-type"] = "local"
 	Castagne.battleInitData["p1-control-param"] = "k1"
 	Castagne.battleInitData["p2-control-type"] = "dummy"
@@ -42,6 +42,20 @@ func Editor():
 
 func ShaderTest():
 	call_deferred("LoadLevel", "res://shaders/PiShaderTest.tscn")
+
+func EngineReworkTest():
+	Castagne.battleInitData["p1"] = 0
+	Castagne.battleInitData["p1-palette"] = 0
+	Castagne.battleInitData["p2"] = 0
+	Castagne.battleInitData["p2-palette"] = 1
+	Castagne.battleInitData["p1-control-type"] = "local"
+	Castagne.battleInitData["p1-control-param"] = "k1"
+	Castagne.battleInitData["p2-control-type"] = "dummy"
+	#Castagne.battleInitData["p2-control-type"] = "local"
+	Castagne.battleInitData["p2-control-param"] = "c1"
+	Castagne.battleInitData["mode"] = "Training"
+	#Castagne.battleInitData["mode"] = "Battle"
+	call_deferred("LoadLevel", "res://castagne/engine/CastagneEngine.tscn")
 
 func RollbackTest():
 	Castagne.battleInitData["p1-control-type"] = "local"

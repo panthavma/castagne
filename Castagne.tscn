@@ -2,7 +2,7 @@
 
 [ext_resource path="res://castagne/engine/CastagneGlobal.gd" type="Script" id=1]
 [ext_resource path="res://castagne/engine/CastagneParser.gd" type="Script" id=2]
-[ext_resource path="res://castagne/engine/CastagneNet.gd" type="Script" id=3]
+[ext_resource path="res://castagne/online/CastagneNet.gd" type="Script" id=3]
 
 [node name="Castagne" type="Node"]
 script = ExtResource( 1 )

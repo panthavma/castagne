@@ -146,11 +146,11 @@ func HandleInput(p, i, o, id):
 			return
 		
 		if(i["Up"]):
-			p["Color"] = max(0, p["Character"]-1)
+			p["Character"] = max(0, p["Character"]-1)
 			p["InputCooldown"] = 0.2
 			return
 		if(i["Down"]):
-			p["Color"] = min(characters.size()-1, p["Character"]+1)
+			p["Character"] = min(characters.size()-1, p["Character"]+1)
 			p["InputCooldown"] = 0.2
 			return
 

@@ -1,4 +1,5 @@
-extends Node
+extends "../modules/CastagneModule.gd"
+# Useful for the functions themselves
 
 # Parses .casp files to make Castagne characters
 # CreateFullCharacter will actually parse everything, while GetCharacterMetadata
@@ -299,7 +300,7 @@ func _ParseBlockState(fileID):
 		else:
 			var letter = line.left(1)
 			var letterArgs = line.left(line.length()-1).right(1)
-			var letters = ["I", "F", "L", "E", "V"]
+			var letters = ["I", "F", "L", "V"]
 			if(line == "endif"):
 				var args = [currentSubblock["True"], currentSubblock["False"], currentSubblock["LetterArgs"]]
 				currentSubblock["Args"] = args
@@ -324,7 +325,7 @@ func _ParseBlockState(fileID):
 					"FuncName":"Instruction " + letter,
 					"LetterArgs":letterArgs,
 					"True": [], "False":[],
-					"Flags":["FrameFunc", "TransitionFunc", "FullData"],
+					"Flags":["Init", "Action", "Transition"],
 				}
 			else:
 				_Error("Instruction not recognized : " + letter)
@@ -364,64 +365,63 @@ func StandardParseFunction(functionName, args):
 		"Flags":fData["Flags"],
 	}
 
-func InstructionI(args, pid, currentState, engine, neededFlag):
-	var inputName = args[2]
-	var inputs = currentState[pid]["Input"]
+func InstructionI(args, eState, data):
+	var state = data["State"]
+	var inputName = ArgStr(args, eState, 2)
+	var inputs = state["Players"][eState["Player"]]["Inputs"]
 	
 	if(!inputName in inputs):
 		Castagne.Error("I"+inputName+" : Input not found !")
 		return
 	
-	InstructionBranch(args, pid, currentState, engine, neededFlag, inputs[inputName])
+	InstructionBranch(args, eState, data, inputs[inputName])
 
-func InstructionF(args, pid, currentState, engine, neededFlag):
+func InstructionF(args, eState, data):
 	var letterArgs = args[2]
+	var state = data["State"]
 	
-	var frameID = currentState["FrameID"] - currentState[pid]["StateStartFrame"]
+	var frameID = state["FrameID"] - eState["StateStartFrame"]
 	var validFrames = []
 	
 	var rangeSepID = letterArgs.find("-")
 	var plusSepID = letterArgs.find("+")
-	if(rangeSepID > 0):
-		var start = Castagne.GetInt(letterArgs.left(rangeSepID), pid, currentState)
-		var end = Castagne.GetInt(letterArgs.right(rangeSepID+1), pid, currentState)
+	if(rangeSepID > 0): # A-B
+		var start = ArgInt([letterArgs.left(rangeSepID)], eState, 0)
+		var end = ArgInt([letterArgs.right(rangeSepID+1)], eState, 0)
 		for i in range(start, end+1):
 			validFrames += [i]
-	elif(plusSepID > 0):
-		var minFrame = Castagne.GetInt(letterArgs.left(plusSepID), pid, currentState)
+	elif(plusSepID > 0): # A+
+		var minFrame = ArgInt([letterArgs.left(plusSepID)], eState, 0)
 		if(frameID >= minFrame):
 			validFrames += [frameID]
-	else:
-		validFrames += [Castagne.GetInt(letterArgs, pid, currentState)]
+	else: # A
+		validFrames += [ArgInt([letterArgs], eState, 0)]
 	
 	letterArgs = validFrames
 	
-	InstructionBranch(args, pid, currentState, engine, neededFlag, frameID in validFrames)
+	InstructionBranch(args, eState, data, frameID in validFrames)
 
-func InstructionL(args, pid, currentState, engine, neededFlag):
+func InstructionL(args, eState, data):
 	var flagName = args[2]
-	InstructionBranch(args, pid, currentState, engine, neededFlag, flagName in currentState[pid]["Flags"])
-	
-func InstructionE(args, pid, currentState, engine, neededFlag):
-	var eventName = args[2]
-	InstructionBranch(args, pid, currentState, engine, neededFlag, eventName in currentState[pid]["Events"])
+	InstructionBranch(args, eState, data, flagName in eState["Flags"])
 
-func InstructionV(args, pid, currentState, engine, neededFlag):
+func InstructionV(args, eState, data):
 	var varName = args[2]
-	var cond = varName in currentState[pid]
+	var cond = varName in eState
 	if(cond):
-		cond = Castagne.GetBool(varName, pid, currentState)
-	InstructionBranch(args, pid, currentState, engine, neededFlag, cond)
+		cond = ArgBool([varName], eState, 0)
+	InstructionBranch(args, eState, data, cond)
 
-func InstructionBranch(args, pid, currentState, engine, neededFlag, condition):
+func InstructionBranch(args, eState, moduleCallbackData, condition):
 	var actionListTrue = args[0]
 	var actionListFalse = args[1]
+	var phaseName = moduleCallbackData["Phase"]
 	
 	var actionList = actionListFalse
 	if(condition):
 		actionList = actionListTrue
 	
 	for action in actionList:
-		engine.ExecuteAction(action, pid, currentState, neededFlag)
+		moduleCallbackData["Engine"].ExecuteAction(action, phaseName, eState, moduleCallbackData)
 
 	

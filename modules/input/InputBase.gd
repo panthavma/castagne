@@ -1,6 +1,7 @@
 extends Node
 
-var lastInput = {}
+func _ready():
+	onlineLastInput = GetEmptyRawInputData()
 
 func Init(_param):
 	pass
@@ -13,10 +14,14 @@ func Poll():
 func PollRaw():
 	return GetEmptyRawInputData()
 
-func EnrichInput(raw, playerState, prev):
+# :TODO:Panthavma:20220126:Need to rework this
+func EnrichInput(raw, richPrevious, state, pid):
+	if(raw.size() == 0): # When missing input online
+		raw = GetEmptyRawInputData()
+	if(richPrevious == null or richPrevious.size() == 0): # First frame
+		richPrevious = GetEmptyRawInputData() # :TODO:Panthavma:20220203:Actually enrich it
+	
 	var id = raw.duplicate()
-	if(prev == null):
-		prev = GetEmptyRawInputData()
 	
 	id["A"] = id["A"] || id["M1"]
 	id["B"] = id["B"] || id["M1"] || id["M2"]
@@ -24,15 +29,25 @@ func EnrichInput(raw, playerState, prev):
 	id["L"] = id["L"] || id["M3"]
 	id["R"] = id["R"] || id["M3"]
 	
+	# :TODO:Panthavma:20220203:Make it a module function and move Facing related stuff to 2D physics
+	var eState = state[state["Players"][pid]["MainEntity"]]
 	
-	if(playerState["Facing"] > 0):
+	var facing = 1
+	var facingTrue = 1
+	
+	# Kinda hacky way to wait for init
+	if(eState.has("Facing")):
+		facing = eState["Facing"]
+		facingTrue = eState["FacingTrue"]
+	
+	if(facing > 0):
 		id["Forward"] = raw["Right"]
 		id["Back"] = raw["Left"]
 	else:
 		id["Forward"] = raw["Left"]
 		id["Back"] = raw["Right"]
 	
-	if(playerState["FacingTrue"] > 0):
+	if(facingTrue > 0):
 		id["TrueForward"] = raw["Right"]
 		id["TrueBack"] = raw["Left"]
 	else:
@@ -47,7 +62,7 @@ func EnrichInput(raw, playerState, prev):
 	
 	var buttonList = ["A", "B", "C", "D", "Pause", "Up", "Down", "Right", "Left"]
 	for b in buttonList:
-		id[b+"Press"] = id[b] and !prev[b]
+		id[b+"Press"] = id[b] and !richPrevious[b]
 	
 	id["Throw"] = id["APress"] and id["BPress"]
 	
@@ -56,6 +71,7 @@ func EnrichInput(raw, playerState, prev):
 	
 	return id
 
+
 func GetEmptyRawInputData():
 	return {
 		"A": false,"B": false,"C": false,"D":false,"L":false,"R":false,
@@ -63,3 +79,31 @@ func GetEmptyRawInputData():
 		"M1":false, "M2":false, "M3":false, "Pause":false,
 		"MenuConfirm":false, "MenuBack":false,
 	}
+
+
+
+
+# ------------
+# Network
+
+
+var onlineLastInput = {}
+
+
+func _get_local_input() -> Dictionary:
+	var rawInput = PollRaw()
+	
+	return rawInput
+func _predict_remote_input(previous_input: Dictionary, _ticks_since_real_input: int) -> Dictionary:
+	return previous_input.duplicate()
+
+func _network_process(rawInput: Dictionary) -> void:
+	onlineLastInput = rawInput
+
+
+func _save_state() -> Dictionary:
+	return onlineLastInput
+
+func _load_state(state: Dictionary) -> void:
+	onlineLastInput = state
+

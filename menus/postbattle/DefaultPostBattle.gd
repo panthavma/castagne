@@ -55,7 +55,7 @@ func _process(delta):
 		else:
 			HandleInput(p, i, o, id, uiRoots[id])
 
-func HandleInput(p, i, o, id, r):
+func HandleInput(p, i, o, _id, r):
 	var s = p["State"]
 	
 	if(s == State.Ready):

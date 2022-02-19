@@ -2,6 +2,11 @@ extends Control
 
 
 func _ready():
+	$TextEdit.set_text(PrintDocumentation())
+	
+	return
+	
+	
 	print(Castagne.data["CharacterPaths"])
 	var metadata = Castagne.Parser.GetCharacterMetadata(Castagne.data["CharacterPaths"][0])
 	print("---------------------------")
@@ -47,3 +52,39 @@ func PrintCharacterOverview(cdata):
 	t += "\n"+str(cdata["States"].keys())
 	
 	print(t)
+
+func PrintDocumentation():
+	var t = "----\n"
+	
+	for m in Castagne.modules:
+		t += "# " + m.moduleName + "\n"
+		t += m.moduleDocumentation["Description"] + "\n\n"
+		for categoryName in m.moduleDocumentationCategories:
+			var c = m.moduleDocumentationCategories[categoryName]
+			var vars = c["Variables"]
+			var funcs = c["Functions"]
+			var flags = c["Flags"]
+			if(vars.empty() and funcs.empty() and flags.empty()):
+				continue
+			t += "## " + categoryName + "\n"
+			t += c["Description"] + "\n"
+			
+			
+			if(!funcs.empty()):
+				t += "### Functions\n"
+				for f in funcs:
+					t += f["Name"] + ": " + f["Documentation"]["Description"] + " ("+str(f["Documentation"]["Arguments"])+")\n"
+			
+			if(!vars.empty()):
+				t += "### Variables\n"
+				for v in vars:
+					t += v["Name"] + ": " + v["Description"] + "\n"
+			if(!flags.empty()):
+				t += "### Flags\n"
+				for f in flags:
+					t += f["Name"] + ": " + f["Description"] + "\n"
+			
+			t += "\n"
+		t += "----\n"
+	
+	return t

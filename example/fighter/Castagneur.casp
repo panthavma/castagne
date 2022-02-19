@@ -1,0 +1,257 @@
+# We start with a character block, that contains metadata that will be read first.
+:Character:
+	# The name is displayed in the character select screen
+	Name: Default Fighter
+	
+	# The skeleton is another .casp file that is going to be used as a base.
+	Skeleton: res://castagne/Base.casp
+	
+	# This is for the graphical side, it will instance the model.
+	Model: res://castagne/example/fighter/CastagneurModel.tscn
+	AnimPlayerPath: AnimationPlayer
+	
+	# Palette materials, for now.
+	Palette1:res://castagne/example/fighter/model/Pal1.tres
+	Palette2:res://castagne/example/fighter/model/Pal2.tres
+
+
+# The variables block allows us to hold data for later use.
+:Variables:
+	# Character Specific
+	HPMax: 10000
+	
+	# Animation presets. These are used by Base.casp
+	ANIM_KNOCKDOWN: Down
+	ANIM_HITSTUN_AIR: Hit.Air
+	ANIM_HITSTUN_STAND: Hit.Stand
+	ANIM_HITSTUN_CROUCH: Hit.Crouch
+	ANIM_BLOCK_STAND: Block.Stand
+	ANIM_BLOCK_CROUCH: Block.Crouch
+	ANIM_BLOCK_AIR: Block.Air
+	ANIM_TECH_INPLACE: Landing
+	ANIM_TECH_FORWARD: Landing
+	ANIM_TECH_BACK: Landing
+	ANIM_TECH_SOFT: Landing
+	ANIM_TECH_AIR: Landing
+	ANIM_STAND: Stand
+	ANIM_CROUCH: Crouch
+	ANIM_WALKF: WalkF
+	ANIM_WALKB: WalkB
+	ANIM_JUMPSQUAT: Landing
+	ANIM_LANDING: Landing
+	ANIM_JUMPN: Air
+	ANIM_JUMPF: Air
+	ANIM_JUMPB: Air
+	ANIM_AIRIDLE: Air
+
+:Init:
+	Transition(Idle)
+
+# Finally, the states themselves. Most of the groundwork is done in
+# the Base.casp skeleton.
+# Please see the documentation for more functions.
+
+# 5A: Fast normal, neutral on block.
+:5A:
+	# This is a grounded attack made standing, so we use StandingAttack
+	Call(StandingAttack)
+	
+	# Adds a hurtbox to our character
+	Hurtbox(-5000, 5000, 0, 20000)
+	
+	# These helpers allow us to cancel into other attacks
+	Call(AttackAddAllNormalsCancels)
+	Call(AttackAddSpecialCancels)
+	
+	# The hitbox will be active from frames 6 to 8, so we put a branch for those
+	F6-8:
+		# This first function declares an attack. First number is the damage, second is the duration of the attack
+		Attack(500, 16)
+		
+		# We can set the frame advantage on hit and block respectively here
+		AttackFrameAdvantage(15, 0)
+		
+		# Now we apply that attack data by making a hitbox
+		Hitbox(0, 10000, 5000, 17000)
+	endif
+	
+	# Uses the 5A animation
+	Anim(5A)
+
+
+# 2A: Plus on block mid poke
+:2A:
+	# This one is crouching, so we use CrouchingAttack instead
+	Call(CrouchingAttack)
+	Hurtbox(-5000, 5000, 0, 15000)
+	Call(AttackAddAllNormalsCancels)
+	Call(AttackAddSpecialCancels)
+	F6-8:
+		Attack(400, 20)
+		# To make it plus on block, we put a positive number in the second place
+		AttackFrameAdvantage(15, 2)
+		Hitbox(0, 11000, 0, 12000)
+	endif
+	Anim(2A)
+
+# 5B: Poking kick with an extended hurtbox
+:5B:
+	Call(StandingAttack)
+	Hurtbox(-5000, 5000, 0, 20000)
+	Call(AttackAddAllNormalsCancels)
+	Call(AttackAddSpecialCancels)
+	
+	# A little move for additional range
+	F1-17:
+		Move(300, 0)
+	endif
+	
+	F9-12:
+		Attack(1000, 22)
+		AttackFrameAdvantage(20, -5)
+		Hitbox(0, 18000, 5000, 12000)
+	endif
+	
+	# The attack will leave the leg hanging, so we add a hurtbox from frame 8 onwards
+	F8+:
+		Hurtbox(0, 16000, 7000, 14000)
+	endif
+	
+	Anim(5B)
+
+# 2B: Launcing low Sweep
+:2B:
+	Call(CrouchingAttack)
+	Hurtbox(-5000, 5000, 0, 15000)
+	Call(AttackAddAllNormalsCancels)
+	Call(AttackAddSpecialCancels)
+	F1-17:
+		Move(300, 0)
+	endif
+	
+	F10-12:
+		Attack(1250, 24)
+		AttackFrameAdvantage(30, -6)
+		
+		# We can add flags to attacks to add properties to them. Low will make it so that you can't block standing, while Launcher will force an air state.
+		# Please see the documentation for the full list of flags.
+		AttackFlag(Low)
+		AttackFlag(Launcher)
+		
+		# AttackMomentum allows us to determine how much the opponent will be pushed. Having a positive value in the second slot will launch him upwards.
+		AttackMomentum(200, 700)
+		
+		Hitbox(0, 16000, 0, 10000)
+		
+		# We add a hurtbox so you can hurt the leg
+		Hurtbox(0, 14000, 0, 11000)
+	endif
+	Anim(2B)
+
+
+# 5C: Disjointed swing
+:5C:
+	Call(StandingAttack)
+	Hurtbox(-5000, 5000, 0, 20000)
+	Call(AttackAddAllNormalsCancels)
+	Call(AttackAddSpecialCancels)
+	F1-17:
+		Move(300, 0)
+	endif
+	F12-14:
+		Attack(1500, 34)
+		AttackFrameAdvantage(30, -9)
+		# To have it disjointed, we simply don't add any additional hurtbox
+		Hitbox(0, 20000, 7000, 16000)
+	endif
+	Anim(5C)
+
+# 2C: Anti-air
+:2C:
+	Call(CrouchingAttack)
+	# We will give this priority against air attacks guilty gear style : by removing the hurtbox above the legs.
+	Hurtbox(-5000, 5000, 0, 10000)
+	Call(AttackAddAllNormalsCancels)
+	Call(AttackAddSpecialCancels)
+	F13-15:
+		Attack(1400, 32)
+		AttackFrameAdvantage(40, -10)
+		
+		# We can specify different momentum on ground hit and air hit
+		AttackMomentum(500,0,200,1300)
+		
+		Hitbox(0, 15000, 0, 12000)
+		
+		# We want to extend the hitbox progressively. Using the hitbox function twice will keep the last attack, so we don't need to redefine it.
+		F14+:
+			Hitbox(0, 13000, 12000, 24000)
+		endif
+	endif
+	Anim(2C)
+
+
+
+
+# 6A: Two hit attack
+# 6B : Overhead
+# 3C: Slide
+# 5D: Projectile
+# 2D: Special Projectile
+# 6D: Reversal
+# 4D: Evasive elbow strike
+
+
+
+
+# jA: Air to air punch
+:j5A:
+	# This is an air attack, so we use AirborneAttack
+	Call(AirborneAttack)
+	Hurtbox(-5000, 5000, 0, 20000)
+	Call(AttackAddAllNormalsCancels)
+	Call(AttackAddSpecialCancels)
+	F6-8:
+		Attack(600, 14)
+		AttackFrameAdvantage(30, 2)
+		Hitbox(0, 10000, 10000, 24000)
+	endif
+	Anim(j5A)
+
+# jB: Kick
+:j5B:
+	Call(AirborneAttack)
+	Hurtbox(-5000, 5000, 5000, 20000)
+	Call(AttackAddAllNormalsCancels)
+	Call(AttackAddSpecialCancels)
+	
+	# Sneaky boost to give a bit more distance.
+	F10:
+		AddMomentum(600, 100)
+	endif
+	
+	F12-14:
+		Attack(900, 22)
+		AttackFrameAdvantage(40, -2)
+		# Overhead will beat crouching guard
+		AttackFlag(Overhead)
+		Hurtbox(0, 13000, 5000, 13000)
+		Hitbox(0, 14000, 4000, 12000)
+	endif
+	Anim(j5B)
+
+# jC: Bonk
+:j5C:
+	Call(AirborneAttack)
+	Hurtbox(-5000, 5000, 0, 20000)
+	Call(AttackAddAllNormalsCancels)
+	Call(AttackAddSpecialCancels)
+	F14-16:
+		Attack(1200, 30)
+		AttackFrameAdvantage(40, -2)
+		AttackFlag(Overhead)
+		Hitbox(0, 18000, 2500, 18000)
+		Hitbox(1000, 15000, -2000, 20000)
+	endif
+	Anim(j5C)
+
+

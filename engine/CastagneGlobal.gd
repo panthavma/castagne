@@ -34,31 +34,34 @@ var data
 var battleInitData
 
 var functions
-var functionProviders
 
-func _init():
+var modules
+
+func _ready():
 	Log("Castagne Startup")
 	data = ReadFromConfigFile(CONFIG_FILE_PATH)
 	battleInitData = GetDefaultBattleInitData()
 	functions = {}
-	functionProviders = []
 	
 	if(data == null):
 		Error("Couldn't read from config file, aborting.")
 		return
 	
 	# Setup Functions
-	Log("Loading Functions")
-	var funcList = []
-	funcList.append_array(data["Functions-Base"])
-	funcList.append_array(data["Functions-Custom"])
-	for fPath in funcList:
-		var f = load(fPath).instance()
-		add_child(f)
-		Log("Loading Functions : " + f.get_name())
-		f.castagne = self
-		f.Setup()
-		functionProviders += [f]
+	Log("Loading Modules")
+	var modulesList = []
+	# :TODO:Panthavma:20220125:Make the loading more flexible, alongside params
+	#modulesList.append_array(data["Functions-Base"])
+	#modulesList.append_array(data["Functions-Base"])
+	modulesList.append_array(data["Modules"])
+	modules = []
+	for modulePath in modulesList:
+		# :TODO:Panthavma:20220201:Check for errors
+		var module = load(modulePath).instance()
+		add_child(module)
+		Log("Loading Module : " + module.get_name())
+		module.ModuleSetup()
+		modules += [module]
 
 func ReadFromConfigFile(configFilePath):
 	var d = GetDefaultConfig()
@@ -77,6 +80,7 @@ func ReadFromConfigFile(configFilePath):
 	FuseDataOverwrite(d, newConfig)
 	return d
 
+# :TODO:Panthavma:20211230:Make it more modular through modules instead of a file
 func GetDefaultConfig():
 	var file = File.new()
 	if(!file.file_exists(CONFIG_DEFAULT_FILE_PATH)):
@@ -88,7 +92,7 @@ func GetDefaultConfig():
 	
 	return parse_json(fileText)
 
-# :TODO:Panthavma:20211230:Make it more modular
+# :TODO:Panthavma:20211230:Make it more modular through modules
 func GetDefaultBattleInitData():
 	return {
 		"map":0, "music":0, "mode":"Training", "online":false,
@@ -136,6 +140,10 @@ func GetInt(value, pid, state):
 		return 0
 
 func GetStr(value, _pid, _state):
+	return str(value)
+func GetStrVar(value, pid, state):
+	if(value in state[pid]):
+		return str(state[pid][value])
 	return str(value)
 func GetBool(value, pid, state):
 	return GetInt(value, pid, state) > 0

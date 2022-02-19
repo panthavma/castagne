@@ -1,433 +1,302 @@
 extends Spatial
 
-# :TODO:Panthavma:20211230:More flexible loop
-# :TODO:Panthavma:20211230:Init phase
+
 # :TODO:Panthavma:20211230:Rollback lol
 # :TODO:Panthavma:20211230:Clean up
+# :TODO:Panthavma:20220209:Make SyncManager optional
+
+# :TODO:Panthavma:20220124:Refacto module loading
 
 var initOnReady = true
 
-var trueFrameID = 0
-var characterData = {}
-var constants = {}
-var gameState = {}
-var instances = {}
-var states = {}
 
-var arena
+var _gameState = {}
+# :TODO:Panthavma:20220125:Change to a struct (?)
+var instancedData = {}
+var fighterScripts = []
 
+var instancesRoot
+
+# :TODO:Panthavma:20220207:Move this to relevant parts
 const STARTING_POSITION = 20000
-var camera
 const ARENA_SIZE = 150000
 const CAMERA_SIZE = 55000
 
-var tools = []
+var modules
+var physicsModule
 const POSITION_SCALE = 0.0001
 
 var useOnline = false
+var initError = false
 
-#-------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------------------------
 # Initialize
 func Init(battleInitData):
+	# 1. Start Init
 	Castagne.Log("Init Started")
 	
-	trueFrameID = 0
-	characterData = {}
-	constants = {}
-	gameState = {}
-	instances = {}
-	states = {}
+	_gameState = {
+		"Players": [],
+		"EntitiesToInit": [],
+	}
+	instancedData = {
+		"Players": [],
+		"ParsedFighters": [],
+		"Entities": {},
+	}
+	fighterScripts = []
+	useOnline = false
+	initError = false
 	
+	# 2. Load map
 	# Load maps and music
+	#:TODO:Panthavma:20220124:Review the map system, maybe as an entity ?
 	var prefabMap = Load(Castagne.data["StagePaths"][battleInitData["map"]])
 	var map = prefabMap.instance()
 	add_child(map)
-	instances["map"] = map
-	arena = self
+	instancedData["map"] = map
+	instancesRoot = self
 	
-	# review this part lol
-	for fp in Castagne.functionProviders:
-		RegisterTool(fp)
-	
-	# Load fighters
-	var fighter1 = InitPlayerAndInput("p1", battleInitData)
-	var fighter2 = InitPlayerAndInput("p2", battleInitData)
-	
-	if(fighter1 == null or fighter2 == null):
+	if(initError):
 		queue_free()
-		Castagne.Error("One of the two fighters didn't init correctly. Aborting.")
+		Castagne.Error("Initialization failed at the map init stage. Aborting.")
+		return
+		
+	# 3. Prepare the first frame
+	
+	# :TODO:Panthavma:20220125:Move player & input init elsewhere
+	var playerList = ["p1", "p2"]
+	for pid in range(playerList.size()):
+		var pName = playerList[pid]
+		
+		# Input init
+		var prefabInputProvider = Load(Castagne.data["InputProviders"][battleInitData[pName+"-control-type"]])
+		var inputProvider = prefabInputProvider.instance()
+		inputProvider.set_name("input-"+str(pName))
+		if(useOnline):
+			inputProvider.set_network_master(battleInitData[pName+"-onlinepeer"])
+		inputProvider.Init(battleInitData[pName+"-control-param"])
+		add_child(inputProvider)
+		
+		var pState = {
+			"RawInputs": inputProvider.GetEmptyRawInputData(),
+			"Inputs": {},
+			"MainEntity": pid,
+			"PID": pid,
+		}
+		var pData = {
+			"PID": pid,
+			"Name": playerList[pid],
+			"PeerID": -1,
+			"InputProvider": inputProvider,
+		}
+		_gameState["Players"].append(pState)
+		instancedData["Players"].append(pData)
+	
+	
+	if(initError):
+		queue_free()
+		Castagne.Error("Initialization failed at the player init stage. Aborting.")
 		return
 	
-	# Init
-	InitGameStatePlayer("p1", fighter1)
-	InitGameStatePlayer("p2", fighter2)
-	InitGameStateGlobal()
+	# :TODO:Panthavma:20220124:Allow less modules to be in play
+	modules = Castagne.modules
+	for module in modules:
+		module.engine = self
+		module.CopyVariablesGlobal(_gameState)
+		module.BattleInit(_gameState, _BuildModuleCallbackData(_gameState), battleInitData)
 	
-	# Load tools
-	var toolsList = Castagne.data["Tools"]["Common"] + Castagne.data["Tools"][battleInitData["mode"]]
-	for tPath in toolsList:
-		var t = Load(tPath).instance()
-		add_child(t)
-		RegisterTool(t)
+	# :TODO:Panthavma:20220125:Move parsing elsewhere
+	for player in instancedData["Players"]:
+		# Parse the file
+		var characterPath = Castagne.data["CharacterPaths"][battleInitData[player["Name"]]]
+		var fighter = Castagne.Parser.CreateFullCharacter(characterPath)
+		
+		if(fighter == null):
+			Castagne.Error("Character "+characterPath+" isn't initialized properly.")
+			initError = true
+			break
+		
+		var parsedFighterData = {
+			"ID": instancedData["ParsedFighters"].size(),
+			"File":characterPath,
+			"Character":fighter["Character"],
+			"Constants":fighter["Constants"],
+			"Variables":fighter["Variables"],
+		}
+		
+		instancedData["ParsedFighters"].append(parsedFighterData)
+		fighterScripts.append(fighter["States"])
+		
+		# Add the entity
+		# :TODO:Panthavma:20220125:Move entity setup elsewhere
+		
+		var eid = _gameState["CurrentEntityID"]
+		
+		var entityState = {
+			"Player": player["PID"],
+			"FighterID": parsedFighterData["ID"],
+			"EID": eid,
+		}
+		
+		# :TODO:Panthavma:20220125:Need main entity id
+		# :TODO:Panthavma:20220125:Variables in init phase
+		
+		var entityInstanceData = {
+		}
+		
+		_gameState["CurrentEntityID"] += 1
+		_gameState[eid] = entityState
+		_gameState["EntitiesToInit"].append(eid)
+		
+		# :TODO:Panthavma:20220125:Move model / anim / sound setup elsewhere
+		# Load Model
+		var playerModelPrefab = Load(fighter["Character"]["Model"])
+		var playerModel = playerModelPrefab.instance()
+		var playerAnim = playerModel.get_node(fighter["Character"]["AnimPlayerPath"])
+		instancesRoot.add_child(playerModel)
+		
+		entityInstanceData["Model"] = playerModel
+		entityInstanceData["AnimPlayer"] = playerAnim
+		entityInstanceData["Root"] = playerModel
+		
+		instancedData["Entities"][eid] = entityInstanceData
 	
-	for t in tools:
-		if(t.has_method("InitTool")):
-			t.InitTool(self, battleInitData)
+	if(initError):
+		queue_free()
+		Castagne.Error("Initialization failed at the fighter init stage. Aborting.")
+		return
 	
-	UpdateGraphics(gameState)
+	# :TODO:Panthavma:20220125:Needed here ? Could make problems
+	#UpdateGraphics(_gameState)
 	
 	Castagne.Log("Init Ended\n----------------")
-	
-	# Finished update
-	#if(useOnline):
-	#	call_deferred("rpc", "_OnlineReady")
 
-func InitPlayerAndInput(player, battleInitData):
-	var characterPath = Castagne.data["CharacterPaths"][battleInitData[player]]
-	var fighter = Castagne.Parser.CreateFullCharacter(characterPath)
-	
-	if(fighter == null):
-		Castagne.Error("Character isn't initialized properly.")
-		return null
-	
-	# Load Model
-	var playerModelPrefab = Load(fighter["Character"]["Model"])
-	var playerModel = playerModelPrefab.instance()
-	var playerAnim = playerModel.get_node(fighter["Character"]["AnimPlayerPath"])
-	arena.add_child(playerModel)
-	#player1.InitFighter(self, p1Path)
-	
-	# Load Input
-	var prefabInputProvider = Load(Castagne.data["InputProviders"][battleInitData[player+"-control-type"]])
-	var inputProvider = prefabInputProvider.instance()
-	inputProvider.set_name("input-"+str(player))
-	if(useOnline):
-		inputProvider.set_network_master(battleInitData[player+"-onlinepeer"])
-	inputProvider.Init(battleInitData[player+"-control-param"])
-	add_child(inputProvider)
-	
-	fighter["Input"] = inputProvider
-	fighter["Model"] = playerModel
-	fighter["Anim"] = playerAnim
-	fighter["Root"] = playerModel
-	fighter["Sounds"] = playerModel.get_node("Sounds")
-	
-	return fighter
 
-func InitGameStateGlobal():
-	# Constants
-	
-	# State
-	
-	# TODO Temp, refactor
-	gameState["p1"]["PositionHor"] = -STARTING_POSITION
-	gameState["p2"]["PositionHor"] = STARTING_POSITION
-	gameState["p1"]["Facing"] = 1
-	gameState["p2"]["Facing"] = -1
-	gameState["p1"]["FacingTrue"] = 1
-	gameState["p2"]["FacingTrue"] = -1
 
-func InitGameStatePlayer(pid, player):
-	characterData[pid] = player["Character"]
-	constants[pid] = player["Constants"]
-	gameState[pid] = player["Variables"]
-	instances[pid] = {
-		"Model": player["Model"],
-		"Input": player["Input"],
-		"Anim": player["Anim"],
-		"Root": player["Root"],
-		"Sounds": player["Sounds"],
-	}
-	
-	states[pid] = player["States"]
-	
-	for t in tools:
-		t.StateSetup(pid, gameState, self)
+
 
 
 
 #-------------------------------------------------------------------------------
 # Main Loop
-var _framebyframe =false
-var _fbfkpress = false
-var _fbfkpressa = false
-func FrameAdvance(previousState, inputsP1, inputsP2):
-	var currentState = previousState.duplicate(true)
-	currentState["TrueFrameID"] += 1
-	trueFrameID = currentState["TrueFrameID"]
-	
-	var p1State = states["p1"][currentState["p1"]["State"]]
-	var p2State = states["p2"][currentState["p2"]["State"]]
-	
-	inputsP1 = instances["p1"]["Input"].EnrichInput(inputsP1, currentState["p1"], previousState["p1"]["Input"])
-	inputsP2 = instances["p2"]["Input"].EnrichInput(inputsP2, currentState["p2"], previousState["p2"]["Input"])
-	
-	currentState["SkipFrame"] = false
-	currentState["p1"]["Input"] = inputsP1
-	currentState["p2"]["Input"] = inputsP2
-	
-	for t in tools:
-		t.FrameStart(previousState, currentState, self)
-	
-	var skipFrame = currentState["SkipFrame"]
-	
-	if(!skipFrame):
-		currentState["FrameID"] += 1
-		
-		for t in tools:
-			t.PreFrame("p1", p1State, inputsP1, previousState, currentState)
-			t.PreFrame("p2", p2State, inputsP2, previousState, currentState)
-		FrameAdvancePlayerPlayActionsTypes("p1", p1State, currentState, "FrameFunc")
-		FrameAdvancePlayerPlayActionsTypes("p2", p2State, currentState, "FrameFunc")
-		for t in tools:
-			t.PostFrame("p1", p1State, inputsP1, previousState, currentState)
-			t.PostFrame("p2", p2State, inputsP2, previousState, currentState)
-		
-		for t in tools:
-			t.PrePhysics("p1", p1State, inputsP1, previousState, currentState)
-			t.PrePhysics("p2", p2State, inputsP2, previousState, currentState)
-		FrameAdvanceCollisions(previousState, currentState)
-		FrameAdvancePhysicsHitboxes("p1", "p2", currentState)
-		FrameAdvancePhysicsHitboxes("p2", "p1", currentState)
-		FrameAdvanceCommon(inputsP1, inputsP2, previousState, currentState)
-		for t in tools:
-			t.PostPhysics("p1", p1State, inputsP1, previousState, currentState)
-			t.PostPhysics("p2", p2State, inputsP2, previousState, currentState)
-		
-		FrameAdvancePlayerPlayActionsTypes("p1", p1State, currentState, "TransitionFunc")
-		FrameAdvancePlayerPlayActionsTypes("p2", p2State, currentState, "TransitionFunc")
-		for t in tools:
-			t.PostTransition("p1", p1State, inputsP1, previousState, currentState)
-			t.PostTransition("p2", p2State, inputsP2, previousState, currentState)
-	
-	
-	return currentState
 
-func ExecuteAction(action, pid, currentState, neededFlag):
-	if(!neededFlag in action["Flags"]):
-		return
-	if("FullData" in action["Flags"]):
-		action["Func"].call_func(action["Args"], pid, currentState, self, neededFlag)
-	else:
-		action["Func"].call_func(action["Args"], pid, currentState)
+func EngineTick(previousState, playerInputs):
+	# 1. Frame and input setup
+	var state = previousState.duplicate(true)
+	state["TrueFrameID"] += 1
+	state["SkipFrame"] = false
+	
+	for playerIData in instancedData.Players:
+		var pid = playerIData["PID"]
+		var previousRichInput = state["Players"][pid]["Inputs"]
+		var currentRawInput = playerInputs[pid]
+		# :TODO:Panthavma:20220126:Need to rework this, some input might be entity specific
+		var enrichedInput = playerIData["InputProvider"].EnrichInput(currentRawInput, previousRichInput, state, pid)
+		state["Players"][pid]["RawInputs"] = currentRawInput
+		state["Players"][pid]["Inputs"] = enrichedInput
+	
+	# 2. Apply the framestart functions, and check if the frame needs to be skipped
+	var moduleCallbackData = _BuildModuleCallbackData(state)
+	for m in modules:
+		m.FrameStart(state, moduleCallbackData)
+	
+	if(state["SkipFrame"]):
+		return state
+	
+	state["FrameID"] += 1
+	
+	# 3. Gather the entities needed for the init phase
+	var entitiesToInit = state["EntitiesToInit"]
+	var activeEIDs = state["ActiveEntities"]
+	for module in modules:
+		for eid in entitiesToInit:
+			module.CopyVariablesEntity(state[eid])
+	ExecuteScriptPhase("Init", entitiesToInit, moduleCallbackData)
+	state["EntitiesToInit"] = []
+	
+	# 4. Action Phase
+	for module in modules:
+		module.ResetVariables(state, activeEIDs)
+	ExecuteScriptPhase("Action", activeEIDs, moduleCallbackData)
+	
+	# 5. Physics Phase
+	# :TODO:Panthavma:20220126:Optimize this by making the funcrefs beforehand
+	for m in modules:
+		funcref(m, "PhysicsPhaseStart").call_func(state, moduleCallbackData)
+		for eid in activeEIDs:
+			funcref(m, "PhysicsPhaseStartEntity").call_func(state[eid], moduleCallbackData)
+	physicsModule.PhysicsPhase(state, previousState, activeEIDs)
+	for m in modules:
+		for eid in activeEIDs:
+			funcref(m, "PhysicsPhaseEndEntity").call_func(state[eid], moduleCallbackData)
+		funcref(m, "PhysicsPhaseEnd").call_func(state, moduleCallbackData)
+	
+	# 6. Transition Phase
+	ExecuteScriptPhase("Transition", activeEIDs, moduleCallbackData)
+	
+	# 7. End the frame
+	return state
+	
 
-func FrameAdvancePlayerPlayActions(pid, playerState, currentState, neededFlag):
-	for action in playerState["Actions"]:
-		ExecuteAction(action, pid, currentState, neededFlag)
+func ExecuteScriptPhase(phaseName, eids, moduleCallbackData):
+	# :TODO:Panthavma:20220126:Optimize this by making the funcrefs beforehand
+	var state = moduleCallbackData["State"]
+	moduleCallbackData["Phase"] = phaseName
+	for m in modules:
+		funcref(m, phaseName+"PhaseStart").call_func(state, moduleCallbackData)
+		for eid in eids:
+			funcref(m, phaseName+"PhaseStartEntity").call_func(state[eid], moduleCallbackData)
+	for eid in eids:
+		ExecuteCurrentFighterScript(eid, moduleCallbackData)
+	for m in modules:
+		for eid in eids:
+			funcref(m, phaseName+"PhaseEndEntity").call_func(state[eid], moduleCallbackData)
+		funcref(m, phaseName+"PhaseEnd").call_func(state, moduleCallbackData)
 
-func FrameAdvancePlayerPlayActionsTypes(pid, playerState, currentState, neededFlag):
-	var typeStates = [playerState]
-	var curType = playerState["Type"]
-	while(curType != null):
-		var newState = states[pid][curType]
-		typeStates.push_front(newState)
-		
-		if(curType+"Post" in states[pid]):
-			var newStatePost = states[pid][curType+"Post"]
-			typeStates.push_back(newStatePost)
-		
-		curType = newState["Type"]
-	
-	for pState in typeStates:
-		FrameAdvancePlayerPlayActions(pid, pState, currentState, neededFlag)
 
-func FrameAdvancePlayer(pid, playerState, inputs, previousState, currentState):
-	currentState[pid]["Input"] = inputs
+func ExecuteCurrentFighterScript(eid, moduleCallbackData):
+	# 1. Get the fighter script / state from the entity (done outside maybe ?)
+	var state = moduleCallbackData["State"]
+	var fighterScript = GetCurrentFighterScriptOfEntity(eid, state)
 	
-	for t in tools:
-		t.PreFrame(pid, playerState, inputs, previousState, currentState)
-	
-	FrameAdvancePlayerPlayActionsTypes(pid, playerState, currentState, "FrameFunc")
-	
-	for t in tools:
-		t.PostFrame(pid, playerState, inputs, previousState, currentState)
+	# 2. Execute each action one by one
+	ExecuteFighterScript(fighterScript, eid, moduleCallbackData)
 
-func FrameAdvancePlayerTransition(pid, playerState, inputs, previousState, currentState):
-	FrameAdvancePlayerPlayActionsTypes(pid, playerState, currentState, "TransitionFunc")
+func GetCurrentFighterScriptOfEntity(eid, state):
+	var fighterID = state[eid]["FighterID"]
+	var stateName = state[eid]["State"]
 	
-	for t in tools:
-		t.PostTransition(pid, playerState, inputs, previousState, currentState)
+	return GetFighterScript(fighterID, stateName)
 
-func FrameAdvanceCollisions(previousState, state):
-	var pids = ["p1", "p2"]
-	var nbPids = pids.size()
+func GetFighterScript(fighterID, stateName):
+	if(fighterID >= fighterScripts.size()):
+		Castagne.Error("GetFighterScript: Fighter ID " + str(fighterID) + " not found!")
+		return null
+	if(!fighterScripts[fighterID].has(stateName)):
+		Castagne.Error("GetFighterScript: State "+str(stateName)+" on Fighter ID " + str(fighterID) + " not found!")
+		return null
 	
-	var arenaSize = ARENA_SIZE
-	var cameraSize = CAMERA_SIZE
-	
-	# Find out who is one the left and who is on the right
-	var posDiff = previousState["p2"]["PositionHor"] - previousState["p1"]["PositionHor"]
-	var playerOnTheLeft = (0 if posDiff > 0 else 1)
-	# Use the previous frame's result if there is doubt (stored because of jumps)
-	if(posDiff == 0):
-		playerOnTheLeft = previousState["PlayerOnTheLeft"]
-	state["PlayerOnTheLeft"] = playerOnTheLeft
-	
-	# Find out collisions and camera postion for better placement
-	var camCenter = previousState["CameraHor"] # TODO Recompute ?
-	var p1Colbox = GetBoxPosition(state["p1"], state["p1"]["Colbox"])
-	var p2Colbox = GetBoxPosition(state["p2"], state["p2"]["Colbox"])
-	var areBoxesOverlapping = AreBoxesOverlapping(p1Colbox, p2Colbox)
-	var overlapAmount = 0
-	if(areBoxesOverlapping):
-		if(playerOnTheLeft == 0):
-			overlapAmount = p1Colbox["Right"] - p2Colbox["Left"]
-		else:
-			overlapAmount = p2Colbox["Right"] - p1Colbox["Left"]
-	
-	
-	for i in range(nbPids):
-		var pid = pids[i]
-		var minX = max(-arenaSize, camCenter - cameraSize)
-		var maxX = min(arenaSize, camCenter + cameraSize)
-		
-		# Prevent corner steal and push the boxes if in the corner
-		if(i == playerOnTheLeft):
-			maxX -= 1 + overlapAmount
-		else:
-			minX += 1 + overlapAmount
-		
-		# Check Collisions
-		var positionX = state[pid]["PositionHor"]
-		if(i == playerOnTheLeft):
-			positionX -= overlapAmount/2
-		else:
-			positionX += overlapAmount/2
-		positionX = clamp(positionX, minX, maxX)
-		state[pid]["PositionHor"] = positionX 
-		
-		var events = {}
-		var newFacing = (1 if i == playerOnTheLeft else -1)
-		if(state[pid]["FacingTrue"] != newFacing):
-			events["SwitchFacing"] = newFacing
-			state[pid]["FacingTrue"] = newFacing
-		
-		if(state[pid]["PositionVer"] <= 0):
-			state[pid]["PositionVer"] = 0
-			events["Grounded"] = true
-		else:
-			events["Airborne"] = true
-		
-		state[pid]["Events"] = events
+	return fighterScripts[fighterID][stateName]
 
-func FrameAdvancePhysicsHitboxes(defenderPID, attackerPID, state):
-	var defenderState = state[defenderPID]
-	var attackerState = state[attackerPID]
-	var defenderEvents = defenderState["Events"]
-	
-	# Hitbox/Hurtbox collisions. Own Hurtboxes vs foe hitboxes
-	var hurtboxes = []
-	var hitboxes = []
-	
-	var nbHurtboxes = defenderState["NbHurtboxes"]
-	var nbHitboxes = attackerState["NbHitboxes"]
-	
-	for i in range(nbHurtboxes):
-		hurtboxes += [defenderState["Hurtbox"+str(i)]]
-	for i in range(nbHitboxes):
-		hitboxes += [attackerState["Hitbox"+str(i)]]
-	
-	if(!attackerState["AttackHasHit"]):
-		for hitbox in hitboxes:
-			var hitboxPos = GetBoxPosition(attackerState, hitbox)
-			
-			var hit = Castagne.HITCONFIRMED.NONE
-			for hurtbox in hurtboxes:
-				var hurtboxPos = GetBoxPosition(defenderState, hurtbox)
-				
-				if(AreBoxesOverlapping(hurtboxPos, hitboxPos)):
-					hit = Castagne.HITCONFIRMED.HIT
-					break
-			
-			# First hitbox has priority
-			if(hit != Castagne.HITCONFIRMED.NONE):
-				var attackData = hitbox["AttackData"]
-				for t in tools:
-					hit = t.IsHitConfirmed(hit, attackData, defenderPID, attackerPID, state)
-				
-				if(hit == Castagne.HITCONFIRMED.NONE):
-					continue
-				
-				
-				if(hit == Castagne.HITCONFIRMED.HIT):
-					defenderEvents["Hit"] = attackData
-					for t in tools:
-						t.OnHit(attackData, defenderPID, attackerPID, state, defenderEvents)
-				
-				else:
-					defenderEvents["Block"] = attackData
-					for t in tools:
-						t.OnBlock(attackData, defenderPID, attackerPID, state, defenderEvents)
-					
-				break 
-	
-	defenderState["Events"] = defenderEvents
+func ExecuteFighterScript(fighterScript, eid, moduleCallbackData):
+	var state = moduleCallbackData["State"]
+	var entityState = state[eid]
+	var phaseName = moduleCallbackData["Phase"]
+	for action in fighterScript["Actions"]:
+		ExecuteAction(action, phaseName, entityState, moduleCallbackData)
 
-func FrameAdvanceCommon(_inputsP1, _inputsP2, _previousState, currentState):
-	currentState["CameraHor"] = (currentState["p1"]["PositionHor"]+currentState["p2"]["PositionHor"])/2
-	currentState["CameraVer"] = (currentState["p1"]["PositionVer"]+currentState["p2"]["PositionVer"])/2
-	
-	var signCam = sign(currentState["CameraHor"])
-	if(signCam != 0 and abs(currentState["CameraHor"]) > (ARENA_SIZE - CAMERA_SIZE)):
-		currentState["CameraHor"] = signCam * (ARENA_SIZE - CAMERA_SIZE)
+func ExecuteAction(action, phaseName, entityState, moduleCallbackData):
+	if(phaseName in action["Flags"]):
+		action["Func"].call_func(action["Args"], entityState, moduleCallbackData)
 
 
 
+func UpdateGraphics(state):
+	var moduleCallbackData = _BuildModuleCallbackData(state)
+	for m in modules:
+		m.UpdateGraphics(state, moduleCallbackData)
 
-func GetBoxPosition(fighterState, box):
-	var boxLeft = fighterState["PositionHor"]
-	var boxRight = fighterState["PositionHor"]
-	
-	if(fighterState["Facing"] > 0):
-		boxLeft += box["Left"]
-		boxRight += box["Right"]
-	else:
-		boxLeft -= box["Right"]
-		boxRight -= box["Left"]
-	
-	var boxDown = fighterState["PositionVer"] + box["Down"]
-	var boxUp = fighterState["PositionVer"] + box["Up"]
-	
-	return {"Left":boxLeft, "Right":boxRight,"Down":boxDown,"Up":boxUp}
-
-func AreBoxesOverlapping(boxA, boxB):
-	return (boxA["Right"] > boxB["Left"]
-		and boxA["Left"] < boxB["Right"]
-		and boxA["Up"] > boxB["Down"]
-		and boxA["Down"] < boxB["Up"])
-
-func Load(path):
-	return load(path)
-
-
-
-
-
-func UpdateGraphics(currentState):
-	for t in tools:
-		t.UpdateGraphics(currentState, self)
-	UpdatePlayerGraphics("p1", currentState)
-	UpdatePlayerGraphics("p2", currentState)
-	
-	
-	Render()
-
-func UpdatePlayerGraphics(pid, globalState):
-	var charState = globalState[pid]
-	var animPlayer = instances[pid]["Anim"]
-	
-	var frameID = globalState[pid]["StateFrameID"]
-	
-	
-	if(animPlayer != null):
-		animPlayer.play(charState["Anim"], 0.0, 0.0)
-		animPlayer.seek(float(frameID + globalState[pid]["AnimOffset"])/60.0, true)
-	
-	for t in tools:
-		t.UpdatePlayerGraphics(pid, globalState, self)
-
-func Render():
-	pass
 
 
 
@@ -437,40 +306,22 @@ func Render():
 var _onlineStart = false
 var _onlineNbReady = 0
 
-
+# :TODO:Panthavma:20220124:Make entity spawning work online
 
 func _save_state() -> Dictionary:
-	#return {"nostate":true}
-	return gameState
+	return _gameState
 
 func _load_state(state: Dictionary) -> void:
-	#Castagne.Net.Log("Load state : " + str(state))
-	gameState = state
+	_gameState = state
 	_lastGraphicsFrameUpdate = -1
 
-# :TODO:Panthavma:20220111:Wait for everybody before starting
-# :TODO:Panthavma:20220111:Adjust input to work
-
-#func _get_local_input() -> Dictionary:
-#	var input := {}
-#	input["hello"] = true
-#	return input
-
-#func _predict_remote_input(previous_input: Dictionary, ticks_since_real_input: int) -> Dictionary:
-#	var input = previous_input.duplicate()
-#	return input
-
-func _network_process(input: Dictionary) -> void:
-	#if(_onlineAllReady):
-	#return
+func _network_process(_input: Dictionary) -> void:
 	if(_onlineStart):
-		gameState = FrameAdvance(gameState, instances["p1"]["Input"].onlineLastInput, instances["p2"]["Input"].onlineLastInput)
-	#gameState = FrameAdvance(gameState, instances["p1"]["Input"].PollRaw(), instances["p2"]["Input"].PollRaw())
+		var playerInputs = []
+		for player in instancedData["Players"]:
+			playerInputs.append(player["InputProvider"].onlineLastInput)
+		_gameState = EngineTick(_gameState, playerInputs)
 
-func _network_spawn(data: Dictionary):
-	return
-	Init(Castagne.battleInitData)
-	rpc("_OnlineReady")
 
 remotesync func _OnlineReady():
 	if(!get_tree().is_network_server()):
@@ -511,6 +362,17 @@ remotesync func OnlineEndMatch():
 
 # ---------------------
 
+# :TODO:Panthavma:20220124:Rework that a bit
+func _BuildModuleCallbackData(currentState):
+	var data = {
+		"State": currentState,
+		"InstancedData": instancedData,
+		"Phase": "NotSpecified",
+		"FighterScripts": fighterScripts,
+		"Engine": self,
+	}
+	return data
+
 
 func _ready():
 	useOnline = Castagne.battleInitData["online"]
@@ -521,17 +383,19 @@ func _ready():
 
 func _physics_process(_delta):
 	# Physics process is fixed at 60 FPS
-	#if(useOnline and _onlineStart):
-	#	gameState = FrameAdvance(gameState, instances["p1"]["Input"].onlineLastInput, instances["p2"]["Input"].onlineLastInput)
 	if(!useOnline):
-	#if(!useOnline or _onlineStart):
-		gameState = FrameAdvance(gameState, instances["p1"]["Input"].PollRaw(), instances["p2"]["Input"].PollRaw())
+		var playerInputs = []
+		for player in instancedData["Players"]:
+			playerInputs.append(player["InputProvider"].PollRaw())
+		_gameState = EngineTick(_gameState, playerInputs)
 
 var _lastGraphicsFrameUpdate = -1
 func _process(_delta):
+	var trueFrameID = _gameState["TrueFrameID"]
 	if(_lastGraphicsFrameUpdate < trueFrameID):
 		_lastGraphicsFrameUpdate = trueFrameID
-		UpdateGraphics(gameState)
+		UpdateGraphics(_gameState)
 
-func RegisterTool(toolNode):
-	tools += [toolNode]
+
+func Load(path):
+	return load(path)
