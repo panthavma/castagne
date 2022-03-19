@@ -1,16 +1,7 @@
 extends "../CastagneModule.gd"
 
 func ModuleSetup():
-	# :TODO:Panthavma:20211230:Create more attack functions
-	# :TODO:Panthavma:20211230:Document the attack flags
-	
-	# :TODO:Panthavma:20211230:Document the module
-	# :TODO:Panthavma:20211230:Document the variables
-	
 	# :TODO:Panthavma:20211230:Hitstop
-	
-	# :BUG:Panthavma:20220207:Why does the first attack launch higher ?
-	# :BUG:Panthavma:20220207:Why do the attacks stop quickly ?
 	
 	RegisterModule("CF Attacks")
 	RegisterCategory("Attacks")
@@ -29,8 +20,6 @@ func ModuleSetup():
 		"Arguments":["Parameter name", "Parameter value"],
 		"Flags":["Advanced"],
 	})
-	
-	# :TODO:Panthavma:20220207:Do an AttackDuration function for now, and maybe an attackstop ?
 	
 	
 	
@@ -114,12 +103,6 @@ func ModuleSetup():
 	
 	
 	RegisterCategory("Attack Cancels")
-	# Should define cancels independantly
-	
-	# 3 cases : Whiff, Block, Hit. Touch = Block+Hit
-	# Use variables to track each state. Can't cancel before first hitbox
-	# How to keep which ones were used already ?
-	# Should be able to set it per attack
 	
 	RegisterFunction("AttackApplyCancels", [0,1], ["Transition"], {
 		"Description":"Manages the transitions of attacks using numpad notation. A prefix can be added. It will only cancel into an attack if it wasn't already used since the last call to AttackResetDoneCancels.",
@@ -197,31 +180,20 @@ func ModuleSetup():
 	RegisterVariableEntity("AttackPossibleCancelsBlock", {}, ["ResetEachFrame"])
 	RegisterVariableEntity("AttackPossibleCancelsHit", {}, ["ResetEachFrame"])
 	RegisterVariableEntity("AttackPossibleCancelsNeutral", {}, ["ResetEachFrame"])
+	RegisterVariableEntity("AttackHasHit", false)
+	RegisterVariableEntity("AttackWasBlocked", false) 
+	RegisterVariableEntity("AttackHasWhiffed", false)
+	RegisterVariableEntity("AttackHasTouched", false)
 	RegisterVariableGlobal("Hitstop", 0)
-
-func ActionPhaseEndEntity(eState, _data):
-	if(HasFlag(eState, "Multihit")):
-		eState["AttackHitconfirm_State"] = null
-		eState["AttackInitialFrame"] = -1
-		eState["AttackHitEntities"] = []
-
-func PhysicsPhaseEndEntity(eState, _data):
-	if(eState["Hitboxes"].size() > 0 and eState["AttackHitconfirm_State"] == null):
-		eState["AttackHitconfirm_State"] = "Whiff"
-
-
-
-
-
-
-
-
-
-
-
+	
+	RegisterCategory("Default Attack Params")
+	RegisterConfig("AttackDefault-ProrationDamage", 700)
+	RegisterConfig("AttackDefault-StarterProrationDamage", 950)
+	RegisterConfig("AttackDefault-ProrationHitstun", 900)
+	RegisterConfig("AttackDefault-StarterProrationHitstun", 950)
+	RegisterConfig("AttackDefault-Hitstop", 3)
 
 var _defaultAttackData = {}
-
 func BattleInit(_state, _data, _battleInitData):
 	_defaultAttackData = {
 		"Damage": 100, "MinDamage": 1,
@@ -237,12 +209,49 @@ func BattleInit(_state, _data, _battleInitData):
 		"BlockMomentumH":1000, "BlockMomentumV":0,
 		"BlockMomentumAirH":1000, "BlockMomentumAirV":0,
 		
-		"ProrationDamage": 950, "StarterProrationDamage": 950,
-		"ProrationHitstun": 950, "StarterProrationHitstun": 950,
-		
 		"Flags":[],
-		"Hitstop":3,
 	}
+	
+	# Take variables from the config stating with AttackDefault
+	var configDerivedDataPrefix = "AttackDefault-"
+	for configKeyName in configDefault:
+		if(configKeyName.begins_with(configDerivedDataPrefix)):
+			var attackDataName = configKeyName.right(configDerivedDataPrefix.length())
+			_defaultAttackData[attackDataName] = Castagne.configData[configKeyName]
+
+
+func ActionPhaseEndEntity(eState, _data):
+	if(HasFlag(eState, "Multihit")):
+		eState["AttackHitconfirm_State"] = null
+		eState["AttackInitialFrame"] = -1
+		eState["AttackHitEntities"] = []
+		eState["AttackHasHit"] = false
+		eState["AttackWasBlocked"] = false
+		eState["AttackHasWhiffed"] = false
+		eState["AttackHasTouched"] = false
+
+func PhysicsPhaseEndEntity(eState, _data):
+	# :TODO:Panthavma:20220314:Optim: Maybe replace the string check by a int
+	var hitconfirmState = eState["AttackHitconfirm_State"]
+	if(eState["Hitboxes"].size() > 0 and hitconfirmState == null):
+		eState["AttackHitconfirm_State"] = "Whiff"
+	if(hitconfirmState != null):
+		eState["AttackHasHit"] = (hitconfirmState == "Hit")
+		eState["AttackWasBlocked"] = (hitconfirmState == "Block")
+		eState["AttackHasWhiffed"] = (hitconfirmState == "Whiff")
+		eState["AttackHasTouched"] = (eState["AttackHasHit"] or eState["AttackWasBlocked"])
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -476,21 +485,37 @@ func AttackApplyCancels(args, eState, data):
 		directions += ["5"]
 	
 	var attackButtons = []
-	if(input["APress"] and input["BPress"] and input["CPress"]):
-		attackButtons += ["ABC"]
-	if(input["BPress"] and input["CPress"]):
-		attackButtons += ["BC"]
-	if(input["APress"] and input["CPress"]):
-		attackButtons += ["AC"]
-	if(input["APress"] and input["BPress"]):
-		attackButtons += ["AB"]
 	
+	if(input["DPress"]):
+		attackButtons += ["D"]
 	if(input["CPress"]):
 		attackButtons += ["C"]
 	if(input["BPress"]):
 		attackButtons += ["B"]
 	if(input["APress"]):
 		attackButtons += ["A"]
+	
+	var combinedAttackButtons = []
+	var nbAttackButtons = attackButtons.size()
+	var nbAttackButtonCombinations = int(pow(2, nbAttackButtons))
+	# :TODO:Panthavma:20220310:There's certainly a smarter way to do it as this is litterally combinatory algebra but today I want to see man do punch and not formulas. Revisit when doing input.
+	# List all possibilities. Order should be from strongest combinations to least.
+	# This is not exactly true, as not all three letter combinations are first, but I can live with that for now.
+	
+	for i in range(nbAttackButtonCombinations-1,-1,-1):
+		var buttonName = ""
+		var modulo = 2
+		var nbActive = 0
+		for j in range(nbAttackButtons-1, -1, -1):
+			if(i % modulo):
+				i -= modulo/2
+				buttonName += attackButtons[j]
+				nbActive += 1
+			modulo *= 2
+		if(nbActive > 1):
+			combinedAttackButtons += [buttonName]
+	
+	attackButtons = combinedAttackButtons + attackButtons
 	
 	
 	for b in attackButtons:

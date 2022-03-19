@@ -1,8 +1,6 @@
 extends Spatial
 
 
-# :TODO:Panthavma:20211230:Rollback lol
-# :TODO:Panthavma:20211230:Clean up
 # :TODO:Panthavma:20220209:Make SyncManager optional
 
 # :TODO:Panthavma:20220124:Refacto module loading
@@ -37,7 +35,6 @@ func Init(battleInitData):
 	
 	_gameState = {
 		"Players": [],
-		"EntitiesToInit": [],
 	}
 	instancedData = {
 		"Players": [],
@@ -51,7 +48,7 @@ func Init(battleInitData):
 	# 2. Load map
 	# Load maps and music
 	#:TODO:Panthavma:20220124:Review the map system, maybe as an entity ?
-	var prefabMap = Load(Castagne.data["StagePaths"][battleInitData["map"]])
+	var prefabMap = Load(Castagne.configData["StagePaths"][battleInitData["map"]])
 	var map = prefabMap.instance()
 	add_child(map)
 	instancedData["map"] = map
@@ -70,7 +67,7 @@ func Init(battleInitData):
 		var pName = playerList[pid]
 		
 		# Input init
-		var prefabInputProvider = Load(Castagne.data["InputProviders"][battleInitData[pName+"-control-type"]])
+		var prefabInputProvider = Load(Castagne.configData["InputProviders"][battleInitData[pName+"-control-type"]])
 		var inputProvider = prefabInputProvider.instance()
 		inputProvider.set_name("input-"+str(pName))
 		if(useOnline):
@@ -81,8 +78,10 @@ func Init(battleInitData):
 		var pState = {
 			"RawInputs": inputProvider.GetEmptyRawInputData(),
 			"Inputs": {},
-			"MainEntity": pid,
 			"PID": pid,
+			# :TODO:Panthavma:20220315:Find a better way for this part of player init, probably move it elsewhere
+			"MainEntity": pid,
+			"Opponent": (0 if pid==1 else 1),
 		}
 		var pData = {
 			"PID": pid,
@@ -106,69 +105,11 @@ func Init(battleInitData):
 		module.CopyVariablesGlobal(_gameState)
 		module.BattleInit(_gameState, _BuildModuleCallbackData(_gameState), battleInitData)
 	
-	# :TODO:Panthavma:20220125:Move parsing elsewhere
-	for player in instancedData["Players"]:
-		# Parse the file
-		var characterPath = Castagne.data["CharacterPaths"][battleInitData[player["Name"]]]
-		var fighter = Castagne.Parser.CreateFullCharacter(characterPath)
-		
-		if(fighter == null):
-			Castagne.Error("Character "+characterPath+" isn't initialized properly.")
-			initError = true
-			break
-		
-		var parsedFighterData = {
-			"ID": instancedData["ParsedFighters"].size(),
-			"File":characterPath,
-			"Character":fighter["Character"],
-			"Constants":fighter["Constants"],
-			"Variables":fighter["Variables"],
-		}
-		
-		instancedData["ParsedFighters"].append(parsedFighterData)
-		fighterScripts.append(fighter["States"])
-		
-		# Add the entity
-		# :TODO:Panthavma:20220125:Move entity setup elsewhere
-		
-		var eid = _gameState["CurrentEntityID"]
-		
-		var entityState = {
-			"Player": player["PID"],
-			"FighterID": parsedFighterData["ID"],
-			"EID": eid,
-		}
-		
-		# :TODO:Panthavma:20220125:Need main entity id
-		# :TODO:Panthavma:20220125:Variables in init phase
-		
-		var entityInstanceData = {
-		}
-		
-		_gameState["CurrentEntityID"] += 1
-		_gameState[eid] = entityState
-		_gameState["EntitiesToInit"].append(eid)
-		
-		# :TODO:Panthavma:20220125:Move model / anim / sound setup elsewhere
-		# Load Model
-		var playerModelPrefab = Load(fighter["Character"]["Model"])
-		var playerModel = playerModelPrefab.instance()
-		var playerAnim = playerModel.get_node(fighter["Character"]["AnimPlayerPath"])
-		instancesRoot.add_child(playerModel)
-		
-		entityInstanceData["Model"] = playerModel
-		entityInstanceData["AnimPlayer"] = playerAnim
-		entityInstanceData["Root"] = playerModel
-		
-		instancedData["Entities"][eid] = entityInstanceData
 	
 	if(initError):
 		queue_free()
 		Castagne.Error("Initialization failed at the fighter init stage. Aborting.")
 		return
-	
-	# :TODO:Panthavma:20220125:Needed here ? Could make problems
-	#UpdateGraphics(_gameState)
 	
 	Castagne.Log("Init Ended\n----------------")
 
@@ -207,13 +148,20 @@ func EngineTick(previousState, playerInputs):
 	state["FrameID"] += 1
 	
 	# 3. Gather the entities needed for the init phase
+	var entitiesToDestroy = state["EntitiesToDestroy"]
+	if(!entitiesToDestroy.empty()):
+		for eid in entitiesToDestroy:
+			RemoveEntityImmediate(state, eid)
+		state["EntitiesToDestroy"] = []
+	
 	var entitiesToInit = state["EntitiesToInit"]
 	var activeEIDs = state["ActiveEntities"]
-	for module in modules:
-		for eid in entitiesToInit:
-			module.CopyVariablesEntity(state[eid])
-	ExecuteScriptPhase("Init", entitiesToInit, moduleCallbackData)
-	state["EntitiesToInit"] = []
+	if(!entitiesToInit.empty()):
+		for module in modules:
+			for eid in entitiesToInit:
+				module.CopyVariablesEntity(state[eid])
+		ExecuteScriptPhase("Init", entitiesToInit, moduleCallbackData)
+		state["EntitiesToInit"] = []
 	
 	# 4. Action Phase
 	for module in modules:
@@ -248,6 +196,7 @@ func ExecuteScriptPhase(phaseName, eids, moduleCallbackData):
 		for eid in eids:
 			funcref(m, phaseName+"PhaseStartEntity").call_func(state[eid], moduleCallbackData)
 	for eid in eids:
+		moduleCallbackData["OriginalEID"] = -1
 		ExecuteCurrentFighterScript(eid, moduleCallbackData)
 	for m in modules:
 		for eid in eids:
@@ -282,8 +231,21 @@ func GetFighterScript(fighterID, stateName):
 func ExecuteFighterScript(fighterScript, eid, moduleCallbackData):
 	var state = moduleCallbackData["State"]
 	var entityState = state[eid]
+	var rEID = moduleCallbackData["RefEID"]
 	var phaseName = moduleCallbackData["Phase"]
+	if(moduleCallbackData["OriginalEID"] == -1):
+		moduleCallbackData["OriginalEID"] = eid
+		moduleCallbackData["SelectedEID"] = eid
+		moduleCallbackData["RefEID"] = eid
+	
 	for action in fighterScript["Actions"]:
+		if(moduleCallbackData["SelectedEID"] != eid):
+			eid = moduleCallbackData["SelectedEID"]
+			entityState = state[eid]
+		if(moduleCallbackData["RefEID"] != rEID):
+			rEID = moduleCallbackData["RefEID"]
+			moduleCallbackData["rState"] = state[rEID]
+		
 		ExecuteAction(action, phaseName, entityState, moduleCallbackData)
 
 func ExecuteAction(action, phaseName, entityState, moduleCallbackData):
@@ -360,19 +322,113 @@ remotesync func OnlineEndMatch():
 	queue_free()
 
 
-# ---------------------
+# --------------------------------------------------------------------------------------------------
+# Helpers
 
-# :TODO:Panthavma:20220124:Rework that a bit
 func _BuildModuleCallbackData(currentState):
+	# :TODO:Panthavma:20220124:Rework that a bit?
 	var data = {
 		"State": currentState,
 		"InstancedData": instancedData,
+		"Engine": self,
+		
 		"Phase": "NotSpecified",
 		"FighterScripts": fighterScripts,
-		"Engine": self,
+		
+		"OriginalEID": -1,
+		"SelectedEID": -1,
+		"RefEID": -1,
+		"rState": null,
 	}
 	return data
 
+func Load(path):
+	# :TODO:Panthavma:20220310:Cache it
+	return load(path)
+
+# Parses a script file and adds it to the relevant lists. Returns the ID if okay, or -1 if not.
+func ParseFighterScript(characterPath):
+	var fighter = Castagne.Parser.CreateFullCharacter(characterPath)
+	
+	if(fighter == null):
+		Castagne.Error("Character "+characterPath+" isn't initialized properly.")
+		initError = true
+		return -1
+	
+	var id = instancedData["ParsedFighters"].size()
+	
+	var parsedFighterData = {
+		"ID": id,
+		"File":characterPath,
+		"Character":fighter["Character"],
+		"Constants":fighter["Constants"],
+		"Variables":fighter["Variables"],
+	}
+	
+	instancedData["ParsedFighters"].append(parsedFighterData)
+	fighterScripts.append(fighter["States"])
+	return id
+
+# Adds the data needed for a new entity, and returns its ID. It will be initialized on the next frame
+func AddNewEntity(state, playerID, fighterID, initStateName):
+	# :TODO:Panthavma:20220310:Probably needs special attention for rollback or we're gonna get problems
+	# Add the entity
+	# :TODO:Panthavma:20220125:Move entity setup elsewhere
+	
+	var eid = state["CurrentEntityID"]
+	var entityState = {
+		"Player": playerID,
+		"FighterID": fighterID,
+		"EID": eid,
+		"State": initStateName,
+	}
+	
+	# :TODO:Panthavma:20220125:Need main entity id
+	# :TODO:Panthavma:20220125:Variables in init phase
+	# :TODO:Panthavma:20220310:Add custom init state
+	
+	var entityInstanceData = {
+		"Root": null, "Model":null, "AnimPlayer":null,
+	}
+	
+	state["CurrentEntityID"] += 1
+	state[eid] = entityState
+	state["EntitiesToInit"].append(eid)
+	
+	instancedData["Entities"][eid] = entityInstanceData
+	
+	return eid
+
+func RemoveEntityImmediate(state, eid):
+	state.erase(eid)
+	var iData = instancedData["Entities"][eid]
+	if(iData["Root"] != null):
+		iData["Root"].queue_free()
+	instancedData["Entities"].erase(eid)
+	state["ActiveEntities"].erase(eid)
+
+func InstanceModel(eid, modelPath, animPlayerPath=null):
+	# :TODO:Panthavma:20220310:Probably needs special attention for rollback or we're gonna get problems
+	var playerModelPrefab = Load(modelPath)
+	if(playerModelPrefab == null):
+		Castagne.Error("InstanceModel: Scene not found for " + str(modelPath))
+		return
+	
+	var playerModel = playerModelPrefab.instance()
+	
+	instancedData["Entities"][eid]["Model"] = playerModel
+	instancedData["Entities"][eid]["Root"] = playerModel
+	
+	if(animPlayerPath != null):
+		var playerAnim = playerModel.get_node(animPlayerPath)
+		instancedData["Entities"][eid]["AnimPlayer"] = playerAnim
+	
+	instancesRoot.add_child(playerModel)
+
+
+
+# --------------------------------------------------------------------------------------------------
+# System
 
 func _ready():
 	useOnline = Castagne.battleInitData["online"]
@@ -396,6 +452,3 @@ func _process(_delta):
 		_lastGraphicsFrameUpdate = trueFrameID
 		UpdateGraphics(_gameState)
 
-
-func Load(path):
-	return load(path)

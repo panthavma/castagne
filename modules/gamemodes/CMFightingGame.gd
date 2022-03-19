@@ -5,13 +5,52 @@ var prefabHitboxViewer = preload("res://castagne/modules/gamemodes/assets/Hurtbo
 
 func ModuleSetup():
 	RegisterModule("Fighting Game Flow")
+	
 	RegisterCategory("Game Mode: Fighting Game")
 	RegisterVariableGlobal("WhoHasWon", 0)
 	RegisterVariableGlobal("TimeSinceDead", 0)
 	RegisterVariableEntity("TimeSinceHitstun", 0)
 	
+	RegisterVariableEntity("HP", 10000)
+	# :TODO:Panthavma:20220131:Set HP from HPMax once the game starts
+	RegisterVariableEntity("HPMax", 10000)
+	RegisterVariableEntity("Meter", 0)
+	
+	RegisterVariableGlobal("Timer", 6000)
+	RegisterVariableGlobal("CameraHor", 0)
+	RegisterVariableGlobal("CameraVer", 0)
+	RegisterVariableGlobal("PlayerOnTheLeft", 0)
+	
+	RegisterBattleInitData("p1",0)
+	RegisterBattleInitData("p1-control-type","local")
+	RegisterBattleInitData("p1-control-param","k1")
+	RegisterBattleInitData("p1-palette",0)
+	RegisterBattleInitData("p1-onlinepeer",1)
+	RegisterBattleInitData("p2-onlinepeer",1)
+	RegisterBattleInitData("p2",0)
+	RegisterBattleInitData("p2-control-type","local")
+	RegisterBattleInitData("p2-control-param","c1")
+	RegisterBattleInitData("p2-palette",1)
+	RegisterBattleInitData("p1Points",0)
+	RegisterBattleInitData("p2Points",0)
+	
 
-func BattleInit(_state, _data, battleInitData):
+func BattleInit(state, data, battleInitData):
+	
+	# Create the entities
+	for player in data["InstancedData"]["Players"]:
+		# Parse fighter, create entity, then create model. Return error if problem
+		var characterPath = Castagne.configData["CharacterPaths"][battleInitData[player["Name"]]]
+		var playerID = player["PID"]
+		
+		var fighterID = engine.ParseFighterScript(characterPath)
+		if(fighterID < 0):
+			return
+		
+		engine.AddNewEntity(state, playerID, fighterID, "Init")
+	
+	
+	
 	trainingMode = (battleInitData["mode"] == "Training")
 	if(trainingMode):
 		pauseMenu = prefabMenu.instance()
@@ -112,7 +151,7 @@ func FrameStart(state, data):
 				if(engine.useOnline):
 					LoadLevel("res://dev/rollback-test/RollbackOnlineTest.tscn")
 				else:
-					LoadLevel(Castagne.data["PostBattle"])
+					LoadLevel(Castagne.configData["PostBattle"])
 			else:
 				if(engine.useOnline):
 					Castagne.Net.StartNetworkMatch()
@@ -123,9 +162,9 @@ func FrameStart(state, data):
 
 func InitPhaseEndEntity(eState, _data):
 	if(eState["EID"] == 0):
-		eState["PositionHor"] = -20000
+		eState["PositionX"] = -20000
 	if(eState["EID"] == 1):
-		eState["PositionHor"] = 20000
+		eState["PositionX"] = 20000
 
 func ActionPhaseStartEntity(eState, _data):
 	if(eState["HP"] <= 0 and !trainingMode):
@@ -262,7 +301,7 @@ func PauseMenuActivateOption(id, engine):
 		Unpause()
 	
 	if((!trainingMode and id == 1) or (trainingMode and id == 3)):
-		LoadLevel(Castagne.data["MainMenu"])
+		LoadLevel(Castagne.configData["MainMenu"])
 		engine.queue_free()
 
 func PauseMenuApplyOptions():

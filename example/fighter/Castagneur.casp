@@ -1,7 +1,7 @@
 # We start with a character block, that contains metadata that will be read first.
 :Character:
 	# The name is displayed in the character select screen
-	Name: Default Fighter
+	Name: Castagneur (Default Fighter)
 	
 	# The skeleton is another .casp file that is going to be used as a base.
 	Skeleton: res://castagne/Base.casp
@@ -19,8 +19,10 @@
 :Variables:
 	# Character Specific
 	HPMax: 10000
+	BallSpeed: 1200
 	
 	# Animation presets. These are used by Base.casp
+	USE_STANDARD_ANIMS: 1
 	ANIM_KNOCKDOWN: Down
 	ANIM_HITSTUN_AIR: Hit.Air
 	ANIM_HITSTUN_STAND: Hit.Stand
@@ -43,9 +45,6 @@
 	ANIM_JUMPF: Air
 	ANIM_JUMPB: Air
 	ANIM_AIRIDLE: Air
-
-:Init:
-	Transition(Idle)
 
 # Finally, the states themselves. Most of the groundwork is done in
 # the Base.casp skeleton.
@@ -195,13 +194,91 @@
 # 6A: Two hit attack
 # 6B : Overhead
 # 3C: Slide
-# 5D: Projectile
 # 2D: Special Projectile
 # 6D: Reversal
 # 4D: Evasive elbow strike
 
+# 5D: Projectile
+:5D:
+	Call(StandingAttack)
+	Hurtbox(-5000, 5000, 0, 20000)
+	AttackDuration(50)
+	Anim(5C)
+	F15:
+		CreateEntity(BallInit)
+		CopyVariable(BallSpeed)
+		SetPositionRelativeToRef(5000, 0)
+		CopyRefFacing()
+	endif
 
+:BallInit:
+	Transition(BallForward)
 
+:BallForward:
+	F1:
+		Flag(Multihit)
+	endif
+	Attack(700)
+	AttackSetHitstunBlockstun(40, 20)
+	Hitbox(-5000, 5000, 5000, 15000)
+	Move(BallSpeed, 0)
+	
+	VAttackHasTouched:
+		DestroyEntity()
+	endif
+	
+	F180:
+		DestroyEntity()
+	endif
+
+:6D:
+	F1-3:
+		Call(StandingAttack)
+		Anim(ANIM_JUMPSQUAT)
+	else
+		Call(AirborneAttack)
+		Anim(6D)
+	endif
+	
+	F4-16:
+		Move(1200, 1800)
+	endif
+	F17:
+		AddMomentum(1000, 800)
+	endif
+	
+	F6-16:
+		Attack(1000, 50)
+		AttackFrameAdvantage(50, -30)
+		Hitbox(0, 13000, 5000, 17500)
+	endif
+	
+	F14+:
+		Hurtbox(-5000, 5000, 0, 20000)
+	endif
+	
+	VAttackHasTouched:
+		IDPress:
+			Transition(6DD, 1000)
+		endif
+	endif
+
+:6DD:
+	Call(AirborneAttack)
+	
+	F1:
+		AddMomentum(800, 2200)
+	endif
+	
+	Anim(j5C)
+	Hurtbox(-5000, 5000, 0, 20000)
+	F14-16:
+		Attack(1200, 30)
+		AttackFrameAdvantage(40, -10)
+		AttackFlag(Overhead)
+		Hitbox(0, 18000, 2500, 18000)
+		Hitbox(1000, 15000, -2000, 20000)
+	endif
 
 # jA: Air to air punch
 :j5A:
@@ -253,5 +330,4 @@
 		Hitbox(1000, 15000, -2000, 20000)
 	endif
 	Anim(j5C)
-
 

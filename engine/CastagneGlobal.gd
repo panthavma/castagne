@@ -18,7 +18,7 @@ onready var Menus
 # Dict with options
 
 const CONFIG_FILE_PATH = "res://castagne-config.json"
-const CONFIG_DEFAULT_FILE_PATH = "res://castagne/castagne-config-default.json"
+const CONFIG_CORE_MODULE_PATH = "res://castagne/modules/functions/Core.tscn"
 const INPUT_LOCAL = 0
 const INPUT_ONLINE = 1
 const INPUT_AI = 2
@@ -30,7 +30,7 @@ enum HITCONFIRMED {
 
 const PRORATION_SCALE = 1000
 
-var data
+var configData
 var battleInitData
 
 var functions
@@ -39,35 +39,35 @@ var modules
 
 func _ready():
 	Log("Castagne Startup")
-	data = ReadFromConfigFile(CONFIG_FILE_PATH)
-	battleInitData = GetDefaultBattleInitData()
 	functions = {}
 	
-	if(data == null):
-		Error("Couldn't read from config file, aborting.")
-		return
+	# 1. Loading Config
+	configData = {"Modules-core":CONFIG_CORE_MODULE_PATH}
+	var customConfigData = ReadFromConfigFile()
 	
-	# Setup Functions
+	if(customConfigData == null):
+		Error("Couldn't find a Castagne config file at " + str(CONFIG_FILE_PATH))
+	else:
+		FuseDataOverwrite(configData, customConfigData)
+	
+	
+	# 2. Load modules and set functions
 	Log("Loading Modules")
-	var modulesList = []
-	# :TODO:Panthavma:20220125:Make the loading more flexible, alongside params
-	#modulesList.append_array(data["Functions-Base"])
-	#modulesList.append_array(data["Functions-Base"])
-	modulesList.append_array(data["Modules"])
 	modules = []
-	for modulePath in modulesList:
-		# :TODO:Panthavma:20220201:Check for errors
-		var module = load(modulePath).instance()
-		add_child(module)
-		Log("Loading Module : " + module.get_name())
-		module.ModuleSetup()
-		modules += [module]
-
-func ReadFromConfigFile(configFilePath):
-	var d = GetDefaultConfig()
-	if(d == null):
-		return null
 	
+	# 2.1 Load the core module, which will give the path to other modules
+	LoadModule(configData["Modules-core"])
+	
+	# 2.2 Load all the other modules
+	for modulePath in configData["Modules"]:
+		LoadModule(modulePath)
+	
+	# 3. Set BattleInitData
+	battleInitData = GetDefaultBattleInitData()
+
+func ReadFromConfigFile(configFilePath=null):
+	if(configFilePath == null):
+		configFilePath = CONFIG_FILE_PATH
 	var file = File.new()
 	if(!file.file_exists(configFilePath)):
 		Error("File " + configFilePath + " does not exist.")
@@ -76,32 +76,74 @@ func ReadFromConfigFile(configFilePath):
 	var fileText = file.get_as_text()
 	file.close()
 	
-	var newConfig = parse_json(fileText)
-	FuseDataOverwrite(d, newConfig)
-	return d
-
-# :TODO:Panthavma:20211230:Make it more modular through modules instead of a file
-func GetDefaultConfig():
-	var file = File.new()
-	if(!file.file_exists(CONFIG_DEFAULT_FILE_PATH)):
-		Error("File " + CONFIG_DEFAULT_FILE_PATH + " does not exist.")
-		return null
-	file.open(CONFIG_DEFAULT_FILE_PATH, File.READ)
-	var fileText = file.get_as_text()
-	file.close()
-	
 	return parse_json(fileText)
 
-# :TODO:Panthavma:20211230:Make it more modular through modules
+func SaveConfigFile(configFilePath=null):
+	if(configFilePath == null):
+		configFilePath = CONFIG_FILE_PATH
+	
+	var file = File.new()
+	if(!file.file_exists(configFilePath)):
+		Error("File " + configFilePath + " does not exist.")
+		return ERR_FILE_NOT_FOUND
+	
+	var defaultConfig = {"Modules-core":CONFIG_CORE_MODULE_PATH}
+	for module in modules:
+		FuseDataOverwrite(defaultConfig, module.configDefault.duplicate(true))
+	
+	var savedData = {}
+	for key in configData:
+		var save = false
+		if(!defaultConfig.has(key)):
+			save = true
+		elif(configData[key] != defaultConfig[key]):
+			print("Key is different: "+key)
+			if(typeof(configData[key]) == TYPE_DICTIONARY):
+				print("Dict compare")
+				save = !AreDictionariesEqual(configData[key], defaultConfig[key])
+			else:
+				print("its just different")
+				save = true
+		
+		if(save):
+			print("I'm saving!")
+			savedData[key] = configData[key]
+	
+	var jsonData = to_json(savedData)
+	file.open(configFilePath, File.WRITE)
+	file.store_string(jsonData)
+	file.close()
+	
+	return OK
+
+func LoadModule(modulePath):
+	if(!modulePath.ends_with(".tscn")):
+		if(!configData.has("Modules-"+modulePath)):
+			Error("Can't find module list to load: "+modulePath)
+			return
+		for mPath in configData["Modules-"+modulePath]:
+			LoadModule(mPath)
+		return
+	
+	var modulePrefab = load(modulePath)
+	if(modulePrefab == null):
+		Error("Can't find module to load: "+str(modulePath))
+		return
+	
+	var module = modulePrefab.instance()
+	Log("Loading Module: " + module.get_name())
+	
+	add_child(module)
+	module.ModuleSetup()
+	
+	modules += [module]
+	FuseDataNoOverwrite(configData, module.configDefault.duplicate(true))
+
 func GetDefaultBattleInitData():
-	return {
-		"map":0, "music":0, "mode":"Training", "online":false,
-		"p1":0, "p1-control-type":"local", "p1-control-param":"k1", "p1-palette":0,
-		"p1-onlinepeer":1, "p2-onlinepeer":1,
-		#"p2":0, "p2-control-type":"dummy", "p2-control-param":"",
-		"p2":0, "p2-control-type":"local", "p2-control-param":"c1", "p2-palette":1,
-		"p1Points":0, "p2Points":0,
-	}
+	var bid = {}
+	for m in modules:
+		FuseDataOverwrite(bid, m.battleInitDataDefault.duplicate(true))
+	return bid
 
 func Log(text):
 	print("[Castagne] " + str(text))
@@ -111,7 +153,7 @@ func Error(text):
 
 func GetAllCharactersMetadata():
 	var characters = []
-	for cpath in data["CharacterPaths"]:
+	for cpath in configData["CharacterPaths"]:
 		characters.append(Parser.GetCharacterMetadata(cpath))
 	return characters
 
@@ -168,3 +210,12 @@ func FuseDataMoveWithPrefix(baseDict, additionalDict, prefix="Parent:"):
 			baseDict[prefix+k] = baseDict[k]
 			
 		baseDict[key] = additionalDict[key]
+func AreDictionariesEqual(a, b):
+	if(a == b):
+		return true
+	if(a.size() != b.size()):
+		return false
+	for k in a:
+		if(!b.has(k) or a[k] != b[k]):
+			return false
+	return true

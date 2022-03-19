@@ -52,6 +52,8 @@ func UpdateGraphics(state, _engine):
 			middleText.show()
 
 func UpdatePlayer(eState, playerID, uiSide):
+	if(!eState.has("HPMax")):
+		return
 	var hpMax = eState["HPMax"]
 	var hp = eState["HP"]
 	var hpRatio = float(hp)/float(hpMax)

@@ -4,17 +4,12 @@ extends "../CastagneModule.gd"
 
 func ModuleSetup():
 	# :TODO:Panthavma:20211230:Document the module
-	# :TODO:Panthavma:20211230:Document the functions
 	# :TODO:Panthavma:20211230:Document the variables
 	
 	# :TODO:Panthavma:20211230:Gravity as a standard implementation
 	# :TODO:Panthavma:20211230:More physics functions for flexible movement
 	
-	
-	
-	# :TODO:Panthavma:20220201:Make it affect the currently selected entity ? Or similar
-	
-	RegisterModule("CF Physics")
+	RegisterModule("CF Physics", {"Description":"All these base themselves on the reference entity's values"})
 	RegisterCategory("Movement")
 	RegisterFunction("Move", [2], null, {
 		"Description": "Moves the entity this frame, depending on facing.",
@@ -56,28 +51,26 @@ func ModuleSetup():
 		"Description": "Adds to the momentum, independant of facing. If momentum is going in the opposite direction, cancel it before applying.",
 		"Arguments": ["Horizontal momentum", "Vertical momentum"],
 		})
-	# SetPosition
-	
-	
-	RegisterCategory("Opponent Manipulation")
-	# :TODO:Panthavma:20220102:Make it thread safer by applying it later ?
-	#RegisterFunction("SetOpponentPosition", [2], null, {
-	#	"Description": "",
-	#	"Arguments": [""],
-	#	})
-	#RegisterFunction("SetOpponentPositionAbsolute", [2], null, {
-	#	"Description": "",
-	#	"Arguments": [""],
-	#	})
-	#RegisterFunction("MoveOpponent", [2], null, {
-	#	"Description": "",
-	#	"Arguments": [""],
-	#	})
-	#RegisterFunction("MoveOpponentAbsolute", [2], null, {
-	#	"Description": "",
-	#	"Arguments": [""],
-	#	})
-	# SetMomentum
+	RegisterFunction("SetPositionRelativeToRef", [2], null, {
+		"Description": "Sets the position based on the reference entity's position, depending on facing.",
+		"Arguments": ["Horizontal position", "Vertical position"],
+		})
+	RegisterFunction("SetPositionRelativeToRefAbsolute", [2], null, {
+		"Description": "Sets the position based on the reference entity's position, independant of facing.",
+		"Arguments": ["Horizontal position", "Vertical position"],
+		})
+	RegisterFunction("SetWorldPosition", [2], null, {
+		"Description": "Sets the position relative to the world origin, depending on facing.",
+		"Arguments": ["Horizontal position", "Vertical position"],
+		})
+	RegisterFunction("SetWorldPositionAbsolute", [2], null, {
+		"Description": "Sets the position relative to the world origin, independant of facing.",
+		"Arguments": ["Horizontal position", "Vertical position"],
+		})
+	RegisterFunction("CopyRefFacing", [0], null, {
+		"Description": "Sets the facing to the one of the reference entity's.",
+		"Arguments": [],
+		})
 	
 	RegisterCategory("Collision")
 	RegisterFunction("Colbox", [4], null, {
@@ -99,13 +92,15 @@ func ModuleSetup():
 	RegisterVariableEntity("FacingTrue", 1)
 	
 	RegisterVariableGlobal("PlayerOnTheLeft", 0)
-	RegisterVariableGlobal("CameraHor", 0)
-	RegisterVariableGlobal("CameraVer", 0)
+	RegisterVariableGlobal("CameraX", 0)
+	RegisterVariableGlobal("CameraY", 0)
 	
-	RegisterVariableEntity("MovementHor", 0, ["ResetEachFrame"])
-	RegisterVariableEntity("MovementVer", 0, ["ResetEachFrame"])
-	RegisterVariableEntity("MomentumHor", 0)
-	RegisterVariableEntity("MomentumVer", 0)
+	RegisterVariableEntity("PositionX", 0)
+	RegisterVariableEntity("PositionY", 0)
+	RegisterVariableEntity("MovementX", 0, ["ResetEachFrame"])
+	RegisterVariableEntity("MovementY", 0, ["ResetEachFrame"])
+	RegisterVariableEntity("MomentumX", 0)
+	RegisterVariableEntity("MomentumY", 0)
 	
 	RegisterVariableEntity("Hitboxes", [], ["ResetEachFrame"])
 	RegisterVariableEntity("Hurtboxes", [], ["ResetEachFrame"])
@@ -115,8 +110,8 @@ func BattleInit(_state, _data, _battleInitData):
 	engine.physicsModule = self
 
 func ActionPhaseEndEntity(eState, _data):
-	eState["MovementHor"] += eState["MomentumHor"]
-	eState["MovementVer"] += eState["MomentumVer"]
+	eState["MovementX"] += eState["MomentumX"]
+	eState["MovementY"] += eState["MomentumY"]
 	if(HasFlag(eState, "ApplyFacing")):
 		eState["Facing"] = eState["FacingTrue"]
 
@@ -124,11 +119,11 @@ func ActionPhaseEndEntity(eState, _data):
 func PhysicsPhaseStart(_state, _data):
 	pass
 func PhysicsPhaseStartEntity(eState, _data):
-	eState["PositionHor"] += eState["MovementHor"]
-	eState["PositionVer"] += eState["MovementVer"]
+	eState["PositionX"] += eState["MovementX"]
+	eState["PositionY"] += eState["MovementY"]
 func PhysicsPhaseEndEntity(eState, _data):
 	if(HasFlag(eState, "PFGrounded")):
-		eState["MomentumVer"] = max(eState["MomentumVer"], 0)
+		eState["MomentumY"] = max(eState["MomentumY"], 0)
 func PhysicsPhaseEnd(_state, _data):
 	pass
 
@@ -162,51 +157,73 @@ func PhysicsPhaseEnd(_state, _data):
 
 
 func Move(args, eState, data):
-	MoveAbsolute([eState["Facing"]*ArgInt(args, eState, 0), args[1]], eState, data)
+	MoveAbsolute([data["rState"]["Facing"]*ArgInt(args, eState, 0), args[1]], eState, data)
 func MoveAbsolute(args, eState, _data):
-	eState["MovementHor"] += ArgInt(args, eState, 0)
-	eState["MovementVer"] += ArgInt(args, eState, 1)
+	eState["MovementX"] += ArgInt(args, eState, 0)
+	eState["MovementY"] += ArgInt(args, eState, 1)
 	
 func AddMomentum(args, eState, data):
-	AddMomentumAbsolute([eState["Facing"]*ArgInt(args, eState, 0), args[1]], eState, data)
+	AddMomentumAbsolute([data["rState"]["Facing"]*ArgInt(args, eState, 0), args[1]], eState, data)
 func AddMomentumAbsolute(args, eState, _data):
-	eState["MomentumHor"] += ArgInt(args, eState, 0)
-	eState["MomentumVer"] += ArgInt(args, eState, 1)
+	eState["MomentumX"] += ArgInt(args, eState, 0)
+	eState["MomentumY"] += ArgInt(args, eState, 1)
 	
 func SetMomentum(args, eState, data):
-	SetMomentumAbsolute([eState["Facing"]*ArgInt(args, eState, 0), args[1]], eState, data)
+	SetMomentumAbsolute([data["rState"]["Facing"]*ArgInt(args, eState, 0), args[1]], eState, data)
 func SetMomentumAbsolute(args, eState, _data):
-	eState["MomentumHor"] = ArgInt(args, eState, 0)
-	eState["MomentumVer"] = ArgInt(args, eState, 1)
+	eState["MomentumX"] = ArgInt(args, eState, 0)
+	eState["MomentumY"] = ArgInt(args, eState, 1)
 	
 func AddMomentumTurn(args, eState, data):
-	AddMomentumTurnAbsolute([eState["Facing"]*ArgInt(args, eState, 0), args[1]], eState, data)
+	AddMomentumTurnAbsolute([data["rState"]["Facing"]*ArgInt(args, eState, 0), args[1]], eState, data)
 func AddMomentumTurnAbsolute(args, eState, data):
 	var h = ArgInt(args, eState, 0)
 	var v = ArgInt(args, eState, 1)
 	
-	if(h != 0 and sign(h) != sign(eState["MomentumHor"])):
-		eState["MomentumHor"] = 0
-	if(v != 0 and sign(v) != sign(eState["MomentumVer"])):
-		eState["MomentumVer"] = 0
+	if(h != 0 and sign(h) != sign(eState["MomentumX"])):
+		eState["MomentumX"] = 0
+	if(v != 0 and sign(v) != sign(eState["MomentumY"])):
+		eState["MomentumY"] = 0
 	
 	AddMomentumAbsolute(args, eState, data)
 
 
 func BreakMomentum(args, eState, _data):
-	var h = min(ArgInt(args, eState, 0), abs(eState["MomentumHor"]))
-	var v = min(ArgInt(args, eState, 1), abs(eState["MomentumVer"]))
-	eState["MomentumHor"] -= sign(eState["MomentumHor"]) * h
-	eState["MomentumVer"] -= sign(eState["MomentumVer"]) * v
+	var h = min(ArgInt(args, eState, 0), abs(eState["MomentumX"]))
+	var v = min(ArgInt(args, eState, 1), abs(eState["MomentumY"]))
+	eState["MomentumX"] -= sign(eState["MomentumX"]) * h
+	eState["MomentumY"] -= sign(eState["MomentumY"]) * v
 
 func CapMomentum(args, eState, _data):
 	var h = ArgInt(args, eState, 0)
 	var v = ArgInt(args, eState, 1)
 	
 	if(h >= 0):
-		eState["MomentumHor"] = sign(eState["MomentumHor"]) * min(abs(eState["MomentumHor"]), h)
+		eState["MomentumX"] = sign(eState["MomentumX"]) * min(abs(eState["MomentumX"]), h)
 	if(v >= 0):
-		eState["MomentumVer"] = sign(eState["MomentumVer"]) * min(abs(eState["MomentumVer"]), v)
+		eState["MomentumY"] = sign(eState["MomentumY"]) * min(abs(eState["MomentumY"]), v)
+
+
+func SetPositionRelativeToRef(args, eState, data):
+	SetPositionRelativeToRefAbsolute([data["rState"]["Facing"]*ArgInt(args, eState, 0), args[1]], eState, data)
+func SetPositionRelativeToRefAbsolute(args, eState, data):
+	eState["PositionX"] = data["rState"]["PositionX"] + ArgInt(args, eState, 0)
+	eState["PositionY"] = data["rState"]["PositionY"] + ArgInt(args, eState, 1)
+
+func SetWorldPosition(args, eState, data):
+	SetWorldPositionAbsolute([data["rState"]["Facing"]*ArgInt(args, eState, 0), args[1]], eState, data)
+func SetWorldPositionAbsolute(args, eState, _data):
+	eState["PositionX"] = ArgInt(args, eState, 0)
+	eState["PositionY"] = ArgInt(args, eState, 1)
+
+func CopyRefFacing(_args, eState, data):
+	eState["Facing"] = data["rState"]["Facing"]
+
+
+
+
+
+
 
 
 func Colbox(args, eState, _data):
@@ -242,30 +259,6 @@ func Hitbox(args, eState, _data):
 
 
 
-
-
-
-
-
-
-func SetOpponentPosition(_args, _eState, _data):
-	return
-	#var newArgs = [OLDGetInt(args[0], pid, state)*state[pid]["Facing"], OLDGetInt(args[1], pid, state)]
-	#SetOpponentPositionAbsolute(newArgs, pid, state)
-func SetOpponentPositionAbsolute(_args, _eState, _data):
-	return
-	#var opponentPID = ("p1" if pid=="p2" else "p2")
-	#state[opponentPID]["MovementHor"] += (state[pid]["PositionHor"] + OLDGetInt(args[0], pid, state)) - state[opponentPID]["PositionHor"]
-	#state[opponentPID]["MovementVer"] += (state[pid]["PositionVer"] + OLDGetInt(args[1], pid, state)) - state[opponentPID]["PositionVer"]
-func MoveOpponent(_args, _eState, _data):
-	return
-	#var newArgs = [OLDGetInt(args[0], pid, state)*state[pid]["Facing"], OLDGetInt(args[1], pid, state)]
-	#OLDMoveOpponentAbsolute(newArgs, pid, state)
-func MoveOpponentAbsolute(_args, _eState, _data):
-	return
-	#var opponentPID = ("p1" if pid=="p2" else "p2")
-	#state[opponentPID]["MovementHor"] += OLDGetInt(args[0], pid, state)
-	#state[opponentPID]["MovementVer"] += OLDGetInt(args[1], pid, state)
 
 
 
@@ -332,11 +325,11 @@ func PhysicsResolveColboxes(state, previousState, eids):
 	var arenaSize = engine.ARENA_SIZE
 	var cameraSize = engine.CAMERA_SIZE
 	
-	if(!previousState[eids[1]].has("PositionHor") or !previousState[eids[0]].has("PositionHor")):
+	if(!previousState[eids[1]].has("PositionX") or !previousState[eids[0]].has("PositionX")):
 		return #:TODO:Panthavma:20220203:Is there a more elegant way to ch
 	
 	# Find out who is one the left and who is on the right
-	var posDiff = previousState[eids[1]]["PositionHor"] - previousState[eids[0]]["PositionHor"]
+	var posDiff = previousState[eids[1]]["PositionX"] - previousState[eids[0]]["PositionX"]
 	var playerOnTheLeft = (0 if posDiff > 0 else 1)
 	# Use the previous frame's result if there is doubt (stored because of jumps)
 	if(posDiff == 0):
@@ -344,7 +337,7 @@ func PhysicsResolveColboxes(state, previousState, eids):
 	state["PlayerOnTheLeft"] = playerOnTheLeft
 	
 	# Find out collisions and camera postion for better placement
-	var camCenter = previousState["CameraHor"] # TODO Recompute ?
+	var camCenter = previousState["CameraX"] # TODO Recompute ?
 	var p1Colbox = GetBoxPosition(state[eids[0]], state[eids[0]]["Colbox"])
 	var p2Colbox = GetBoxPosition(state[eids[1]], state[eids[1]]["Colbox"])
 	var areBoxesOverlapping = AreBoxesOverlapping(p1Colbox, p2Colbox)
@@ -369,31 +362,31 @@ func PhysicsResolveColboxes(state, previousState, eids):
 			minX += 1 + overlapAmount
 		
 		# Check Collisions
-		var positionX = eState["PositionHor"]
+		var positionX = eState["PositionX"]
 		if(i == playerOnTheLeft):
 			positionX -= overlapAmount/2
 		else:
 			positionX += overlapAmount/2
 		positionX = clamp(positionX, minX, maxX)
-		eState["PositionHor"] = positionX 
+		eState["PositionX"] = positionX 
 		
 		var newFacing = (1 if i == playerOnTheLeft else -1)
 		if(eState["FacingTrue"] != newFacing):
 			SetFlag(eState, "PFSwitchFacing")
 			eState["FacingTrue"] = newFacing
 		
-		if(eState["PositionVer"] <= 0):
-			eState["PositionVer"] = 0
+		if(eState["PositionY"] <= 0):
+			eState["PositionY"] = 0
 			SetFlag(eState, "PFGrounded")
 		else:
 			SetFlag(eState, "PFAirborne")
 	
-	state["CameraHor"] = (state[eids[0]]["PositionHor"]+state[eids[1]]["PositionHor"])/2
-	state["CameraVer"] = (state[eids[0]]["PositionVer"]+state[eids[1]]["PositionVer"])/2
+	state["CameraX"] = (state[eids[0]]["PositionX"]+state[eids[1]]["PositionX"])/2
+	state["CameraY"] = (state[eids[0]]["PositionY"]+state[eids[1]]["PositionY"])/2
 	
-	var signCam = sign(state["CameraHor"])
-	if(signCam != 0 and abs(state["CameraHor"]) > (engine.ARENA_SIZE - engine.CAMERA_SIZE)):
-		state["CameraHor"] = signCam * (engine.ARENA_SIZE - engine.CAMERA_SIZE)
+	var signCam = sign(state["CameraX"])
+	if(signCam != 0 and abs(state["CameraX"]) > (engine.ARENA_SIZE - engine.CAMERA_SIZE)):
+		state["CameraX"] = signCam * (engine.ARENA_SIZE - engine.CAMERA_SIZE)
 
 func PhysicsResolveHitboxHurtbox(state, hitboxes, hurtboxes):
 	
@@ -435,8 +428,8 @@ func PhysicsResolveHitboxHurtbox(state, hitboxes, hurtboxes):
 			break 
 
 func GetBoxPosition(fighterState, box):
-	var boxLeft = fighterState["PositionHor"]
-	var boxRight = fighterState["PositionHor"]
+	var boxLeft = fighterState["PositionX"]
+	var boxRight = fighterState["PositionX"]
 	
 	if(fighterState["Facing"] > 0):
 		boxLeft += box["Left"]
@@ -445,8 +438,8 @@ func GetBoxPosition(fighterState, box):
 		boxLeft -= box["Right"]
 		boxRight -= box["Left"]
 	
-	var boxDown = fighterState["PositionVer"] + box["Down"]
-	var boxUp = fighterState["PositionVer"] + box["Up"]
+	var boxDown = fighterState["PositionY"] + box["Down"]
+	var boxUp = fighterState["PositionY"] + box["Up"]
 	
 	return {"Left":boxLeft, "Right":boxRight,"Down":boxDown,"Up":boxUp}
 

@@ -14,3 +14,99 @@ __meta__ = {
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color( 0, 0, 0, 1 )
+
+[node name="Buttons" type="VBoxContainer" parent="."]
+anchor_left = 0.2
+anchor_top = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.5
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MainMenu" type="Button" parent="Buttons"]
+margin_top = 47.0
+margin_right = 576.0
+margin_bottom = 67.0
+text = "Main Menu"
+
+[node name="Training" type="Button" parent="Buttons"]
+margin_top = 71.0
+margin_right = 576.0
+margin_bottom = 91.0
+text = "Training"
+
+[node name="LocalBattle" type="Button" parent="Buttons"]
+margin_top = 95.0
+margin_right = 576.0
+margin_bottom = 115.0
+text = "Battle"
+
+[node name="SecretButtons" type="VBoxContainer" parent="."]
+visible = false
+anchor_left = 0.2
+anchor_top = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.5
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Editor" type="Button" parent="SecretButtons"]
+margin_top = 59.0
+margin_right = 576.0
+margin_bottom = 79.0
+text = "Editor"
+
+[node name="DevTools" type="Button" parent="SecretButtons"]
+margin_top = 83.0
+margin_right = 576.0
+margin_bottom = 103.0
+text = "Devevelopper Tools"
+
+[node name="Characters" type="Control" parent="."]
+anchor_left = 0.2
+anchor_top = 0.5
+anchor_right = 0.8
+anchor_bottom = 0.8
+
+[node name="0" type="ItemList" parent="Characters"]
+anchor_right = 0.5
+anchor_bottom = 1.0
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false ]
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="1" type="ItemList" parent="Characters"]
+anchor_left = 0.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false ]
+
+[node name="TitleLabel" type="Label" parent="."]
+anchor_left = 0.2
+anchor_top = 0.1
+anchor_right = 0.8
+anchor_bottom = 0.2
+margin_right = 40.0
+margin_bottom = 14.0
+text = "[Game Name]
+Castagne v0.4
+Press any key to stop the timer"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Hide" type="ColorRect" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}

@@ -2,45 +2,29 @@ extends "../CastagneModule.gd"
 
 
 func ModuleSetup():
-	
-	# :TODO:Panthavma:20211230:Move some functions to graphics/physics/other/fightinggame
-	
 	# :TODO:Panthavma:20211230:Document the module
-	# :TODO:Panthavma:20211230:Document the functions
 	# :TODO:Panthavma:20211230:Document the variables
 	
 	
 	RegisterModule("CF Basic")
-	RegisterCategory("Basic Module")
+	RegisterCategory("Graphics")
 	
-	# To move ?
+	RegisterFunction("CreateModel", [1, 2], null, {
+		"Description": "Creates a model for the current entity",
+		"Arguments":["Model path", "(Optional) Animation player path"]
+	})
+	# :TODO:Panthavma:20220310:Can it support more than one ?
+	
+	# :TODO:Panthavma:20220310:Lock the model position/facing (maybe physics module ?)
+	# :TODO:Panthavma:20220310:Add sprite support
 	RegisterFunction("Anim", [1], null, {
 		"Description": "Plays an animation frame by frame. The animation updates only when this function is called, and follows the same frames as the state.",
 		"Arguments": ["Animation Name", "(Optional) Offset"],
 		})
 	# :TODO:Panthavma:20220131:Add AnimFrame to set it directly, and an offset to anim. a way to loop ?
-	#RegisterFunction("SwitchFacing", [0])
-	# :TODO:Panthavma:20220216:Remove this for now
-	#RegisterFunction("PlaySound", [1], ["Transition"])
+	# :TODO:Panthavma:20220216:Implement sound
 	RegisterVariableEntity("Anim", null)
 	RegisterVariableEntity("AnimFrame", 0)
-	
-	
-	RegisterVariableEntity("HP", 10000)
-	# :TODO:Panthavma:20220131:Set HP from HPMax once the game starts
-	RegisterVariableEntity("HPMax", 10000)
-	RegisterVariableEntity("Meter", 0)
-	
-	RegisterVariableGlobal("Timer", 6000)
-	RegisterVariableGlobal("CameraHor", 0)
-	RegisterVariableGlobal("CameraVer", 0)
-	RegisterVariableGlobal("PlayerOnTheLeft", 0)
-	RegisterVariableGlobal("WhoHasWon", 0)
-	
-	RegisterVariableEntity("Facing", 1)
-	RegisterVariableEntity("FacingTrue", 0)
-	RegisterVariableEntity("PositionHor", 0)
-	RegisterVariableEntity("PositionVer", 0)
 
 
 func UpdateGraphics(state, data):
@@ -60,7 +44,8 @@ func UpdateGraphics(state, data):
 
 
 
-
+func CreateModel(args, eState, _data):
+	engine.InstanceModel(eState["EID"], ArgStr(args, eState, 0), ArgStr(args, eState, 1, null))
 
 
 func Anim(args, eState, data):

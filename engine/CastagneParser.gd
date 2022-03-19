@@ -9,6 +9,9 @@ extends "../modules/CastagneModule.gd"
 # :TODO:Panthavma:20211230:More flexibility
 # :TODO:Panthavma:20211230:Actual conditions
 # :TODO:Panthavma:20211230:Better error reporting (requires moving stuff)
+# :BUG:Panthavma:20220310:Multiple empty blocks seem to have a problem
+# :BUG:Panthavma:20220310:V branch didn't work correctly?
+# :TODO:Panthavma:20220310:Comments at end of line
 
 func GetCharacterMetadata(filePath):
 	_StartParsing(filePath)
@@ -415,13 +418,10 @@ func InstructionV(args, eState, data):
 func InstructionBranch(args, eState, moduleCallbackData, condition):
 	var actionListTrue = args[0]
 	var actionListFalse = args[1]
-	var phaseName = moduleCallbackData["Phase"]
 	
 	var actionList = actionListFalse
 	if(condition):
 		actionList = actionListTrue
 	
-	for action in actionList:
-		moduleCallbackData["Engine"].ExecuteAction(action, phaseName, eState, moduleCallbackData)
-
+	moduleCallbackData["Engine"].ExecuteFighterScript({"Name":"Branch", "Actions":actionList}, eState["EID"], moduleCallbackData)
 	

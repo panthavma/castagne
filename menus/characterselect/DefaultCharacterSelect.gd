@@ -31,7 +31,7 @@ func _ready():
 		p["State"] = State.SelectingCharacter
 		p["Character"] = 0
 		p["Color"] = 0
-		var prefabInputProvider = load(Castagne.data["InputProviders"][Castagne.battleInitData[pid+"-control-type"]])
+		var prefabInputProvider = load(Castagne.configData["InputProviders"][Castagne.battleInitData[pid+"-control-type"]])
 		var inputProvider = prefabInputProvider.instance()
 		inputProvider.Init(Castagne.battleInitData[pid+"-control-param"])
 		add_child(inputProvider)
@@ -158,7 +158,7 @@ func UpdateColor(_playerID, _newColorID):
 	pass
 
 func ReturnToMainMenu():
-	var ps = load(Castagne.data["MainMenu"])
+	var ps = load(Castagne.configData["MainMenu"])
 	var s = ps.instance()
 	get_tree().get_root().add_child(s)
 	queue_free()
@@ -172,7 +172,7 @@ func StartMatch():
 	Castagne.battleInitData["p1Points"] = 0
 	Castagne.battleInitData["p2Points"] = 0
 	
-	var ps = load("res://castagne/engine/CastagneEngine.tscn")
+	var ps = load(Castagne.configData["Engine"])
 	var s = ps.instance()
 	get_tree().get_root().add_child(s)
 	queue_free()

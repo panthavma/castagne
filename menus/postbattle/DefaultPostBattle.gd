@@ -23,7 +23,7 @@ func _ready():
 		p["InputCooldown"] = 0.2
 		p["State"] = State.Choosing
 		p["Choice"] = 0
-		var prefabInputProvider = load(Castagne.data["InputProviders"][Castagne.battleInitData[pid+"-control-type"]])
+		var prefabInputProvider = load(Castagne.configData["InputProviders"][Castagne.battleInitData[pid+"-control-type"]])
 		var inputProvider = prefabInputProvider.instance()
 		inputProvider.Init(Castagne.battleInitData[pid+"-control-param"])
 		add_child(inputProvider)
@@ -111,13 +111,13 @@ func UpdateCursorPos(r, choice):
 	r.get_node("Menu/Options").set_text(t)
 
 func ReturnToMainMenu():
-	var ps = load(Castagne.data["MainMenu"])
+	var ps = load(Castagne.configData["MainMenu"])
 	var s = ps.instance()
 	get_tree().get_root().add_child(s)
 	queue_free()
 
 func ReturnToCharacterSelect():
-	var ps = load(Castagne.data["CharacterSelect"])
+	var ps = load(Castagne.configData["CharacterSelect"])
 	var s = ps.instance()
 	get_tree().get_root().add_child(s)
 	queue_free()

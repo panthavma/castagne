@@ -1,46 +1,42 @@
 extends Spatial
 
 var engine
-onready var modelHurtboxes1 = $Hurtboxes1
-onready var modelHurtboxes2 = $Hurtboxes2
-onready var modelHitboxes1 = $Hitboxes1
-onready var modelHitboxes2 = $Hitboxes2
-onready var modelColbox1 = $Colbox1
-onready var modelColbox2 = $Colbox2
+onready var modelHurtboxes = $Hurtboxes
+onready var modelHitboxes = $Hitboxes
+onready var modelColboxes = $Colboxes
+var nbUsedBoxes = []
 
 func _ready():
 	set_translation(Vector3(0.0,0.0,-0.15))
 	
-	modelHurtboxes1.set_scale(Vector3(1.0,1.0,0.05))
-	modelHitboxes1.set_scale(Vector3(1.0,1.0,0.05))
-	modelColbox1.set_scale(Vector3(1.0,1.0,0.05))
-	modelHitboxes1.set_translation(Vector3(0,0,0.05))
-	modelColbox1.set_translation(Vector3(0,0,0.02))
-	
-	modelHurtboxes2.set_scale(Vector3(1.0,1.0,0.05))
-	modelHitboxes2.set_scale(Vector3(1.0,1.0,0.05))
-	modelColbox2.set_scale(Vector3(1.0,1.0,0.05))
-	modelHitboxes2.set_translation(Vector3(0,0,0.05))
-	modelColbox2.set_translation(Vector3(0,0,0.02))
+	modelHurtboxes.set_scale(Vector3(1.0,1.0,0.05))
+	modelHitboxes.set_scale(Vector3(1.0,1.0,0.05))
+	modelColboxes.set_scale(Vector3(1.0,1.0,0.05))
+	modelHitboxes.set_translation(Vector3(0,0,0.05))
+	modelColboxes.set_translation(Vector3(0,0,0.02))
 
 func UpdateGraphics(state, data):
 	engine = data["Engine"]
-	var fighterState1 = state[state["Players"][0]["MainEntity"]]
-	var fighterState2 = state[state["Players"][1]["MainEntity"]]
 	
-	SetAllBoxes(modelHurtboxes1, fighterState1["Hurtboxes"], fighterState1)
-	SetAllBoxes(modelHitboxes1, fighterState1["Hitboxes"], fighterState1)
-	SetAllBoxes(modelHurtboxes2, fighterState2["Hurtboxes"], fighterState2)
-	SetAllBoxes(modelHitboxes2, fighterState2["Hitboxes"], fighterState2)
-	SetAllBoxes(modelColbox1, [fighterState1["Colbox"]], fighterState1)
-	SetAllBoxes(modelColbox2, [fighterState2["Colbox"]], fighterState2)
-
-func SetAllBoxes(nodeRoot, boxes, fighterState):
-	var boxID = 0
-	var nbModels = nodeRoot.get_child_count()
-	
-	for node in nodeRoot.get_children():
+	for node in modelHurtboxes.get_children():
 		node.hide()
+	for node in modelHitboxes.get_children():
+		node.hide()
+	for node in modelColboxes.get_children():
+		node.hide()
+	
+	var activeEIDs = state["ActiveEntities"]
+	nbUsedBoxes = [0,0,0]
+	
+	for eid in activeEIDs:
+		var eState = state[eid]
+		SetAllBoxes(modelHurtboxes, eState["Hurtboxes"], eState, 0)
+		SetAllBoxes(modelHitboxes, eState["Hitboxes"], eState, 1)
+		SetAllBoxes(modelColboxes, [eState["Colbox"]], eState, 2)
+
+func SetAllBoxes(nodeRoot, boxes, fighterState, boxType):
+	var boxID = nbUsedBoxes[boxType]
+	var nbModels = nodeRoot.get_child_count()
 	
 	for box in boxes:
 		if(boxID >= nbModels):
@@ -52,6 +48,8 @@ func SetAllBoxes(nodeRoot, boxes, fighterState):
 		node.show()
 		
 		boxID += 1
+	
+	nbUsedBoxes[boxType] = boxID
 
 func SetBox(node, box, fighterState):
 	var boxPos = GetBoxPosition(fighterState, box)
@@ -66,8 +64,8 @@ func SetBox(node, box, fighterState):
 	node.set_scale(Vector3(boxSizeHor, boxSizeVer, 1) * engine.POSITION_SCALE * 0.5)
 	
 func GetBoxPosition(fighterState, box):
-	var boxLeft = fighterState["PositionHor"]
-	var boxRight = fighterState["PositionHor"]
+	var boxLeft = fighterState["PositionX"]
+	var boxRight = fighterState["PositionX"]
 	
 	if(fighterState["Facing"] > 0):
 		boxLeft += box["Left"]
@@ -76,7 +74,7 @@ func GetBoxPosition(fighterState, box):
 		boxLeft -= box["Right"]
 		boxRight -= box["Left"]
 	
-	var boxDown = fighterState["PositionVer"] + box["Down"]
-	var boxUp = fighterState["PositionVer"] + box["Up"]
+	var boxDown = fighterState["PositionY"] + box["Down"]
+	var boxUp = fighterState["PositionY"] + box["Up"]
 	
 	return {"Left":boxLeft, "Right":boxRight,"Down":boxDown,"Up":boxUp}

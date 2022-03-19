@@ -101,7 +101,7 @@ func OnAttackConfirmed(_hitconfirm, _attackData, _hurtboxData, _aState, _dState,
 var moduleName = "Unnamed Module"
 var moduleDocumentation = {"Description":""}
 
-var moduleDocumentationCategories = {null:{"Name":"Uncategorized", "Description":"", "Variables":[], "Functions":[], "Flags":[]}}
+var moduleDocumentationCategories = {null:{"Name":"Uncategorized", "Description":"", "Variables":[], "Functions":[], "Flags":[], "Config":[], "BattleInitData":[]}}
 
 func RegisterModule(_moduleName, _moduleDocumentation = null):
 	moduleName = _moduleName
@@ -121,6 +121,8 @@ func RegisterCategory(categoryName, categoryDocumentation = null):
 	categoryDocumentation["Variables"] = []
 	categoryDocumentation["Functions"] = []
 	categoryDocumentation["Flags"] = []
+	categoryDocumentation["Config"] = []
+	categoryDocumentation["BattleInitData"] = []
 	moduleDocumentationCategories[categoryName] = categoryDocumentation
 
 # 
@@ -142,10 +144,11 @@ func _RegisterVariableCommon(variableName, defaultValue, flags, documentation, e
 	
 	# :TODO:Panthavma:20220203:Add a "temporary/volatile" flag for variables that won't get stored
 	
-	if(entityVariable):
-		_variablesInitEntity[variableName] = defaultValue
-	else:
-		_variablesInitGlobal[variableName] = defaultValue
+	if(!"NoInit" in flags):
+		if(entityVariable):
+			_variablesInitEntity[variableName] = defaultValue
+		else:
+			_variablesInitGlobal[variableName] = defaultValue
 	
 	if(documentation == null):
 		documentation = {
@@ -210,6 +213,27 @@ func RegisterFlag(flagName, documentation = null):
 	documentation["Name"] = flagName
 	moduleDocumentationCategories[currentCategory]["Flags"].append(documentation)
 
+# Registers a configuration option
+func RegisterConfig(keyName, defaultValue, documentation=null):
+	if(documentation == null):
+		documentation = {
+			"Description": ""
+		}
+	documentation["Name"]=keyName
+	moduleDocumentationCategories[currentCategory]["Config"].append(documentation)
+	
+	configDefault[keyName] = defaultValue
+
+# Register a battle init data value, used by castagne at initialization.
+func RegisterBattleInitData(keyName, defaultValue, documentation=null):
+	if(documentation == null):
+		documentation = {
+			"Description": ""
+		}
+	documentation["Name"]=keyName
+	moduleDocumentationCategories[currentCategory]["BattleInitData"].append(documentation)
+	
+	battleInitDataDefault[keyName] = defaultValue
 
 
 func HasFlag(eState, flagName):
@@ -262,14 +286,10 @@ func ArgBool(args, eState, argID, default = null):
 			Castagne.Error("ArgRaw ("+argID+"): This argument needs a default but doesn't have one")
 		return default
 	var value = str(args[argID])
-	if(value == "true" or value == "True"):
-		return true
-	if(value == "false" or value == "False"):
-		return false
 	if(value.is_valid_integer()):
 		return int(value) > 0
 	if(eState.has(value)):
-		return eState[value]
+		return int(eState[value]) > 0
 	# :TODO:Panthavma:20220126:Make the message more precise
 	Castagne.Error("ArgBool ("+argID+"): Couldn't find variable " + value)
 	return default
@@ -289,6 +309,8 @@ var _variablesInitGlobal = {}
 var _variablesInitEntity = {}
 var _variablesResetGlobal = {}
 var _variablesResetEntity = {}
+var configDefault = {}
+var battleInitDataDefault = {}
 
 func ArgRaw(args, argID, default = null):
 	if(args.size() <= argID):
@@ -319,7 +341,7 @@ func CopyVariablesGlobal(state):
 	Castagne.FuseDataOverwrite(state, _variablesInitGlobal.duplicate(true))
 
 func CopyVariablesEntity(eState):
-	Castagne.FuseDataOverwrite(eState, _variablesInitEntity.duplicate(true))
+	Castagne.FuseDataNoOverwrite(eState, _variablesInitEntity.duplicate(true))
 
 func ResetVariables(state, activeEIDs):
 	Castagne.FuseDataOverwrite(state, _variablesResetGlobal.duplicate(true))

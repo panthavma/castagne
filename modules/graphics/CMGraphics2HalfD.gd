@@ -19,21 +19,22 @@ func BattleInit(state, data, battleInitData):
 func UpdateGraphics(state, data):
 	var camera = data["InstancedData"]["Camera"]
 	
-	var playerPosCenter = Vector3(state["CameraHor"], state["CameraVer"], 0) * POSITION_SCALE
+	var playerPosCenter = Vector3(state["CameraX"], state["CameraY"], 0) * POSITION_SCALE
 	var cameraPos = playerPosCenter + Vector3(0.0, 2.0, 3.7) + Vector3(0,0,1.5)
 	camera.set_translation(cameraPos)
 	state["GraphicsCamPos"] = cameraPos
 	
 	for eid in state["ActiveEntities"]:
 		var eState = state[eid]
-		var modelRoot = data["InstancedData"]["Entities"][eid]["Model"]
-		
-		var playerPos = Vector3(eState["PositionHor"], eState["PositionVer"], 0.0) * POSITION_SCALE
-		modelRoot.set_translation(playerPos)
-		modelRoot.set_scale(Vector3(eState["Facing"], 1.0, 1.0))
-		
+		var playerPos = Vector3(eState["PositionX"], eState["PositionY"], 0.0) * POSITION_SCALE
 		var camPosHor = Vector3(cameraPos.x, playerPos.y, cameraPos.z)
-		modelRoot.look_at(playerPos - (camPosHor - playerPos), Vector3.UP)
+		
+		var modelRoot = data["InstancedData"]["Entities"][eid]["Model"]
+		if(modelRoot != null):
+			modelRoot.set_translation(playerPos)
+			modelRoot.set_scale(Vector3(eState["Facing"], 1.0, 1.0))
+			modelRoot.look_at(playerPos - (camPosHor - playerPos), Vector3.UP)
+		
 
 func InitPhaseEndEntity(eState, data):
 	SetPalette(eState, data, eState["Player"])
@@ -50,6 +51,8 @@ func SetPalette(eState, data, paletteID):
 	var palettePath = fighterMetadata[paletteKey]
 	var paletteMaterial = load(palettePath)
 	var modelRoot = data["InstancedData"]["Entities"][eState["EID"]]["Model"]
+	if(modelRoot == null):
+		return
 	var modelSearch = [modelRoot]
 	while(!modelSearch.empty()):
 		var m = modelSearch.pop_back()
