@@ -19,7 +19,7 @@
 :Variables:
 	# Character Specific
 	HPMax: 10000
-	BallSpeed: 1200
+	BallSpeed: 2300
 	
 	# Animation presets. These are used by Base.casp
 	USE_STANDARD_ANIMS: 1
@@ -38,7 +38,9 @@
 	ANIM_STAND: Stand
 	ANIM_CROUCH: Crouch
 	ANIM_WALKF: WalkF
+	ANIM_WALKF_LOOP:25
 	ANIM_WALKB: WalkB
+	ANIM_WALKB_LOOP:25
 	ANIM_JUMPSQUAT: Landing
 	ANIM_LANDING: Landing
 	ANIM_JUMPN: Air
@@ -138,7 +140,8 @@
 		AttackFlag(Launcher)
 		
 		# AttackMomentum allows us to determine how much the opponent will be pushed. Having a positive value in the second slot will launch him upwards.
-		AttackMomentum(200, 700)
+		AttackMomentumHit(700, 1400)
+		AttackMomentumBlock(700, 0, 500, 900)
 		
 		Hitbox(0, 16000, 0, 10000)
 		
@@ -160,6 +163,7 @@
 	F12-14:
 		Attack(1500, 34)
 		AttackFrameAdvantage(30, -9)
+		AttackMomentum(1800, 0)
 		# To have it disjointed, we simply don't add any additional hurtbox
 		Hitbox(0, 20000, 7000, 16000)
 	endif
@@ -203,15 +207,20 @@
 	Call(StandingAttack)
 	Hurtbox(-5000, 5000, 0, 20000)
 	AttackDuration(50)
+	F1:
+		AnimReset()
+	endif
+	
 	Anim(5C)
 	F15:
 		CreateEntity(BallInit)
 		CopyVariable(BallSpeed)
-		SetPositionRelativeToRef(5000, 0)
+		SetPositionRelativeToRef(5000, 10000)
 		CopyRefFacing()
 	endif
 
 :BallInit:
+	CreateModel(res://castagne/example/fighter/Ball.tscn)
 	Transition(BallForward)
 
 :BallForward:
@@ -219,8 +228,8 @@
 		Flag(Multihit)
 	endif
 	Attack(700)
-	AttackSetHitstunBlockstun(40, 20)
-	Hitbox(-5000, 5000, 5000, 15000)
+	AttackHitstunBlockstun(40, 20)
+	Hitbox(-3000, 3000, -3000, 3000)
 	Move(BallSpeed, 0)
 	
 	VAttackHasTouched:

@@ -10,11 +10,11 @@ func ModuleSetup():
 	RegisterCategory("Variables", {
 		"Description": "These functions are focused on variable and flag manipulation. You can change both variables added by modules or added by the :Variables: block."})
 	
-	RegisterFunction("Flag", [1], null, {
+	RegisterFunction("Flag", [1], ["AllPhases"], {
 		"Description": "Raises a flag. Flags are reset at the beginning of each frame and allow you to communicate easily between modules. Flags are tested with L branches.",
 		"Arguments": ["Flag name"],
 		})
-	RegisterFunction("Unflag", [1], null, {
+	RegisterFunction("Unflag", [1], ["AllPhases"], {
 		"Description": "Unsets a flag, if it was set earlier.",
 		"Arguments": ["Flag name"],
 		})
@@ -24,11 +24,43 @@ func ModuleSetup():
 		"Description": "Sets a variable to a given integer value.",
 		"Arguments": ["Variable name", "Value"],
 		})
-	# :TODO:Panthavma:20211230:SetStr
-	#RegisterFunction("SetStr", [2])
+	RegisterFunction("SetStr", [2], null, {
+		"Description": "Sets a variable to a given string (text) value.",
+		"Arguments": ["Variable name", "Value"],
+		})
+	
+
+	RegisterCategory("Mathematics")
+	RegisterFunction("Add", [2,3], null, {
+		"Description": "Adds two numbers and stores it in the first variable or an optional third variable.",
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+	})
+	RegisterFunction("Sub", [2,3], null, {
+		"Description": "Substracts two numbers and stores it in the first variable or an optional third variable.",
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+	})
+	RegisterFunction("Mul", [2,3], null, {
+		"Description": "Multiplies two numbers and stores it in the first variable or an optional third variable.",
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+	})
+	RegisterFunction("Div", [2,3], null, {
+		"Description": "Divides two numbers and stores it in the first variable or an optional third variable.",
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+	})
+	RegisterFunction("Mod", [2,3], null, {
+		"Description": "Computes the remainder of the division between two numbers and stores it in the first variable or an optional third variable.",
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+	})
+	RegisterFunction("Max", [2,3], null, {
+		"Description": "Stores the bigger of the two numbers in the first variable or an optional third variable.",
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+	})
+	RegisterFunction("Min", [2,3], null, {
+		"Description": "Stores the smaller of the two numbers in the first variable or an optional third variable.",
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+	})
 	
 	# :TODO:Panthavma:20211230:Booleans (as consts)
-	# :TODO:Panthavma:20211230:Add/Mult/Sub/Divide as math functions
 	
 	
 	# Category : Entities --------------------------------------------------------------------------
@@ -147,23 +179,29 @@ func ModuleSetup():
 	# Category : States ----------------------------------------------------------------------------
 	RegisterCategory("States")
 	
-	RegisterFunction("Transition", [1,2,3], ["Init", "Transition"], {
-		"Description": "Changes the current script/state. If multiple changes are made in the same frame, the first one with the biggest priority wins. Changes from one state to itself are ignored, except if allowing self-transition in the arguments.",
+	RegisterFunction("Transition", [0,1,2,3], ["Init", "Transition"], {
+		"Description": "Changes the current script/state. If multiple changes are made in the same frame, the first one with the biggest priority wins. Changes from one state to itself are ignored, except if allowing self-transition in the arguments. The change is buffered and executed at the end of the transition phase or the init phase. Calling the function without arguments will cancel the transition.",
+		"Arguments": ["State name", "(Optional) Priority", "(Optional) Allow self-transition"],
+		})
+	RegisterFunction("TransitionBuffer", [0,1,2,3], ["Init", "Action", "Transition"], {
+		"Description": "Same as Transition, but also works during the action phase. This can make some code simpler, and is separated because some confusing logic may happen when buffering all the time.",
 		"Arguments": ["State name", "(Optional) Priority", "(Optional) Allow self-transition"],
 		})
 	#RegisterFunction("InstantTransition", [1,2,3], ["TransitionFunc"])
 	#RegisterFunction("ResetFrameID", [0], ["TransitionFunc"])
 	RegisterVariableEntity("State", "Init", ["NoInit"])
-	RegisterVariableEntity("StateChangePriority", -1000, ["ResetEachFrame"])
+	RegisterVariableEntity("StateTarget", null, ["ResetEachFrame"])
+	RegisterVariableEntity("StateFrameID", 0, ["ResetEachFrame"])
+	RegisterVariableEntity("StateChangePriority", -100000, ["ResetEachFrame"])
 	RegisterVariableEntity("StateStartFrame", 0)
 	#state[pid]["StateStartFrame"] = 0
 	#state[pid]["StateFrameID"] = 0
 	
-	RegisterFunction("Call", [1], ["Init", "Action", "Transition"], {
+	RegisterFunction("Call", [1], ["Init", "Action", "Transition", "Freeze"], {
 		"Description": "Executes another script/state.",
 		"Arguments": ["Name of the state to call"],
 		})
-	RegisterFunction("CallParent", [1], ["Init", "Action", "Transition"], {
+	RegisterFunction("CallParent", [1], ["Init", "Action", "Transition", "Freeze"], {
 		"Description": "Execute another script/state on the parent skeleton.",
 		"Arguments": ["Name of the state to call."],
 		})
@@ -192,12 +230,24 @@ func ModuleSetup():
 	
 	
 	
+	
+	
+	RegisterCategory("Engine Functions")
+	RegisterFunction("FreezeFrames", [1], null, {
+		"Description": "Sets an amount of freeze frames to be effective immediately. Uses the max of the remaining frames and current frames.",
+		"Arguments": ["Amount of frames to wait"],
+		})
+	
+	
+	
+	
 	# Category : General engine variables ----------------------------------------------------------
-	RegisterCategory("Castagne")
+	RegisterCategory("Castagne Internals")
 	
 	RegisterVariableGlobal("FrameID", 0)
 	RegisterVariableGlobal("TrueFrameID", 0)
-	RegisterVariableGlobal("SkipFrame", false)
+	RegisterVariableGlobal("SkipFrame", false, ["ResetEachFrame"])
+	RegisterVariableGlobal("FreezeFrames", 0)
 	
 	RegisterVariableGlobal("CurrentEntityID", 0)
 	RegisterVariableGlobal("EntitiesToInit", [])
@@ -243,6 +293,7 @@ func ModuleSetup():
 	RegisterConfig("CastagneVersion","Castagne v0.4")
 	
 	RegisterConfig("Starter-Option", 0)
+	RegisterConfig("Starter-Timer", 2000)
 	RegisterConfig("Starter-P1", 0)
 	RegisterConfig("Starter-P2", 0)
 	
@@ -254,9 +305,22 @@ func ModuleSetup():
 
 
 
+# :TODO:Panthavma:20220401:Add a way to execute scripts during freeze, another phase?
+func FrameStart(state, _data):
+	if(state["FreezeFrames"] > 0):
+		state["FreezeFrames"] -= 1
+		state["SkipFrame"] = true
 
 func InitPhaseStartEntity(eState, data):
 	data["State"]["ActiveEntities"].append(eState["EID"])
+func InitPhaseEndEntity(eState, data):
+	TransitionApply(eState, data)
+
+func ActionPhaseStartEntity(eState, data):
+	eState["StateFrameID"] = data["State"]["FrameID"] - eState["StateStartFrame"]
+
+func TransitionPhaseEndEntity(eState, data):
+	TransitionApply(eState, data)
 
 
 
@@ -265,14 +329,54 @@ func InitPhaseStartEntity(eState, data):
 # Variables
 func Flag(args, eState, _data):
 	SetFlag(eState, ArgStr(args, eState, 0))
-
 func Unflag(args, eState, _data):
-	eState["Flags"].erase(ArgStr(args, eState, 0))
+	UnsetFlag(eState, ArgStr(args, eState, 0))
 
 func Set(args, eState, _data):
-	var paramName = ArgStr(args, eState, 0)
+	var paramName = ArgVar(args, eState, 0)
 	var value = ArgInt(args, eState, 1)
 	eState[paramName] = value
+func SetStr(args, eState, _data):
+	var paramName = ArgVar(args, eState, 0)
+	var value = ArgStr(args, eState, 1)
+	eState[paramName] = value
+
+
+
+
+
+
+# --------------------------------------------------------------------------------------------------
+# Mathematics
+func Add(args, eState, _data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	eState[destVar] = ArgInt(args, eState, 0) + ArgInt(args, eState, 1)
+func Sub(args, eState, _data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	eState[destVar] = ArgInt(args, eState, 0) - ArgInt(args, eState, 1)
+func Mul(args, eState, _data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	eState[destVar] = ArgInt(args, eState, 0) * ArgInt(args, eState, 1)
+func Div(args, eState, _data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	var b = ArgInt(args, eState, 1)
+	if(b == 0):
+		ModuleError("Div: Dividing by zero!", eState)
+		return
+	eState[destVar] = ArgInt(args, eState, 0) / b
+func Mod(args, eState, _data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	var b = ArgInt(args, eState, 1)
+	if(b == 0):
+		ModuleError("Mod: Dividing by zero!", eState)
+		return
+	eState[destVar] = ArgInt(args, eState, 0) % b
+func Max(args, eState, _data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	eState[destVar] = max(ArgInt(args, eState, 0), ArgInt(args, eState, 1))
+func Min(args, eState, _data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	eState[destVar] = min(ArgInt(args, eState, 0), ArgInt(args, eState, 1))
 
 
 # --------------------------------------------------------------------------------------------------
@@ -320,7 +424,7 @@ func SelectOriginalEntity(_args, _eState, data):
 	data["SelectedEID"] = data["OriginalEID"]
 
 func SelectOpponentMainEntity(_args, _eState, data):
-	var oPID = data["State"]["Players"][data["rState"]]["Opponent"]
+	var oPID = data["State"]["Players"][data["rState"]["Player"]]["Opponent"]
 	data["SelectedEID"] = data["State"]["Players"][oPID]["MainEntity"]
 
 
@@ -379,6 +483,11 @@ func CopyVariableFromMain(args, eState, data):
 # --------------------------------------------------------------------------------------------------
 # States
 func Transition(args, eState, data):
+	if(args.size() == 0):
+		eState["StateChangePriority"] = -100000
+		eState["StateTarget"] = null
+		return
+	
 	var newStateName = ArgStr(args, eState, 0)
 	var priority = ArgInt(args, eState, 1, 0)
 	var allowSelfTransition = ArgBool(args, eState, 2, false)
@@ -389,8 +498,15 @@ func Transition(args, eState, data):
 		return
 	
 	eState["StateChangePriority"] = priority
-	eState["StateStartFrame"] = data["State"]["FrameID"]
-	eState["State"] = newStateName
+	eState["StateTarget"] = newStateName
+func TransitionBuffer(args, eState, data):
+	Transition(args, eState, data)
+func TransitionApply(eState, data):
+	if(eState["StateTarget"] != null):
+		eState["State"] = eState["StateTarget"]
+		eState["StateStartFrame"] = data["State"]["FrameID"]
+		eState["StateChangePriority"] = -100000
+		eState["StateTarget"] = null
 
 
 func Call(args, eState, data):
@@ -427,12 +543,16 @@ func CallParent(args, eState, data):
 # Debug
 
 # :TODO:Panthavma:20220131:Make it more flexible to be able to show variable's value ? Or just raw
-func Log(args, eState, _data):
-	Castagne.Log("State Log "+str(eState["EID"])+" : " + ArgStr(args, eState, 0))
-func LogB(args, eState, _data):
-	Log(args, eState, _data)
-func LogT(args, eState, _data):
-	Log(args, eState, _data)
+func Log(args, eState, data):
+	Castagne.Log("["+str(data["State"]["TrueFrameID"])+"] State Log "+str(eState["EID"])+" : " + ArgStr(args, eState, 0))
+func LogB(args, eState, data):
+	Log(args, eState, data)
+func LogT(args, eState, data):
+	Log(args, eState, data)
+
+
+func FreezeFrames(args, eState, data):
+	data["State"]["FreezeFrames"] = max(data["State"]["FreezeFrames"], ArgInt(args, eState, 0))
 
 
 

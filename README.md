@@ -2,9 +2,9 @@
 Castagne allows you to make fighting games more easily. It is a layer built upon Godot that manages the internal logic needed, so that you can focus on making the game itself.
 [Join the Discord](https://discord.gg/CWjWfC9K9T) to stay up to date!
 
-# Current Status : Castagne v0.4 (preview)
+# Current Status : Castagne v0.41
 The project is stable, but still a bit incomplete. Some small changes in behaviour may still happen as potential bugs are fixed.
-Castagne v0.4 still needs the documentation to be complete, but the code is already good.
+Castagne v0.41 still needs the documentation to be complete, but the code is already good.
 Rollback worked with Castagne v0.2, it will certainly need a second pass now that the refactoring is done.
 
 Next version is going to be Castagne v0.5, [see the roadmap](http://panthavma.com/articles/castagne-roadmap-v1) for details.

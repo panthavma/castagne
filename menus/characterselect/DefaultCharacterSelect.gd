@@ -30,7 +30,7 @@ func _ready():
 		p["InputCooldown"] = 0.2
 		p["State"] = State.SelectingCharacter
 		p["Character"] = 0
-		p["Color"] = 0
+		p["Color"] = id
 		var prefabInputProvider = load(Castagne.configData["InputProviders"][Castagne.battleInitData[pid+"-control-type"]])
 		var inputProvider = prefabInputProvider.instance()
 		inputProvider.Init(Castagne.battleInitData[pid+"-control-param"])

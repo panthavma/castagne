@@ -34,6 +34,10 @@ func ModuleSetup():
 	RegisterBattleInitData("p1Points",0)
 	RegisterBattleInitData("p2Points",0)
 	
+	RegisterConfig("HurtboxViewer-Hurtbox", "res://castagne/modules/gamemodes/assets/HurtboxViewer-Hurtbox.tscn")
+	RegisterConfig("HurtboxViewer-Hitbox", "res://castagne/modules/gamemodes/assets/HurtboxViewer-Hitbox.tscn")
+	RegisterConfig("HurtboxViewer-Colbox", "res://castagne/modules/gamemodes/assets/HurtboxViewer-Colbox.tscn")
+	
 
 func BattleInit(state, data, battleInitData):
 	
@@ -45,6 +49,7 @@ func BattleInit(state, data, battleInitData):
 		
 		var fighterID = engine.ParseFighterScript(characterPath)
 		if(fighterID < 0):
+			ModuleError("CMFightingGame: Fighter parsing failed for " + str(characterPath) + " !")
 			return
 		
 		engine.AddNewEntity(state, playerID, fighterID, "Init")
@@ -65,7 +70,11 @@ func BattleInit(state, data, battleInitData):
 		pauseSuboptions[o] = 0
 	
 	engine.add_child(pauseMenu)
+	pausedPID = null
 	pauseMenu.hide()
+	var canvasRID = pauseMenu.get_canvas_item()
+	VisualServer.canvas_item_set_draw_index(canvasRID, 100)
+	VisualServer.canvas_item_set_z_index(canvasRID, 100)
 	pauseMenuLabel = pauseMenu.get_node("Menu/Options")
 	
 	if(trainingMode):
@@ -79,6 +88,12 @@ func FrameStart(state, data):
 		state["SkipFrame"] = true
 		PausedIdle(pausedPID, state, data)
 		return
+		
+	var slowmo = false
+	var slowmoFast = false
+	var slowmoFactor = 8
+	if(slowmo and state["TrueFrameID"] % slowmoFactor != 0):
+		state["SkipFrame"] = true
 	
 	var mainEIDs = []
 	for player in state["Players"]:
@@ -121,7 +136,9 @@ func FrameStart(state, data):
 				winner -= 1
 			if(winner == 0):
 				# :TODO:Panthavma:20220207:Should be ratio over HP Max
-				winner = sign(state["p2"]["HP"] - state["p1"]["HP"])
+				var p1HP = float(state[mainEIDs[0]]["HP"]) / float(state[mainEIDs[0]]["HPMax"])
+				var p2HP = float(state[mainEIDs[1]]["HP"]) / float(state[mainEIDs[1]]["HPMax"])
+				winner = sign(p2HP - p1HP)
 			state["WhoHasWon"] = winner + 2
 		
 		# Slowdown
@@ -343,7 +360,7 @@ enum REGEN_MODE {
 }
 
 func TrainingApplyOptions(eState, data):
-	eState["Fuel"] = 60*100
+	eState["TotalFuel"] = 60*100
 	eState["Flags"] += ["StartRound"]
 	if(eState["EID"] != data["State"]["Players"][dummyPID]["MainEntity"]):
 		return

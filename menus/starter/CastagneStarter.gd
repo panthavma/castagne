@@ -36,12 +36,14 @@ func _ready():
 	else:
 		$TitleLabel.set_text(Castagne.configData["GameTitle"]+" - "+Castagne.configData["GameVersion"]+"\n"+Castagne.configData["CastagneVersion"]+"\nPress any key to stop the timer")
 		
+		timer = float(Castagne.configData["Starter-Timer"])/1000.0
+		
 		# Init Options
 		var optionID = 0
 		for button in $Buttons.get_children():
 			var n = button.get_name()
 			if(has_method(n)):
-				var err = button.connect("pressed", self, "ActivateOption", [optionID])
+				var err = button.connect("pressed", self, "ButtonClick", [optionID])
 				if err:
 					Castagne.Error("[Starter]: " +str(n)+" button signal not connected!")
 			else:
@@ -67,9 +69,9 @@ func _ready():
 func _process(delta):
 	UpdateButtonText()
 	
-	if(timer > 0):
+	if(timer >= 0):
 		timer -= delta
-		if(timer <= 0):
+		if(timer < 0):
 			ActivateOption(selectedItem)
 
 func _unhandled_input(event):
@@ -78,6 +80,10 @@ func _unhandled_input(event):
 
 func StopTimer():
 	timer = -1
+
+func ButtonClick(optionID):
+	timer = 0
+	selectedItem = optionID
 
 func ActivateOption(optionID):
 	var n = $Buttons.get_child(optionID).get_name()

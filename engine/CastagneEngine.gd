@@ -16,9 +16,9 @@ var fighterScripts = []
 var instancesRoot
 
 # :TODO:Panthavma:20220207:Move this to relevant parts
-const STARTING_POSITION = 20000
-const ARENA_SIZE = 150000
-const CAMERA_SIZE = 55000
+#const STARTING_POSITION = 20000
+#const ARENA_SIZE = 150000
+#const CAMERA_SIZE = 55000
 
 var modules
 var physicsModule
@@ -119,6 +119,10 @@ func Init(battleInitData):
 
 
 
+
+
+
+
 #-------------------------------------------------------------------------------
 # Main Loop
 
@@ -127,6 +131,10 @@ func EngineTick(previousState, playerInputs):
 	var state = previousState.duplicate(true)
 	state["TrueFrameID"] += 1
 	state["SkipFrame"] = false
+	
+	var moduleCallbackData = _BuildModuleCallbackData(state)
+	for m in modules:
+		m.FramePreStart(state, playerInputs, moduleCallbackData)
 	
 	for playerIData in instancedData.Players:
 		var pid = playerIData["PID"]
@@ -138,11 +146,16 @@ func EngineTick(previousState, playerInputs):
 		state["Players"][pid]["Inputs"] = enrichedInput
 	
 	# 2. Apply the framestart functions, and check if the frame needs to be skipped
-	var moduleCallbackData = _BuildModuleCallbackData(state)
 	for m in modules:
 		m.FrameStart(state, moduleCallbackData)
 	
+	
+	# 3b. If skipping, special loop using the Freeze phase
 	if(state["SkipFrame"]):
+		var activeEIDs = state["ActiveEntities"]
+		#for module in modules:
+		#	module.ResetVariables(state, activeEIDs)
+		ExecuteScriptPhase("Freeze", activeEIDs, moduleCallbackData)
 		return state
 	
 	state["FrameID"] += 1
@@ -343,8 +356,7 @@ func _BuildModuleCallbackData(currentState):
 	return data
 
 func Load(path):
-	# :TODO:Panthavma:20220310:Cache it
-	return load(path)
+	return Castagne.Loader.Load(path)
 
 # Parses a script file and adds it to the relevant lists. Returns the ID if okay, or -1 if not.
 func ParseFighterScript(characterPath):
@@ -421,7 +433,13 @@ func InstanceModel(eid, modelPath, animPlayerPath=null):
 	
 	if(animPlayerPath != null):
 		var playerAnim = playerModel.get_node(animPlayerPath)
-		instancedData["Entities"][eid]["AnimPlayer"] = playerAnim
+		if(playerAnim != null):
+			if(playerAnim.has_method("play")):
+				instancedData["Entities"][eid]["AnimPlayer"] = playerAnim
+			else:
+				print("InstanceModel: AnimPlayer Path invalid, found " +str(playerAnim) +" instead")
+		else:
+			print("InstanceModel: AnimPlayer Path invalid, didn't find anything at path " +str(animPlayerPath))
 	
 	instancesRoot.add_child(playerModel)
 
