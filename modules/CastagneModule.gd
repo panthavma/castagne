@@ -30,6 +30,9 @@ func ModuleSetup():
 func BattleInit(_state, _data, _battleInitData):
 	pass
 
+# Called at the very beginning of each frame, before inputs
+func FramePreStart(_state, _playerInputs, _data):
+	pass
 # Called at the beginning of each frame
 func FrameStart(_state, _data):
 	pass
@@ -74,6 +77,16 @@ func TransitionPhaseStartEntity(_eState, _data):
 func TransitionPhaseEndEntity(_eState, _data):
 	pass
 func TransitionPhaseEnd(_state, _data):
+	pass
+
+# Freeze Phase: Called when skipping frames
+func FreezePhaseStart(_state, _data):
+	pass
+func FreezePhaseStartEntity(_eState, _data):
+	pass
+func FreezePhaseEndEntity(_eState, _data):
+	pass
+func FreezePhaseEnd(_state, _data):
 	pass
 
 
@@ -174,8 +187,14 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	
 	# :TODO:Panthavma:20220124:Look at making it parallel through the ThreadSafe flag
 	# :TODO:Panthavma:20220124:Rework the flags
+	
+	if(flags.has("AllPhases")):
+		flags += ["Init", "Action", "Transition"]
+	
 	if(!flags.has("Transition") and !flags.has("Action") and !flags.has("Init") and !flags.has("NoFunc")):
-		flags += ["Action", "Init"]
+		flags += ["Init", "Action"]
+	if(!flags.has("NoManual")):
+		flags += ["Manual"]
 	
 	if(has_method("Parse"+functionName)):
 		parseFunc = funcref(self, "Parse"+functionName)
@@ -241,7 +260,10 @@ func HasFlag(eState, flagName):
 		return eState["Flags"].has(flagName)
 	return false
 func SetFlag(eState, flagName):
-	eState["Flags"] += [flagName] #:TODO:Panthavma:20220203:Make it so you can raise a flag twice, otherwise unflag might be wonky
+	if(!eState["Flags"].has(flagName)):
+		eState["Flags"] += [flagName]
+func UnsetFlag(eState, flagName):
+	eState["Flags"].erase(flagName)
 
 func CallFunction(functionName, args, eState, data):
 	Castagne.functions[functionName]["ActionFunc"].call_func(args, eState, data)
@@ -262,6 +284,13 @@ func ArgStr(args, eState, argID, default = null):
 	if(eState.has(value)):
 		return str(eState[value])
 	return value
+
+func ArgVar(args, eState, argID, default = null):
+	if(args.size() <= argID):
+		if(default == null):
+			Castagne.Error("ArgRaw ("+argID+"): This argument needs a default but doesn't have one")
+		return default
+	return args[argID]
 
 func ArgInt(args, eState, argID, default = null):
 	if(args.size() <= argID):

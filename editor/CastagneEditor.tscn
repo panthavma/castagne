@@ -17,3 +17,111 @@ margin_bottom = 40.0
 [node name="TextEdit" type="TextEdit" parent="."]
 margin_right = 453.0
 margin_bottom = 297.0
+
+[node name="CharacterEdit" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CodePanel" type="Panel" parent="CharacterEdit"]
+anchor_left = 0.6
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Documentation" type="Control" parent="CharacterEdit/CodePanel"]
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[node name="Title" type="Label" parent="CharacterEdit/CodePanel/Documentation"]
+anchor_right = 1.0
+margin_left = 16.0
+margin_right = -16.0
+margin_bottom = 18.0
+text = "Hitbox (Back, Front, Bottom, Top)"
+valign = 1
+
+[node name="FuncdocButton" type="Button" parent="CharacterEdit/CodePanel/Documentation"]
+anchor_left = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 24.0
+text = "Docs"
+clip_text = true
+
+[node name="TextEdit" type="TextEdit" parent="CharacterEdit/CodePanel/Documentation"]
+anchor_right = 0.8
+anchor_bottom = 1.0
+margin_top = 24.0
+text = "Function description
+
+Or Argument description
+Can be long
+long"
+readonly = true
+wrap_enabled = true
+
+[node name="TextEdit" type="TextEdit" parent="CharacterEdit/CodePanel"]
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 0.8
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+text = "Call(GroundedAttack)
+Hurtbox(0,10000,0,10000)
+F20-30:
+	Attack(50,50)
+	Hitbox(0,2000,0,20000)
+endif
+Anim(SuperAttack)"
+highlight_current_line = true
+syntax_highlighting = true
+show_line_numbers = true
+highlight_all_occurrences = true
+smooth_scrolling = true
+wrap_enabled = true
+
+[node name="Header" type="Control" parent="CharacterEdit/CodePanel"]
+anchor_right = 1.0
+anchor_bottom = 0.1
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+
+[node name="State" type="Button" parent="CharacterEdit/CodePanel/Header"]
+anchor_top = 0.4
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = ":5A:"
+
+[node name="File" type="Button" parent="CharacterEdit/CodePanel/Header"]
+anchor_right = 0.7
+anchor_bottom = 0.4
+text = "Castagneur.casp"
+
+[node name="CheckParent" type="Button" parent="CharacterEdit/CodePanel/Header"]
+anchor_left = 0.7
+anchor_right = 1.0
+anchor_bottom = 0.4
+text = "Parents"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="TopBar" type="Panel" parent="CharacterEdit"]
+anchor_right = 0.6
+margin_bottom = 32.0
+
+[node name="BottomPanel" type="Panel" parent="CharacterEdit"]
+anchor_top = 0.8
+anchor_right = 0.6
+anchor_bottom = 1.0

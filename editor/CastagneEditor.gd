@@ -1,5 +1,7 @@
 extends Control
 
+# :TODO:Panthavma:20220408:Add a way to have automatic tests to see if combos still work (or work with different positions)
+
 
 func _ready():
 	$TextEdit.set_text(PrintDocumentation())

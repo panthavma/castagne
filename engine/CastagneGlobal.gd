@@ -14,6 +14,7 @@ extends Node
 
 onready var Parser = $Parser
 onready var Net = $Net
+onready var Loader = $Loader
 onready var Menus
 # Dict with options
 
@@ -97,16 +98,12 @@ func SaveConfigFile(configFilePath=null):
 		if(!defaultConfig.has(key)):
 			save = true
 		elif(configData[key] != defaultConfig[key]):
-			print("Key is different: "+key)
 			if(typeof(configData[key]) == TYPE_DICTIONARY):
-				print("Dict compare")
 				save = !AreDictionariesEqual(configData[key], defaultConfig[key])
 			else:
-				print("its just different")
 				save = true
 		
 		if(save):
-			print("I'm saving!")
 			savedData[key] = configData[key]
 	
 	var jsonData = to_json(savedData)

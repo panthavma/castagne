@@ -19,9 +19,13 @@ func EnrichInput(raw, richPrevious, state, pid):
 	if(raw.size() == 0): # When missing input online
 		raw = GetEmptyRawInputData()
 	if(richPrevious == null or richPrevious.size() == 0): # First frame
-		richPrevious = GetEmptyRawInputData() # :TODO:Panthavma:20220203:Actually enrich it
+		richPrevious = GetEmptyEnrichedInputData() # :TODO:Panthavma:20220203:Actually enrich it
 	
+	var buttonList = ["Pause", "Up", "Down", "Right", "Left"]
+	var bufferedButtonList = ["A", "B", "C", "D", ]
+	var PRESS_BUFFER = 3
 	var id = raw.duplicate()
+	var curFrame = state["FrameID"]
 	
 	id["A"] = id["A"] || id["M1"]
 	id["B"] = id["B"] || id["M1"] || id["M2"]
@@ -54,13 +58,20 @@ func EnrichInput(raw, richPrevious, state, pid):
 		id["TrueForward"] = raw["Left"]
 		id["TrueBack"] = raw["Right"]
 	
-	
 	id["Tech"] = id["A"] or id["B"] or id["C"]
 	
 	id["NeutralH"] = !id["Right"] and !id["Left"]
 	id["NeutralV"] = !id["Up"] and !id["Down"]
 	
-	var buttonList = ["A", "B", "C", "D", "Pause", "Up", "Down", "Right", "Left"]
+	for b in bufferedButtonList:
+		var bFrame = richPrevious[b+"Frame"]
+		if(!id[b]):
+			bFrame = -1
+		elif(bFrame < 0):
+			bFrame = curFrame
+		
+		id[b+"Frame"] = bFrame
+		id[b+"Press"] = (bFrame >= 0) and (curFrame - bFrame < PRESS_BUFFER)
 	for b in buttonList:
 		id[b+"Press"] = id[b] and !richPrevious[b]
 	
@@ -74,6 +85,18 @@ func EnrichInput(raw, richPrevious, state, pid):
 
 func GetEmptyRawInputData():
 	return {
+		"A": false,"B": false,"C": false,"D":false,"L":false,"R":false,
+		"Left":false,"Right":false,"Up":false,"Down":false,
+		"M1":false, "M2":false, "M3":false, "Pause":false,
+		"MenuConfirm":false, "MenuBack":false,
+	}
+
+func GetEmptyEnrichedInputData():
+	return {
+		"AFrame":-1,"BFrame":-1,"CFrame":-1,"DFrame":-1,
+		"UpFrame":-1,"DownFrame":-1,"RightFrame":-1,"LeftFrame":-1,
+		"PauseFrame":-1,
+		
 		"A": false,"B": false,"C": false,"D":false,"L":false,"R":false,
 		"Left":false,"Right":false,"Up":false,"Down":false,
 		"M1":false, "M2":false, "M3":false, "Pause":false,

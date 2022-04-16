@@ -12,6 +12,7 @@ extends "../modules/CastagneModule.gd"
 # :BUG:Panthavma:20220310:Multiple empty blocks seem to have a problem
 # :BUG:Panthavma:20220310:V branch didn't work correctly?
 # :TODO:Panthavma:20220310:Comments at end of line
+# :TODO:Panthavma:20220403:Parse variables as int if possible
 
 func GetCharacterMetadata(filePath):
 	_StartParsing(filePath)
@@ -303,7 +304,8 @@ func _ParseBlockState(fileID):
 		else:
 			var letter = line.left(1)
 			var letterArgs = line.left(line.length()-1).right(1)
-			var letters = ["I", "F", "L", "V"]
+			var letters = ["I", "F", "L", "V", "P"]
+			
 			if(line == "endif"):
 				var args = [currentSubblock["True"], currentSubblock["False"], currentSubblock["LetterArgs"]]
 				currentSubblock["Args"] = args
@@ -328,7 +330,7 @@ func _ParseBlockState(fileID):
 					"FuncName":"Instruction " + letter,
 					"LetterArgs":letterArgs,
 					"True": [], "False":[],
-					"Flags":["Init", "Action", "Transition"],
+					"Flags":["Init", "Action", "Transition", "Freeze", "Manual"],
 				}
 			else:
 				_Error("Instruction not recognized : " + letter)
@@ -410,10 +412,17 @@ func InstructionL(args, eState, data):
 
 func InstructionV(args, eState, data):
 	var varName = args[2]
-	var cond = varName in eState
-	if(cond):
-		cond = ArgBool([varName], eState, 0)
+	var cond = ParseCondition(varName, eState)
 	InstructionBranch(args, eState, data, cond)
+
+func InstructionP(args, eState, data):
+	var phaseName = ArgStr(args, eState, 2)
+	var initPhaseName = data["Phase"]
+	var cond = (initPhaseName == phaseName)
+	if(cond):
+		data["Phase"] = "Manual"
+	InstructionBranch(args, eState, data, cond)
+	data["Phase"] = initPhaseName
 
 func InstructionBranch(args, eState, moduleCallbackData, condition):
 	var actionListTrue = args[0]
@@ -425,3 +434,36 @@ func InstructionBranch(args, eState, moduleCallbackData, condition):
 	
 	moduleCallbackData["Engine"].ExecuteFighterScript({"Name":"Branch", "Actions":actionList}, eState["EID"], moduleCallbackData)
 	
+
+func ParseCondition(s, eState):
+	var inferiorPos = s.find("<")
+	var superiorPos = s.find(">")
+	var equalPos = s.find("=")
+	var firstPart = s
+	var secondPart = 0
+	var condition = 2
+	var splitPos = max(inferiorPos, superiorPos)
+	if(splitPos < 0):
+		splitPos = equalPos
+	
+	if(inferiorPos >= 0 and superiorPos >= 0):
+		ModuleError("ParseCondition: Found both < and > in the same condition", eState)
+		return false
+	if(splitPos >= 0):
+		firstPart = s.left(splitPos)
+		secondPart = s.right(splitPos+1)
+		condition = 0
+		condition += (2 if superiorPos>=0 else 0)
+		condition -= (2 if inferiorPos>=0 else 0)
+		
+		if(secondPart.begins_with("=")):
+			secondPart = secondPart.right(1)
+			condition -= sign(condition)
+	
+	firstPart = ArgInt([firstPart], eState, 0, 0)
+	secondPart = ArgInt([secondPart], eState, 0, 0)
+	var diff = firstPart - secondPart
+	
+	if(diff == 0):
+		return (abs(condition) <= 1)
+	return (sign(condition) == sign(diff))

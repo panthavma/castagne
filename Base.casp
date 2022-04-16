@@ -15,17 +15,48 @@
 
 :Variables:
 	# System
-	EffectiveLandingLag: 4
-	DefaultLandingLag: 4
+	_EffectiveLandingLag:4
+	
+	
+	
+	# Throw logic
+	ThrowTechLockoutTime: 40
+	ThrowTechBuffer:12
+	_ThrowTechBuffer:0
+	_ThrowTechLockout:0
+	ThrowHoldingTime:180
+	ThrowHoldingLongTime:60
+	ThrowingState: ThrowF
+	ThrowingBackState: ThrowB
+	AirThrowingState: AirThrowF
+	AirThrowingBackState: AirThrowB
+	
+	ThrowTechedMomentumX: -1200
+	ThrowTechedMomentumY: 0
+	ThrowTechedDuration: 30
+	ThrowTechingMomentumX: -1200
+	ThrowTechingMomentumY: 0
+	ThrowTechingDuration: 20
 	
 	# Base Physics
 	Gravity:-150
-	GroundFriction: 100
+	TerminalVelocity:-4500
+	FrictionGround: 250
+	FrictionAir: 2
 	
-	# Character Specific
-	HPMax: 10000
+	HitstunGravity:-150
+	HitstunGravityFloat:-50
+	HitstunFrictionGround: 100
+	HitstunFrictionAir: 6
 	
-	# Physics
+	BlockstunGravity:-150
+	BlockstunFrictionGround: 100
+	BlockstunFrictionAir: 6
+	
+	LandingLag: 4
+	AttackLandingLag: 0
+	DefaultAttackLandingLag: 4
+	
 	WalkFSpeed: 1000
 	WalkBSpeed: -800
 	
@@ -33,6 +64,13 @@
 	JumpFForce: 800
 	JumpBForce: -800
 	JumpNForce: 2800
+	
+	
+	# Character Specific
+	HPMax: 10000
+	
+	# Options
+	AIR_ATTACK_CAN_SWITCH_FACING: 1
 	
 	# Model
 	MODEL_PATH: res://castagne/example/fighter/CastagneurModel.tscn
@@ -44,7 +82,17 @@
 	# Animations
 	USE_STANDARD_ANIMS: 0
 	ANIM_KNOCKDOWN: Knockdown
+	ANIM_KNOCKEDDOWN: Knockeddown
 	ANIM_HITSTUN_AIR: Hitstun.Air
+	ANIM_HITSTUN_TRIP: Hitstun.Air
+	ANIM_HITSTUN_GROUNDBOUNCE: Hitstun.Air
+	ANIM_HITSTUN_AIR_UP: Hitstun.Air
+	ANIM_HITSTUN_AIR_BACK: Hitstun.Air
+	ANIM_HITSTUN_AIR_DOWN: Hitstun.Air
+	ANIM_HITSTUN_AIR_FRONT: Hitstun.Air
+	ANIM_HITSTUN_AIR_SPINFRONT: Hitstun.Air
+	ANIM_HITSTUN_AIR_SPINBACK: Hitstun.Air
+	ANIM_HITSTUN_AIR_SPINSIDE: Hitstun.Air
 	ANIM_HITSTUN_STAND: Hitstun.Stand
 	ANIM_HITSTUN_CROUCH: Hitstun.Crouch
 	ANIM_BLOCK_STAND: Block.Stand
@@ -58,17 +106,22 @@
 	ANIM_STAND: Stand
 	ANIM_CROUCH: Crouch
 	ANIM_WALKF: WalkF
+	ANIM_WALKF_LOOP:70
 	ANIM_WALKB: WalkB
+	ANIM_WALKB_LOOP:70
 	ANIM_JUMPSQUAT: Jumpsquat
 	ANIM_LANDING: Landing
 	ANIM_JUMPN: JumpN
 	ANIM_JUMPF: JumpF
 	ANIM_JUMPB: JumpB
 	ANIM_AIRIDLE: AirIdle
+	ANIM_THROWHELD: ThrowHeld
+	ANIM_THROWTECHING: ThrowTech
+	ANIM_THROWTECHED: ThrowTeched
 
+# Some tasks for later to make it easier to use:
 # :TODO:Panthavma:20220110:Make it a default when no skeleton is specified
 # :TODO:Panthavma:20220309:Make all variables accessible
-# :TODO:Panthavma:20220310:Make standard throw
 # :TODO:Panthavma:20220310:Make standard backdash
 # :TODO:Panthavma:20220310:Make standard front step and front dash
 # :TODO:Panthavma:20220310:Make standard airdash
@@ -76,14 +129,18 @@
 # :TODO:Panthavma:20220315:Make jump cancel
 # :TODO:Panthavma:20220315:Make prefabs for Projectiles
 # :TODO:Panthavma:20220315:Make prefabs for VFX?
-# :TODO:Panthavma:20220310:Make landing lag computation for hit 
 
 
 
 :Init:
 	CopyFighterVariables()
 	CreateModel(MODEL_PATH, ANIMPLAYER_PATH)
-	Transition(Idle)
+	Call(NewRound)
+	Transition(Stand)
+
+:NewRound:
+	Set(Meter, 0)
+	Set(HP, HPMax)
 
 
 
@@ -94,69 +151,94 @@
 # / /___/ /_/ / / / / / / / / / / / /_/ / / / /
 # \____/\____/_/ /_/ /_/_/ /_/ /_/\____/_/ /_/ 
 
+:TrueCommon:
+	
+
 :Common:
+	Call(TrueCommon)
 	Call(StandardColbox)
+	Call(ThrowTechingInput)
 	LDie:
 		Transition(Dead, 1000000)
 	endif
 	
+	# TODO Force Landing
+	# TODO Cleanup those flags on the attack side
 	LPFHit:
-		LAFThrowTech:
-			LPFGrounded:
-				Transition(ThrowTech, 100000)
-			else
-				Transition(AirThrowTech, 100000)
-			endif
-		endif
-		
-		LAFThrow:
-			Transition(ThrowHeld, 2000)
-		else
-			LAFAirthrow:
-				Transition(AirthrowHeld, 2000)
-			else
-				#PlaySound(Hit)
-				LPFGrounded:
-					LAFForceKnockdown:
-						Call(OnHitstunLanding)
-					else
-						LAFLauncher:
-							Transition(HitstunAir, 1000, 1)
-						else
-							LCrouching:
-								Transition(HitstunCrouch, 1000, 1)
-							else
-								Transition(HitstunStand, 1000, 1)
-							endif
-						endif
-					endif
-				else
-					Transition(HitstunAir, 1000, 1)
-				endif
-			endif
-		endif
+		Call(OnHit)
 	endif
 	LPFBlock:
-		#PlaySound(Block)
-		LPFGrounded:
-			LAFLow:
-				Transition(BlockLow, 900, 1)
-			else
-				LAFOverhead:
-					Transition(BlockHigh, 900, 1)
-				else
-					IDown:
-						Transition(BlockLow, 900, 1)
-					else
-						Transition(BlockHigh, 900, 1)
-					endif
-				endif
-			endif
+		LAFGuarded:
 		else
-			Transition(BlockAir, 900, 1)
+			Call(OnBlock)
 		endif
 	endif
 
+:OnHit:
+	#PlaySound(Hit)
+	LPFGrounded:
+		LAFForceLanding:
+			Call(OnHitstunLanding)
+		else
+			LAFLauncher:
+				Transition(HitstunAir, 1000, 1)
+			else
+				LCrouching:
+					Transition(HitstunCrouch, 1000, 1)
+				else
+					Transition(HitstunStand, 1000, 1)
+				endif
+			endif
+		endif
+	else
+		Transition(HitstunAir, 1000, 1)
+	endif
+	PTransition:
+		SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
+		Call(VFXHit)
+	endif
+
+:VFXHit:
+
+
+:OnBlock:
+	#PlaySound(Block)
+	LPFGrounded:
+		LAFLow:
+			Transition(BlockLow, 900, 1)
+		else
+			LAFOverhead:
+				Transition(BlockHigh, 900, 1)
+			else
+				IDown:
+					Transition(BlockLow, 900, 1)
+				else
+					Transition(BlockHigh, 900, 1)
+				endif
+			endif
+		endif
+	else
+		Transition(BlockAir, 900, 1)
+	endif
+	PTransition:
+		SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
+		Call(VFXBlock)
+	endif
+:VFXBlock:
+
+
+:ThrowTechingInput:
+	V_ThrowTechBuffer:
+		Sub(_ThrowTechBuffer, 1)
+	endif
+	V_ThrowTechLockout:
+		Sub(_ThrowTechLockout, 1)
+	else
+		IThrow:
+			Set(_ThrowTechLockout, ThrowTechLockoutTime)
+			Set(_ThrowTechBuffer, ThrowTechBuffer)
+		endif
+	endif
 
 :Dead:
 	Flag(Dead)
@@ -166,7 +248,7 @@
 		Anim(ANIM_HITSTUN_AIR)
 	endif
 	F1:
-		SetMomentumAbsolute(AttackMomentumH, AttackMomentumV)
+		SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
 	endif
 	LPFGrounded:
 		Transition(DeadKnockdown, 500000)
@@ -190,19 +272,19 @@
 	LPFAirborne:
 		Transition(AirIdle, 200)
 	endif
-#:GroundedStatePost:
-	# TODO Correct this
-	LIgnoreFriction:
-	else
-		BreakMomentum(GroundFriction, 0)
-	endif
+
+:StandingState:
+	Call(GroundedState)
+
+:CrouchingState:
+	Flag(Crouching)
+	Call(GroundedState)
 
 :AirborneStateCommon:
 	Call(Common)
 	Flag(Airborne)
 :AirborneState:
 	Call(AirborneStateCommon)
-	AddMomentum(0,Gravity)
 	LPFGrounded:
 		Transition(Landing, 200)
 	endif
@@ -216,8 +298,14 @@
 
 
 
-:GroundedNeutralState:
-	Call(GroundedState)
+:StandingNeutralState:
+	Call(StandingState)
+	Call(GroundedNeutralStateCommon)
+:CrouchingNeutralState:
+	Call(CrouchingState)
+	Call(GroundedNeutralStateCommon)
+
+:GroundedNeutralStateCommon:
 	Call(StandardHurtbox)
 	Call(ReturnedToNeutral)
 	
@@ -244,7 +332,7 @@
 				Transition(WalkB)
 			endif
 			INeutralH:
-				Transition(Idle)
+				Transition(Stand)
 			endif
 		endif
 	endif
@@ -253,6 +341,7 @@
 :AirborneNeutralState:
 	Call(AirborneState)
 	Call(StandardHurtbox)
+	Call(ComputeLandingLag)
 	Call(ReturnedToNeutral)
 	
 	Flag(CanBlock)
@@ -266,6 +355,7 @@
 
 
 :ReturnedToNeutral:
+	Set(Groundbounces, 0)
 	AttackResetDoneCancels()
 
 
@@ -273,7 +363,7 @@
 	Flag(RoundIntro)
 	
 	LStartRound:
-		Transition(Idle, 10000)
+		Transition(Stand, 10000)
 	endif
 
 
@@ -303,8 +393,8 @@
 #/_/ /_/_/\__/____/\__/\__,_/_/ /_/ 
 
 :OnHitstunLanding:
-	LAFHardKnockdown:
-		Transition(HardKnockdown, 6000)
+	LAFGroundbounce:
+		Transition(HitstunGroundbounce, 6000)
 	else
 		LAFKnockdown:
 			Transition(Knockdown, 6000)
@@ -320,20 +410,29 @@
 :HitstunCommon:
 	Call(Common)
 	Flag(Hitstun)
-	Call(StandardHurtbox)
-	F1:
-		SetMomentumAbsolute(AttackMomentumH, AttackMomentumV)
+	Flag(IgnoreGravity)
+	Flag(IgnoreFriction)
+	
+	LPFAirborne:
+		BreakMomentum(HitstunFrictionAir)
+		LAFFloat:
+			AddMomentum(0, HitstunGravityFloat)
+		else
+			AddMomentum(0, HitstunGravity)
+		endif
+	else
+		BreakMomentum(HitstunFrictionGround)
 	endif
+	
+	Call(StandardHurtbox)
 
 :HitstunStand:
 	Call(HitstunCommon)
 	Call(StandardHurtbox)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_HITSTUN_STAND)
-	endif
+	Call(AnimHitstunGround)
 	BreakMomentum(100, 0)
 	FHitstunDuration:
-		Transition(Idle)
+		Transition(Stand)
 	endif
 	LPFAirborne:
 		Transition(HitstunAir)
@@ -342,9 +441,7 @@
 :HitstunCrouch:
 	Flag(Crouching)
 	Call(HitstunCommon)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_HITSTUN_CROUCH)
-	endif
+	Call(AnimHitstunGround)
 	BreakMomentum(100, 0)
 	FHitstunDuration:
 		Transition(Crouch)
@@ -356,17 +453,62 @@
 :HitstunAir:
 	Call(HitstunCommon)
 	AddMomentum(0, -40)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_HITSTUN_AIR)
-	endif
-	FHitstunDuration:
-		Transition(AirTech)
+	Call(AnimHitstunAir)
+	# TODO Put variable timing tech back in when training mode
+	FHitstunDuration+:
+		#ITech:
+			Transition(AirTech)
+		#endif
 	endif
 	LPFGrounded:
 		Call(OnHitstunLanding)
 	endif
 
+:HitstunGroundbounce:
+	Call(HitstunAir)
+	F1:
+		AttackRecievedUnflag(Groundbounce)
+		SetMomentumY(GroundbounceMomentum)
+		Set(HitstunDuration, GroundbounceTime)
+	endif
 
+:AnimHitstunGround:
+	VUSE_STANDARD_ANIMS:
+		LCrouching:
+			Anim(ANIM_HITSTUN_CROUCH)
+		else
+			Anim(ANIM_HITSTUN_STAND)
+		endif
+	endif
+
+:AnimHitstunAir:
+	VUSE_STANDARD_ANIMS:
+		LAFAnimGroundbounce:
+			AnimFrame(ANIM_HITSTUN_GROUNDBOUNCE)
+		else
+		LAFAnimTrip:
+			Anim(ANIM_HITSTUN_TRIP)
+		else
+			LAFAnimAirUp:
+				Anim(ANIM_HITSTUN_AIR_UP)
+			else
+			LAFAnimAirDown:
+				Anim(ANIM_HITSTUN_AIR_DOWN)
+			else
+			LAFAnimAirFront:
+				Anim(ANIM_HITSTUN_AIR_FRONT)
+			else
+			LAFAnimAirBack:
+				Anim(ANIM_HITSTUN_AIR_BACK)
+			else
+				Anim(ANIM_HITSTUN_AIR)
+			endif
+			endif
+			endif
+			endif
+		endif
+		endif
+	endif
 
 
 
@@ -384,13 +526,11 @@
 	Flag(Blockstun)
 	Flag(CanBlock)
 	Call(StandardHurtbox)
-	F1:
-		SetMomentumAbsolute(AttackMomentumH, AttackMomentumV)
-	endif
+	Sub(BlockstunDuration, 1)
 
 
 :BlockHigh:
-	Call(GroundedState)
+	Call(StandingState)
 	Call(BlockstunCommon)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_BLOCK_STAND)
@@ -398,12 +538,11 @@
 	LPFAirborne:
 		Transition(BlockAir, 500)
 	endif
-	FBlockstunDuration:
+	VBlockstunDuration<=0:
 		Call(GroundedNeutralStateTransitions)
 	endif
 :BlockLow:
-	Flag(Crouching)
-	Call(GroundedState)
+	Call(CrouchingState)
 	Call(BlockstunCommon)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_BLOCK_CROUCH)
@@ -411,16 +550,16 @@
 	LPFAirborne:
 		Transition(BlockAir, 500)
 	endif
-	FBlockstunDuration:
+	VBlockstunDuration<=0:
 		Call(GroundedNeutralStateTransitions)
 	endif
 :BlockAir:
-	Call(AirborneState)
+	Call(VariableState)
 	Call(BlockstunCommon)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_BLOCK_AIR)
 	endif
-	FBlockstunDuration:
+	VBlockstunDuration<=0:
 		Transition(AirIdle)
 	endif
 
@@ -455,6 +594,7 @@
 
 
 :NeutralTech:
+	Call(TrueCommon)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_TECH_INPLACE)
 	endif
@@ -466,6 +606,7 @@
 		Transition(Crouch)
 	endif
 :ForwardTech:
+	Call(TrueCommon)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_TECH_FORWARD)
 	endif
@@ -474,9 +615,10 @@
 	endif
 	F14:
 		SetMomentum(0,0)
-		Transition(Idle)
+		Transition(Stand)
 	endif
 :BackTech:
+	Call(TrueCommon)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_TECH_BACK)
 	endif
@@ -485,9 +627,10 @@
 	endif
 	F14:
 		SetMomentum(0,0)
-		Transition(Idle)
+		Transition(Stand)
 	endif
 :SoftTech:
+	Call(TrueCommon)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_TECH_SOFT)
 	endif
@@ -496,9 +639,10 @@
 	endif
 	F14:
 		SetMomentum(0,0)
-		Transition(Idle)
+		Transition(Stand)
 	endif
 :AirTech:
+	Call(TrueCommon)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_TECH_AIR)
 	endif
@@ -550,15 +694,15 @@
 
 :Knockdown:
 	Call(KnockdownCommon)
-	F13+:
+	FKnockdownTimeMin+:
 		ITech:
 			Call(GroundTech)
 		endif
-		F43:
+		FKnockdownTimeMax+:
 			Call(GroundTech)
 		endif
 	endif
-
+# TODO Remove Hard knockdown as knockdown works
 :HardKnockdown:
 	Call(KnockdownCommon)
 	F50:
@@ -585,30 +729,29 @@
 
 
 
-:Idle:
-	Call(GroundedNeutralState)
+:Stand:
+	Call(StandingNeutralState)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_STAND)
 	endif
 
 :Crouch:
-	Flag(Crouching)
-	Call(GroundedNeutralState)
+	Call(CrouchingNeutralState)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_CROUCH)
 	endif
 
 :WalkF:
-	Call(GroundedNeutralState)
+	Call(StandingNeutralState)
 	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_WALKF)
+		Anim(ANIM_WALKF, 0, ANIM_WALKF_LOOP)
 	endif
 	Move(WalkFSpeed, 0)
 
 :WalkB:
-	Call(GroundedNeutralState)
+	Call(StandingNeutralState)
 	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_WALKB)
+		Anim(ANIM_WALKB, 0, ANIM_WALKB_LOOP)
 	endif
 	Move(WalkBSpeed, 0)
 
@@ -618,7 +761,7 @@
 	Call(Common)
 	# TODO Weird airborne state, check if correct, and if Airborne flag is correct
 	Call(StandardHurtbox)
-	Flag(Airborne)
+	Flag(PFAirborne)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_JUMPSQUAT)
 	endif
@@ -637,19 +780,26 @@
 			Transition(JumpN)
 		endif
 	endif
-	
+
+:ComputeLandingLag:
+	LAttacking:
+		Set(_EffectiveLandingLag, AttackLandingLag)
+	else
+		Set(_EffectiveLandingLag, LandingLag)
+	endif
+
 :Landing:
-	Call(GroundedState)
+	Call(CrouchingState)
 	Flag(CanBlock)
 	Call(StandardHurtbox)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_LANDING)
 	endif
-	F1:
-		Set(EffectiveLandingLag, DefaultLandingLag)
-	endif
 	
-	FEffectiveLandingLag:
+	V_EffectiveLandingLag<=0:
+		Call(ComputeLandingLag)
+	endif
+	F_EffectiveLandingLag+:
 		Call(GroundedNeutralStateTransitions)
 	endif
 	
@@ -701,8 +851,8 @@
 :AttackCommon:
 	Flag(Attacking)
 	F1:
-		Flag(Multihit)
-		Set(AttackDuration, 300)
+		AttackDuration(600)
+		Set(AttackLandingLag, DefaultAttackLandingLag)
 	endif
 
 :GroundedAttackCommon:
@@ -710,41 +860,71 @@
 	F1:
 		Flag(ApplyFacing)
 	endif
-	FAttackDuration:
+	FAttackDuration+:
 		LCrouching:
 			Transition(Crouch)
 		else
-			Transition(Idle)
+			Transition(Stand)
 		endif
 	endif
 	Call(GroundedAttacks)
 
-:StandingAttack:
-	Call(GroundedState)
-	Call(GroundedAttackCommon)
-	
-:CrouchingAttack:
-	Call(GroundedState)
-	Flag(Crouching)
-	Call(GroundedAttackCommon)
-
 :AirborneAttackCommon:
 	Call(AttackCommon)
+	Call(ComputeLandingLag)
 	F1:
-		IBack:
-			Flag(ApplyFacing)
+		VAIR_ATTACK_CAN_SWITCH_FACING:
+			IBack:
+				Flag(ApplyFacing)
+			endif
 		endif
 	endif
-	FAttackDuration:
+	FAttackDuration+:
 		Transition(AirIdle)
 	endif
 	Call(AirborneAttacks)
 
+:StandingAttack:
+	Call(StandingState)
+	F1:
+		AttackRearm()
+	endif
+	Call(GroundedAttackCommon)
+:StandingFollowupAttack:
+	Call(StandingState)
+	Call(GroundedAttackCommon)
+	
+:CrouchingAttack:
+	Call(CrouchingState)
+	F1:
+		AttackRearm()
+	endif
+	Call(GroundedAttackCommon)
+:CrouchingFollowupAttack:
+	Call(CrouchingState)
+	Call(GroundedAttackCommon)
+
 :AirborneAttack:
+	Call(AirborneState)
+	F1:
+		AttackRearm()
+	endif
+	Call(AirborneAttackCommon)
+:AirborneFollowupAttack:
 	Call(AirborneState)
 	Call(AirborneAttackCommon)
 
 :VariableAttack:
+	Call(VariableState)
+	F1:
+		AttackRearm()
+	endif
+	LPFAirborne:
+		Call(AirborneAttackCommon)
+	else
+		Call(GroundedAttackCommon)
+	endif
+:VariableFollowupAttack:
 	Call(VariableState)
 	LPFAirborne:
 		Call(AirborneAttackCommon)
@@ -756,16 +936,44 @@
 
 :AttackAddSpecialCancels:
 	# :TODO:Panthavma:20220214:Add special cancels When we have specials
+	AttackAddAllCancelsOnTouchAndNeutral(D)
+	AttackAddAllCancelsOnTouchAndNeutral(D, j)
+	LAttackCancelWhiff:
+		AttackAddAllCancelsOnWhiff(D)
+		AttackAddAllCancelsOnWhiff(D, j)
+	endif
 
 :AttackAddAllNormalsCancels:
 	AttackAddAllCancelsOnTouchAndNeutral(A)
 	AttackAddAllCancelsOnTouchAndNeutral(B)
 	AttackAddAllCancelsOnTouchAndNeutral(C)
-	AttackAddAllCancelsOnTouchAndNeutral(D)
+	AttackAddAllCancelsOnTouchAndNeutral(AB)
+	AttackAddAllCancelsOnTouchAndNeutral(AC)
+	AttackAddAllCancelsOnTouchAndNeutral(BC)
+	AttackAddAllCancelsOnTouchAndNeutral(ABC)
 	AttackAddAllCancelsOnTouchAndNeutral(A, j)
 	AttackAddAllCancelsOnTouchAndNeutral(B, j)
 	AttackAddAllCancelsOnTouchAndNeutral(C, j)
-	AttackAddAllCancelsOnTouchAndNeutral(D, j)
+	AttackAddAllCancelsOnTouchAndNeutral(AB, j)
+	AttackAddAllCancelsOnTouchAndNeutral(AC, j)
+	AttackAddAllCancelsOnTouchAndNeutral(BC, j)
+	AttackAddAllCancelsOnTouchAndNeutral(ABC, j)
+	LAttackCancelWhiff:
+		AttackAddAllCancelsOnWhiff(A)
+		AttackAddAllCancelsOnWhiff(B)
+		AttackAddAllCancelsOnWhiff(C)
+		AttackAddAllCancelsOnWhiff(AB)
+		AttackAddAllCancelsOnWhiff(AC)
+		AttackAddAllCancelsOnWhiff(BC)
+		AttackAddAllCancelsOnWhiff(ABC)
+		AttackAddAllCancelsOnWhiff(A, j)
+		AttackAddAllCancelsOnWhiff(B, j)
+		AttackAddAllCancelsOnWhiff(C, j)
+		AttackAddAllCancelsOnWhiff(AB, j)
+		AttackAddAllCancelsOnWhiff(AC, j)
+		AttackAddAllCancelsOnWhiff(BC, j)
+		AttackAddAllCancelsOnWhiff(ABC, j)
+	endif
 
 
 :GroundedAttacks:
@@ -773,3 +981,146 @@
 
 :AirborneAttacks:
 	AttackApplyCancels(j)
+
+
+
+:ThrowCommon:
+	Attack(0)
+	AttackProrationHitstun(1000,1000)
+	AttackProrationDamage(1000,1000)
+	AttackMomentum(0,0,0,0)
+	AttackFlag(Throw)
+	
+	VAttackHasWhiffed:
+	else
+		Flag(ThrowTeching)
+	endif
+	
+	F2+:
+		VAttackHasHit:
+			LPFAirborne:
+				Transition(AirThrowHold)
+			else
+				Transition(ThrowHold)
+			endif
+			
+			LPFTouched:
+			else
+				# Check if doing a teching move or instant throw teching
+				Call(ThrowTechCheck)
+				
+				LThrowTeched:
+				else
+					SelectOpponentMainEntity()
+					SetPositionRelativeToRef(2000,0)
+					Transition(ThrowHeld, 20000)
+					SelectOriginalEntity()
+				endif
+			endif
+		endif
+	endif
+
+:GroundedThrow:
+	Call(StandingAttack)
+	Call(ThrowCommon)
+	AttackFlag(GroundUnblockable)
+
+:AirborneThrow:
+	Call(AirborneAttack)
+	Call(ThrowCommon)
+	AttackFlag(AirUnblockable)
+
+:VariableThrow:
+	LPFGrounded:
+		Call(GroundedThrow)
+	else
+		Call(AirborneThrow)
+	endif
+
+:ThrowTechCheck:
+	# Check if the flag is here
+	SelectOpponentMainEntity()
+	LThrowTeching:
+		SelectOriginalEntity()
+		Flag(ThrowTeched)
+	endif
+	SelectOriginalEntity()
+	
+	LThrowTeched:
+		Transition(ThrowTeched, 20000)
+		SelectOpponentMainEntity()
+		Transition(ThrowTeching, 20000)
+		SelectOriginalEntity()
+	endif
+
+:ThrowHold:
+	Call(StandingState)
+	Call(ThrowTechCheck)
+	Flag(HaltMomentum)
+	
+	FThrowHoldingTime:
+		Move(5)
+		IBack:
+			Transition(ThrowingBackState)
+		else
+			Transition(ThrowingState)
+		endif
+	endif
+
+:AirThrowHold:
+	Call(AirborneState)
+	Call(ThrowTechCheck)
+	Flag(HaltMomentum)
+	
+	FThrowHoldingTime:
+		Move(5)
+		IBack:
+			Transition(AirThrowingBackState)
+		else
+			Transition(AirThrowingState)
+		endif
+	endif
+
+:ThrowHeld:
+	Call(VariableState)
+	Colbox(-5,5,0,5)
+	Flag(IgnoreGravity)
+	Flag(IgnoreFriction)
+	Hurtbox(-5000, 5000, 0, 20000)
+	V_ThrowTechBuffer:
+		#SelectOpponentMainEntity()
+		Flag(ThrowTeching)
+		#SelectOriginalEntity()
+	endif
+	F180:
+		Transition(Stand)
+	endif
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_THROWHELD)
+	endif
+
+:ThrowTeched:
+	Call(VariableState)
+	FThrowTechedDuration:
+		Transition(Stand)
+	endif
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_THROWTECHED)
+	endif
+	F1:
+		AddMomentum(ThrowTechedMomentumX, ThrowTechedMomentumY)
+	endif
+
+:ThrowTeching:
+	Call(VariableState)
+	FThrowTechingDuration:
+		Transition(Stand)
+	endif
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_THROWTECHING)
+	endif
+	F1:
+		AddMomentum(ThrowTechingMomentumX, ThrowTechingMomentumY)
+	endif
+
+

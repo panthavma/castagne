@@ -94,7 +94,7 @@ anchor_bottom = 0.2
 margin_right = 40.0
 margin_bottom = 14.0
 text = "[Game Name]
-Castagne v0.4
+[Castagne Version]
 Press any key to stop the timer"
 align = 1
 valign = 1
