@@ -35,6 +35,12 @@ func ModuleSetup():
 	RegisterVariableEntity("AnimFrame", 0)
 	RegisterVariableEntity("AnimStartFrame", 0)
 	RegisterVariableEntity("AnimOffset", null)
+	
+	RegisterCategory("Sprites")
+	RegisterFunction("Sprite", [1], null, {
+		"Description":"Display a previously set sprite frame",
+		"Arguments": ["Frame ID", "(Optional) Frame Position Y"],
+	})
 
 
 func UpdateGraphics(state, data):
@@ -83,3 +89,6 @@ func AnimReset(_args, eState, _data):
 func PlaySound(_args, _eState, _data):
 	pass
 
+
+func Sprite(args, eState, _data):
+	eState["SpriteFrame"] = ArgInt(args, eState, 0)

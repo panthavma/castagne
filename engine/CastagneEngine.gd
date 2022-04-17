@@ -401,6 +401,7 @@ func AddNewEntity(state, playerID, fighterID, initStateName):
 	
 	var entityInstanceData = {
 		"Root": null, "Model":null, "AnimPlayer":null,
+		"Sprite":null,
 	}
 	
 	state["CurrentEntityID"] += 1

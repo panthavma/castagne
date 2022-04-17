@@ -27,10 +27,21 @@ func ModuleSetup():
 	RegisterVariableEntity("ModelPositionX", 0)
 	RegisterVariableEntity("ModelPositionY", 0)
 	RegisterVariableEntity("ModelFacing", 1)
-	
 	RegisterFlag("ModelLockWorldPosition")
 	RegisterFlag("ModelLockRelativePosition")
 	RegisterFlag("ModelLockFacing")
+	
+	RegisterCategory("Sprites")
+	RegisterFunction("CreateSprite", [1,2,3,4], null, {
+		"Description": "Creates a 3D sprite from a sprite sheet.",
+		"Arguments": ["Sprite sheet path", "(Optional) Sprites X", "(Optional) Sprites Y", "(Optional) Pixel Size"],
+	})
+	RegisterFunction("SpriteOrigin", [2], null, {
+		"Description": "Sets a sprite's origin in pixels.",
+		"Arguments":["Pos X", "Pos Y"],
+	})
+	
+	RegisterVariableEntity("SpriteFrame", 0)
 
 func BattleInit(state, data, battleInitData):
 	var camera = InitCamera(state, data, battleInitData)
@@ -56,11 +67,17 @@ func UpdateGraphics(state, data):
 		var playerPos = Vector3(eState["ModelPositionX"], eState["ModelPositionY"], 0.0) * POSITION_SCALE
 		var camPosHor = Vector3(cameraPos.x, playerPos.y, cameraPos.z)
 		
-		var modelRoot = data["InstancedData"]["Entities"][eid]["Model"]
+		var iData = data["InstancedData"]["Entities"][eid]
+		
+		var modelRoot = iData["Root"]
 		if(modelRoot != null):
 			modelRoot.set_translation(playerPos)
 			modelRoot.set_scale(Vector3(eState["ModelFacing"], 1.0, 1.0))
 			#modelRoot.look_at(playerPos - (camPosHor - playerPos), Vector3.UP)
+		
+		var sprite = iData["Sprite"]
+		if(sprite != null):
+			sprite.set_frame(eState["SpriteFrame"])
 		
 
 func InitPhaseEndEntity(eState, data):
@@ -104,7 +121,8 @@ func SetPalette(eState, data, paletteID):
 
 
 
-func CreateModel(args, eState, _data):
+func CreateModel(args, eState, data):
+	_EnsureRootIsSet(eState["EID"], data)
 	var animPath = (ArgStr(args, eState, 1) if args.size() > 1 else null)
 	engine.InstanceModel(eState["EID"], ArgStr(args, eState, 0), animPath)
 func ModelMove(args, eState, _data):
@@ -117,7 +135,40 @@ func ModelSwitchFacing(args, eState, _data):
 	eState["ModelFacing"] *= -1
 
 
+# :TODO:Panthavma:20220417:Make the root separate from the model (and move it back here)
+# :TODO:Panthavma:20220417:Make the model move functions move the root instead
+# :TODO:Panthavma:20220417:Allow sprite size change
+# :TODO:Panthavma:20220417:Change sprite origin
 
 
+func CreateSprite(args, eState, data):
+	var spritesheetPath = ArgStr(args, eState, 0)
+	var spritesX = ArgInt(args, eState, 1, 1)
+	var spritesY = ArgInt(args, eState, 2, 1)
+	var pixelSize = ArgInt(args, eState, 3, 100)/10000.0
+	
+	_EnsureRootIsSet(eState["EID"], data)
+	var sprite = Sprite3D.new()
+	data["InstancedData"]["Entities"][eState["EID"]]["Root"].add_child(sprite)
+	data["InstancedData"]["Entities"][eState["EID"]]["Sprite"] = sprite
+	# TODO set it up
+	sprite.set_texture(load(spritesheetPath))
+	sprite.set_hframes(spritesX)
+	sprite.set_vframes(spritesY)
+	sprite.set_pixel_size(pixelSize)
+	sprite.set_centered(false)
+	#sprite.set_billboard_mode(BILLBOARD_ENABLED)
+	#sprite.set_billboard_mode(SpatialMaterial.BILLBOARD_FIXED_Y)
+
+func SpriteOrigin(args, eState, data):
+	var originX = ArgInt(args, eState, 0)
+	var originY = ArgInt(args, eState, 1)
+	var sprite = data["InstancedData"]["Entities"][eState["EID"]]["Sprite"]
+	sprite.set_offset(Vector2(-originX, -originY))
 
 
+func _EnsureRootIsSet(eid, data):
+	if(data["InstancedData"]["Entities"][eid]["Root"] == null):
+		var root = Spatial.new()
+		data["InstancedData"]["Entities"][eid]["Root"] = root
+		data["Engine"].add_child(root)

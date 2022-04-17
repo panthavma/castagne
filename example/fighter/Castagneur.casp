@@ -6,10 +6,6 @@
 	# The skeleton is another .casp file that is going to be used as a base.
 	Skeleton: res://castagne/Base.casp
 	
-	# This is for the graphical side, it will instance the model.
-	Model: res://castagne/example/fighter/CastagneurModel.tscn
-	AnimPlayerPath: AnimationPlayer
-	
 	# Palette materials, for now.
 	Palette1:res://castagne/example/fighter/model/Pal1.tres
 	Palette2:res://castagne/example/fighter/model/Pal2.tres
@@ -20,6 +16,10 @@
 	# Character Specific
 	HPMax: 10000
 	BallSpeed: 2300
+	
+	# This is for the graphical side, it will instance the model.
+	MODEL_PATH: res://castagne/example/fighter/CastagneurModel.tscn
+	ANIMPLAYER_PATH: AnimationPlayer
 	
 	# Animation presets. These are used by Base.casp
 	USE_STANDARD_ANIMS: 1

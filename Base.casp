@@ -73,6 +73,14 @@
 	AIR_ATTACK_CAN_SWITCH_FACING: 1
 	
 	# Model
+	USE_SPRITES: 0
+	SPRITESHEET_PATH: res://castagne/example/fighter/sprites/StickmanSpriteSheet.png
+	SPRITESHEET_NB_X: 1
+	SPRITESHEET_NB_Y: 1
+	SPRITESHEET_PIXELSIZE: 100
+	SPRITE_ORIGIN_X: 0
+	SPRITE_ORIGIN_Y: 0
+	
 	MODEL_PATH: res://castagne/example/fighter/CastagneurModel.tscn
 	ANIMPLAYER_PATH: AnimationPlayer
 	
@@ -134,9 +142,20 @@
 
 :Init:
 	CopyFighterVariables()
-	CreateModel(MODEL_PATH, ANIMPLAYER_PATH)
+	VUSE_SPRITES:
+		Call(InitSprites)
+	else
+		Call(InitModel)
+	endif
 	Call(NewRound)
 	Transition(Stand)
+
+:InitModel:
+	CreateModel(MODEL_PATH, ANIMPLAYER_PATH)
+
+:InitSprites:
+	CreateSprite(SPRITESHEET_PATH, SPRITESHEET_NB_X, SPRITESHEET_NB_Y, SPRITESHEET_PIXELSIZE)
+	SpriteOrigin(SPRITE_ORIGIN_X, SPRITE_ORIGIN_Y)
 
 :NewRound:
 	Set(Meter, 0)
@@ -151,11 +170,7 @@
 # / /___/ /_/ / / / / / / / / / / / /_/ / / / /
 # \____/\____/_/ /_/ /_/_/ /_/ /_/\____/_/ /_/ 
 
-:TrueCommon:
-	
-
 :Common:
-	Call(TrueCommon)
 	Call(StandardColbox)
 	Call(ThrowTechingInput)
 	LDie:
@@ -594,7 +609,7 @@
 
 
 :NeutralTech:
-	Call(TrueCommon)
+	Call(Common)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_TECH_INPLACE)
 	endif
@@ -606,7 +621,7 @@
 		Transition(Crouch)
 	endif
 :ForwardTech:
-	Call(TrueCommon)
+	Call(Common)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_TECH_FORWARD)
 	endif
@@ -618,7 +633,7 @@
 		Transition(Stand)
 	endif
 :BackTech:
-	Call(TrueCommon)
+	Call(Common)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_TECH_BACK)
 	endif
@@ -630,7 +645,7 @@
 		Transition(Stand)
 	endif
 :SoftTech:
-	Call(TrueCommon)
+	Call(Common)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_TECH_SOFT)
 	endif
@@ -642,7 +657,7 @@
 		Transition(Stand)
 	endif
 :AirTech:
-	Call(TrueCommon)
+	Call(Common)
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_TECH_AIR)
 	endif
@@ -731,29 +746,40 @@
 
 :Stand:
 	Call(StandingNeutralState)
+	Call(AnimStand)
+
+:AnimStand:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_STAND)
 	endif
 
 :Crouch:
 	Call(CrouchingNeutralState)
+	Call(AnimCrouch)
+
+:AnimCrouch:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_CROUCH)
 	endif
 
 :WalkF:
 	Call(StandingNeutralState)
+	Call(AnimWalkF)
+	Move(WalkFSpeed, 0)
+:AnimWalkF:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_WALKF, 0, ANIM_WALKF_LOOP)
 	endif
-	Move(WalkFSpeed, 0)
+
 
 :WalkB:
 	Call(StandingNeutralState)
+	Call(AnimWalkB)
+	Move(WalkBSpeed, 0)
+:AnimWalkB:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_WALKB, 0, ANIM_WALKB_LOOP)
 	endif
-	Move(WalkBSpeed, 0)
 
 
 
@@ -762,9 +788,7 @@
 	# TODO Weird airborne state, check if correct, and if Airborne flag is correct
 	Call(StandardHurtbox)
 	Flag(PFAirborne)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_JUMPSQUAT)
-	endif
+	Call(AnimJumpsquat)
 	F1:
 		Flag(ApplyFacing)
 	endif
@@ -780,6 +804,10 @@
 			Transition(JumpN)
 		endif
 	endif
+:AnimJumpsquat:
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_JUMPSQUAT)
+	endif
 
 :ComputeLandingLag:
 	LAttacking:
@@ -792,9 +820,7 @@
 	Call(CrouchingState)
 	Flag(CanBlock)
 	Call(StandardHurtbox)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_LANDING)
-	endif
+	Call(AnimLanding)
 	
 	V_EffectiveLandingLag<=0:
 		Call(ComputeLandingLag)
@@ -802,36 +828,48 @@
 	F_EffectiveLandingLag+:
 		Call(GroundedNeutralStateTransitions)
 	endif
-	
+:AnimLanding:
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_LANDING)
+	endif
 
 :JumpN:
 	Call(AirborneNeutralState)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_JUMPN)
-	endif
+	Call(AnimJumpN)
 	F1:
 		AddMomentum(0, JumpNForce)
 	endif
+:AnimJumpN:
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_JUMPN)
+	endif
+	
 :JumpF:
 	Call(AirborneNeutralState)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_JUMPF)
-	endif
+	Call(AnimJumpF)
 	F1:
 		AddMomentum(JumpFForce, JumpNForce)
 	endif
+:AnimJumpF:
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_JUMPF)
+	endif
 :JumpB:
 	Call(AirborneNeutralState)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_JUMPB)
-	endif
+	Call(AnimJumpB)
 	F1:
 		AddMomentum(JumpBForce, JumpNForce)
+	endif
+:AnimJumpB:
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_JUMPB)
 	endif
 
 
 :AirIdle:
 	Call(AirborneNeutralState)
+	Call(AnimAirIdle)
+:AnimAirIdle:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_AIRIDLE)
 	endif
