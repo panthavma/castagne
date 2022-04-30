@@ -48,7 +48,7 @@ func Init(battleInitData):
 	# 2. Load map
 	# Load maps and music
 	#:TODO:Panthavma:20220124:Review the map system, maybe as an entity ?
-	var prefabMap = Load(Castagne.configData["StagePaths"][battleInitData["map"]])
+	var prefabMap = Load(Castagne.SplitStringToArray(Castagne.configData["StagePaths"])[battleInitData["map"]])
 	var map = prefabMap.instance()
 	add_child(map)
 	instancedData["map"] = map

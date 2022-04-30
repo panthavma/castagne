@@ -234,12 +234,16 @@ func RegisterFlag(flagName, documentation = null):
 
 # Registers a configuration option
 func RegisterConfig(keyName, defaultValue, documentation=null):
-	if(documentation == null):
-		documentation = {
-			"Description": ""
-		}
-	documentation["Name"]=keyName
-	moduleDocumentationCategories[currentCategory]["Config"].append(documentation)
+	var docs = {
+		"Description": "",
+		"Flags":[],
+		"Name":keyName,
+	}
+	if(documentation != null):
+		Castagne.FuseDataOverwrite(docs, documentation)
+	docs["Key"]=keyName
+	docs["Default"]=defaultValue
+	moduleDocumentationCategories[currentCategory]["Config"].append(docs)
 	
 	configDefault[keyName] = defaultValue
 
@@ -255,6 +259,7 @@ func RegisterBattleInitData(keyName, defaultValue, documentation=null):
 	battleInitDataDefault[keyName] = defaultValue
 
 
+# :TODO:Panthavma:20220420:Make them actual flags instead of strings, with a more global system
 func HasFlag(eState, flagName):
 	if(eState.has("Flags")):
 		return eState["Flags"].has(flagName)

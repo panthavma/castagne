@@ -1,0 +1,235 @@
+extends Control
+
+
+var characterPath = null
+var characterID = null
+func EnterMenu(cID):
+	show()
+	
+	characterID = cID
+	characterPath = Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"])[cID]
+	$TopBar/HBoxContainer/Label.set_text("Editing " + characterPath)
+	
+	$TopBar/HBoxContainer/Save.set_disabled(true)
+	
+	ReloadEngine()
+	
+	ReloadCodePanel()
+	
+	$Popups.hide()
+	
+
+var engine = null
+var inputProvider = null
+func ReloadEngine():
+	if(engine != null):
+		engine.queue_free()
+	
+	var enginePrefab = load(Castagne.configData["Engine"])
+	Castagne.battleInitData["p1"] = characterID
+	Castagne.battleInitData["p1-palette"] = 0
+	Castagne.battleInitData["p2"] = characterID
+	Castagne.battleInitData["p2-palette"] = 1
+	Castagne.battleInitData["p2-palette"] = 1
+	
+	engine = enginePrefab.instance()
+	inputProvider = null
+	
+	$EngineVP/Viewport.add_child(engine)
+	
+	FocusGame()
+
+var character
+var curFile
+var curState
+func ReloadCodePanel(resetStates = true):
+	$CodePanel/Navigation.hide()
+	
+	character = Castagne.Parser.GetCharacterForEdition(characterPath)
+	for i in range(character["NbFiles"]):
+		character[i]["Modified"] = false
+	if(resetStates):
+		ChangeCodePanelState("Character", character["NbFiles"]-1)
+	else:
+		ChangeCodePanelState(null)
+
+enum NAVPANEL_MODE {
+	ChooseState, ChooseFile
+}
+var navpanelMode = null
+func RefreshNavigationPanel(mode):
+	navpanelMode = mode
+	var modesRoot = $CodePanel/Navigation.get_children()
+	modesRoot.pop_front()
+	for r in modesRoot:
+		r.hide()
+	var root = modesRoot[mode]
+	root.show()
+	var list = root.get_node("MoveList")
+	
+	list.clear()
+	
+	if(mode == NAVPANEL_MODE.ChooseFile):
+		for i in range(character["NbFiles"]):
+			list.add_item(character[i]["Path"])
+	else:
+		for stateName in character[curFile]["States"]:
+			list.add_item(stateName)
+
+func ChangeCodePanelState(newState, newFile = -1):
+	if(newFile >= 0):
+		curFile = newFile
+	if(newState != null): 
+		curState = newState
+	
+	var file = character[curFile]
+	if(!file["States"].has(curState)):
+		curState = "Character"
+	var state = file["States"][curState]
+	
+	$CodePanel/Header/File.set_text(file["Path"])
+	$CodePanel/Header/State.set_text(curState)
+	$CodePanel/Code.set_text(state["Text"])
+
+func ExitMenu():
+	hide()
+	$"..".EnterMenu()
+	
+	engine.queue_free()
+	engine = null
+	inputProvider = null
+
+
+func _on_Back_pressed():
+	ExitMenu()
+
+
+func _on_Save_pressed():
+	SaveFile()
+func SaveFile():
+	$TopBar/HBoxContainer/Save.set_disabled(true)
+	for i in range(character["NbFiles"]):
+		var fileData = character[i]
+		if(!fileData["Modified"]):
+			continue
+		fileData["Modified"] = false
+		var filePath = fileData["Path"]
+		print("Editor: Saving to " + filePath)
+		
+		var statesToSave = fileData["States"].keys()
+		if(!statesToSave.has("Character")):
+			fileData["States"]["Character"] = {"Text":"\n"}
+		if(!statesToSave.has("Variables")):
+			fileData["States"]["Variables"] = {"Text":"\n\n"}
+		statesToSave.erase("Character")
+		statesToSave.erase("Variables")
+		
+		for s in statesToSave:
+			var stext = fileData["States"][s]["Text"].strip_edges()
+			if(stext.empty()):
+				statesToSave.erase(s)
+		
+		statesToSave.push_front("Variables")
+		statesToSave.push_front("Character")
+		
+		var fulltext = ""
+		for s in statesToSave:
+			fulltext += ":" + s + ":\n"
+			fulltext += fileData["States"][s]["Text"] + "\n"
+		
+		var file = File.new()
+		file.open(fileData["Path"], File.WRITE)
+		file.store_string(fulltext)
+		file.close()
+
+func On_Header_State_Pressed():
+	ShowHideNavPanel(NAVPANEL_MODE.ChooseState)
+func _on_Header_File_pressed():
+	ShowHideNavPanel(NAVPANEL_MODE.ChooseFile)
+
+func ShowHideNavPanel(mode):
+	var n = $CodePanel/Navigation
+	if(n.is_visible() and navpanelMode == mode):
+		n.hide()
+	else:
+		RefreshNavigationPanel(mode)
+		n.show()
+
+func _on_Navigation_MoveList_item_activated(index):
+	if(navpanelMode == NAVPANEL_MODE.ChooseFile):
+		ChangeCodePanelState(null, index)
+	else:
+		ChangeCodePanelState($CodePanel/Navigation/ChooseState/MoveList.get_item_text(index))
+	$CodePanel/Navigation.hide()
+
+
+func _on_Reload_pressed():
+	SaveFile()
+	ReloadEngine()
+	ReloadCodePanel()
+
+
+func _on_Code_text_changed():
+	$TopBar/HBoxContainer/Save.set_disabled(false)
+	character[curFile]["States"][curState]["Text"] = $CodePanel/Code.get_text()
+	character[curFile]["Modified"] = true
+
+
+func _input(event):
+	if(event is InputEventMouseButton and event.is_pressed()):
+		UnfocusGame()
+func _input_VP(event):
+	if(event is InputEventMouseButton and event.is_pressed()):
+		if($Popups.is_visible()):
+			UnfocusGame()
+		else:
+			FocusGame()
+func FocusGame():
+	if(engine == null):
+		return
+	lockInput = false
+	
+	SetAllUIModulate(Color(0.5,0.5,0.5,1.0))
+	var nodes = get_children()
+	nodes.erase($Popups)
+	while(!nodes.empty()):
+		var n = nodes.pop_back()
+		if(n.has_method("release_focus")):
+			n.release_focus()
+		nodes.append_array(n.get_children())
+func UnfocusGame():
+	if(engine == null):
+		return
+	lockInput = true
+	
+	SetAllUIModulate(Color(1.0,1.0,1.0,1.0))
+
+func SetAllUIModulate(color):
+	for n in get_children():
+		if(n.get_name() == "EngineVP"):
+			continue
+		n.set_modulate(color)
+
+var lockInput = null
+func _process(_delta):
+	if(lockInput != null):
+		if(inputProvider == null):
+			if(engine != null and engine.instancedData != null and engine.instancedData.has("Players")):
+				inputProvider = engine.instancedData["Players"][0]["InputProvider"]
+		if(inputProvider != null):
+			inputProvider.lockInput = lockInput
+			lockInput = null
+
+
+func _on_NewState_pressed():
+	var stateName = $CodePanel/Navigation/ChooseState/Bottom/NewStateName.get_text().strip_edges()
+	$CodePanel/Navigation/ChooseState/Bottom/NewStateName.set_text("")
+	if(stateName.empty()):
+		return
+	
+	if(!character[curFile]["States"].has(stateName)):
+		character[curFile]["States"][stateName] = {}
+		character[curFile]["States"][stateName]["Text"] = ""
+	
+	$CodePanel/Navigation.hide()
+	ChangeCodePanelState(stateName)

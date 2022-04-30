@@ -264,44 +264,54 @@ func ModuleSetup():
 	#RegisterVariableEntity("PID", -1, ["NoInit"])
 	
 	
-	RegisterConfig("Engine", "res://castagne/engine/CastagneEngine.tscn")
-	RegisterConfig("Editor", "res://castagne/editor/CastagneEditor.tscn")
+	RegisterConfig("GameTitle","Untitled Castagne Game")
+	RegisterConfig("GameVersion","Unspecified Version")
+	RegisterConfig("CastagneVersion","Castagne v0.4", {"Flags":["Advanced", "Reload"]})
+	
+	RegisterConfig("Engine", "res://castagne/engine/CastagneEngine.tscn", {"Flags":["Advanced"]})
+	RegisterConfig("Editor", "res://castagne/editor/CastagneEditor.tscn", {"Flags":["Advanced"]})
 	RegisterConfig("MainMenu","res://castagne/menus/mainmenu/DefaultMainMenu.tscn")
 	RegisterConfig("CharacterSelect","res://castagne/menus/characterselect/DefaultCharacterSelect.tscn")
 	RegisterConfig("PostBattle","res://castagne/menus/postbattle/DefaultPostBattle.tscn")
 	
-	RegisterConfig("Modules",["default-fg25D"])
-	RegisterConfig("Modules-basic", ["res://castagne/modules/functions/Basic.tscn"])
-	RegisterConfig("Modules-attacks", ["res://castagne/modules/functions/Attacks.tscn"])
-	RegisterConfig("Modules-physics2d", ["res://castagne/modules/functions/Physics.tscn"])
-	RegisterConfig("Modules-graphics25d", ["res://castagne/modules/graphics/CMGraphics2HalfD.tscn"])
-	RegisterConfig("Modules-fightinggame", ["res://castagne/modules/gamemodes/CMFightingGame.tscn"])
-	RegisterConfig("Modules-ui", ["res://castagne/modules/ui/FightingUI.tscn"])
-	
-	RegisterConfig("Modules-25d",["physics2d", "graphics25d"])
-			
-	RegisterConfig("Modules-default-fg25D",["basic", "25d", "attacks", "fightinggame", "ui"])
-	
-	RegisterConfig("CharacterPaths",["res://castagne/example/fighter/Castagneur.casp"])
-	RegisterConfig("StagePaths",["res://castagne/example/stage/Stage.tscn"])
+	RegisterConfig("CharacterPaths","res://castagne/example/fighter/Castagneur.casp")
+	RegisterConfig("StagePaths","res://castagne/example/stage/Stage.tscn")
 	RegisterConfig("InputProviders",{"local":"res://castagne/modules/input/InputLocal.tscn", "online":"res://castagne/modules/input/InputOnline.tscn",
 		"ai":"res://castagne/modules/input/InputAI.tscn", "dummy":"res://castagne/modules/input/InputDummy.tscn",
-		"replay":"res://castagne/modules/input/InputReplay.tscn"})
+		"replay":"res://castagne/modules/input/InputReplay.tscn"}, {"Flags":["Hidden"]})
 	
-	RegisterConfig("GameTitle","Untitled Castagne Game")
-	RegisterConfig("GameVersion","Unspecified Version")
-	RegisterConfig("CastagneVersion","Castagne v0.4")
-	
-	RegisterConfig("Starter-Option", 0)
-	RegisterConfig("Starter-Timer", 2000)
-	RegisterConfig("Starter-P1", 0)
-	RegisterConfig("Starter-P2", 0)
+	RegisterConfig("Skeleton-default", "base")
+	RegisterConfig("Skeleton-base", "res://castagne/Base.casp", {"Flags":["Advanced"]})
 	
 	
 	RegisterBattleInitData("map",0)
 	RegisterBattleInitData("music",0)
 	RegisterBattleInitData("mode","Training")
 	RegisterBattleInitData("online",false)
+	
+	RegisterCategory("Castagne Modules")
+	RegisterConfig("Modules","default-fg25D", {"Flags":["ReloadFull"]})
+	RegisterConfig("Modules-basic", "res://castagne/modules/functions/Basic.tscn", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-attacks", "res://castagne/modules/functions/Attacks.tscn", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-physics2d", "res://castagne/modules/functions/Physics.tscn", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-graphics25d", "res://castagne/modules/graphics/CMGraphics2HalfD.tscn", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-fightinggame", "res://castagne/modules/gamemodes/CMFightingGame.tscn", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-ui", "res://castagne/modules/ui/FightingUI.tscn", {"Flags":["Advanced", "ReloadFull"]})
+	
+	RegisterConfig("Modules-25d","physics2d, graphics25d", {"Flags":["Advanced", "ReloadFull"]})
+			
+	RegisterConfig("Modules-default-fg25D","basic, 25d, attacks, fightinggame, ui", {"Flags":["Advanced", "ReloadFull"]})
+	
+	
+	RegisterCategory("Castagne Starter")
+	RegisterConfig("Starter-Option", 0, {"Flags":["Hidden"]})
+	RegisterConfig("Starter-Timer", 2000)
+	RegisterConfig("Starter-P1", 0, {"Flags":["Hidden"]})
+	RegisterConfig("Starter-P2", 0, {"Flags":["Hidden"]})
+	
+	RegisterCategory("Castagne Editor")
+	RegisterConfig("Editor-SelectedCharacter", 0, {"Flags":["Hidden"]})
+	
 
 
 

@@ -60,7 +60,7 @@ func _ready():
 	LoadModule(configData["Modules-core"])
 	
 	# 2.2 Load all the other modules
-	for modulePath in configData["Modules"]:
+	for modulePath in SplitStringToArray(configData["Modules"]):
 		LoadModule(modulePath)
 	
 	# 3. Set BattleInitData
@@ -118,7 +118,7 @@ func LoadModule(modulePath):
 		if(!configData.has("Modules-"+modulePath)):
 			Error("Can't find module list to load: "+modulePath)
 			return
-		for mPath in configData["Modules-"+modulePath]:
+		for mPath in SplitStringToArray(configData["Modules-"+modulePath]):
 			LoadModule(mPath)
 		return
 	
@@ -216,3 +216,12 @@ func AreDictionariesEqual(a, b):
 		if(!b.has(k) or a[k] != b[k]):
 			return false
 	return true
+
+func SplitStringToArray(stringToSeparate, separator=","):
+	var a = []
+	var strings = stringToSeparate.split(separator)
+	for s in strings:
+		s = s.strip_edges()
+		if(!s.empty()):
+			a.push_back(s)
+	return a

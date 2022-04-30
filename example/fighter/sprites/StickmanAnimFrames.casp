@@ -1,14 +1,13 @@
 :Character:
 	Name: Stickman (Anim Frames)
 	
-	Skeleton: res://castagne/Base.casp
-	
 	# Palette materials, for now.
 	Palette1:res://castagne/example/fighter/model/Pal1.tres
 	Palette2:res://castagne/example/fighter/model/Pal2.tres
 
 
 # The variables block allows us to hold data for later use.
+
 :Variables:
 	# Character Specific
 	HPMax: 10000
@@ -23,8 +22,10 @@
 	SPRITE_ORIGIN_X: 32
 	SPRITE_ORIGIN_Y: 4
 
+
 :AnimStand:
 	Sprite(0)
+
 
 :AnimWalkF:
 	Mod(StateFrameID, 32, RegA)
@@ -42,6 +43,7 @@
 		endif
 	endif
 
+
 :AnimWalkB:
 	Mod(StateFrameID, 32, RegA)
 	VRegA<=15:
@@ -58,22 +60,30 @@
 		endif
 	endif
 
+
 :AnimCrouch:
 	Sprite(9)
 
+
 :AnimLanding:
 	Sprite(11)
+
 :AnimAirIdle:
 	Sprite(10)
+
 :AnimJumpsquat:
 	Sprite(11)
 
+
 :AnimJumpN:
 	Call(AnimAirIdle)
+
 :AnimJumpF:
 	Call(AnimAirIdle)
+
 :AnimJumpB:
 	Call(AnimAirIdle)
+
 
 
 
@@ -91,6 +101,7 @@
 	endif
 
 
+
 :5B:
 	Call(StandingAttack)
 	Hurtbox(-5000,5000,0,20000)
@@ -102,6 +113,7 @@
 			Hitbox(0,12000,10000,15000)
 		endif
 	endif
+
 
 
 
@@ -123,3 +135,5 @@
 		Sprite(8)
 	endif
 	
+
+

@@ -1,17 +1,6 @@
-# Castagne Base Skeleton
-# This holds some base states that can be useful for all characters,
-# and bakes some of the assumptions made by the standard functions.
-# It is recommended a second skeleton to implement your own system
-# mechanics on top of it.
-
 :Character:
-	Name: Castagne Base Character
-
-#:Constants:
-	# STANDARD_COLBOX
-	# STANDARD_HURTBOX_STANDING
-	# STANDARD_HURTBOX_CROUCHING
-	# STANDARD_HURTBOX_AIR
+Name: Castagne Base Character
+Skeleton: none
 
 :Variables:
 	# System
@@ -137,6 +126,10 @@
 # :TODO:Panthavma:20220315:Make jump cancel
 # :TODO:Panthavma:20220315:Make prefabs for Projectiles
 # :TODO:Panthavma:20220315:Make prefabs for VFX?
+# :TODO:Panthavma:20220424:Do standard hurtbox better: only if no hurtbox is here
+# :TODO:Panthavma:20220424:Move anims and sound as separate functions
+
+
 
 
 
@@ -150,12 +143,18 @@
 	Call(NewRound)
 	Transition(Stand)
 
+
+
 :InitModel:
 	CreateModel(MODEL_PATH, ANIMPLAYER_PATH)
+
+
 
 :InitSprites:
 	CreateSprite(SPRITESHEET_PATH, SPRITESHEET_NB_X, SPRITESHEET_NB_Y, SPRITESHEET_PIXELSIZE)
 	SpriteOrigin(SPRITE_ORIGIN_X, SPRITE_ORIGIN_Y)
+
+
 
 :NewRound:
 	Set(Meter, 0)
@@ -169,6 +168,8 @@
 #  / /   / __ \/ __ `__ \/ __ `__ \/ __ \/ __ \
 # / /___/ /_/ / / / / / / / / / / / /_/ / / / /
 # \____/\____/_/ /_/ /_/_/ /_/ /_/\____/_/ /_/ 
+
+
 
 :Common:
 	Call(StandardColbox)
@@ -188,6 +189,8 @@
 			Call(OnBlock)
 		endif
 	endif
+
+
 
 :OnHit:
 	#PlaySound(Hit)
@@ -213,7 +216,11 @@
 		Call(VFXHit)
 	endif
 
+
+
 :VFXHit:
+
+
 
 
 :OnBlock:
@@ -239,7 +246,11 @@
 		SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
 		Call(VFXBlock)
 	endif
+
+
 :VFXBlock:
+
+
 
 
 :ThrowTechingInput:
@@ -255,6 +266,8 @@
 		endif
 	endif
 
+
+
 :Dead:
 	Flag(Dead)
 	Colbox(-200, 200, 0, 200)
@@ -269,6 +282,8 @@
 		Transition(DeadKnockdown, 500000)
 	endif
 
+
+
 :DeadKnockdown:
 	Flag(Dead)
 	Colbox(-200, 200, 0, 200)
@@ -278,9 +293,13 @@
 	BreakMomentum(500, 0)
 
 
+
+
 :GroundedStateCommon:
 	Call(Common)
 	CapMomentum(3500,-1)
+
+
 
 :GroundedState:
 	Call(GroundedStateCommon)
@@ -288,21 +307,31 @@
 		Transition(AirIdle, 200)
 	endif
 
+
+
 :StandingState:
 	Call(GroundedState)
+
+
 
 :CrouchingState:
 	Flag(Crouching)
 	Call(GroundedState)
 
+
+
 :AirborneStateCommon:
 	Call(Common)
 	Flag(Airborne)
+
+
 :AirborneState:
 	Call(AirborneStateCommon)
 	LPFGrounded:
 		Transition(Landing, 200)
 	endif
+
+
 
 :VariableState:
 	LPFAirborne:
@@ -313,12 +342,18 @@
 
 
 
+
+
 :StandingNeutralState:
 	Call(StandingState)
 	Call(GroundedNeutralStateCommon)
+
+
 :CrouchingNeutralState:
 	Call(CrouchingState)
 	Call(GroundedNeutralStateCommon)
+
+
 
 :GroundedNeutralStateCommon:
 	Call(StandardHurtbox)
@@ -328,6 +363,8 @@
 	Flag(CanBlock)
 	
 	Call(GroundedNeutralStateTransitions)
+
+
 
 :GroundedNeutralStateTransitions:
 	Call(AttackAddAllNormalsCancels)
@@ -353,6 +390,8 @@
 	endif
 
 
+
+
 :AirborneNeutralState:
 	Call(AirborneState)
 	Call(StandardHurtbox)
@@ -363,15 +402,21 @@
 	
 	Call(AirborneNeutralStateTransitions)
 
+
+
 :AirborneNeutralStateTransitions:
 	Call(AttackAddAllNormalsCancels)
 	Call(AttackAddSpecialCancels)
 	Call(AirborneAttacks)
 
 
+
+
 :ReturnedToNeutral:
 	Set(Groundbounces, 0)
 	AttackResetDoneCancels()
+
+
 
 
 :Intro:
@@ -382,10 +427,14 @@
 	endif
 
 
+
+
 :StandardColbox:
 	VUSE_STANDARD_COLBOX:
 		Colbox(-4000, 4000, 0, 15000)
 	endif
+
+
 
 :StandardHurtbox:
 	VUSE_STANDARD_HURTBOX:
@@ -407,6 +456,8 @@
 # / __  / / /_(__  ) /_/ /_/ / / / /
 #/_/ /_/_/\__/____/\__/\__,_/_/ /_/ 
 
+
+
 :OnHitstunLanding:
 	LAFGroundbounce:
 		Transition(HitstunGroundbounce, 6000)
@@ -420,6 +471,8 @@
 			Call(GroundTech)
 		endif
 	endif
+
+
 
 
 :HitstunCommon:
@@ -441,6 +494,8 @@
 	
 	Call(StandardHurtbox)
 
+
+
 :HitstunStand:
 	Call(HitstunCommon)
 	Call(StandardHurtbox)
@@ -453,6 +508,8 @@
 		Transition(HitstunAir)
 	endif
 
+
+
 :HitstunCrouch:
 	Flag(Crouching)
 	Call(HitstunCommon)
@@ -464,6 +521,8 @@
 	LPFAirborne:
 		Transition(HitstunAir)
 	endif
+
+
 
 :HitstunAir:
 	Call(HitstunCommon)
@@ -479,6 +538,8 @@
 		Call(OnHitstunLanding)
 	endif
 
+
+
 :HitstunGroundbounce:
 	Call(HitstunAir)
 	F1:
@@ -486,6 +547,8 @@
 		SetMomentumY(GroundbounceMomentum)
 		Set(HitstunDuration, GroundbounceTime)
 	endif
+
+
 
 :AnimHitstunGround:
 	VUSE_STANDARD_ANIMS:
@@ -495,6 +558,8 @@
 			Anim(ANIM_HITSTUN_STAND)
 		endif
 	endif
+
+
 
 :AnimHitstunAir:
 	VUSE_STANDARD_ANIMS:
@@ -537,11 +602,15 @@
 # / /_/ / / /_/ / /__/ ,< (__  ) /_/ /_/ / / / /
 #/_____/_/\____/\___/_/|_/____/\__/\__,_/_/ /_/ 
 
+
+
 :BlockstunCommon:
 	Flag(Blockstun)
 	Flag(CanBlock)
 	Call(StandardHurtbox)
 	Sub(BlockstunDuration, 1)
+
+
 
 
 :BlockHigh:
@@ -556,6 +625,8 @@
 	VBlockstunDuration<=0:
 		Call(GroundedNeutralStateTransitions)
 	endif
+
+
 :BlockLow:
 	Call(CrouchingState)
 	Call(BlockstunCommon)
@@ -568,6 +639,8 @@
 	VBlockstunDuration<=0:
 		Call(GroundedNeutralStateTransitions)
 	endif
+
+
 :BlockAir:
 	Call(VariableState)
 	Call(BlockstunCommon)
@@ -593,6 +666,8 @@
 #/_/  \___/\___/_/ /_/____/  
 
 
+
+
 :GroundTech:
 	IForward:
 		Transition(ForwardTech, 5000)
@@ -604,58 +679,8 @@
 		endif
 	endif
 
-:AirTech:
-	Transition(AirTech, 5000)
 
 
-:NeutralTech:
-	Call(Common)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_TECH_INPLACE)
-	endif
-	F1:
-		SetMomentum(0, 0)
-	endif
-	F14:
-		SetMomentum(0,0)
-		Transition(Crouch)
-	endif
-:ForwardTech:
-	Call(Common)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_TECH_FORWARD)
-	endif
-	F1:
-		SetMomentum(2000, 0)
-	endif
-	F14:
-		SetMomentum(0,0)
-		Transition(Stand)
-	endif
-:BackTech:
-	Call(Common)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_TECH_BACK)
-	endif
-	F1:
-		SetMomentum(-2000, 0)
-	endif
-	F14:
-		SetMomentum(0,0)
-		Transition(Stand)
-	endif
-:SoftTech:
-	Call(Common)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_TECH_SOFT)
-	endif
-	F1:
-		SetMomentum(-800, 0)
-	endif
-	F14:
-		SetMomentum(0,0)
-		Transition(Stand)
-	endif
 :AirTech:
 	Call(Common)
 	VUSE_STANDARD_ANIMS:
@@ -698,6 +723,64 @@
 # / /| |/ / / / /_/ / /__/ ,< / /_/ / /_/ / |/ |/ / / / (__  ) 
 #/_/ |_/_/ /_/\____/\___/_/|_|\__,_/\____/|__/|__/_/ /_/____/  
 
+
+
+:NeutralTech:
+	Call(Common)
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_TECH_INPLACE)
+	endif
+	F1:
+		SetMomentum(0, 0)
+	endif
+	F14:
+		SetMomentum(0,0)
+		Transition(Crouch)
+	endif
+
+
+:ForwardTech:
+	Call(Common)
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_TECH_FORWARD)
+	endif
+	F1:
+		SetMomentum(2000, 0)
+	endif
+	F14:
+		SetMomentum(0,0)
+		Transition(Stand)
+	endif
+
+
+:BackTech:
+	Call(Common)
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_TECH_BACK)
+	endif
+	F1:
+		SetMomentum(-2000, 0)
+	endif
+	F14:
+		SetMomentum(0,0)
+		Transition(Stand)
+	endif
+
+
+:SoftTech:
+	Call(Common)
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_TECH_SOFT)
+	endif
+	F1:
+		SetMomentum(-800, 0)
+	endif
+	F14:
+		SetMomentum(0,0)
+		Transition(Stand)
+	endif
+
+
 :KnockdownCommon:
 	Call(Common)
 	VUSE_STANDARD_ANIMS:
@@ -706,6 +789,8 @@
 	Colbox(-5000, 5000, 0, 2000)
 	CapMomentum(2000, 0)
 	BreakMomentum(500,0)
+
+
 
 :Knockdown:
 	Call(KnockdownCommon)
@@ -718,6 +803,8 @@
 		endif
 	endif
 # TODO Remove Hard knockdown as knockdown works
+
+
 :HardKnockdown:
 	Call(KnockdownCommon)
 	F50:
@@ -744,42 +831,60 @@
 
 
 
+
+
 :Stand:
 	Call(StandingNeutralState)
 	Call(AnimStand)
+
+
 
 :AnimStand:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_STAND)
 	endif
 
+
+
 :Crouch:
 	Call(CrouchingNeutralState)
 	Call(AnimCrouch)
+
+
 
 :AnimCrouch:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_CROUCH)
 	endif
 
+
+
 :WalkF:
 	Call(StandingNeutralState)
 	Call(AnimWalkF)
 	Move(WalkFSpeed, 0)
+
+
 :AnimWalkF:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_WALKF, 0, ANIM_WALKF_LOOP)
 	endif
 
 
+
+
 :WalkB:
 	Call(StandingNeutralState)
 	Call(AnimWalkB)
 	Move(WalkBSpeed, 0)
+
+
 :AnimWalkB:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_WALKB, 0, ANIM_WALKB_LOOP)
 	endif
+
+
 
 
 
@@ -804,10 +909,14 @@
 			Transition(JumpN)
 		endif
 	endif
+
+
 :AnimJumpsquat:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_JUMPSQUAT)
 	endif
+
+
 
 :ComputeLandingLag:
 	LAttacking:
@@ -815,6 +924,8 @@
 	else
 		Set(_EffectiveLandingLag, LandingLag)
 	endif
+
+
 
 :Landing:
 	Call(CrouchingState)
@@ -828,10 +939,14 @@
 	F_EffectiveLandingLag+:
 		Call(GroundedNeutralStateTransitions)
 	endif
+
+
 :AnimLanding:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_LANDING)
 	endif
+
+
 
 :JumpN:
 	Call(AirborneNeutralState)
@@ -839,36 +954,50 @@
 	F1:
 		AddMomentum(0, JumpNForce)
 	endif
+
+
 :AnimJumpN:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_JUMPN)
 	endif
 	
+
+
 :JumpF:
 	Call(AirborneNeutralState)
 	Call(AnimJumpF)
 	F1:
 		AddMomentum(JumpFForce, JumpNForce)
 	endif
+
+
 :AnimJumpF:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_JUMPF)
 	endif
+
+
 :JumpB:
 	Call(AirborneNeutralState)
 	Call(AnimJumpB)
 	F1:
 		AddMomentum(JumpBForce, JumpNForce)
 	endif
+
+
 :AnimJumpB:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_JUMPB)
 	endif
 
 
+
+
 :AirIdle:
 	Call(AirborneNeutralState)
 	Call(AnimAirIdle)
+
+
 :AnimAirIdle:
 	VUSE_STANDARD_ANIMS:
 		Anim(ANIM_AIRIDLE)
@@ -886,12 +1015,16 @@
 #  / ___ / /_/ /_/ /_/ / /__/ ,< (__  ) 
 # /_/  |_\__/\__/\__,_/\___/_/|_/____/  
 
+
+
 :AttackCommon:
 	Flag(Attacking)
 	F1:
 		AttackDuration(600)
 		Set(AttackLandingLag, DefaultAttackLandingLag)
 	endif
+
+
 
 :GroundedAttackCommon:
 	Call(AttackCommon)
@@ -906,6 +1039,8 @@
 		endif
 	endif
 	Call(GroundedAttacks)
+
+
 
 :AirborneAttackCommon:
 	Call(AttackCommon)
@@ -922,25 +1057,35 @@
 	endif
 	Call(AirborneAttacks)
 
+
+
 :StandingAttack:
 	Call(StandingState)
 	F1:
 		AttackRearm()
 	endif
 	Call(GroundedAttackCommon)
+
+
 :StandingFollowupAttack:
 	Call(StandingState)
 	Call(GroundedAttackCommon)
 	
+
+
 :CrouchingAttack:
 	Call(CrouchingState)
 	F1:
 		AttackRearm()
 	endif
 	Call(GroundedAttackCommon)
+
+
 :CrouchingFollowupAttack:
 	Call(CrouchingState)
 	Call(GroundedAttackCommon)
+
+
 
 :AirborneAttack:
 	Call(AirborneState)
@@ -948,9 +1093,13 @@
 		AttackRearm()
 	endif
 	Call(AirborneAttackCommon)
+
+
 :AirborneFollowupAttack:
 	Call(AirborneState)
 	Call(AirborneAttackCommon)
+
+
 
 :VariableAttack:
 	Call(VariableState)
@@ -962,6 +1111,8 @@
 	else
 		Call(GroundedAttackCommon)
 	endif
+
+
 :VariableFollowupAttack:
 	Call(VariableState)
 	LPFAirborne:
@@ -969,6 +1120,8 @@
 	else
 		Call(GroundedAttackCommon)
 	endif
+
+
 
 
 
@@ -980,6 +1133,8 @@
 		AttackAddAllCancelsOnWhiff(D)
 		AttackAddAllCancelsOnWhiff(D, j)
 	endif
+
+
 
 :AttackAddAllNormalsCancels:
 	AttackAddAllCancelsOnTouchAndNeutral(A)
@@ -1014,11 +1169,17 @@
 	endif
 
 
+
+
 :GroundedAttacks:
 	AttackApplyCancels()
 
+
+
 :AirborneAttacks:
 	AttackApplyCancels(j)
+
+
 
 
 
@@ -1058,15 +1219,21 @@
 		endif
 	endif
 
+
+
 :GroundedThrow:
 	Call(StandingAttack)
 	Call(ThrowCommon)
 	AttackFlag(GroundUnblockable)
 
+
+
 :AirborneThrow:
 	Call(AirborneAttack)
 	Call(ThrowCommon)
 	AttackFlag(AirUnblockable)
+
+
 
 :VariableThrow:
 	LPFGrounded:
@@ -1074,6 +1241,8 @@
 	else
 		Call(AirborneThrow)
 	endif
+
+
 
 :ThrowTechCheck:
 	# Check if the flag is here
@@ -1091,6 +1260,8 @@
 		SelectOriginalEntity()
 	endif
 
+
+
 :ThrowHold:
 	Call(StandingState)
 	Call(ThrowTechCheck)
@@ -1105,6 +1276,8 @@
 		endif
 	endif
 
+
+
 :AirThrowHold:
 	Call(AirborneState)
 	Call(ThrowTechCheck)
@@ -1118,6 +1291,8 @@
 			Transition(AirThrowingState)
 		endif
 	endif
+
+
 
 :ThrowHeld:
 	Call(VariableState)
@@ -1137,6 +1312,8 @@
 		Anim(ANIM_THROWHELD)
 	endif
 
+
+
 :ThrowTeched:
 	Call(VariableState)
 	FThrowTechedDuration:
@@ -1149,6 +1326,8 @@
 		AddMomentum(ThrowTechedMomentumX, ThrowTechedMomentumY)
 	endif
 
+
+
 :ThrowTeching:
 	Call(VariableState)
 	FThrowTechingDuration:
@@ -1160,5 +1339,9 @@
 	F1:
 		AddMomentum(ThrowTechingMomentumX, ThrowTechingMomentumY)
 	endif
+
+
+
+
 
 

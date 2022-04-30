@@ -4,6 +4,50 @@ extends Control
 
 
 func _ready():
+	EnterMenu()
+
+func EnterMenu():
+	$Background.show()
+	$MainMenu.show()
+	$Config.hide()
+	$CharacterEdit.hide()
+	$Documentation.hide()
+	
+	# Write title
+	var title = "--- Castagne Editor ---\n"
+	title += Castagne.configData["CastagneVersion"] + "\n"
+	title += Castagne.configData["GameTitle"]+"\n"
+	title += Castagne.configData["GameVersion"]
+	$MainMenu/Title.set_text(title)
+	
+	# Write character list
+	var list = $MainMenu/Characters
+	list.clear()
+	for c in Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"]):
+		list.add_item(c)
+	var charToSelect = Castagne.configData["Starter-P1"]#Castagne.configData["Editor-SelectedCharacter"]
+	if(charToSelect >= Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"]).size()):
+		charToSelect = 0
+	list.select(charToSelect)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+func _tools_ready():
 	$TextEdit.set_text(PrintDocumentation())
 	
 	return
@@ -90,3 +134,32 @@ func PrintDocumentation():
 		t += "----\n"
 	
 	return t
+
+
+func _on_Config_pressed(advanced=false):
+	$MainMenu.hide()
+	$Config.EnterMenu(advanced)
+
+
+func _on_CharacterEdit_pressed():
+	$MainMenu.hide()
+	$CharacterEdit.EnterMenu($MainMenu/Characters.get_selected_items()[0])
+
+
+func _on_CharacterEditNew_pressed():
+	var fileEdit = $MainMenu/NewCharDialog
+	fileEdit.popup_centered()
+
+
+func _on_NewCharDialog_file_selected(path):
+	Castagne.configData["CharacterPaths"] += ","+path
+	var f = File.new()
+	
+	if(!f.file_exists(path)):
+		f.open(path, File.WRITE)
+		f.store_string(":Character:\n\n:Variables:\n\n")
+		f.close()
+	
+	Castagne.SaveConfigFile()
+	$MainMenu.hide()
+	$CharacterEdit.EnterMenu($MainMenu/Characters.get_item_count())

@@ -14,9 +14,11 @@ func Poll():
 func PollRaw():
 	return GetEmptyRawInputData()
 
+var lockInput = false
+
 # :TODO:Panthavma:20220126:Need to rework this
 func EnrichInput(raw, richPrevious, state, pid):
-	if(raw.size() == 0): # When missing input online
+	if(raw.size() == 0 or lockInput): # When missing input online and editor
 		raw = GetEmptyRawInputData()
 	if(richPrevious == null or richPrevious.size() == 0): # First frame
 		richPrevious = GetEmptyEnrichedInputData() # :TODO:Panthavma:20220203:Actually enrich it

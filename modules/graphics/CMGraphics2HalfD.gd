@@ -19,7 +19,7 @@ func ModuleSetup():
 		"Description": "Moves the model independant of facing.",
 		"Arguments":["Horizontal Move", "(Optional) Vertical Move"]
 	})
-	RegisterFunction("ModelSwitchFacing", [], null, {
+	RegisterFunction("ModelSwitchFacing", [0], null, {
 		"Description": "Changes the model's facing.",
 		"Arguments":[]
 	})
@@ -105,7 +105,7 @@ func SetPalette(eState, data, paletteID):
 		return
 	# :TODO:Panthavma:20220217:Do it better, maybe simply charge different models ?
 	var palettePath = fighterMetadata[paletteKey]
-	var paletteMaterial = load(palettePath)
+	var paletteMaterial = Castagne.Loader.Load(palettePath)
 	var modelRoot = data["InstancedData"]["Entities"][eState["EID"]]["Model"]
 	if(modelRoot == null):
 		return
@@ -147,18 +147,21 @@ func CreateSprite(args, eState, data):
 	var spritesY = ArgInt(args, eState, 2, 1)
 	var pixelSize = ArgInt(args, eState, 3, 100)/10000.0
 	
-	_EnsureRootIsSet(eState["EID"], data)
-	var sprite = Sprite3D.new()
-	data["InstancedData"]["Entities"][eState["EID"]]["Root"].add_child(sprite)
-	data["InstancedData"]["Entities"][eState["EID"]]["Sprite"] = sprite
-	# TODO set it up
-	sprite.set_texture(load(spritesheetPath))
+	var spritesheet = Castagne.Loader.Load(spritesheetPath)
+	var sprite = _CreateSprite_Instance(args, eState, data)
+	
+	sprite.set_texture(spritesheet)
 	sprite.set_hframes(spritesX)
 	sprite.set_vframes(spritesY)
 	sprite.set_pixel_size(pixelSize)
 	sprite.set_centered(false)
-	#sprite.set_billboard_mode(BILLBOARD_ENABLED)
-	#sprite.set_billboard_mode(SpatialMaterial.BILLBOARD_FIXED_Y)
+	
+	_EnsureRootIsSet(eState["EID"], data)
+	data["InstancedData"]["Entities"][eState["EID"]]["Root"].add_child(sprite)
+	data["InstancedData"]["Entities"][eState["EID"]]["Sprite"] = sprite
+	
+func _CreateSprite_Instance(_args, _eState, _data):
+	return Sprite3D.new()
 
 func SpriteOrigin(args, eState, data):
 	var originX = ArgInt(args, eState, 0)

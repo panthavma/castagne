@@ -1,10 +1,6 @@
-# We start with a character block, that contains metadata that will be read first.
 :Character:
 	# The name is displayed in the character select screen
 	Name: Castagneur (Default Fighter)
-	
-	# The skeleton is another .casp file that is going to be used as a base.
-	Skeleton: res://castagne/Base.casp
 	
 	# Palette materials, for now.
 	Palette1:res://castagne/example/fighter/model/Pal1.tres
@@ -12,11 +8,12 @@
 
 
 # The variables block allows us to hold data for later use.
+
 :Variables:
 	# Character Specific
 	HPMax: 10000
 	BallSpeed: 2300
-	
+	fi
 	# This is for the graphical side, it will instance the model.
 	MODEL_PATH: res://castagne/example/fighter/CastagneurModel.tscn
 	ANIMPLAYER_PATH: AnimationPlayer
@@ -53,6 +50,7 @@
 # Please see the documentation for more functions.
 
 # 5A: Fast normal, neutral on block.
+
 :5A:
 	# This is a grounded attack made standing, so we use StandingAttack
 	Call(StandingAttack)
@@ -81,6 +79,7 @@
 
 
 # 2A: Plus on block mid poke
+
 :2A:
 	# This one is crouching, so we use CrouchingAttack instead
 	Call(CrouchingAttack)
@@ -96,6 +95,7 @@
 	Anim(2A)
 
 # 5B: Poking kick with an extended hurtbox
+
 :5B:
 	Call(StandingAttack)
 	Hurtbox(-5000, 5000, 0, 20000)
@@ -121,6 +121,7 @@
 	Anim(5B)
 
 # 2B: Launcing low Sweep
+
 :2B:
 	Call(CrouchingAttack)
 	Hurtbox(-5000, 5000, 0, 15000)
@@ -152,6 +153,7 @@
 
 
 # 5C: Disjointed swing
+
 :5C:
 	Call(StandingAttack)
 	Hurtbox(-5000, 5000, 0, 20000)
@@ -170,6 +172,7 @@
 	Anim(5C)
 
 # 2C: Anti-air
+
 :2C:
 	Call(CrouchingAttack)
 	# We will give this priority against air attacks guilty gear style : by removing the hurtbox above the legs.
@@ -203,6 +206,7 @@
 # 4D: Evasive elbow strike
 
 # 5D: Projectile
+
 :5D:
 	Call(StandingAttack)
 	Hurtbox(-5000, 5000, 0, 20000)
@@ -219,9 +223,11 @@
 		CopyRefFacing()
 	endif
 
+
 :BallInit:
 	CreateModel(res://castagne/example/fighter/Ball.tscn)
 	Transition(BallForward)
+
 
 :BallForward:
 	F1:
@@ -239,6 +245,7 @@
 	F180:
 		DestroyEntity()
 	endif
+
 
 :6D:
 	F1-3:
@@ -272,6 +279,7 @@
 		endif
 	endif
 
+
 :6DD:
 	Call(AirborneAttack)
 	
@@ -290,6 +298,7 @@
 	endif
 
 # jA: Air to air punch
+
 :j5A:
 	# This is an air attack, so we use AirborneAttack
 	Call(AirborneAttack)
@@ -304,6 +313,7 @@
 	Anim(j5A)
 
 # jB: Kick
+
 :j5B:
 	Call(AirborneAttack)
 	Hurtbox(-5000, 5000, 5000, 20000)
@@ -326,6 +336,7 @@
 	Anim(j5B)
 
 # jC: Bonk
+
 :j5C:
 	Call(AirborneAttack)
 	Hurtbox(-5000, 5000, 0, 20000)
@@ -339,4 +350,6 @@
 		Hitbox(1000, 15000, -2000, 20000)
 	endif
 	Anim(j5C)
+
+
 

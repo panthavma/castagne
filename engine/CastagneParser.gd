@@ -24,6 +24,12 @@ func CreateFullCharacter(filePath):
 	_ParseFullFile()
 	return _EndParsing()
 
+func GetCharacterForEdition(filePath):
+	_StartParsing(filePath)
+	var res = _ParseForEdition()
+	_EndParsing()
+	return res
+
 # ------------------------------------------------------------------------------
 # Internal Helper Functions
 
@@ -150,6 +156,21 @@ func _ParseMetadata(fileID):
 	var md = _ParseBlockData(fileID)
 	md["Filepath"] = _filePaths[fileID]
 	Castagne.FuseDataNoOverwrite(_metadata, md)
+	
+	# Skeleton management
+	if(!md.has("Skeleton")):
+		md["Skeleton"] = Castagne.configData["Skeleton-default"]
+	
+	while(md.has("Skeleton") and !md["Skeleton"].ends_with(".casp")):
+		var skeletonName = str(md["Skeleton"]).strip_edges()
+		if(skeletonName == "none"):
+			md.erase("Skeleton")
+		elif(!Castagne.configData.has("Skeleton-"+skeletonName)):
+			_Error("Skeleton "+skeletonName + " not found")
+			md.erase("Skeleton")
+		else:
+			md["Skeleton"] = Castagne.configData["Skeleton-"+skeletonName]
+	
 	_LogD("Found " + str(md.size()) + " entries. " + ("Has a skeleton : " + md["Skeleton"] if md.has("Skeleton") else "No Skeleton"))
 	return md
 
@@ -180,6 +201,8 @@ func _ParseStates(fileID):
 	var states = {}
 	while(_GetNextBlock(fileID) != null):
 		var s = _ParseBlockState(fileID)
+		if(s == null):
+			break
 		if(_aborting):
 			return null
 		states[s["Name"]] = s
@@ -187,6 +210,58 @@ func _ParseStates(fileID):
 	Castagne.FuseDataMoveWithPrefix(_states, states)
 	_LogD("Found " + str(states.size()) + " states.")
 	return states
+
+
+func _ParseForEdition():
+	if(_aborting):
+		return
+	
+	var result = {}
+	
+	# 1. Parse the character skeleton
+	_Log(">>> Starting to parse the full file.")
+	var fileID = 0
+	while(fileID < _files.size()):
+		var md = _ParseMetadata(fileID)
+		fileID += 1
+		if(_aborting):
+			return
+		
+		if(md.has("Skeleton")):
+			_OpenFile(md["Skeleton"])
+	result["NbFiles"] = _files.size()
+	
+	# 2. Get the full text
+	fileID = _files.size() - 1
+	var targetFileID = 0
+	while(fileID >= 0):
+		var fileStates = {}
+		
+		_files[fileID].seek(0)
+		var cName = _filePaths[fileID]
+		var curState = null
+		
+		while(!_files[fileID].eof_reached()):
+			var line = _files[fileID].get_line()
+			var lineStripped = line.strip_edges()
+			if(lineStripped.begins_with(":") and lineStripped.ends_with(":")):
+				curState = lineStripped.left(lineStripped.length()-1).right(1)
+				fileStates[curState] = {
+					"Text":""
+				}
+			elif(curState != null):
+				fileStates[curState]["Text"] += line + "\n"
+		
+		var fileData = {
+			"States":fileStates,
+			"Name": cName,
+			"Path": _filePaths[fileID],
+		}
+		result[targetFileID] = fileData
+		targetFileID += 1
+		fileID -= 1
+	
+	return result
 
 # ------------------------------------------------------------------------------
 # Internal Helper functions
@@ -267,6 +342,9 @@ func _ParseBlockState(fileID):
 	var stateName = _GetCurrentLine(fileID)
 	stateName = stateName.left(stateName.length()-1).right(1)
 	var line = _GetNextLine(fileID)
+	
+	if(line == null):
+		return null
 	
 	_currentState = {
 		"Name": stateName,
