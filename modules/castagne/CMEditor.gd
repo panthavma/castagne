@@ -9,9 +9,7 @@ func ModuleSetup():
 	RegisterConfig("Editor-SelectedCharacter", 0, {"Flags":["Hidden"]})
 	RegisterConfig("Editor-DocumentationFolders", "res://castagne/docs", {"Flags":["Advanced"]})
 	
-	
-	RegisterVariableGlobal("Editor-Pause", 0)
-	RegisterVariableGlobal("Editor-Slowmotion", 1)
+	RegisterBattleInitData("editor", false)
 
 func BattleInit(_state, data, _battleInitData):
 	data["Engine"].editorModule = self
@@ -21,13 +19,24 @@ func BattleInit(_state, data, _battleInitData):
 	data["Engine"].add_child(gizmoDisplay)
 	gizmoDisplay.set_anchors_and_margins_preset(Control.PRESET_WIDE)
 
+
+
+var runStop = false
+var runSlowmo = 0
+func FrameStart(state, data):
+	UpdateGizmos(state, data)
+	
+	if(runStop):
+		state["SkipFrame"] = true
+	elif(runSlowmo > 1):
+		state["SkipFrame"] = state["TrueFrameID"] % runSlowmo > 0
+
+
+
 var currentGizmos = []
 var currentLine = 0
 var mainEID = null
 var gizmosDraw = []
-func FrameStart(state, data):
-	UpdateGizmos(state, data)
-
 func UpdateGizmos(state, data):
 	mainEID = null
 	var eState = null

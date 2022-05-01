@@ -247,6 +247,8 @@ func ModuleSetup():
 	RegisterVariableGlobal("FrameID", 0)
 	RegisterVariableGlobal("TrueFrameID", 0)
 	RegisterVariableGlobal("SkipFrame", false, ["ResetEachFrame"])
+	RegisterVariableGlobal("FrozenFrame", false, ["ResetEachFrame"])
+	RegisterVariableGlobal("SkipFrames", 0)
 	RegisterVariableGlobal("FreezeFrames", 0)
 	
 	RegisterVariableGlobal("CurrentEntityID", 0)
@@ -315,9 +317,12 @@ func ModuleSetup():
 
 # :TODO:Panthavma:20220401:Add a way to execute scripts during freeze, another phase?
 func FrameStart(state, _data):
-	if(state["FreezeFrames"] > 0):
-		state["FreezeFrames"] -= 1
+	if(state["SkipFrames"] > 0):
+		state["SkipFrames"] -= 1
 		state["SkipFrame"] = true
+	elif(state["FreezeFrames"] > 0):
+		state["FreezeFrames"] -= 1
+		state["FrozenFrame"] = true
 
 func InitPhaseStartEntity(eState, data):
 	data["State"]["ActiveEntities"].append(eState["EID"])

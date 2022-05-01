@@ -20,7 +20,7 @@ __meta__ = {
 }
 
 [node name="Viewport" type="Viewport" parent="EngineVP"]
-size = Vector2( 576, 400 )
+size = Vector2( 1152, 832 )
 handle_input_locally = false
 render_target_update_mode = 3
 gui_disable_input = true
@@ -125,6 +125,7 @@ __meta__ = {
 }
 
 [node name="Navigation" type="Control" parent="CodePanel"]
+visible = false
 anchor_top = 0.1
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -171,15 +172,15 @@ __meta__ = {
 }
 
 [node name="NewStateName" type="LineEdit" parent="CodePanel/Navigation/ChooseState/Bottom"]
-margin_right = 256.0
+margin_right = 384.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 align = 2
 placeholder_text = "New State Name"
 
 [node name="NewState" type="Button" parent="CodePanel/Navigation/ChooseState/Bottom"]
-margin_left = 260.0
-margin_right = 336.0
+margin_left = 388.0
+margin_right = 464.0
 margin_bottom = 24.0
 text = "New State"
 
@@ -229,7 +230,7 @@ text = "Save"
 
 [node name="Label" type="Label" parent="TopBar/HBoxContainer"]
 margin_left = 91.0
-margin_right = 576.0
+margin_right = 1152.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 1
@@ -262,7 +263,7 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HBoxContainer" type="HBoxContainer" parent="BottomPanel/BMiniPanel"]
+[node name="HBox" type="HBoxContainer" parent="BottomPanel/BMiniPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 16.0
@@ -273,108 +274,210 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Match" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBoxContainer"]
-margin_right = 132.0
-margin_bottom = 92.0
+[node name="Match" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
+margin_right = 136.0
+margin_bottom = 200.0
 
-[node name="ExecuteMove" type="Button" parent="BottomPanel/BMiniPanel/HBoxContainer/Match"]
-margin_right = 132.0
-margin_bottom = 32.0
+[node name="ResetExecuteMove" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_right = 136.0
+margin_bottom = 76.0
 size_flags_vertical = 3
 text = "Execute Move"
 
-[node name="FocusOnChar" type="Button" parent="BottomPanel/BMiniPanel/HBoxContainer/Match"]
-margin_top = 36.0
-margin_right = 132.0
-margin_bottom = 68.0
+[node name="ExecuteMoveData" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_top = 80.0
+margin_right = 136.0
+margin_bottom = 104.0
+
+[node name="MoveToExec" type="LineEdit" parent="BottomPanel/BMiniPanel/HBox/Match/ExecuteMoveData"]
+margin_right = 58.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+align = 2
+placeholder_text = "Move"
+
+[node name="Frame" type="SpinBox" parent="BottomPanel/BMiniPanel/HBox/Match/ExecuteMoveData"]
+margin_left = 62.0
+margin_right = 136.0
+margin_bottom = 24.0
+value = 1.0
+allow_greater = true
+allow_lesser = true
+
+[node name="Reset1" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_top = 108.0
+margin_right = 136.0
+margin_bottom = 128.0
+
+[node name="ResetGround" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset1"]
+margin_right = 66.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
 size_flags_vertical = 3
+text = "Ground"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ResetAir" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset1"]
+margin_left = 70.0
+margin_right = 136.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Air"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Reset2" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_top = 132.0
+margin_right = 136.0
+margin_bottom = 152.0
+
+[node name="ResetCorner" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset2"]
+margin_right = 66.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Corner"
+
+[node name="ResetCornerReverse" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset2"]
+margin_left = 70.0
+margin_right = 136.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "RCorner"
+
+[node name="FocusOnChar" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_top = 156.0
+margin_right = 136.0
+margin_bottom = 176.0
+toggle_mode = true
 text = "Focus on character"
 
-[node name="NormalMatch" type="Button" parent="BottomPanel/BMiniPanel/HBoxContainer/Match"]
-margin_top = 72.0
-margin_right = 132.0
-margin_bottom = 92.0
-text = "Normal Match"
+[node name="MatchType" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_top = 180.0
+margin_right = 136.0
+margin_bottom = 200.0
 
-[node name="FlowControl" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBoxContainer"]
-margin_left = 136.0
-margin_right = 485.0
-margin_bottom = 92.0
-size_flags_horizontal = 3
-
-[node name="Flow" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBoxContainer/FlowControl"]
-margin_right = 349.0
-margin_bottom = 20.0
-
-[node name="Flow" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBoxContainer/FlowControl/Flow"]
-margin_right = 251.0
+[node name="ResetMatchTraining" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/MatchType"]
+margin_right = 73.0
 margin_bottom = 20.0
 size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Train"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
-[node name="Flow" type="Label" parent="BottomPanel/BMiniPanel/HBoxContainer/FlowControl/Flow/Flow"]
+[node name="ResetMatchNormal" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/MatchType"]
+margin_left = 77.0
+margin_right = 136.0
+margin_bottom = 20.0
+text = "Normal"
+
+[node name="Middle" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
+margin_left = 140.0
+margin_right = 1061.0
+margin_bottom = 200.0
+size_flags_horizontal = 3
+
+[node name="TopBar" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle"]
+margin_right = 921.0
+margin_bottom = 20.0
+
+[node name="Flow" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+margin_right = 913.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="Flow" type="Label" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
 margin_top = 3.0
-margin_right = 29.0
+margin_right = 33.0
 margin_bottom = 17.0
-text = "Flow"
+text = "Flow:"
 
-[node name="FlowNextFrame" type="Button" parent="BottomPanel/BMiniPanel/HBoxContainer/FlowControl/Flow/Flow"]
-margin_left = 33.0
-margin_right = 119.0
+[node name="FlowPlay" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
+margin_left = 37.0
+margin_right = 73.0
+margin_bottom = 20.0
+toggle_mode = true
+pressed = true
+text = "Run"
+
+[node name="FlowSlowmo" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
+margin_left = 77.0
+margin_right = 118.0
+margin_bottom = 20.0
+toggle_mode = true
+text = "Slow"
+
+[node name="FlowNextFrame" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
+margin_left = 122.0
+margin_right = 208.0
 margin_bottom = 20.0
 text = "Next Frame"
 
-[node name="Phase" type="Label" parent="BottomPanel/BMiniPanel/HBoxContainer/FlowControl/Flow"]
-margin_left = 255.0
+[node name="VSeparator" type="VSeparator" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+margin_left = 917.0
+margin_right = 921.0
+margin_bottom = 20.0
+
+[node name="Phase" type="Label" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+visible = false
+margin_left = 443.0
 margin_top = 3.0
-margin_right = 301.0
+margin_right = 489.0
 margin_bottom = 17.0
 text = "Phase: "
 
-[node name="PhaseA" type="Button" parent="BottomPanel/BMiniPanel/HBoxContainer/FlowControl/Flow"]
-margin_left = 305.0
-margin_right = 326.0
+[node name="PhaseA" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+visible = false
+margin_left = 493.0
+margin_right = 514.0
 margin_bottom = 20.0
 text = "A"
 
-[node name="PhaseT" type="Button" parent="BottomPanel/BMiniPanel/HBoxContainer/FlowControl/Flow"]
-margin_left = 330.0
-margin_right = 349.0
+[node name="PhaseT" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+visible = false
+margin_left = 518.0
+margin_right = 537.0
 margin_bottom = 20.0
 text = "T"
 
-[node name="CompilErrors" type="TextEdit" parent="BottomPanel/BMiniPanel/HBoxContainer/FlowControl"]
+[node name="CompilErrors" type="TextEdit" parent="BottomPanel/BMiniPanel/HBox/Middle"]
 margin_top = 24.0
-margin_right = 349.0
-margin_bottom = 92.0
+margin_right = 921.0
+margin_bottom = 200.0
 size_flags_vertical = 3
 text = "Compilation errors here /
 Mini Tool Panel"
 readonly = true
 syntax_highlighting = true
 
-[node name="Reload" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBoxContainer"]
-margin_left = 489.0
-margin_right = 544.0
-margin_bottom = 92.0
+[node name="Reload" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
+margin_left = 1065.0
+margin_right = 1120.0
+margin_bottom = 200.0
 
-[node name="Reload" type="Button" parent="BottomPanel/BMiniPanel/HBoxContainer/Reload"]
+[node name="Reload" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
 margin_right = 55.0
-margin_bottom = 44.0
+margin_bottom = 152.0
 size_flags_vertical = 3
 text = "Reload"
 
-[node name="ChangeTool" type="Button" parent="BottomPanel/BMiniPanel/HBoxContainer/Reload"]
-margin_top = 48.0
+[node name="ChangeTool" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
+margin_top = 156.0
 margin_right = 55.0
-margin_bottom = 68.0
+margin_bottom = 176.0
 rect_pivot_offset = Vector2( 10, 10 )
 size_flags_horizontal = 3
 text = "Tools"
 
-[node name="Expand" type="Button" parent="BottomPanel/BMiniPanel/HBoxContainer/Reload"]
-margin_top = 72.0
+[node name="Expand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
+margin_top = 180.0
 margin_right = 55.0
-margin_bottom = 92.0
+margin_bottom = 200.0
 rect_pivot_offset = Vector2( 10, 10 )
 size_flags_horizontal = 3
 text = "^^"
@@ -417,4 +520,14 @@ __meta__ = {
 [connection signal="item_activated" from="CodePanel/Navigation/ChooseFile/MoveList" to="." method="_on_Navigation_MoveList_item_activated"]
 [connection signal="pressed" from="TopBar/HBoxContainer/Back" to="." method="_on_Back_pressed"]
 [connection signal="pressed" from="TopBar/HBoxContainer/Save" to="." method="_on_Save_pressed"]
-[connection signal="pressed" from="BottomPanel/BMiniPanel/HBoxContainer/Reload/Reload" to="." method="_on_Reload_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/ResetExecuteMove" to="." method="_on_ResetExecuteMove_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset1/ResetGround" to="." method="_on_ResetGround_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset1/ResetAir" to="." method="_on_ResetAir_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset2/ResetCorner" to="." method="_on_ResetCorner_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset2/ResetCornerReverse" to="." method="_on_ResetCornerReverse_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/MatchType/ResetMatchTraining" to="." method="_on_ResetMatchTraining_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/MatchType/ResetMatchNormal" to="." method="_on_ResetMatchNormal_pressed"]
+[connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay" to="." method="_on_FlowPlay_toggled"]
+[connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo" to="." method="_on_FlowSlowmo_toggled"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowNextFrame" to="." method="_on_FlowNextFrame_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/Reload" to="." method="_on_Reload_pressed"]

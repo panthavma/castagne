@@ -25,6 +25,8 @@ var engine = null
 var inputProvider = null
 func ReloadEngine():
 	if(engine != null):
+		engine.runAutomatically = false
+		engine.renderGraphics = false
 		engine.queue_free()
 	
 	var enginePrefab = load(Castagne.configData["Engine"])
@@ -34,10 +36,16 @@ func ReloadEngine():
 	Castagne.battleInitData["p2-palette"] = 1
 	Castagne.battleInitData["p2-palette"] = 1
 	
+	RestartOptionsBID()
+	
 	engine = enginePrefab.instance()
+	engine.runAutomatically = false
+	engine.renderGraphics = false
 	inputProvider = null
 	
 	$EngineVP/Viewport.add_child(engine)
+	
+	RestartOptions()
 	
 	FocusGame()
 
@@ -305,3 +313,119 @@ func UpdateDocumentation():
 	
 	$CodePanel/Documentation/Title.set_text(fSignature)
 	$CodePanel/Documentation/Doc.set_text(fDescription)
+
+
+func _on_FlowPlay_toggled(button_pressed):
+	if(button_pressed):
+		$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo.set_pressed_no_signal(false)
+	UpdateRunStatus()
+func _on_FlowSlowmo_toggled(button_pressed):
+	if(button_pressed):
+		$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay.set_pressed_no_signal(false)
+	UpdateRunStatus()
+func _on_FlowNextFrame_pressed():
+	$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo.set_pressed_no_signal(false)
+	$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay.set_pressed_no_signal(false)
+	engine.editorModule.runStop = false
+	engine.editorModule.runSlowmo = 0
+	engine.LocalStepNoInput()
+	UpdateRunStatus()
+func UpdateRunStatus():
+	var slowmo = $BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo.is_pressed()
+	var run = $BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay.is_pressed()
+	engine.editorModule.runStop = !slowmo and !run
+	engine.editorModule.runSlowmo = (3 if slowmo else 0)
+
+
+
+
+
+enum RESTART_RESET {
+	Normal, Air, Corner, RCorner
+}
+var restartResetMode = RESTART_RESET.Normal
+var restartState = null
+var restartStateFrames = 0
+var restartBIDMode = "training"
+func RestartOptionsBID():
+	pass
+func RestartOptions():
+	engine.editorModule.runStop = false
+	engine.editorModule.runSlowmo = 0
+	engine.LocalStepNoInput()
+	engine.LocalStepNoInput()
+	var mainEID = engine._gameState["Players"][0]["MainEntity"]
+	
+	if(restartResetMode != RESTART_RESET.Normal):
+		var opponentEID = engine._gameState["Players"][1]["MainEntity"]
+		
+		if(restartResetMode == RESTART_RESET.Air):
+			engine._gameState[mainEID]["PositionY"] = 35000
+		if(restartResetMode == RESTART_RESET.Corner):
+			engine._gameState[mainEID]["PositionX"] = Castagne.configData["ArenaSize"] - 30000
+			engine._gameState[opponentEID]["PositionX"] = Castagne.configData["ArenaSize"]
+			engine._gameState["CameraX"] = Castagne.configData["ArenaSize"]
+		if(restartResetMode == RESTART_RESET.RCorner):
+			engine._gameState[mainEID]["PositionX"] = -Castagne.configData["ArenaSize"] 
+			engine._gameState[opponentEID]["PositionX"] = -Castagne.configData["ArenaSize"] + 30000
+			engine._gameState["CameraX"] = -Castagne.configData["ArenaSize"]
+	
+	if(restartState != null):
+		var fs = engine.GetCurrentFighterScriptOfEntity(mainEID, engine._gameState)
+		if(fs == null or restartState == "Character" or restartState == "Variables"):
+			restartState = null
+	
+	if(restartState != null):
+		engine._gameState[mainEID]["State"] = restartState
+		engine._gameState[mainEID]["StateStartFrame"] = engine._gameState["FrameID"]
+		for i in range(restartStateFrames-1):
+			if(restartResetMode == RESTART_RESET.Air):
+				engine._gameState[mainEID]["PositionY"] = 35000
+			engine.LocalStepNoInput()
+	else:
+		engine.LocalStepNoInput()
+	
+	engine.LocalStepNoInput()
+	engine.renderGraphics = true
+	engine.runAutomatically = true
+	UpdateRunStatus()
+
+
+
+
+func _on_ResetAir_pressed():
+	restartResetMode = RESTART_RESET.Air
+	restartState = null
+	ReloadEngine()
+func _on_ResetGround_pressed():
+	restartResetMode = RESTART_RESET.Normal
+	restartState = null
+	ReloadEngine()
+func _on_ResetCorner_pressed():
+	restartResetMode = RESTART_RESET.Corner
+	restartState = null
+	ReloadEngine()
+func _on_ResetCornerReverse_pressed():
+	restartResetMode = RESTART_RESET.RCorner
+	restartState = null
+	ReloadEngine()
+
+
+func _on_ResetExecuteMove_pressed():
+	restartState = $BottomPanel/BMiniPanel/HBox/Match/ExecuteMoveData/MoveToExec.get_text()
+	restartStateFrames = $BottomPanel/BMiniPanel/HBox/Match/ExecuteMoveData/Frame.get_value()
+	if(restartState.empty()):
+		restartState = curState
+	ReloadEngine()
+func _on_ResetMatchTraining_pressed():
+	restartBIDMode = "training"
+	restartResetMode = RESTART_RESET.Normal
+	restartState = null
+	ReloadEngine()
+func _on_ResetMatchNormal_pressed():
+	restartBIDMode = "battle"
+	restartResetMode = RESTART_RESET.Normal
+	restartState = null
+	ReloadEngine()
+
+

@@ -28,6 +28,8 @@ const POSITION_SCALE = 0.0001
 
 var useOnline = false
 var initError = false
+var runAutomatically = true
+var renderGraphics = true
 
 #---------------------------------------------------------------------------------------------------
 # Initialize
@@ -152,11 +154,14 @@ func EngineTick(previousState, playerInputs):
 		m.FrameStart(state, moduleCallbackData)
 	
 	
-	# 3b. If skipping, special loop using the Freeze phase
+	# 3b. If skipping, stop here. If frozen, special loop using the Freeze phase
 	if(state["SkipFrame"]):
+		return state
+	
+	if(state["FrozenFrame"]):
 		var activeEIDs = state["ActiveEntities"]
-		#for module in modules:
-		#	module.ResetVariables(state, activeEIDs)
+		for module in modules:
+			module.ResetVariables(state, activeEIDs)
 		ExecuteScriptPhase("Freeze", activeEIDs, moduleCallbackData)
 		return state
 	
@@ -460,14 +465,25 @@ func _ready():
 
 func _physics_process(_delta):
 	# Physics process is fixed at 60 FPS
-	if(!useOnline):
-		var playerInputs = []
-		for player in instancedData["Players"]:
-			playerInputs.append(player["InputProvider"].PollRaw())
-		_gameState = EngineTick(_gameState, playerInputs)
+	if(!useOnline and runAutomatically):
+		LocalStep()
+
+func LocalStep():
+	var playerInputs = []
+	for player in instancedData["Players"]:
+		playerInputs.append(player["InputProvider"].PollRaw())
+	_gameState = EngineTick(_gameState, playerInputs)
+
+func LocalStepNoInput():
+	var playerInputs = []
+	for player in instancedData["Players"]:
+		playerInputs.append(player["InputProvider"].GetEmptyRawInputData())
+	_gameState = EngineTick(_gameState, playerInputs)
 
 var _lastGraphicsFrameUpdate = -1
 func _process(_delta):
+	if(!renderGraphics):
+		return
 	var trueFrameID = _gameState["TrueFrameID"]
 	if(_lastGraphicsFrameUpdate < trueFrameID):
 		_lastGraphicsFrameUpdate = trueFrameID
