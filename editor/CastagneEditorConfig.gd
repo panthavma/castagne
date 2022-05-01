@@ -158,7 +158,7 @@ func _on_BackButton_pressed():
 
 
 func _on_Docs_pressed():
-	pass # Replace with function body.
+	$"..".OpenDocumentation("/Modules")
 
 
 func FitTabs():

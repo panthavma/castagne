@@ -46,13 +46,15 @@ func ModuleSetup():
 func BattleInit(state, data, battleInitData):
 	var camera = InitCamera(state, data, battleInitData)
 	engine.add_child(camera)
+	engine.graphicsModule = self
 	
 	POSITION_SCALE = engine.POSITION_SCALE
 	
 	data["InstancedData"]["Camera"] = camera
+	lastRegisteredCamera = camera
 	POSITION_SCALE = engine.POSITION_SCALE
 
-
+var lastRegisteredCamera = null
 var cameraOffset = Vector3(0.0, 2.0, 6.2)
 func UpdateGraphics(state, data):
 	var camera = data["InstancedData"]["Camera"]
@@ -175,3 +177,12 @@ func _EnsureRootIsSet(eid, data):
 		var root = Spatial.new()
 		data["InstancedData"]["Entities"][eid]["Root"] = root
 		data["Engine"].add_child(root)
+
+
+func IngameToWorldPos(ingamePositionX, ingamePositionY, ingamePositionZ = 0):
+	return Vector3(ingamePositionX, ingamePositionY, ingamePositionZ) * POSITION_SCALE
+
+func TranslateIngamePosToScreen(ingamePositionX, ingamePositionY, ingamePositionZ = 0):
+	if(lastRegisteredCamera != null):
+		return lastRegisteredCamera.unproject_position(IngameToWorldPos(ingamePositionX, ingamePositionY, ingamePositionZ))
+	return Vector2(0,0)

@@ -3,6 +3,8 @@ extends Control
 
 var characterPath = null
 var characterID = null
+onready var codeWindow = $CodePanel/Code
+var documentationPath = null
 func EnterMenu(cID):
 	show()
 	
@@ -166,24 +168,27 @@ func _on_Navigation_MoveList_item_activated(index):
 func _on_Reload_pressed():
 	SaveFile()
 	ReloadEngine()
-	ReloadCodePanel()
+	ReloadCodePanel(false)
 
 
 func _on_Code_text_changed():
 	$TopBar/HBoxContainer/Save.set_disabled(false)
 	character[curFile]["States"][curState]["Text"] = $CodePanel/Code.get_text()
 	character[curFile]["Modified"] = true
+	CompileGizmos()
+	UpdateGizmos()
 
 
 func _input(event):
 	if(event is InputEventMouseButton and event.is_pressed()):
-		UnfocusGame()
-func _input_VP(event):
-	if(event is InputEventMouseButton and event.is_pressed()):
-		if($Popups.is_visible()):
+		if($Popups.is_visible() || $"../Documentation".is_visible()):
 			UnfocusGame()
 		else:
-			FocusGame()
+			var vpRect = $EngineVP.get_global_rect()
+			if(vpRect.has_point(event.position)):
+				FocusGame()
+			else:
+				UnfocusGame()
 func FocusGame():
 	if(engine == null):
 		return
@@ -233,3 +238,70 @@ func _on_NewState_pressed():
 	
 	$CodePanel/Navigation.hide()
 	ChangeCodePanelState(stateName)
+
+
+func _on_FuncdocButton_pressed():
+	$"../Documentation".OpenDocumentation(documentationPath)
+	UnfocusGame()
+
+
+func _on_Code_cursor_changed():
+	UpdateGizmos()
+	UpdateDocumentation()
+
+func CompileGizmos():
+	# Temporary, but good enough for now
+	var currentGizmos = []
+	for i in range(codeWindow.get_line_count()):
+		var line = codeWindow.get_line(i).strip_edges()
+		if(line.empty() || line.begins_with("#") || !Castagne.Parser._IsLineFunction(line)):
+			continue
+		var funcParsed = Castagne.Parser._ExtractFunction(line)
+		var funcName = funcParsed[0]
+		var funcArgs = funcParsed[1]
+		if(!Castagne.functions.has(funcName)):
+			continue
+		var f = Castagne.functions[funcName]
+		var gizmoFunc = f["GizmoFunc"]
+		if(gizmoFunc == null):
+			continue
+		var gizmo = {"Line":i, "Func":gizmoFunc, "Args":funcArgs}
+		currentGizmos += [gizmo]
+	if(engine != null and engine.editorModule != null):
+		engine.editorModule.currentGizmos = currentGizmos
+
+func UpdateGizmos():
+	CompileGizmos()
+	var curLine = codeWindow.cursor_get_line()
+	if(engine != null and engine.editorModule != null):
+		engine.editorModule.currentLine = curLine
+
+func UpdateDocumentation():
+	documentationPath = null
+	$CodePanel/Documentation/Title.set_text("")
+	$CodePanel/Documentation/Doc.set_text("")
+	
+	var lineID = codeWindow.cursor_get_line()
+	var line = codeWindow.get_line(lineID)
+	line = line.strip_edges()
+	if(line.empty() || line.begins_with("#") || !Castagne.Parser._IsLineFunction(line)):
+		return
+	
+	var funcName = Castagne.Parser._ExtractFunction(line)[0]
+	
+	if(!Castagne.functions.has(funcName)):
+		return
+	
+	var f = Castagne.functions[funcName]
+	var fDoc = f["Documentation"]
+	
+	var fSignature = fDoc["Name"] + "("
+	var i = 0
+	for a in fDoc["Arguments"]:
+		fSignature += (", " if i > 0 else "") + a
+		i += 1
+	fSignature += ")"
+	var fDescription = fDoc["Description"]
+	
+	$CodePanel/Documentation/Title.set_text(fSignature)
+	$CodePanel/Documentation/Doc.set_text(fDescription)

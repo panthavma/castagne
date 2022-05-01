@@ -266,7 +266,7 @@ func ModuleSetup():
 	
 	RegisterConfig("GameTitle","Untitled Castagne Game")
 	RegisterConfig("GameVersion","Unspecified Version")
-	RegisterConfig("CastagneVersion","Castagne v0.4", {"Flags":["Advanced", "Reload"]})
+	RegisterConfig("CastagneVersion","Castagne v0.5", {"Flags":["Advanced", "Reload"]})
 	
 	RegisterConfig("Engine", "res://castagne/engine/CastagneEngine.tscn", {"Flags":["Advanced"]})
 	RegisterConfig("Editor", "res://castagne/editor/CastagneEditor.tscn", {"Flags":["Advanced"]})
@@ -291,16 +291,17 @@ func ModuleSetup():
 	
 	RegisterCategory("Castagne Modules")
 	RegisterConfig("Modules","default-fg25D", {"Flags":["ReloadFull"]})
-	RegisterConfig("Modules-basic", "res://castagne/modules/functions/Basic.tscn", {"Flags":["Advanced", "ReloadFull"]})
-	RegisterConfig("Modules-attacks", "res://castagne/modules/functions/Attacks.tscn", {"Flags":["Advanced", "ReloadFull"]})
-	RegisterConfig("Modules-physics2d", "res://castagne/modules/functions/Physics.tscn", {"Flags":["Advanced", "ReloadFull"]})
-	RegisterConfig("Modules-graphics25d", "res://castagne/modules/graphics/CMGraphics2HalfD.tscn", {"Flags":["Advanced", "ReloadFull"]})
-	RegisterConfig("Modules-fightinggame", "res://castagne/modules/gamemodes/CMFightingGame.tscn", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-basic", "res://castagne/modules/functions/CFBasic.gd", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-editor", "res://castagne/modules/castagne/CMEditor.gd", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-attacks", "res://castagne/modules/functions/CFAttacks.gd", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-physics2d", "res://castagne/modules/functions/CFPhysics.gd", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-graphics25d", "res://castagne/modules/graphics/CMGraphics2HalfD.gd", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-fightinggame", "res://castagne/modules/gamemodes/CMFightingGame.gd", {"Flags":["Advanced", "ReloadFull"]})
 	RegisterConfig("Modules-ui", "res://castagne/modules/ui/FightingUI.tscn", {"Flags":["Advanced", "ReloadFull"]})
 	
 	RegisterConfig("Modules-25d","physics2d, graphics25d", {"Flags":["Advanced", "ReloadFull"]})
 			
-	RegisterConfig("Modules-default-fg25D","basic, 25d, attacks, fightinggame, ui", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-default-fg25D","basic, editor, 25d, attacks, fightinggame, ui", {"Flags":["Advanced", "ReloadFull"]})
 	
 	
 	RegisterCategory("Castagne Starter")
@@ -308,9 +309,6 @@ func ModuleSetup():
 	RegisterConfig("Starter-Timer", 2000)
 	RegisterConfig("Starter-P1", 0, {"Flags":["Hidden"]})
 	RegisterConfig("Starter-P2", 0, {"Flags":["Hidden"]})
-	
-	RegisterCategory("Castagne Editor")
-	RegisterConfig("Editor-SelectedCharacter", 0, {"Flags":["Hidden"]})
 	
 
 

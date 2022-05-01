@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://castagne/editor/CastagneEditor.gd" type="Script" id=1]
 [ext_resource path="res://castagne/editor/CastagneEditorConfig.gd" type="Script" id=2]
 [ext_resource path="res://castagne/editor/CastagneEditorCharacter.tscn" type="PackedScene" id=3]
+[ext_resource path="res://castagne/editor/CEDocumentation.gd" type="Script" id=4]
 
 [node name="CastagneEditor" type="Control"]
 anchor_right = 1.0
@@ -64,10 +65,16 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Container" type="HBoxContainer" parent="MainMenu/VBoxContainer"]
-margin_top = 130.0
+[node name="Documentation" type="Button" parent="MainMenu/VBoxContainer"]
+margin_top = 118.0
 margin_right = 368.0
-margin_bottom = 150.0
+margin_bottom = 138.0
+text = "Documentation"
+
+[node name="Container" type="HBoxContainer" parent="MainMenu/VBoxContainer"]
+margin_top = 142.0
+margin_right = 368.0
+margin_bottom = 162.0
 
 [node name="Config" type="Button" parent="MainMenu/VBoxContainer/Container"]
 margin_right = 290.0
@@ -85,9 +92,9 @@ __meta__ = {
 }
 
 [node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/VBoxContainer"]
-margin_top = 154.0
+margin_top = 166.0
 margin_right = 368.0
-margin_bottom = 174.0
+margin_bottom = 186.0
 
 [node name="CharacterEdit" type="Button" parent="MainMenu/VBoxContainer/HBoxContainer"]
 margin_right = 260.0
@@ -189,15 +196,83 @@ visible = false
 
 [node name="Documentation" type="Control" parent="."]
 visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Back" type="ColorRect" parent="Documentation"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.494118 )
+
+[node name="Window" type="Control" parent="Documentation"]
 anchor_left = 0.1
 anchor_top = 0.1
 anchor_right = 0.9
 anchor_bottom = 0.9
-margin_left = 16.0
-margin_top = 16.0
-margin_right = -16.0
-margin_bottom = -16.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
+[node name="Background" type="Panel" parent="Documentation/Window"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="PageList" type="Tree" parent="Documentation/Window"]
+anchor_right = 0.3
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[node name="TopBar" type="HBoxContainer" parent="Documentation/Window"]
+anchor_left = 0.3
+anchor_right = 1.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = 32.0
+alignment = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DocumentationTitle" type="Label" parent="Documentation/Window/TopBar"]
+margin_top = 5.0
+margin_right = 103.0
+margin_bottom = 19.0
+text = "Documentation:"
+
+[node name="PageName" type="Label" parent="Documentation/Window/TopBar"]
+margin_left = 107.0
+margin_right = 490.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+size_flags_vertical = 5
+text = "PAGE NAME"
+align = 1
+valign = 1
+
+[node name="Exit" type="Button" parent="Documentation/Window/TopBar"]
+margin_left = 494.0
+margin_right = 529.0
+margin_bottom = 24.0
+text = "Exit"
+
+[node name="PageContents" type="TextEdit" parent="Documentation/Window"]
+anchor_left = 0.3
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 40.0
+margin_right = -8.0
+margin_bottom = -8.0
+text = "Blablabla page contents"
+readonly = true
+
+[connection signal="pressed" from="MainMenu/VBoxContainer/Documentation" to="." method="_on_MainMenuDocumentation_pressed"]
 [connection signal="pressed" from="MainMenu/VBoxContainer/Container/Config" to="." method="_on_Config_pressed"]
 [connection signal="pressed" from="MainMenu/VBoxContainer/Container/ConfigAdv" to="." method="_on_Config_pressed" binds= [ true ]]
 [connection signal="pressed" from="MainMenu/VBoxContainer/HBoxContainer/CharacterEdit" to="." method="_on_CharacterEdit_pressed"]
@@ -207,3 +282,5 @@ margin_bottom = -16.0
 [connection signal="pressed" from="Config/Save" to="Config" method="_on_Save_pressed"]
 [connection signal="pressed" from="Config/Docs" to="Config" method="_on_Docs_pressed"]
 [connection signal="resized" from="Config/Tabs" to="Config" method="FitTabs"]
+[connection signal="item_activated" from="Documentation/Window/PageList" to="Documentation" method="PageSelected"]
+[connection signal="pressed" from="Documentation/Window/TopBar/Exit" to="Documentation" method="ExitDocumentation"]

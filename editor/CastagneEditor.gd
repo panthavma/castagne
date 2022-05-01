@@ -2,6 +2,7 @@ extends Control
 
 # :TODO:Panthavma:20220408:Add a way to have automatic tests to see if combos still work (or work with different positions)
 
+var documentation
 
 func _ready():
 	EnterMenu()
@@ -12,6 +13,8 @@ func EnterMenu():
 	$Config.hide()
 	$CharacterEdit.hide()
 	$Documentation.hide()
+	
+	$Documentation.SetupDocumentation()
 	
 	# Write title
 	var title = "--- Castagne Editor ---\n"
@@ -31,7 +34,9 @@ func EnterMenu():
 	list.select(charToSelect)
 
 
-
+func OpenDocumentation(page = null):
+	$Documentation.show()
+	$Documentation.OpenDocumentation(page)
 
 
 
@@ -163,3 +168,8 @@ func _on_NewCharDialog_file_selected(path):
 	Castagne.SaveConfigFile()
 	$MainMenu.hide()
 	$CharacterEdit.EnterMenu($MainMenu/Characters.get_item_count())
+
+
+func _on_MainMenuDocumentation_pressed():
+	OpenDocumentation($Documentation.defaultPage)
+

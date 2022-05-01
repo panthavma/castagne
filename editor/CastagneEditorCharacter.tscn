@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=2 format=2]
 
 [ext_resource path="res://castagne/editor/CastagneEditorCharacterEdit.gd" type="Script" id=1]
-[ext_resource path="res://castagne/editor/CastagneEditorCharacterViewport.gd" type="Script" id=2]
 
 [node name="CharacterEdit" type="Control"]
 anchor_right = 1.0
@@ -16,7 +15,6 @@ anchor_right = 0.6
 anchor_bottom = 0.8
 margin_top = 32.0
 stretch = true
-script = ExtResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -25,6 +23,7 @@ __meta__ = {
 size = Vector2( 576, 400 )
 handle_input_locally = false
 render_target_update_mode = 3
+gui_disable_input = true
 
 [node name="CodePanel" type="Panel" parent="."]
 anchor_left = 0.6
@@ -408,6 +407,8 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[connection signal="pressed" from="CodePanel/Documentation/FuncdocButton" to="." method="_on_FuncdocButton_pressed"]
+[connection signal="cursor_changed" from="CodePanel/Code" to="." method="_on_Code_cursor_changed"]
 [connection signal="text_changed" from="CodePanel/Code" to="." method="_on_Code_text_changed"]
 [connection signal="pressed" from="CodePanel/Header/State" to="." method="On_Header_State_Pressed"]
 [connection signal="pressed" from="CodePanel/Header/File" to="." method="_on_Header_File_pressed"]

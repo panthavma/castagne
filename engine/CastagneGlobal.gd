@@ -19,7 +19,7 @@ onready var Menus
 # Dict with options
 
 const CONFIG_FILE_PATH = "res://castagne-config.json"
-const CONFIG_CORE_MODULE_PATH = "res://castagne/modules/functions/Core.tscn"
+const CONFIG_CORE_MODULE_PATH = "res://castagne/modules/functions/CFCore.gd"
 const INPUT_LOCAL = 0
 const INPUT_ONLINE = 1
 const INPUT_AI = 2
@@ -114,7 +114,24 @@ func SaveConfigFile(configFilePath=null):
 	return OK
 
 func LoadModule(modulePath):
-	if(!modulePath.ends_with(".tscn")):
+	var module = null
+	if(modulePath.ends_with(".tscn")):
+		var modulePrefab = load(modulePath)
+		if(modulePrefab == null):
+			Error("Can't find module to load: "+str(modulePath))
+			return
+		
+		module = modulePrefab.instance()
+	elif(modulePath.ends_with(".gd")):
+		var scriptPrefab = load(modulePath)
+		if(scriptPrefab == null):
+			Error("Can't find script to load: "+str(modulePath))
+			return
+		module = Node.new()
+		module.set_script(scriptPrefab)
+		var moduleName = modulePath.right(modulePath.find_last("/"))
+		module.set_name(moduleName.left(moduleName.length()-2))
+	else:
 		if(!configData.has("Modules-"+modulePath)):
 			Error("Can't find module list to load: "+modulePath)
 			return
@@ -122,12 +139,9 @@ func LoadModule(modulePath):
 			LoadModule(mPath)
 		return
 	
-	var modulePrefab = load(modulePath)
-	if(modulePrefab == null):
-		Error("Can't find module to load: "+str(modulePath))
+	if(module == null):
+		Error("Module couldn't be loaded: "+str(modulePath))
 		return
-	
-	var module = modulePrefab.instance()
 	Log("Loading Module: " + module.get_name())
 	
 	add_child(module)
