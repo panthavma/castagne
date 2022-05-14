@@ -36,13 +36,16 @@ func EnrichInput(raw, richPrevious, state, pid):
 	id["R"] = id["R"] || id["M3"]
 	
 	# :TODO:Panthavma:20220203:Make it a module function and move Facing related stuff to 2D physics
-	var eState = state[state["Players"][pid]["MainEntity"]]
+	var eState = null
+	#if(state.has("Players") and state["Players"].has(pid)):
+	if(state.has("Players")):
+		eState = state[state["Players"][pid]["MainEntity"]]
 	
 	var facing = 1
 	var facingTrue = 1
 	
 	# Kinda hacky way to wait for init
-	if(eState.has("Facing")):
+	if(eState != null and eState.has("Facing")):
 		facing = eState["Facing"]
 		facingTrue = eState["FacingTrue"]
 	

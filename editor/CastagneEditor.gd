@@ -122,16 +122,17 @@ func PrintDocumentation():
 			
 			
 			if(!funcs.empty()):
-				t += "### Functions\n"
+				t += "\n### Functions\n"
 				for f in funcs:
-					t += f["Name"] + ": " + f["Documentation"]["Description"] + " ("+str(f["Documentation"]["Arguments"])+")\n"
+					t += "--- " + f["Name"] + ":  ("+str(f["Documentation"]["Arguments"])+")\n"
+					t += f["Documentation"]["Description"] + "\n\n"
 			
 			if(!vars.empty()):
-				t += "### Variables\n"
+				t += "\n### Variables\n"
 				for v in vars:
 					t += v["Name"] + ": " + v["Description"] + "\n"
 			if(!flags.empty()):
-				t += "### Flags\n"
+				t += "\n### Flags\n"
 				for f in flags:
 					t += f["Name"] + ": " + f["Description"] + "\n"
 			
@@ -173,3 +174,7 @@ func _on_NewCharDialog_file_selected(path):
 func _on_MainMenuDocumentation_pressed():
 	OpenDocumentation($Documentation.defaultPage)
 
+
+
+func _on_Characters_item_activated(_index):
+	_on_CharacterEdit_pressed()

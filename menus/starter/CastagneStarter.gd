@@ -21,7 +21,7 @@ func Editor():
 	call_deferred("LoadLevel", Castagne.configData["Editor"])
 
 func DevTools():
-	print("no")
+	call_deferred("LoadLevel", Castagne.configData["DevTools"])
 
 # --------------------------------------------------------------------------------------------------
 # Internals

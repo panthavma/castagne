@@ -233,6 +233,15 @@ func ModuleSetup():
 	
 	
 	RegisterCategory("Engine Functions")
+	RegisterFunction("Tag", [1], null, {
+		"Description": "Associates a specified tag with the script. These are inherited by the scripts calling this one.",
+		"Arguments": ["Tag Name"],
+	})
+	RegisterFunction("TagLocal", [1], null, {
+		"Description": "Associates a specified tag with the script. These are NOT inherited by the scripts calling this one.",
+		"Arguments": ["Tag Name"],
+	})
+	
 	RegisterFunction("FreezeFrames", [1], null, {
 		"Description": "Sets an amount of freeze frames to be effective immediately. Uses the max of the remaining frames and current frames.",
 		"Arguments": ["Amount of frames to wait"],
@@ -272,6 +281,7 @@ func ModuleSetup():
 	
 	RegisterConfig("Engine", "res://castagne/engine/CastagneEngine.tscn", {"Flags":["Advanced"]})
 	RegisterConfig("Editor", "res://castagne/editor/CastagneEditor.tscn", {"Flags":["Advanced"]})
+	RegisterConfig("DevTools", "res://castagne/devtools/DevTools.tscn", {"Flags":["Advanced"]})
 	RegisterConfig("MainMenu","res://castagne/menus/mainmenu/DefaultMainMenu.tscn")
 	RegisterConfig("CharacterSelect","res://castagne/menus/characterselect/DefaultCharacterSelect.tscn")
 	RegisterConfig("PostBattle","res://castagne/menus/postbattle/DefaultPostBattle.tscn")
@@ -308,7 +318,7 @@ func ModuleSetup():
 	
 	RegisterCategory("Castagne Starter")
 	RegisterConfig("Starter-Option", 0, {"Flags":["Hidden"]})
-	RegisterConfig("Starter-Timer", 2000)
+	RegisterConfig("Starter-Timer", -1)
 	RegisterConfig("Starter-P1", 0, {"Flags":["Hidden"]})
 	RegisterConfig("Starter-P2", 0, {"Flags":["Hidden"]})
 	
@@ -563,6 +573,15 @@ func LogB(args, eState, data):
 func LogT(args, eState, data):
 	Log(args, eState, data)
 
+# --------------------------------------------------------------------------------------------------
+# Engine Functions
+
+func ParseTag(parser, args, parseData):
+	parseData["CurrentState"]["Tag"] = args[0]
+	parseData["CurrentState"]["TagLocal"] = false
+func ParseTagLocal(parser, args, parseData):
+	parseData["CurrentState"]["Tag"] = args[0]
+	parseData["CurrentState"]["TagLocal"] = true
 
 func FreezeFrames(args, eState, data):
 	data["State"]["FreezeFrames"] = max(data["State"]["FreezeFrames"], ArgInt(args, eState, 0))

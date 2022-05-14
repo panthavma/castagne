@@ -21,6 +21,7 @@ func LoadPage(page):
 
 func SetupDocumentation():
 	tree = $Window/PageList
+	tree.clear()
 	var root = AddPage(null, "")
 	tree.set_hide_root(true)
 	
@@ -90,16 +91,21 @@ func SetupDocumentationModule(modulesRoot, module):
 		
 		
 		if(!funcs.empty()):
-			t += "### Functions\n"
+			t += "\n### Functions\n"
 			for f in funcs:
-				t += f["Name"] + ": " + f["Documentation"]["Description"] + " ("+str(f["Documentation"]["Arguments"])+")\n"
+				t += "--- "+f["Name"] + ": ("
+				var i = 0
+				for a in f["Documentation"]["Arguments"]:
+					t += ("" if i==0 else ", ") + str(a)
+					i += 1
+				t += ")\n"+f["Documentation"]["Description"] + "\n\n"
 		
 		if(!vars.empty()):
-			t += "### Variables\n"
+			t += "\n### Variables\n"
 			for v in vars:
 				t += v["Name"] + ": " + v["Description"] + "\n"
 		if(!flags.empty()):
-			t += "### Flags\n"
+			t += "\n### Flags\n"
 			for f in flags:
 				t += f["Name"] + ": " + f["Description"] + "\n"
 		

@@ -44,7 +44,9 @@ func BattleInit(state, data, battleInitData):
 	# Create the entities
 	for player in data["InstancedData"]["Players"]:
 		# Parse fighter, create entity, then create model. Return error if problem
-		var characterPath = Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"])[battleInitData[player["Name"]]]
+		var characterPath = battleInitData[player["Name"]]
+		if(!str(characterPath).ends_with(".casp")):
+			characterPath = Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"])[characterPath]
 		var playerID = player["PID"]
 		
 		var fighterID = engine.ParseFighterScript(characterPath)

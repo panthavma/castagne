@@ -59,8 +59,7 @@ func Init(battleInitData):
 	instancesRoot = self
 	
 	if(initError):
-		queue_free()
-		Castagne.Error("Initialization failed at the map init stage. Aborting.")
+		AbortWithError("Initialization failed at the map init stage. Aborting.")
 		return
 		
 	# 3. Prepare the first frame
@@ -98,8 +97,7 @@ func Init(battleInitData):
 	
 	
 	if(initError):
-		queue_free()
-		Castagne.Error("Initialization failed at the player init stage. Aborting.")
+		AbortWithError("Initialization failed at the player init stage. Aborting.")
 		return
 	
 	# :TODO:Panthavma:20220124:Allow less modules to be in play
@@ -111,8 +109,7 @@ func Init(battleInitData):
 	
 	
 	if(initError):
-		queue_free()
-		Castagne.Error("Initialization failed at the fighter init stage. Aborting.")
+		AbortWithError("Initialization failed at the fighter init stage. Aborting.", true)
 		return
 	
 	Castagne.Log("Init Ended\n----------------")
@@ -131,6 +128,9 @@ func Init(battleInitData):
 # Main Loop
 
 func EngineTick(previousState, playerInputs):
+	if(initError):
+		return
+	
 	# 1. Frame and input setup
 	var state = previousState.duplicate(true)
 	state["TrueFrameID"] += 1
@@ -258,7 +258,9 @@ func ExecuteFighterScript(fighterScript, eid, moduleCallbackData):
 		moduleCallbackData["SelectedEID"] = eid
 		moduleCallbackData["RefEID"] = eid
 	
-	for action in fighterScript["Actions"]:
+	var actionList = fighterScript[phaseName]
+	
+	for action in actionList:
 		if(moduleCallbackData["SelectedEID"] != eid):
 			eid = moduleCallbackData["SelectedEID"]
 			entityState = state[eid]
@@ -266,7 +268,8 @@ func ExecuteFighterScript(fighterScript, eid, moduleCallbackData):
 			rEID = moduleCallbackData["RefEID"]
 			moduleCallbackData["rState"] = state[rEID]
 		
-		ExecuteAction(action, phaseName, entityState, moduleCallbackData)
+		action[0].call_func(action[1], entityState, moduleCallbackData)
+		#ExecuteAction(action, phaseName, entityState, moduleCallbackData)
 
 func ExecuteAction(action, phaseName, entityState, moduleCallbackData):
 	if(phaseName in action["Flags"]):
@@ -489,3 +492,24 @@ func _process(_delta):
 		_lastGraphicsFrameUpdate = trueFrameID
 		UpdateGraphics(_gameState)
 
+var _errorScreen = null
+func AbortWithError(error, showParserErrors = false):
+	queue_free()
+	Castagne.Error(error)
+	
+	var l = Label.new()
+	var t = ""
+	
+	if(showParserErrors):
+		var nbErrors = {"Warning":0, "Error":0, "Fatal Error":0}
+		for e in Castagne.Parser._errors:
+			nbErrors[e["Type"]] += 1
+			t += "["+str(e["Type"])+"] " + e["FilePath"] +" l." + str(e["LineID"]) + ": " + e["Text"] +"\n"
+		t = "\n\n---- "+str(nbErrors["Warning"])+" Warnings / "+str(nbErrors["Error"])+" Errors / "+str(nbErrors["Fatal Error"])+" Fatal Errors ----\n" + t
+	
+	l.set_text(error + t)
+	get_node("..").add_child(l)
+	l.set_anchors_and_margins_preset(Control.PRESET_WIDE)
+	l.set_align(Label.ALIGN_CENTER)
+	l.set_valign(Label.VALIGN_CENTER)
+	_errorScreen = l

@@ -8,6 +8,7 @@ func ModuleSetup():
 	RegisterCategory("Castagne Editor")
 	RegisterConfig("Editor-SelectedCharacter", 0, {"Flags":["Hidden"]})
 	RegisterConfig("Editor-DocumentationFolders", "res://castagne/docs", {"Flags":["Advanced"]})
+	RegisterConfig("Editor-Tools", "res://castagne/editor/tools/CETool-Compile.tscn", {"Flags":["Advanced"]})
 	
 	RegisterBattleInitData("editor", false)
 
@@ -42,6 +43,8 @@ func UpdateGizmos(state, data):
 	var eState = null
 	if(state.has("Players")):
 		mainEID = state["Players"][0]["MainEntity"]
+		if(!state.has(mainEID)):
+			return
 		eState = state[mainEID]
 		# :TODO:Panthavma:20220501:Add some way of saying "init is done"
 		if(!eState.has("PositionX")):

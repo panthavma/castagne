@@ -1,123 +1,190 @@
 :Character:
+# Basic metadata on the character
 Name: Castagne Base Character
 Skeleton: none
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :Variables:
-	# System
-	_EffectiveLandingLag:4
-	
-	
-	
-	# Throw logic
-	ThrowTechLockoutTime: 40
-	ThrowTechBuffer:12
-	_ThrowTechBuffer:0
-	_ThrowTechLockout:0
-	ThrowHoldingTime:180
-	ThrowHoldingLongTime:60
-	ThrowingState: ThrowF
-	ThrowingBackState: ThrowB
-	AirThrowingState: AirThrowF
-	AirThrowingBackState: AirThrowB
-	
-	ThrowTechedMomentumX: -1200
-	ThrowTechedMomentumY: 0
-	ThrowTechedDuration: 30
-	ThrowTechingMomentumX: -1200
-	ThrowTechingMomentumY: 0
-	ThrowTechingDuration: 20
-	
-	# Base Physics
-	Gravity:-150
-	TerminalVelocity:-4500
-	FrictionGround: 250
-	FrictionAir: 2
-	
-	HitstunGravity:-150
-	HitstunGravityFloat:-50
-	HitstunFrictionGround: 100
-	HitstunFrictionAir: 6
-	
-	BlockstunGravity:-150
-	BlockstunFrictionGround: 100
-	BlockstunFrictionAir: 6
-	
-	LandingLag: 4
-	AttackLandingLag: 0
-	DefaultAttackLandingLag: 4
-	
-	WalkFSpeed: 1000
-	WalkBSpeed: -800
-	
-	JumpsquatFrames: 4
-	JumpFForce: 800
-	JumpBForce: -800
-	JumpNForce: 2800
-	
-	
-	# Character Specific
-	HPMax: 10000
-	
-	# Options
-	AIR_ATTACK_CAN_SWITCH_FACING: 1
-	
-	# Model
-	USE_SPRITES: 0
-	SPRITESHEET_PATH: res://castagne/example/fighter/sprites/StickmanSpriteSheet.png
-	SPRITESHEET_NB_X: 1
-	SPRITESHEET_NB_Y: 1
-	SPRITESHEET_PIXELSIZE: 100
-	SPRITE_ORIGIN_X: 0
-	SPRITE_ORIGIN_Y: 0
-	
-	MODEL_PATH: res://castagne/example/fighter/CastagneurModel.tscn
-	ANIMPLAYER_PATH: AnimationPlayer
-	
-	USE_STANDARD_COLBOX: 1
-	USE_STANDARD_HURTBOX: 1
-	
-	# Animations
-	USE_STANDARD_ANIMS: 0
-	ANIM_KNOCKDOWN: Knockdown
-	ANIM_KNOCKEDDOWN: Knockeddown
-	ANIM_HITSTUN_AIR: Hitstun.Air
-	ANIM_HITSTUN_TRIP: Hitstun.Air
-	ANIM_HITSTUN_GROUNDBOUNCE: Hitstun.Air
-	ANIM_HITSTUN_AIR_UP: Hitstun.Air
-	ANIM_HITSTUN_AIR_BACK: Hitstun.Air
-	ANIM_HITSTUN_AIR_DOWN: Hitstun.Air
-	ANIM_HITSTUN_AIR_FRONT: Hitstun.Air
-	ANIM_HITSTUN_AIR_SPINFRONT: Hitstun.Air
-	ANIM_HITSTUN_AIR_SPINBACK: Hitstun.Air
-	ANIM_HITSTUN_AIR_SPINSIDE: Hitstun.Air
-	ANIM_HITSTUN_STAND: Hitstun.Stand
-	ANIM_HITSTUN_CROUCH: Hitstun.Crouch
-	ANIM_BLOCK_STAND: Block.Stand
-	ANIM_BLOCK_CROUCH: Block.Crouch
-	ANIM_BLOCK_AIR: Block.Air
-	ANIM_TECH_INPLACE: Tech.InPlace
-	ANIM_TECH_FORWARD: Tech.Forward
-	ANIM_TECH_BACK: Tech.Back
-	ANIM_TECH_SOFT: Tech.Back
-	ANIM_TECH_AIR: Tech.Air
-	ANIM_STAND: Stand
-	ANIM_CROUCH: Crouch
-	ANIM_WALKF: WalkF
-	ANIM_WALKF_LOOP:70
-	ANIM_WALKB: WalkB
-	ANIM_WALKB_LOOP:70
-	ANIM_JUMPSQUAT: Jumpsquat
-	ANIM_LANDING: Landing
-	ANIM_JUMPN: JumpN
-	ANIM_JUMPF: JumpF
-	ANIM_JUMPB: JumpB
-	ANIM_AIRIDLE: AirIdle
-	ANIM_THROWHELD: ThrowHeld
-	ANIM_THROWTECHING: ThrowTech
-	ANIM_THROWTECHED: ThrowTeched
+# System
+_EffectiveLandingLag:4
+
+
+
+# Throw logic
+ThrowTechLockoutTime: 40
+ThrowTechBuffer:12
+_ThrowTechBuffer:0
+_ThrowTechLockout:0
+ThrowHoldingTime:180
+ThrowHoldingLongTime:60
+ThrowingState: ThrowF
+ThrowingBackState: ThrowB
+AirThrowingState: AirThrowF
+AirThrowingBackState: AirThrowB
+
+ThrowTechedMomentumX: -1200
+ThrowTechedMomentumY: 0
+ThrowTechedDuration: 30
+ThrowTechingMomentumX: -1200
+ThrowTechingMomentumY: 0
+ThrowTechingDuration: 20
+
+# Base Physics
+Gravity:-150
+TerminalVelocity:-4500
+FrictionGround: 250
+FrictionAir: 2
+
+HitstunGravity:-150
+HitstunGravityFloat:-50
+HitstunFrictionGround: 100
+HitstunFrictionAir: 6
+
+BlockstunGravity:-150
+BlockstunFrictionGround: 100
+BlockstunFrictionAir: 6
+
+LandingLag: 4
+AttackLandingLag: 0
+DefaultAttackLandingLag: 4
+
+WalkFSpeed: 1000
+WalkBSpeed: -800
+
+JumpsquatFrames: 4
+JumpFForce: 800
+JumpBForce: -800
+JumpNForce: 2800
+
+
+# Character Specific
+HPMax: 10000
+
+# Options
+AIR_ATTACK_CAN_SWITCH_FACING: 1
+
+# Model
+USE_SPRITES: 0
+SPRITESHEET_PATH: res://castagne/example/fighter/sprites/StickmanSpriteSheet.png
+SPRITESHEET_NB_X: 1
+SPRITESHEET_NB_Y: 1
+SPRITESHEET_PIXELSIZE: 100
+SPRITE_ORIGIN_X: 0
+SPRITE_ORIGIN_Y: 0
+
+MODEL_PATH: res://castagne/example/fighter/CastagneurModel.tscn
+ANIMPLAYER_PATH: AnimationPlayer
+
+USE_STANDARD_COLBOX: 1
+USE_STANDARD_HURTBOX: 1
+
+# Animations
+USE_STANDARD_ANIMS: 0
+ANIM_KNOCKDOWN: Knockdown
+ANIM_KNOCKEDDOWN: Knockeddown
+ANIM_HITSTUN_AIR: Hitstun.Air
+ANIM_HITSTUN_TRIP: Hitstun.Air
+ANIM_HITSTUN_GROUNDBOUNCE: Hitstun.Air
+ANIM_HITSTUN_AIR_UP: Hitstun.Air
+ANIM_HITSTUN_AIR_BACK: Hitstun.Air
+ANIM_HITSTUN_AIR_DOWN: Hitstun.Air
+ANIM_HITSTUN_AIR_FRONT: Hitstun.Air
+ANIM_HITSTUN_AIR_SPINFRONT: Hitstun.Air
+ANIM_HITSTUN_AIR_SPINBACK: Hitstun.Air
+ANIM_HITSTUN_AIR_SPINSIDE: Hitstun.Air
+ANIM_HITSTUN_STAND: Hitstun.Stand
+ANIM_HITSTUN_CROUCH: Hitstun.Crouch
+ANIM_BLOCK_STAND: Block.Stand
+ANIM_BLOCK_CROUCH: Block.Crouch
+ANIM_BLOCK_AIR: Block.Air
+ANIM_TECH_INPLACE: Tech.InPlace
+ANIM_TECH_FORWARD: Tech.Forward
+ANIM_TECH_BACK: Tech.Back
+ANIM_TECH_SOFT: Tech.Back
+ANIM_TECH_AIR: Tech.Air
+ANIM_STAND: Stand
+ANIM_CROUCH: Crouch
+ANIM_WALKF: WalkF
+ANIM_WALKF_LOOP:70
+ANIM_WALKB: WalkB
+ANIM_WALKB_LOOP:70
+ANIM_JUMPSQUAT: Jumpsquat
+ANIM_LANDING: Landing
+ANIM_JUMPN: JumpN
+ANIM_JUMPF: JumpF
+ANIM_JUMPB: JumpB
+ANIM_AIRIDLE: AirIdle
+ANIM_THROWHELD: ThrowHeld
+ANIM_THROWTECHING: ThrowTech
+ANIM_THROWTECHED: ThrowTeched
 
 # Some tasks for later to make it easier to use:
-# :TODO:Panthavma:20220110:Make it a default when no skeleton is specified
 # :TODO:Panthavma:20220309:Make all variables accessible
 # :TODO:Panthavma:20220310:Make standard backdash
 # :TODO:Panthavma:20220310:Make standard front step and front dash
@@ -133,498 +200,2339 @@ Skeleton: none
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :Init:
-	CopyFighterVariables()
-	VUSE_SPRITES:
-		Call(InitSprites)
-	else
-		Call(InitModel)
-	endif
-	Call(NewRound)
-	Transition(Stand)
+Tag(System)
+CopyFighterVariables()
+
+VUSE_SPRITES:
+	Call(InitSprites)
+else
+	Call(InitModel)
+endif
+
+Call(NewRound)
+Transition(Stand)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :InitModel:
-	CreateModel(MODEL_PATH, ANIMPLAYER_PATH)
+Tag(System)
+CreateModel(MODEL_PATH, ANIMPLAYER_PATH)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :InitSprites:
-	CreateSprite(SPRITESHEET_PATH, SPRITESHEET_NB_X, SPRITESHEET_NB_Y, SPRITESHEET_PIXELSIZE)
-	SpriteOrigin(SPRITE_ORIGIN_X, SPRITE_ORIGIN_Y)
+Tag(System)
+CreateSprite(SPRITESHEET_PATH, SPRITESHEET_NB_X, SPRITESHEET_NB_Y, SPRITESHEET_PIXELSIZE)
+SpriteOrigin(SPRITE_ORIGIN_X, SPRITE_ORIGIN_Y)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :NewRound:
-	Set(Meter, 0)
-	Set(HP, HPMax)
+Tag(System)
+Set(Meter, 0)
+Set(HP, HPMax)
 
 
 
-# Common -----------------------------------------------------------------------
-#    ______                                    
-#   / ____/___  ____ ___  ____ ___  ____  ____ 
-#  / /   / __ \/ __ `__ \/ __ `__ \/ __ \/ __ \
-# / /___/ /_/ / / / / / / / / / / / /_/ / / / /
-# \____/\____/_/ /_/ /_/_/ /_/ /_/\____/_/ /_/ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :Common:
-	Call(StandardColbox)
-	Call(ThrowTechingInput)
-	LDie:
-		Transition(Dead, 1000000)
+TagLocal(System - Bases)
+Call(StandardColbox)
+Call(ThrowTechingInput)
+
+LDie:
+	Transition(Dead, 1000000)
+endif
+
+LPFHit:
+	Call(OnHit)
+endif
+
+LPFBlock:
+	LAFGuarded:
+	else
+		Call(OnBlock)
 	endif
-	
-	# TODO Force Landing
-	# TODO Cleanup those flags on the attack side
-	LPFHit:
-		Call(OnHit)
-	endif
-	LPFBlock:
-		LAFGuarded:
-		else
-			Call(OnBlock)
-		endif
-	endif
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :OnHit:
-	#PlaySound(Hit)
-	LPFGrounded:
-		LAFForceLanding:
-			Call(OnHitstunLanding)
+Tag(Hits - Hitstun)
+#PlaySound(Hit)
+
+LPFGrounded:
+	LAFForceLanding:
+		Call(OnHitstunLanding)
+	else
+		LAFLauncher:
+			Transition(HitstunAir, 1000, 1)
 		else
-			LAFLauncher:
-				Transition(HitstunAir, 1000, 1)
+			LCrouching:
+				Transition(HitstunCrouch, 1000, 1)
 			else
-				LCrouching:
-					Transition(HitstunCrouch, 1000, 1)
-				else
-					Transition(HitstunStand, 1000, 1)
-				endif
+				Transition(HitstunStand, 1000, 1)
 			endif
 		endif
-	else
-		Transition(HitstunAir, 1000, 1)
 	endif
-	PTransition:
-		SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
-		Call(VFXHit)
-	endif
+else
+	Transition(HitstunAir, 1000, 1)
+endif
+
+PTransition:
+	SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
+	Call(VFXHit)
+endif
 
 
 
-:VFXHit:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :OnBlock:
-	#PlaySound(Block)
-	LPFGrounded:
-		LAFLow:
-			Transition(BlockLow, 900, 1)
+Tag(Hits - Blockstun)
+#PlaySound(Block)
+
+LPFGrounded:
+	LAFLow:
+		Transition(BlockLow, 900, 1)
+	else
+		LAFOverhead:
+			Transition(BlockHigh, 900, 1)
 		else
-			LAFOverhead:
-				Transition(BlockHigh, 900, 1)
+			IDown:
+				Transition(BlockLow, 900, 1)
 			else
-				IDown:
-					Transition(BlockLow, 900, 1)
-				else
-					Transition(BlockHigh, 900, 1)
-				endif
+				Transition(BlockHigh, 900, 1)
 			endif
 		endif
-	else
-		Transition(BlockAir, 900, 1)
 	endif
-	PTransition:
-		SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
-		Call(VFXBlock)
-	endif
+else
+	Transition(BlockAir, 900, 1)
+endif
+
+PTransition:
+	SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
+	Call(VFXBlock)
+endif
 
 
-:VFXBlock:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :ThrowTechingInput:
-	V_ThrowTechBuffer:
-		Sub(_ThrowTechBuffer, 1)
+TagLocal(Attacks - Throws)
+
+V_ThrowTechBuffer:
+	Sub(_ThrowTechBuffer, 1)
+endif
+
+V_ThrowTechLockout:
+	Sub(_ThrowTechLockout, 1)
+else
+	IThrow:
+		Set(_ThrowTechLockout, ThrowTechLockoutTime)
+		Set(_ThrowTechBuffer, ThrowTechBuffer)
 	endif
-	V_ThrowTechLockout:
-		Sub(_ThrowTechLockout, 1)
-	else
-		IThrow:
-			Set(_ThrowTechLockout, ThrowTechLockoutTime)
-			Set(_ThrowTechBuffer, ThrowTechBuffer)
-		endif
-	endif
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :Dead:
-	Flag(Dead)
-	Colbox(-200, 200, 0, 200)
-	AddMomentum(0,-120)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_HITSTUN_AIR)
-	endif
-	F1:
-		SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
-	endif
-	LPFGrounded:
-		Transition(DeadKnockdown, 500000)
-	endif
+Tag(Hits - Dead)
+
+Flag(Dead)
+Colbox(-200, 200, 0, 200)
+
+AddMomentum(0,-120)
+
+F1:
+	SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
+endif
+
+LPFGrounded:
+	Transition(DeadKnockdown, 500000)
+endif
+
+Call(AnimDead)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimDead:
+Tag(Animations)
+
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_HITSTUN_AIR)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :DeadKnockdown:
-	Flag(Dead)
-	Colbox(-200, 200, 0, 200)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_KNOCKDOWN)
-	endif
-	BreakMomentum(500, 0)
+Tag(Hits - Dead)
+
+Flag(Dead)
+
+Colbox(-200, 200, 0, 200)
+
+BreakMomentum(500, 0)
+
+Call(AnimDeadKnockdown)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimDeadKnockdown:
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_KNOCKDOWN)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :GroundedStateCommon:
-	Call(Common)
-	CapMomentum(3500,-1)
+TagLocal(System)
+
+Call(Common)
+CapMomentum(3500,-1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :GroundedState:
-	Call(GroundedStateCommon)
-	LPFAirborne:
-		Transition(AirIdle, 200)
-	endif
+TagLocal(System - Bases)
+Call(GroundedStateCommon)
+
+LPFAirborne:
+	Transition(AirIdle, 200)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :StandingState:
-	Call(GroundedState)
+TagLocal(System - Bases)
+Call(GroundedState)
+
+
+
+
+
+
+
+
+
+
 
 
 
 :CrouchingState:
-	Flag(Crouching)
-	Call(GroundedState)
+TagLocal(System - Bases)
+
+Flag(Crouching)
+Call(GroundedState)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :AirborneStateCommon:
-	Call(Common)
-	Flag(Airborne)
+TagLocal(System)
+Call(Common)
+Flag(Airborne)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :AirborneState:
-	Call(AirborneStateCommon)
-	LPFGrounded:
-		Transition(Landing, 200)
-	endif
+TagLocal(System - Bases)
+
+Call(AirborneStateCommon)
+
+LPFGrounded:
+	Transition(Landing, 200)
+endif
+
+
+
+
+
+
+
+
 
 
 
 :VariableState:
-	LPFAirborne:
-		Call(AirborneStateCommon)
-	else
-		Call(GroundedStateCommon)
-	endif
+TagLocal(System - Bases)
+LPFAirborne:
+	Call(AirborneStateCommon)
+else
+	Call(GroundedStateCommon)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 
 :StandingNeutralState:
-	Call(StandingState)
-	Call(GroundedNeutralStateCommon)
+TagLocal(System - Bases)
+Call(StandingState)
+Call(GroundedNeutralStateCommon)
+
+
+
+
+
+
+
+
+
+
 
 
 :CrouchingNeutralState:
-	Call(CrouchingState)
-	Call(GroundedNeutralStateCommon)
+TagLocal(System - Bases)
+Call(CrouchingState)
+Call(GroundedNeutralStateCommon)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :GroundedNeutralStateCommon:
-	Call(StandardHurtbox)
-	Call(ReturnedToNeutral)
-	
-	Flag(ApplyFacing)
-	Flag(CanBlock)
-	
-	Call(GroundedNeutralStateTransitions)
+TagLocal(System)
+
+Call(StandardHurtbox)
+Call(ReturnedToNeutral)
+
+Flag(ApplyFacing)
+Flag(CanBlock)
+
+Call(GroundedNeutralStateTransitions)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :GroundedNeutralStateTransitions:
-	Call(AttackAddAllNormalsCancels)
-	Call(AttackAddSpecialCancels)
-	Call(GroundedAttacks)
-	
-	IUp:
-		Transition(Jumpsquat)
+TagLocal(System)
+Call(AttackAddAllNormalsCancels)
+Call(AttackAddSpecialCancels)
+Call(GroundedAttacks)
+
+IUp:
+	Transition(Jumpsquat)
+else
+	IDown:
+		Transition(Crouch)
 	else
-		IDown:
-			Transition(Crouch)
-		else
-			IForward:
-				Transition(WalkF)
-			endif
-			IBack:
-				Transition(WalkB)
-			endif
-			INeutralH:
-				Transition(Stand)
-			endif
+		IForward:
+			Transition(WalkF)
+		endif
+		IBack:
+			Transition(WalkB)
+		endif
+		INeutralH:
+			Transition(Stand)
 		endif
 	endif
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :AirborneNeutralState:
-	Call(AirborneState)
-	Call(StandardHurtbox)
-	Call(ComputeLandingLag)
-	Call(ReturnedToNeutral)
-	
-	Flag(CanBlock)
-	
-	Call(AirborneNeutralStateTransitions)
+TagLocal(System - Bases)
+
+Call(AirborneState)
+Call(StandardHurtbox)
+Call(ComputeLandingLag)
+Call(ReturnedToNeutral)
+
+Flag(CanBlock)
+
+Call(AirborneNeutralStateTransitions)
+
+
+
+
+
+
+
 
 
 
 :AirborneNeutralStateTransitions:
-	Call(AttackAddAllNormalsCancels)
-	Call(AttackAddSpecialCancels)
-	Call(AirborneAttacks)
+TagLocal(System)
+
+Call(AttackAddAllNormalsCancels)
+Call(AttackAddSpecialCancels)
+Call(AirborneAttacks)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :ReturnedToNeutral:
-	Set(Groundbounces, 0)
-	AttackResetDoneCancels()
+TagLocal(System)
+
+Set(Groundbounces, 0)
+AttackResetDoneCancels()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :Intro:
-	Flag(RoundIntro)
-	
-	LStartRound:
-		Transition(Stand, 10000)
-	endif
+Tag(System)
+
+Flag(RoundIntro)
+
+LStartRound:
+	Transition(Stand, 10000)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :StandardColbox:
-	VUSE_STANDARD_COLBOX:
-		Colbox(-4000, 4000, 0, 15000)
-	endif
+TagLocal(System)
+
+VUSE_STANDARD_COLBOX:
+	Colbox(-4000, 4000, 0, 15000)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :StandardHurtbox:
-	VUSE_STANDARD_HURTBOX:
-		LCrouching:
-			Hurtbox(-5000, 5000, 0, 15000)
-		else
-			Hurtbox(-5000, 5000, 0, 20000)
-		endif
+TagLocal(System)
+
+VUSE_STANDARD_HURTBOX:
+	LCrouching:
+		Hurtbox(-5000, 5000, 0, 15000)
+	else
+		Hurtbox(-5000, 5000, 0, 20000)
 	endif
+endif
 
 
 
 
 
-# Hitstun ----------------------------------------------------------------------
-#    __  ___ __       __            
-#   / / / (_) /______/ /___  ______ 
-#  / /_/ / / __/ ___/ __/ / / / __ \
-# / __  / / /_(__  ) /_/ /_/ / / / /
-#/_/ /_/_/\__/____/\__/\__,_/_/ /_/ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :OnHitstunLanding:
-	LAFGroundbounce:
-		Transition(HitstunGroundbounce, 6000)
+TagLocal(Hits - Hitstun)
+LAFGroundbounce:
+	Transition(HitstunGroundbounce, 6000)
+else
+	LAFKnockdown:
+		Transition(Knockdown, 6000)
 	else
-		LAFKnockdown:
-			Transition(Knockdown, 6000)
-		else
-			INeutralH:
-				Transition(SoftTech, 5500)
-			endif
-			Call(GroundTech)
+		INeutralH:
+			Transition(SoftTech, 5500)
 		endif
+		Call(GroundTech)
 	endif
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :HitstunCommon:
-	Call(Common)
-	Flag(Hitstun)
-	Flag(IgnoreGravity)
-	Flag(IgnoreFriction)
-	
-	LPFAirborne:
-		BreakMomentum(HitstunFrictionAir)
-		LAFFloat:
-			AddMomentum(0, HitstunGravityFloat)
-		else
-			AddMomentum(0, HitstunGravity)
-		endif
+Tag(Hits - Hitstun)
+Call(Common)
+Flag(Hitstun)
+Flag(IgnoreGravity)
+Flag(IgnoreFriction)
+
+LPFAirborne:
+	BreakMomentum(HitstunFrictionAir)
+	LAFFloat:
+		AddMomentum(0, HitstunGravityFloat)
 	else
-		BreakMomentum(HitstunFrictionGround)
+		AddMomentum(0, HitstunGravity)
 	endif
-	
-	Call(StandardHurtbox)
+else
+	BreakMomentum(HitstunFrictionGround)
+endif
+
+Call(StandardHurtbox)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :HitstunStand:
-	Call(HitstunCommon)
-	Call(StandardHurtbox)
-	Call(AnimHitstunGround)
-	BreakMomentum(100, 0)
-	FHitstunDuration:
-		Transition(Stand)
-	endif
-	LPFAirborne:
-		Transition(HitstunAir)
-	endif
+Call(HitstunCommon)
+Call(StandardHurtbox)
+Call(AnimHitstunGround)
+BreakMomentum(100, 0)
+FHitstunDuration:
+	Transition(Stand)
+endif
+LPFAirborne:
+	Transition(HitstunAir)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :HitstunCrouch:
-	Flag(Crouching)
-	Call(HitstunCommon)
-	Call(AnimHitstunGround)
-	BreakMomentum(100, 0)
-	FHitstunDuration:
-		Transition(Crouch)
-	endif
-	LPFAirborne:
-		Transition(HitstunAir)
-	endif
+Flag(Crouching)
+Call(HitstunCommon)
+Call(AnimHitstunGround)
+BreakMomentum(100, 0)
+FHitstunDuration:
+	Transition(Crouch)
+endif
+LPFAirborne:
+	Transition(HitstunAir)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :HitstunAir:
-	Call(HitstunCommon)
-	AddMomentum(0, -40)
-	Call(AnimHitstunAir)
-	# TODO Put variable timing tech back in when training mode
-	FHitstunDuration+:
-		#ITech:
-			Transition(AirTech)
-		#endif
-	endif
-	LPFGrounded:
-		Call(OnHitstunLanding)
-	endif
+Call(HitstunCommon)
+AddMomentum(0, -40)
+Call(AnimHitstunAir)
+
+# TODO Put variable timing tech back in when training mode
+FHitstunDuration+:
+	#ITech:
+		Transition(AirTech)
+	#endif
+endif
+
+LPFGrounded:
+	Call(OnHitstunLanding)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :HitstunGroundbounce:
-	Call(HitstunAir)
-	F1:
-		AttackRecievedUnflag(Groundbounce)
-		SetMomentumY(GroundbounceMomentum)
-		Set(HitstunDuration, GroundbounceTime)
-	endif
+Call(HitstunAir)
+F1:
+	AttackRecievedUnflag(Groundbounce)
+	SetMomentumY(GroundbounceMomentum)
+	Set(HitstunDuration, GroundbounceTime)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :AnimHitstunGround:
-	VUSE_STANDARD_ANIMS:
-		LCrouching:
-			Anim(ANIM_HITSTUN_CROUCH)
-		else
-			Anim(ANIM_HITSTUN_STAND)
-		endif
+Tag(Animations)
+
+VUSE_STANDARD_ANIMS:
+	LCrouching:
+		Anim(ANIM_HITSTUN_CROUCH)
+	else
+		Anim(ANIM_HITSTUN_STAND)
 	endif
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :AnimHitstunAir:
-	VUSE_STANDARD_ANIMS:
-		LAFAnimGroundbounce:
-			AnimFrame(ANIM_HITSTUN_GROUNDBOUNCE)
+Tag(Animations)
+
+VUSE_STANDARD_ANIMS:
+	LAFAnimGroundbounce:
+		AnimFrame(ANIM_HITSTUN_GROUNDBOUNCE)
+	else
+	LAFAnimTrip:
+		Anim(ANIM_HITSTUN_TRIP)
+	else
+		LAFAnimAirUp:
+			Anim(ANIM_HITSTUN_AIR_UP)
 		else
-		LAFAnimTrip:
-			Anim(ANIM_HITSTUN_TRIP)
+		LAFAnimAirDown:
+			Anim(ANIM_HITSTUN_AIR_DOWN)
 		else
-			LAFAnimAirUp:
-				Anim(ANIM_HITSTUN_AIR_UP)
-			else
-			LAFAnimAirDown:
-				Anim(ANIM_HITSTUN_AIR_DOWN)
-			else
-			LAFAnimAirFront:
-				Anim(ANIM_HITSTUN_AIR_FRONT)
-			else
-			LAFAnimAirBack:
-				Anim(ANIM_HITSTUN_AIR_BACK)
-			else
-				Anim(ANIM_HITSTUN_AIR)
-			endif
-			endif
-			endif
-			endif
+		LAFAnimAirFront:
+			Anim(ANIM_HITSTUN_AIR_FRONT)
+		else
+		LAFAnimAirBack:
+			Anim(ANIM_HITSTUN_AIR_BACK)
+		else
+			Anim(ANIM_HITSTUN_AIR)
+		endif
+		endif
 		endif
 		endif
 	endif
+	endif
+endif
 
 
 
 
 
 
-# Blockstun --------------------------------------------------------------------
-#    ____  __           __        __            
-#   / __ )/ /___  _____/ /_______/ /___  ______ 
-#  / __  / / __ \/ ___/ //_/ ___/ __/ / / / __ \
-# / /_/ / / /_/ / /__/ ,< (__  ) /_/ /_/ / / / /
-#/_____/_/\____/\___/_/|_/____/\__/\__,_/_/ /_/ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :BlockstunCommon:
-	Flag(Blockstun)
-	Flag(CanBlock)
-	Call(StandardHurtbox)
-	Sub(BlockstunDuration, 1)
+Tag(Hits - Blockstun)
+
+Flag(Blockstun)
+Flag(CanBlock)
+Call(StandardHurtbox)
+Sub(BlockstunDuration, 1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :BlockHigh:
-	Call(StandingState)
-	Call(BlockstunCommon)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_BLOCK_STAND)
-	endif
-	LPFAirborne:
-		Transition(BlockAir, 500)
-	endif
-	VBlockstunDuration<=0:
-		Call(GroundedNeutralStateTransitions)
-	endif
+Call(BlockstunCommon)
+Call(StandingState)
+LPFAirborne:
+	Transition(BlockAir, 500)
+endif
+VBlockstunDuration<=0:
+	Call(GroundedNeutralStateTransitions)
+endif
+
+Call(AnimBlockHigh)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimBlockHigh:
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_BLOCK_STAND)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :BlockLow:
@@ -639,6 +2547,104 @@ Skeleton: none
 	VBlockstunDuration<=0:
 		Call(GroundedNeutralStateTransitions)
 	endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :BlockAir:
@@ -668,47 +2674,175 @@ Skeleton: none
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :GroundTech:
-	IForward:
-		Transition(ForwardTech, 5000)
+Tag(Hits - Teching)
+
+IForward:
+	Transition(ForwardTech, 5000)
+else
+	IBack:
+		Transition(BackTech, 5000)
 	else
-		IBack:
-			Transition(BackTech, 5000)
-		else
-			Transition(NeutralTech, 5000)
-		endif
+		Transition(NeutralTech, 5000)
 	endif
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :AirTech:
-	Call(Common)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_TECH_AIR)
+Tag(Hits - Teching)
+
+Call(Common)
+
+
+F1:
+	IUp:
+		SetMomentum(0, 2000)
 	endif
-	F1:
-		IUp:
-			SetMomentum(0, 2000)
+	IDown:
+		SetMomentum(0, -2000)
+	endif
+	INeutralV:
+		IForward:
+			SetMomentum(2000, 250)
 		endif
-		IDown:
-			SetMomentum(0, -2000)
+		IBack:
+			SetMomentum(-2000, 250)
 		endif
-		INeutralV:
-			IForward:
-				SetMomentum(2000, 250)
-			endif
-			IBack:
-				SetMomentum(-2000, 250)
-			endif
-			INeutralH:
-				SetMomentum(-250, 250)
-			endif
+		INeutralH:
+			SetMomentum(-250, 250)
 		endif
 	endif
-	F14:
-		Transition(AirIdle)
-		SetMomentum(0,0)
-	endif
+endif
+F14:
+	Transition(AirIdle)
+	SetMomentum(0,0)
+endif
+
+Call(AnimTechAir)
 
 
 
@@ -716,93 +2850,602 @@ Skeleton: none
 
 
 
-# Knockdowns -------------------------------------------------------------------
-#    __ __                  __       __                        
-#   / //_/____  ____  _____/ /______/ /___ _      ______  _____
-#  / ,<  / __ \/ __ \/ ___/ //_/ __  / __ \ | /| / / __ \/ ___/
-# / /| |/ / / / /_/ / /__/ ,< / /_/ / /_/ / |/ |/ / / / (__  ) 
-#/_/ |_/_/ /_/\____/\___/_/|_|\__,_/\____/|__/|__/_/ /_/____/  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimTechAir:
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_TECH_AIR)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :NeutralTech:
-	Call(Common)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_TECH_INPLACE)
-	endif
-	F1:
-		SetMomentum(0, 0)
-	endif
-	F14:
-		SetMomentum(0,0)
-		Transition(Crouch)
-	endif
+Tag(Hits - Teching)
+
+Call(Common)
+F1:
+	SetMomentum(0, 0)
+endif
+F14:
+	SetMomentum(0,0)
+	Transition(Crouch)
+endif
+
+Call(AnimNeutralTech)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimNeutralTech:
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_TECH_INPLACE)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :ForwardTech:
-	Call(Common)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_TECH_FORWARD)
-	endif
-	F1:
-		SetMomentum(2000, 0)
-	endif
-	F14:
-		SetMomentum(0,0)
-		Transition(Stand)
-	endif
+Tag(Hits - Teching)
+Call(Common)
+F1:
+	SetMomentum(2000, 0)
+endif
+F14:
+	SetMomentum(0,0)
+	Transition(Stand)
+endif
+
+Call(AnimTechForward)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimTechForward:
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_TECH_FORWARD)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :BackTech:
-	Call(Common)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_TECH_BACK)
-	endif
-	F1:
-		SetMomentum(-2000, 0)
-	endif
-	F14:
-		SetMomentum(0,0)
-		Transition(Stand)
-	endif
+Tag(Hits - Teching)
+Call(Common)
+F1:
+	SetMomentum(-2000, 0)
+endif
+F14:
+	SetMomentum(0,0)
+	Transition(Stand)
+endif
+
+Call(AnimTechBack)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimTechBack:
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_TECH_BACK)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :SoftTech:
-	Call(Common)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_TECH_SOFT)
-	endif
-	F1:
-		SetMomentum(-800, 0)
-	endif
-	F14:
-		SetMomentum(0,0)
-		Transition(Stand)
-	endif
+Tag(Hits - Teching)
+Call(Common)
+
+F1:
+	SetMomentum(-800, 0)
+endif
+F14:
+	SetMomentum(0,0)
+	Transition(Stand)
+endif
+
+Call(AnimTechSoft)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimTechSoft:
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_TECH_SOFT)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :KnockdownCommon:
-	Call(Common)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_KNOCKDOWN)
-	endif
-	Colbox(-5000, 5000, 0, 2000)
-	CapMomentum(2000, 0)
-	BreakMomentum(500,0)
+Tag(Knockdown)
+Call(Common)
+Colbox(-5000, 5000, 0, 2000)
+CapMomentum(2000, 0)
+BreakMomentum(500,0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimKnockdown:
+Tag(Animations)
+
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_KNOCKDOWN)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :Knockdown:
-	Call(KnockdownCommon)
-	FKnockdownTimeMin+:
-		ITech:
-			Call(GroundTech)
-		endif
-		FKnockdownTimeMax+:
-			Call(GroundTech)
-		endif
+Call(KnockdownCommon)
+
+FKnockdownTimeMin+:
+	ITech:
+		Call(GroundTech)
 	endif
-# TODO Remove Hard knockdown as knockdown works
+	FKnockdownTimeMax+:
+		Call(GroundTech)
+	endif
+endif
+
+Call(AnimKnockdown)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :HardKnockdown:
@@ -811,6 +3454,7 @@ Skeleton: none
 		Transition(NeutralTech, 5000)
 	endif
 
+# TODO Remove
 
 
 
@@ -821,12 +3465,68 @@ Skeleton: none
 
 
 
-# Basic Movement ---------------------------------------------------------------
-#    __  ___                                     __ 
-#   /  |/  /___ _   _____  ____ ___  ___  ____  / /_
-#  / /|_/ / __ \ | / / _ \/ __ `__ \/ _ \/ __ \/ __/
-# / /  / / /_/ / |/ /  __/ / / / / /  __/ / / / /_  
-#/_/  /_/\____/|___/\___/_/ /_/ /_/\___/_/ /_/\__/  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -834,199 +3534,683 @@ Skeleton: none
 
 
 :Stand:
-	Call(StandingNeutralState)
-	Call(AnimStand)
+Tag(Movement - Grounded)
+
+Call(StandingNeutralState)
+Call(AnimStand)
+
+
+
+
+
+
+
+
+
+
 
 
 
 :AnimStand:
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_STAND)
-	endif
+Tag(Animations)
+
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_STAND)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :Crouch:
-	Call(CrouchingNeutralState)
-	Call(AnimCrouch)
+Tag(Movement - Grounded)
+Call(CrouchingNeutralState)
+Call(AnimCrouch)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :AnimCrouch:
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_CROUCH)
-	endif
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_CROUCH)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :WalkF:
-	Call(StandingNeutralState)
-	Call(AnimWalkF)
-	Move(WalkFSpeed, 0)
+Tag(Movement - Grounded)
+
+Call(StandingNeutralState)
+Call(AnimWalkF)
+Move(WalkFSpeed, 0)
+
+
+
+
+
+
+
+
 
 
 :AnimWalkF:
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_WALKF, 0, ANIM_WALKF_LOOP)
-	endif
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_WALKF, 0, ANIM_WALKF_LOOP)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :WalkB:
-	Call(StandingNeutralState)
-	Call(AnimWalkB)
-	Move(WalkBSpeed, 0)
+Tag(Movement - Grounded)
+
+Call(StandingNeutralState)
+Call(AnimWalkB)
+Move(WalkBSpeed, 0)
+
+
+
+
+
+
+
 
 
 :AnimWalkB:
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_WALKB, 0, ANIM_WALKB_LOOP)
-	endif
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_WALKB, 0, ANIM_WALKB_LOOP)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 
 :Jumpsquat:
-	Call(Common)
-	# TODO Weird airborne state, check if correct, and if Airborne flag is correct
-	Call(StandardHurtbox)
-	Flag(PFAirborne)
-	Call(AnimJumpsquat)
-	F1:
-		Flag(ApplyFacing)
+Tag(Movement - Airborne)
+Call(Common)
+
+# TODO Weird airborne state, check if correct, and if Airborne flag is correct
+
+Call(StandardHurtbox)
+Flag(PFAirborne)
+Call(AnimJumpsquat)
+
+F1:
+	Flag(ApplyFacing)
+endif
+
+FJumpsquatFrames:
+	IForward:
+		Transition(JumpF)
 	endif
-	
-	FJumpsquatFrames:
-		IForward:
-			Transition(JumpF)
-		endif
-		IBack:
-			Transition(JumpB)
-		endif
-		INeutralH:
-			Transition(JumpN)
-		endif
+	IBack:
+		Transition(JumpB)
 	endif
+	INeutralH:
+		Transition(JumpN)
+	endif
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :AnimJumpsquat:
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_JUMPSQUAT)
-	endif
+Tag(Animations)
+
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_JUMPSQUAT)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :ComputeLandingLag:
-	LAttacking:
-		Set(_EffectiveLandingLag, AttackLandingLag)
-	else
-		Set(_EffectiveLandingLag, LandingLag)
-	endif
+TagLocal(Movement - Airborne)
+LAttacking:
+	Set(_EffectiveLandingLag, AttackLandingLag)
+else
+	Set(_EffectiveLandingLag, LandingLag)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :Landing:
-	Call(CrouchingState)
-	Flag(CanBlock)
-	Call(StandardHurtbox)
-	Call(AnimLanding)
-	
-	V_EffectiveLandingLag<=0:
-		Call(ComputeLandingLag)
-	endif
-	F_EffectiveLandingLag+:
-		Call(GroundedNeutralStateTransitions)
-	endif
+TagLocal(Movement - Airborne)
+Call(CrouchingState)
+Flag(CanBlock)
+Call(StandardHurtbox)
+Call(AnimLanding)
+
+V_EffectiveLandingLag<=0:
+	Call(ComputeLandingLag)
+endif
+F_EffectiveLandingLag+:
+	Call(GroundedNeutralStateTransitions)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :AnimLanding:
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_LANDING)
-	endif
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_LANDING)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :JumpN:
-	Call(AirborneNeutralState)
-	Call(AnimJumpN)
-	F1:
-		AddMomentum(0, JumpNForce)
-	endif
+Tag(Movement - Airborne)
+Call(AirborneNeutralState)
+Call(AnimJumpN)
+F1:
+	AddMomentum(0, JumpNForce)
+endif
+
+
+
+
+
+
+
+
 
 
 :AnimJumpN:
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_JUMPN)
-	endif
-	
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_JUMPN)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :JumpF:
-	Call(AirborneNeutralState)
-	Call(AnimJumpF)
-	F1:
-		AddMomentum(JumpFForce, JumpNForce)
-	endif
+Tag(Movement - Airborne)
+
+Call(AirborneNeutralState)
+Call(AnimJumpF)
+
+F1:
+	AddMomentum(JumpFForce, JumpNForce)
+endif
+
+
+
 
 
 :AnimJumpF:
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_JUMPF)
-	endif
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_JUMPF)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :JumpB:
-	Call(AirborneNeutralState)
-	Call(AnimJumpB)
-	F1:
-		AddMomentum(JumpBForce, JumpNForce)
-	endif
+Tag(Movement - Airborne)
+Call(AirborneNeutralState)
+Call(AnimJumpB)
+F1:
+	AddMomentum(JumpBForce, JumpNForce)
+endif
+
+
+
 
 
 :AnimJumpB:
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_JUMPB)
-	endif
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_JUMPB)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :AirIdle:
-	Call(AirborneNeutralState)
-	Call(AnimAirIdle)
+Tag(Movement - Airborne)
+
+Call(AirborneNeutralState)
+Call(AnimAirIdle)
+
+
 
 
 :AnimAirIdle:
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_AIRIDLE)
-	endif
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_AIRIDLE)
+endif
 
 
 
 
 
 
-# [Attacks] --------------------------------------------------------------------
-#     ___   __  __             __       
-#    /   | / /_/ /_____ ______/ /_______
-#   / /| |/ __/ __/ __ `/ ___/ //_/ ___/
-#  / ___ / /_/ /_/ /_/ / /__/ ,< (__  ) 
-# /_/  |_\__/\__/\__,_/\___/_/|_/____/  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :AttackCommon:
-	Flag(Attacking)
-	F1:
-		AttackDuration(600)
-		Set(AttackLandingLag, DefaultAttackLandingLag)
-	endif
+Tag(Attacks)
+Flag(Attacking)
+F1:
+	AttackDuration(600)
+	Set(AttackLandingLag, DefaultAttackLandingLag)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :GroundedAttackCommon:
+Tag(Attacks - Grounded)
 	Call(AttackCommon)
 	F1:
 		Flag(ApplyFacing)
@@ -1042,29 +4226,149 @@ Skeleton: none
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :AirborneAttackCommon:
-	Call(AttackCommon)
-	Call(ComputeLandingLag)
-	F1:
-		VAIR_ATTACK_CAN_SWITCH_FACING:
-			IBack:
-				Flag(ApplyFacing)
-			endif
+Call(AttackCommon)
+Call(ComputeLandingLag)
+
+F1:
+	VAIR_ATTACK_CAN_SWITCH_FACING:
+		IBack:
+			Flag(ApplyFacing)
 		endif
 	endif
-	FAttackDuration+:
-		Transition(AirIdle)
-	endif
-	Call(AirborneAttacks)
+endif
+
+FAttackDuration+:
+	Transition(AirIdle)
+endif
+
+Call(AirborneAttacks)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :StandingAttack:
-	Call(StandingState)
-	F1:
-		AttackRearm()
-	endif
-	Call(GroundedAttackCommon)
+Tag(Attacks - Grounded)
+Call(StandingState)
+F1:
+	AttackRearm()
+endif
+Call(GroundedAttackCommon)
+
+
+
+
+
+
 
 
 :StandingFollowupAttack:
@@ -1073,12 +4377,121 @@ Skeleton: none
 	
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :CrouchingAttack:
-	Call(CrouchingState)
-	F1:
-		AttackRearm()
-	endif
-	Call(GroundedAttackCommon)
+Call(CrouchingState)
+F1:
+	AttackRearm()
+endif
+Call(GroundedAttackCommon)
+
+
+
+
+
+
+
+
+
+
+
 
 
 :CrouchingFollowupAttack:
@@ -1087,151 +4500,506 @@ Skeleton: none
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :AirborneAttack:
-	Call(AirborneState)
-	F1:
-		AttackRearm()
-	endif
-	Call(AirborneAttackCommon)
+Tag(Attacks - Air)
+Call(AirborneState)
+
+F1:
+	AttackRearm()
+endif
+
+Call(AirborneAttackCommon)
+
+
+
+
+
 
 
 :AirborneFollowupAttack:
-	Call(AirborneState)
-	Call(AirborneAttackCommon)
+Call(AirborneState)
+Call(AirborneAttackCommon)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :VariableAttack:
-	Call(VariableState)
-	F1:
-		AttackRearm()
-	endif
-	LPFAirborne:
-		Call(AirborneAttackCommon)
-	else
-		Call(GroundedAttackCommon)
-	endif
+Call(VariableState)
+
+F1:
+	AttackRearm()
+endif
+
+LPFAirborne:
+	Call(AirborneAttackCommon)
+else
+	Call(GroundedAttackCommon)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 :VariableFollowupAttack:
-	Call(VariableState)
-	LPFAirborne:
-		Call(AirborneAttackCommon)
-	else
-		Call(GroundedAttackCommon)
-	endif
+Call(VariableState)
+
+LPFAirborne:
+	Call(AirborneAttackCommon)
+else
+	Call(GroundedAttackCommon)
+endif
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 
 :AttackAddSpecialCancels:
-	# :TODO:Panthavma:20220214:Add special cancels When we have specials
-	AttackAddAllCancelsOnTouchAndNeutral(D)
-	AttackAddAllCancelsOnTouchAndNeutral(D, j)
-	LAttackCancelWhiff:
-		AttackAddAllCancelsOnWhiff(D)
-		AttackAddAllCancelsOnWhiff(D, j)
-	endif
+TagLocal(System - Attacks)
+
+# :TODO:Panthavma:20220214:Add special cancels When we have specials
+AttackAddAllCancelsOnTouchAndNeutral(D)
+AttackAddAllCancelsOnTouchAndNeutral(D, j)
+
+LAttackCancelWhiff:
+	AttackAddAllCancelsOnWhiff(D)
+	AttackAddAllCancelsOnWhiff(D, j)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :AttackAddAllNormalsCancels:
-	AttackAddAllCancelsOnTouchAndNeutral(A)
-	AttackAddAllCancelsOnTouchAndNeutral(B)
-	AttackAddAllCancelsOnTouchAndNeutral(C)
-	AttackAddAllCancelsOnTouchAndNeutral(AB)
-	AttackAddAllCancelsOnTouchAndNeutral(AC)
-	AttackAddAllCancelsOnTouchAndNeutral(BC)
-	AttackAddAllCancelsOnTouchAndNeutral(ABC)
-	AttackAddAllCancelsOnTouchAndNeutral(A, j)
-	AttackAddAllCancelsOnTouchAndNeutral(B, j)
-	AttackAddAllCancelsOnTouchAndNeutral(C, j)
-	AttackAddAllCancelsOnTouchAndNeutral(AB, j)
-	AttackAddAllCancelsOnTouchAndNeutral(AC, j)
-	AttackAddAllCancelsOnTouchAndNeutral(BC, j)
-	AttackAddAllCancelsOnTouchAndNeutral(ABC, j)
-	LAttackCancelWhiff:
-		AttackAddAllCancelsOnWhiff(A)
-		AttackAddAllCancelsOnWhiff(B)
-		AttackAddAllCancelsOnWhiff(C)
-		AttackAddAllCancelsOnWhiff(AB)
-		AttackAddAllCancelsOnWhiff(AC)
-		AttackAddAllCancelsOnWhiff(BC)
-		AttackAddAllCancelsOnWhiff(ABC)
-		AttackAddAllCancelsOnWhiff(A, j)
-		AttackAddAllCancelsOnWhiff(B, j)
-		AttackAddAllCancelsOnWhiff(C, j)
-		AttackAddAllCancelsOnWhiff(AB, j)
-		AttackAddAllCancelsOnWhiff(AC, j)
-		AttackAddAllCancelsOnWhiff(BC, j)
-		AttackAddAllCancelsOnWhiff(ABC, j)
-	endif
+TagLocal(System - Attacks)
+
+AttackAddAllCancelsOnTouchAndNeutral(A)
+AttackAddAllCancelsOnTouchAndNeutral(B)
+AttackAddAllCancelsOnTouchAndNeutral(C)
+AttackAddAllCancelsOnTouchAndNeutral(AB)
+AttackAddAllCancelsOnTouchAndNeutral(AC)
+AttackAddAllCancelsOnTouchAndNeutral(BC)
+AttackAddAllCancelsOnTouchAndNeutral(ABC)
+AttackAddAllCancelsOnTouchAndNeutral(A, j)
+AttackAddAllCancelsOnTouchAndNeutral(B, j)
+AttackAddAllCancelsOnTouchAndNeutral(C, j)
+AttackAddAllCancelsOnTouchAndNeutral(AB, j)
+AttackAddAllCancelsOnTouchAndNeutral(AC, j)
+AttackAddAllCancelsOnTouchAndNeutral(BC, j)
+AttackAddAllCancelsOnTouchAndNeutral(ABC, j)
+
+LAttackCancelWhiff:
+	AttackAddAllCancelsOnWhiff(A)
+	AttackAddAllCancelsOnWhiff(B)
+	AttackAddAllCancelsOnWhiff(C)
+	AttackAddAllCancelsOnWhiff(AB)
+	AttackAddAllCancelsOnWhiff(AC)
+	AttackAddAllCancelsOnWhiff(BC)
+	AttackAddAllCancelsOnWhiff(ABC)
+	AttackAddAllCancelsOnWhiff(A, j)
+	AttackAddAllCancelsOnWhiff(B, j)
+	AttackAddAllCancelsOnWhiff(C, j)
+	AttackAddAllCancelsOnWhiff(AB, j)
+	AttackAddAllCancelsOnWhiff(AC, j)
+	AttackAddAllCancelsOnWhiff(BC, j)
+	AttackAddAllCancelsOnWhiff(ABC, j)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 :GroundedAttacks:
-	AttackApplyCancels()
+TagLocal(System - Attacks)
+AttackApplyCancels()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :AirborneAttacks:
-	AttackApplyCancels(j)
+TagLocal(System - Attacks)
+
+AttackApplyCancels(j)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 
 :ThrowCommon:
-	Attack(0)
-	AttackProrationHitstun(1000,1000)
-	AttackProrationDamage(1000,1000)
-	AttackMomentum(0,0,0,0)
-	AttackFlag(Throw)
-	
-	VAttackHasWhiffed:
-	else
-		Flag(ThrowTeching)
-	endif
-	
-	F2+:
-		VAttackHasHit:
-			LPFAirborne:
-				Transition(AirThrowHold)
-			else
-				Transition(ThrowHold)
-			endif
+Tag(Attacks - Throws)
+
+Attack(0)
+AttackProrationHitstun(1000,1000)
+AttackProrationDamage(1000,1000)
+AttackMomentum(0,0,0,0)
+AttackFlag(Throw)
+
+VAttackHasWhiffed:
+else
+	Flag(ThrowTeching)
+endif
+
+F2+:
+	VAttackHasHit:
+		LPFAirborne:
+			Transition(AirThrowHold)
+		else
+			Transition(ThrowHold)
+		endif
+		
+		LPFTouched:
+		else
+			# Check if doing a teching move or instant throw teching
+			Call(ThrowTechCheck)
 			
-			LPFTouched:
+			LThrowTeched:
 			else
-				# Check if doing a teching move or instant throw teching
-				Call(ThrowTechCheck)
-				
-				LThrowTeched:
-				else
-					SelectOpponentMainEntity()
-					SetPositionRelativeToRef(2000,0)
-					Transition(ThrowHeld, 20000)
-					SelectOriginalEntity()
-				endif
+				SelectOpponentMainEntity()
+				SetPositionRelativeToRef(2000,0)
+				Transition(ThrowHeld, 20000)
+				SelectOriginalEntity()
 			endif
 		endif
 	endif
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :GroundedThrow:
-	Call(StandingAttack)
-	Call(ThrowCommon)
-	AttackFlag(GroundUnblockable)
+Tag(Attacks - Throws)
+
+Call(StandingAttack)
+Call(ThrowCommon)
+AttackFlag(GroundUnblockable)
+
+
+
+
 
 
 
 :AirborneThrow:
-	Call(AirborneAttack)
-	Call(ThrowCommon)
-	AttackFlag(AirUnblockable)
+Tag(Attacks - Throws)
+Call(AirborneAttack)
+Call(ThrowCommon)
+AttackFlag(AirUnblockable)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1244,21 +5012,141 @@ Skeleton: none
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :ThrowTechCheck:
-	# Check if the flag is here
-	SelectOpponentMainEntity()
-	LThrowTeching:
-		SelectOriginalEntity()
-		Flag(ThrowTeched)
-	endif
+Tag(Attacks - Throws)
+
+# Check if the flag is here
+SelectOpponentMainEntity()
+LThrowTeching:
 	SelectOriginalEntity()
-	
-	LThrowTeched:
-		Transition(ThrowTeched, 20000)
-		SelectOpponentMainEntity()
-		Transition(ThrowTeching, 20000)
-		SelectOriginalEntity()
-	endif
+	Flag(ThrowTeched)
+endif
+SelectOriginalEntity()
+
+LThrowTeched:
+	Transition(ThrowTeched, 20000)
+	SelectOpponentMainEntity()
+	Transition(ThrowTeching, 20000)
+	SelectOriginalEntity()
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1278,6 +5166,104 @@ Skeleton: none
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :AirThrowHold:
 	Call(AirborneState)
 	Call(ThrowTechCheck)
@@ -1294,51 +5280,296 @@ Skeleton: none
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :ThrowHeld:
-	Call(VariableState)
-	Colbox(-5,5,0,5)
-	Flag(IgnoreGravity)
-	Flag(IgnoreFriction)
-	Hurtbox(-5000, 5000, 0, 20000)
-	V_ThrowTechBuffer:
-		#SelectOpponentMainEntity()
-		Flag(ThrowTeching)
-		#SelectOriginalEntity()
-	endif
-	F180:
-		Transition(Stand)
-	endif
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_THROWHELD)
-	endif
+Tag(Attacks - Throws)
+Call(VariableState)
+Colbox(-5,5,0,5)
+Flag(IgnoreGravity)
+Flag(IgnoreFriction)
+Hurtbox(-5000, 5000, 0, 20000)
+V_ThrowTechBuffer:
+	#SelectOpponentMainEntity()
+	Flag(ThrowTeching)
+	#SelectOriginalEntity()
+endif
+F180:
+	Transition(Stand)
+endif
+Call(AnimThrowHeld)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimThrowHeld:
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_THROWHELD)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :ThrowTeched:
-	Call(VariableState)
-	FThrowTechedDuration:
-		Transition(Stand)
-	endif
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_THROWTECHED)
-	endif
-	F1:
-		AddMomentum(ThrowTechedMomentumX, ThrowTechedMomentumY)
-	endif
+Tag(Attacks - Throws)
+Call(VariableState)
+FThrowTechedDuration:
+	Transition(Stand)
+endif
+F1:
+	AddMomentum(ThrowTechedMomentumX, ThrowTechedMomentumY)
+endif
+
+Call(AnimThrowTeched)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimThrowTeched:
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_THROWTECHED)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 :ThrowTeching:
-	Call(VariableState)
-	FThrowTechingDuration:
-		Transition(Stand)
-	endif
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_THROWTECHING)
-	endif
-	F1:
-		AddMomentum(ThrowTechingMomentumX, ThrowTechingMomentumY)
-	endif
+Tag(Attacks - Throws)
+Call(VariableState)
+FThrowTechingDuration:
+	Transition(Stand)
+endif
+F1:
+	AddMomentum(ThrowTechingMomentumX, ThrowTechingMomentumY)
+endif
+
+Call(AnimThrowTeching)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+:AnimThrowTeching:
+Tag(Animations)
+VUSE_STANDARD_ANIMS:
+	Anim(ANIM_THROWTECHING)
+endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
