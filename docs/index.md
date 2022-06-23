@@ -1,4 +1,14 @@
+---
+title: Castagne Fighting Game Engine
+order: 0
+
+template: docpage.hbt
+pathtoroot: ../
+---
+
 # Castagne Fighting Game Engine
+
+<!-- TODO Logo -->
 
 Welcome to the Castagne engine documentation!
 
@@ -20,19 +30,16 @@ It's recommended to start by reading the *Getting Started* section, which will w
 Then, once you experimented a bit with it, you may read the *Making a Game* section.
 Otherwise, you might want to read the full feature list to get an idea of what is possible through the engine.
 
-
-
+<!-- TODO Video Guide -->
+<!--
 # TODO: Plan for the documentation
 
 - [X] Index
 - [ ] Full Feature List
 - [ ] Getting Started
-	- [ ] Basic Concepts and Parts
-	- [ ] Installation and setup
-		- [ ] Empty project
-		- [ ] Manual setup
-		- [ ] Upgrade / Get from dev
-	- [ ] Choosing Modules
+	- [X] Installation and setup
+	- [X] Basic Concepts and Parts
+	- [X] Choosing Modules
 	- [ ] Your first character
 		- [ ] Setup
 		- [ ] Model or Sprites + Palettes
@@ -42,6 +49,9 @@ Otherwise, you might want to read the full feature list to get an idea of what i
 		- [ ] Rekka, Cinematic hit, multihit, invul / counter
 	- [ ] General tips
 		- [ ] Starter options
+- [ ] Castagne Script Specifications
+- [ ] Intermediate User Guide
+	- [ ] Graphics / Sound setup
 - [ ] Making a game
 	- [ ] Going from characters to a game
 	- [ ] System Mechanics
@@ -55,3 +65,8 @@ Otherwise, you might want to read the full feature list to get an idea of what i
 	- [ ] Tools
 	- [ ] Test online
 - [ ] Modules
+
+Language ref ?
+fighting game terms / lexicon (some castagne specific parts ?) ?
+Example character references
+intermediate user guide ?-->
