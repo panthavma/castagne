@@ -24,7 +24,6 @@ var modules
 var physicsModule
 var editorModule
 var graphicsModule
-const POSITION_SCALE = 0.0001
 
 var useOnline = false
 var initError = false

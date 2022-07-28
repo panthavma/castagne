@@ -10,6 +10,10 @@ func ModuleSetup():
 		"Description": "Creates a model for the current entity",
 		"Arguments":["Model path", "(Optional) Animation player path"]
 	})
+	RegisterFunction("ModelScale", [1], null, {
+		"Description": "Changes the model's scale uniformly.",
+		"Arguments":["The scale in permil."]
+	})
 	
 	RegisterFunction("ModelMove", [1,2], null, {
 		"Description": "Moves the model depending on facing.",
@@ -26,6 +30,7 @@ func ModuleSetup():
 	
 	RegisterVariableEntity("ModelPositionX", 0)
 	RegisterVariableEntity("ModelPositionY", 0)
+	RegisterVariableEntity("ModelScale", 1000)
 	RegisterVariableEntity("ModelFacing", 1)
 	RegisterFlag("ModelLockWorldPosition")
 	RegisterFlag("ModelLockRelativePosition")
@@ -42,17 +47,17 @@ func ModuleSetup():
 	})
 	
 	RegisterVariableEntity("SpriteFrame", 0)
+	RegisterConfig("PositionScale", 0.0001)
 
 func BattleInit(state, data, battleInitData):
 	var camera = InitCamera(state, data, battleInitData)
 	engine.add_child(camera)
 	engine.graphicsModule = self
 	
-	POSITION_SCALE = engine.POSITION_SCALE
+	POSITION_SCALE = Castagne.configData["PositionScale"]
 	
 	data["InstancedData"]["Camera"] = camera
 	lastRegisteredCamera = camera
-	POSITION_SCALE = engine.POSITION_SCALE
 
 var lastRegisteredCamera = null
 var cameraOffset = Vector3(0.0, 2.0, 6.2)
@@ -74,7 +79,8 @@ func UpdateGraphics(state, data):
 		var modelRoot = iData["Root"]
 		if(modelRoot != null):
 			modelRoot.set_translation(playerPos)
-			modelRoot.set_scale(Vector3(eState["ModelFacing"], 1.0, 1.0))
+			var modelScale = eState["ModelScale"] / 1000.0
+			modelRoot.set_scale(Vector3(eState["ModelFacing"] * modelScale, modelScale, modelScale))
 			#modelRoot.look_at(playerPos - (camPosHor - playerPos), Vector3.UP)
 		
 		var sprite = iData["Sprite"]
@@ -116,7 +122,8 @@ func SetPalette(eState, data, paletteID):
 		var m = modelSearch.pop_back()
 		modelSearch.append_array(m.get_children())
 		if(m.has_method("set_surface_material")):
-			m.set_surface_material(0, paletteMaterial)
+			for i in range(m.get_surface_material_count()):
+				m.set_surface_material(i, paletteMaterial)
 
 
 
@@ -127,6 +134,8 @@ func CreateModel(args, eState, data):
 	_EnsureRootIsSet(eState["EID"], data)
 	var animPath = (ArgStr(args, eState, 1) if args.size() > 1 else null)
 	engine.InstanceModel(eState["EID"], ArgStr(args, eState, 0), animPath)
+func ModelScale(args, eState, _data):
+	eState["ModelScale"] = ArgInt(args, eState, 0)
 func ModelMove(args, eState, _data):
 	eState["ModelPositionX"] += eState["Facing"]*ArgInt(args, eState, 0)
 	eState["ModelPositionY"] += ArgInt(args, eState, 1, 0)

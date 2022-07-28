@@ -9,20 +9,24 @@ func ModuleSetup():
 		"Description":"Initiates an attack with default parameters. This should be the first function called for a new attack, then you use other Attack functions to customize it, and finally you use Hitbox to apply it.",
 		"Arguments":["Damage", "(Optional) Total frames (must be specified at the first attack at least)"],
 		"Flags":["Basic"],
+		"Types":["int", "int"],
 	})
 	RegisterFunction("AttackDuration", [1], null, {
 		"Description":"Changes the total duration of the attack. Can replace Attack's second parameter but must be called before it.",
 		"Arguments":["Total frames"],
 		"Flags":["Basic"],
+		"Types":["int",],
 	})
 	RegisterFunction("AttackRearm", [0], null, {
 		"Description":"Sets the variables to be able to hit with another attack, and should be used between multihits. Resets the hit detection.",
-		"Flags":["Medium"]
+		"Flags":["Medium"],
+		"Types":[],
 	})
 	RegisterFunction("AttackParam", [2], null, {
 		"Description":"Sets a generic attack parameter directly. This is an advanced function and should be used either when you need some really specific adjustment, or when you want to add functionality without a module.",
 		"Arguments":["Parameter name", "Parameter value"],
 		"Flags":["Advanced"],
+		"Types":["str","int"],
 	})
 	
 	
@@ -31,25 +35,30 @@ func ModuleSetup():
 		"Description":"Sets a flag on the attack. All flags are transfered to the hit opponent with the AF prefix (meaning Low become AFLow), and are used by modules during attack checking. See the list of flags for more information.",
 		"Arguments":["Flag name"],
 		"Flags":["Basic"],
+		"Types":["str",],
 	})
 	RegisterFunction("AttackUnflag", [1], null, {
 		"Description":"Removes a flag from an attack.",
 		"Arguments":["Flag name"],
+		"Types":["str",],
 	})
 	RegisterFunction("AttackRecievedFlag", [1], null, {
 		"Description":"Set an attack flag as if the entity recieved an attack having this flag.",
 		"Arguments":["Flag name"],
 		"Flags":["Advanced"],
+		"Types":["str",],
 	})
 	RegisterFunction("AttackRecievedUnflag", [1], null, {
 		"Description":"Removes an attack flag from a recieved attack.",
 		"Arguments":["Flag name"],
 		"Flags":["Advanced"],
+		"Types":["str",],
 	})
 	
 	RegisterFunction("AttackAttribute", [0, 1], null, {
 		"Description":"Sets an attack's attribute. This is used by the Invul-[Attrib] and Guard-[Attrib] family of flags. The Auto attribute will choose an attribute between Air, Mid, High, Low, Throw, and AirThrow depending on the attacker's state.",
 		"Arguments":["Attribute. Default: Auto"],
+		"Types":["str",],
 	})
 	
 	
@@ -57,31 +66,37 @@ func ModuleSetup():
 		"Description":"Sets an attack's frame advantage automatically on hit and block. This is based on the total duration of the attack and the last use of the multihit flag. Same functionality as AttackSetHitstunBlockstun, but in an easier way.",
 		"Arguments":["Frame advantage on hit", "Frame advantage on block"],
 		"Flags":["Basic"],
+		"Types":["int","int"],
 	})
 	RegisterFunction("AttackFrameAdvantageHit", [1], null, {
 		"Description":"Sets an attack's frame advantage automatically on hit. This is based on the total duration of the attack and the last use of the multihit flag. Same functionality as AttackSetHitstunBlockstun, but in an easier way.",
 		"Arguments":["Frame advantage on hit"],
 		"Flags":["Basic"],
+		"Types":["int",],
 	})
 	RegisterFunction("AttackFrameAdvantageBlock", [1], null, {
 		"Description":"Sets an attack's frame advantage automatically on block. This is based on the total duration of the attack and the last use of the multihit flag. Same functionality as AttackSetHitstunBlockstun, but in an easier way.",
 		"Arguments":["Frame advantage on block"],
 		"Flags":["Basic"],
+		"Types":["int",],
 	})
 	RegisterFunction("AttackHitstunBlockstun", [2], null, {
 		"Description":"Sets an attack's hitstun and blockstun. Same functionality as AttackFrameAdvantage, but in a more direct way.",
 		"Arguments":["Hitstun", "Blockstun"],
 		"Flags":["Basic"],
+		"Types":["int","int"],
 	})
 	RegisterFunction("AttackHitstun", [1], null, {
 		"Description":"Sets an attack's hitstun. Same functionality as AttackFrameAdvantage, but in a more direct way.",
 		"Arguments":["Hitstun"],
 		"Flags":["Basic"],
+		"Types":["int",],
 	})
 	RegisterFunction("AttackBlockstun", [1], null, {
 		"Description":"Sets an attack's blockstun. Same functionality as AttackFrameAdvantage, but in a more direct way.",
 		"Arguments":["Blockstun"],
 		"Flags":["Basic"],
+		"Types":["int",],
 	})
 	
 	
@@ -89,20 +104,24 @@ func ModuleSetup():
 	RegisterFunction("AttackProrationHitstun", [2], null, {
 		"Description":"Sets an attack's proration for hitstun. The lower it is, the more hitstun will decay with each hit. Values are in permil.",
 		"Arguments":["First hit proration (used instead of proration for the first hit)", "Subsequent hit proration"],
+		"Types":["int","int"],
 	})
 	RegisterFunction("AttackProrationDamage", [2], null, {
 		"Description":"Sets an attack's proration for damage. The lower it is, the more damage will decay with each hit. Values are in permil.",
 		"Arguments":["First hit proration (used instead of proration for the first hit)", "Subsequent hit proration"],
+		"Types":["int","int"],
 	})
 	
 	
 	RegisterFunction("AttackChipDamage", [1], null, {
 		"Description":"Sets an attack's chip damage, the damage that gets inflicted when an opponent blocks.",
 		"Arguments":["The amount of chip damage"],
+		"Types":["int",],
 	})
 	RegisterFunction("AttackMinDamage", [1], null, {
 		"Description":"Sets an attack's minimum damage.",
 		"Arguments":["The minimum amount of damage"],
+		"Types":["int",],
 	})
 	
 	
@@ -110,24 +129,34 @@ func ModuleSetup():
 	RegisterFunction("AttackMomentum", [1, 2, 3, 4], null, {
 		"Description":"Sets an attacks's added momentum to the opponent on hit and block.",
 		"Arguments":["Horizontal grounded momentum", "(Optional) Vertical grounded momentum", "(Optional) Horizontal airborne momentum", "(Optional) Vertical airborne momentum"],
+		"Types":["int","int","int","int"],
 	})
 	RegisterFunction("AttackMomentumHit", [1, 2, 3, 4], null, {
 		"Description":"Sets an attacks's added momentum to the opponent on hit.",
 		"Arguments":["Horizontal grounded momentum", "(Optional) Vertical grounded momentum", "(Optional) Horizontal airborne momentum", "(Optional) Vertical airborne momentum"],
+		"Types":["int","int","int","int"],
 	})
 	RegisterFunction("AttackMomentumBlock", [1, 2, 3, 4], null, {
 		"Description":"Sets an attacks's added momentum to the opponent on block.",
 		"Arguments":["Horizontal grounded momentum", "(Optional) Vertical grounded momentum", "(Optional) Horizontal airborne momentum", "(Optional) Vertical airborne momentum"],
+		"Types":["int","int","int","int"],
+	})
+	RegisterFunction("AttackFloat", [1], null, {
+		"Description":"Sets the opponent's gravity on hit to the specified value until the next attack.",
+		"Arguments":["New Gravity"],
+		"Types":["int",],
 	})
 	
 	
 	RegisterFunction("AttackKnockdown", [0,1,2], null, {
 		"Description":"Sets an attack's minimum and maximum time on knockdown. Automatically applies the knockdown attack flag. If no arguments are given, use default values. If only one is given, the second is computed automatically from the difference between defaults.",
 		"Arguments":["(Optional) The minimum knockdown time", "(Optional) Maximum knockdown time"],
+		"Types":["int","int"],
 	})
 	RegisterFunction("AttackGroundbounce", [1,2,3], null, {
 		"Description":"Sets an attack's groundbounce",
 		"Arguments":["Groundbounce time", "Groundbounce Momentum", "(Optional) Maximum ground bounces"],
+		"Types":["int","int","int"],
 	})
 	# :TODO:Panthavma:20220331:Return to neutral callback?
 	# :TODO:Panthavma:20220331:Wallbounce
@@ -156,7 +185,8 @@ func ModuleSetup():
 	RegisterFlag("Multihit", {"Description":"Allow an attack to hit again."})
 	RegisterFlag("AFLow", {"Description":"Makes an attack unblockable while standing up."})
 	RegisterFlag("AFOverhead", {"Description":"Makes an attack unblockable while crouching."})
-	RegisterFlag("AFInheritMomentum", {"Description":"Makes it so that the attack doesn't inherit the attacker's momentum."})
+	RegisterFlag("AFInheritMomentum", {"Description":"Makes it so that the attack inherits the attacker's momentum."})
+	RegisterFlag("AFFloat", {"Description":"Set by the AttackFloat function. Tells the opponent to override the usual gravity for the next hit."})
 	
 	RegisterFlag("Invul-All", {"Description":"Can't by hit by any attacks, they will count as whiffed."})
 	RegisterFlag("Invul-Air")
@@ -174,6 +204,8 @@ func ModuleSetup():
 	RegisterFlag("Guard-Throw")
 	RegisterFlag("Guard-AirThrow")
 	RegisterFlag("Guard-Projectile")
+	RegisterFlag("Invuled")
+	RegisterFlag("Guarded")
 	
 	
 	
@@ -274,6 +306,7 @@ func ModuleSetup():
 	RegisterConfig("AttackDefault-GroundbounceTime", 30)
 	RegisterConfig("AttackDefault-GroundbounceMomentum", 1000)
 	RegisterConfig("AttackDefault-MaxGroundbounces", 3)
+	RegisterConfig("AttackDefault-FloatGravity", 0)
 
 var _defaultAttackData = {}
 var _knockdownDefaultTimeDiff = 0
@@ -438,9 +471,12 @@ func OnAttackConfirmed(hitconfirm, attackData, _hurtboxData, aState, dState, sta
 		dState["AttackMomentumX"] = aState["Facing"] * attackData[hitBlock+"MomentumAirX"]
 		dState["AttackMomentumY"] = attackData[hitBlock+"MomentumAirY"]
 	
-	if(HasFlag(attackFlags, "InheritMomentum")):
+	if(HasFlag(attackData, "InheritMomentum")):
 		dState["AttackMomentumX"] += aState["MomentumX"]
 		dState["AttackMomentumY"] += aState["MomentumY"]
+	
+	if(HasFlag(attackData, "Float")):
+		dState["HitstunGravityFloat"] = attackData["FloatGravity"]
 	
 	
 	# Apply specific attack states
@@ -554,6 +590,9 @@ func AttackRecievedUnflag(args, eState, _data):
 
 func AttackFrameAdvantage(args, eState, _data):
 	var hitFA = ArgInt(args, eState, 0)
+	#if(hitFA == null):
+	#	return ModuleError("AttackFrameAdvantage: hitFA is null")
+		# TODO: does it need this everywhere ? should add static code analysis?
 	var blockFA = ArgInt(args, eState, 1, hitFA)
 	_AttackFrameAdvantage(hitFA, eState, "Hitstun")
 	_AttackFrameAdvantage(blockFA, eState, "Blockstun")
@@ -605,7 +644,9 @@ func AttackMomentumBlock(args, eState, _data):
 	eState["AttackData"]["BlockMomentumY"] = mv
 	eState["AttackData"]["BlockMomentumAirX"] = ArgInt(args, eState, 2, mh)
 	eState["AttackData"]["BlockMomentumAirY"] = ArgInt(args, eState, 3, mv)
-
+func AttackFloat(args, eState, data):
+	eState["AttackData"]["FloatGravity"] = -ArgInt(args, eState, 0)
+	AttackFlag(["Float"], eState, data)
 
 func AttackKnockdown(args, eState, _data):
 	AttackFlag(["Knockdown"], eState, _data)

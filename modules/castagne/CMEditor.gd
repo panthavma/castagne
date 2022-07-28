@@ -9,6 +9,8 @@ func ModuleSetup():
 	RegisterConfig("Editor-SelectedCharacter", 0, {"Flags":["Hidden"]})
 	RegisterConfig("Editor-DocumentationFolders", "res://castagne/docs", {"Flags":["Advanced"]})
 	RegisterConfig("Editor-Tools", "res://castagne/editor/tools/CETool-Compile.tscn", {"Flags":["Advanced"]})
+	RegisterConfig("Editor-LockCastagneFiles", true, {"Flags":["Advanced"]})
+	RegisterConfig("Editor-LockBaseSkeleton", false, {"Flags":["Advanced"]})
 	
 	RegisterBattleInitData("editor", false)
 

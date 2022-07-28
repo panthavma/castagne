@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://castagne/editor/CastagneEditorCharacterEdit.gd" type="Script" id=1]
 [ext_resource path="res://castagne/editor/EditorTheme.tres" type="Theme" id=2]
 [ext_resource path="res://castagne/editor/MovingBackground.tres" type="Material" id=3]
+[ext_resource path="res://castagne/editor/CharacterEditor/CECPopupNewState.gd" type="Script" id=4]
 
 [sub_resource type="InputEventKey" id=1]
 control = true
@@ -148,7 +149,6 @@ __meta__ = {
 }
 
 [node name="Navigation" type="Control" parent="CodePanel"]
-visible = false
 anchor_top = 0.1
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -174,38 +174,51 @@ __meta__ = {
 }
 
 [node name="MoveList" type="ItemList" parent="CodePanel/Navigation/ChooseState"]
-anchor_right = 1.0
+anchor_right = 0.62
 anchor_bottom = 1.0
-margin_right = -16.0
-margin_bottom = -40.0
+margin_right = -8.0
 items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false, "Item 16", null, false, "Item 17", null, false, "Item 18", null, false, "Item 19", null, false, "Item 20", null, false, "Item 21", null, false, "Item 22", null, false, "Item 23", null, false, "Item 24", null, false, "Item 25", null, false, "Item 26", null, false, "Item 27", null, false, "Item 28", null, false, "Item 29", null, false, "Item 30", null, false, "Item 31", null, false ]
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Bottom" type="HBoxContainer" parent="CodePanel/Navigation/ChooseState"]
-anchor_top = 1.0
+[node name="Menu" type="VBoxContainer" parent="CodePanel/Navigation/ChooseState"]
+anchor_left = 0.62
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_top = -24.0
-margin_right = -16.0
+margin_top = 8.0
+margin_right = -8.0
 alignment = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="NewStateName" type="LineEdit" parent="CodePanel/Navigation/ChooseState/Bottom"]
-margin_right = 384.0
-margin_bottom = 24.0
-size_flags_horizontal = 3
-align = 2
-placeholder_text = "New State Name"
+[node name="Label" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_right = 271.0
+margin_bottom = 14.0
+text = "--- State Management ---"
+align = 1
+valign = 2
 
-[node name="NewState" type="Button" parent="CodePanel/Navigation/ChooseState/Bottom"]
-margin_left = 388.0
-margin_right = 464.0
-margin_bottom = 24.0
+[node name="NewState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 18.0
+margin_right = 271.0
+margin_bottom = 36.0
 text = "New State"
+
+[node name="DeleteState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 40.0
+margin_right = 271.0
+margin_bottom = 58.0
+text = "Delete State"
+
+[node name="Label2" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 942.0
+margin_right = 271.0
+margin_bottom = 956.0
+size_flags_vertical = 10
+align = 1
+valign = 2
 
 [node name="ChooseFile" type="Control" parent="CodePanel/Navigation"]
 visible = false
@@ -631,6 +644,161 @@ anchor_right = 1.0
 margin_bottom = 32.0
 text = "X"
 
+[node name="Popups" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Back" type="ColorRect" parent="Popups"]
+modulate = Color( 1, 1, 1, 0.494118 )
+material = ExtResource( 3 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.494118 )
+
+[node name="Window" type="Control" parent="Popups"]
+anchor_left = 0.2
+anchor_top = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NewState" type="Panel" parent="Popups/Window"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Popups/Window/NewState"]
+anchor_right = 1.0
+margin_bottom = 24.0
+text = "New State"
+align = 1
+valign = 1
+
+[node name="TemplateList" type="ItemList" parent="Popups/Window/NewState"]
+anchor_right = 0.6
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 32.0
+margin_bottom = -80.0
+
+[node name="CodePreview" type="TextEdit" parent="Popups/Window/NewState"]
+anchor_left = 0.6
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 32.0
+margin_right = -8.0
+margin_bottom = -80.0
+text = "CODE PREVIEW
+# COMMENT
+Function(param)"
+readonly = true
+syntax_highlighting = true
+show_line_numbers = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StateName" type="LineEdit" parent="Popups/Window/NewState"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -72.0
+margin_right = -8.0
+margin_bottom = -48.0
+align = 1
+placeholder_text = "New State Name"
+
+[node name="Buttons" type="HBoxContainer" parent="Popups/Window/NewState"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -40.0
+margin_right = -8.0
+margin_bottom = -8.0
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Create" type="Button" parent="Popups/Window/NewState/Buttons"]
+margin_right = 1086.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+disabled = true
+text = "New State"
+
+[node name="Back" type="Button" parent="Popups/Window/NewState/Buttons"]
+margin_left = 1090.0
+margin_right = 1136.0
+margin_bottom = 32.0
+text = "Back"
+
+[node name="Confirm" type="Panel" parent="Popups/Window"]
+visible = false
+anchor_left = 0.2
+anchor_top = 0.3
+anchor_right = 0.8
+anchor_bottom = 0.7
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="Popups/Window/Confirm"]
+anchor_right = 1.0
+margin_bottom = 24.0
+text = "New State"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Text" type="Label" parent="Popups/Window/Confirm"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 24.0
+margin_right = -8.0
+margin_bottom = -56.0
+text = "Confirmation dialog Text ?"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Yes" type="Button" parent="Popups/Window/Confirm"]
+anchor_top = 1.0
+anchor_right = 0.65
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -48.0
+margin_right = -8.0
+margin_bottom = -8.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Yes"
+
+[node name="No" type="Button" parent="Popups/Window/Confirm"]
+anchor_left = 0.65
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -48.0
+margin_right = -8.0
+margin_bottom = -8.0
+text = "No"
+
 [connection signal="pressed" from="CodePanel/Documentation/FuncdocButton" to="." method="_on_FuncdocButton_pressed"]
 [connection signal="cursor_changed" from="CodePanel/Code" to="." method="_on_Code_cursor_changed"]
 [connection signal="text_changed" from="CodePanel/Code" to="." method="_on_Code_text_changed"]
@@ -638,7 +806,8 @@ text = "X"
 [connection signal="pressed" from="CodePanel/Header/File" to="." method="_on_Header_File_pressed"]
 [connection signal="pressed" from="CodePanel/Header/CalledScripts" to="." method="_on_Header_CheckParent_pressed"]
 [connection signal="item_activated" from="CodePanel/Navigation/ChooseState/MoveList" to="." method="_on_Navigation_MoveList_item_activated"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Bottom/NewState" to="." method="_on_NewState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/NewState" to="." method="_on_NewState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/DeleteState" to="." method="_on_DeleteState_pressed"]
 [connection signal="item_activated" from="CodePanel/Navigation/ChooseFile/MoveList" to="." method="_on_Navigation_MoveList_item_activated"]
 [connection signal="item_activated" from="CodePanel/Navigation/CalledStates/MoveList" to="." method="_on_Navigation_MoveList_item_activated"]
 [connection signal="pressed" from="TopBar/HBoxContainer/Back" to="." method="_on_Back_pressed"]
@@ -662,3 +831,10 @@ text = "X"
 [connection signal="pressed" from="ToolsWindow/Window/Info/ToolSelect" to="." method="_on_ToolSelect_pressed"]
 [connection signal="pressed" from="ToolsWindow/Window/Info/ToolDocumentation" to="." method="_on_ToolDocumentation_pressed"]
 [connection signal="pressed" from="ToolsWindow/Window/ToolCancel" to="." method="_on_ToolCancel_pressed"]
+[connection signal="item_activated" from="Popups/Window/NewState/TemplateList" to="Popups/Window/NewState" method="_on_TemplateList_item_activated"]
+[connection signal="item_selected" from="Popups/Window/NewState/TemplateList" to="Popups/Window/NewState" method="_on_TemplateList_item_selected"]
+[connection signal="text_changed" from="Popups/Window/NewState/StateName" to="Popups/Window/NewState" method="_on_StateName_text_changed"]
+[connection signal="pressed" from="Popups/Window/NewState/Buttons/Create" to="Popups/Window/NewState" method="_on_Create_pressed"]
+[connection signal="pressed" from="Popups/Window/NewState/Buttons/Back" to="." method="HidePopups"]
+[connection signal="pressed" from="Popups/Window/Confirm/Yes" to="." method="_on_ConfirmYes_pressed"]
+[connection signal="pressed" from="Popups/Window/Confirm/No" to="." method="HidePopups"]

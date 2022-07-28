@@ -29,9 +29,11 @@ func SetupDocumentation():
 	SetupDocumentationCustomPages(root)
 	
 	AddPageIfDoesntExist(root, "index", {"Name":"Index","Text":"Welcome to the Castagne documentation !"})
-	var modulesRoot = AddPageIfDoesntExist(root, "modules", {"Name":"Modules", "Text":"This is the base modules page. Click on a module to find more."})
+	var modulesRoot = AddPageIfDoesntExist(root, "modules", {"Name":"Modules", "Text":"This is the base modules page. Click on a module to find more.", "Order":99999})
 	for module in Castagne.modules:
 		SetupDocumentationModule(modulesRoot, module)
+	
+	SortPagesAndCreateTree()
 	
 	LoadPage(pages[defaultPage])
 
@@ -49,15 +51,11 @@ func SetupDocumentationCustomPages(root):
 func SetupDocumentationCustomPagesParseFolder(pageRoot, rootDirectory):
 	rootDirectory.list_dir_begin(true)
 	var fileName = rootDirectory.get_next()
+	var subdirectories = []
 	while(fileName != ""):
 		var filePath = rootDirectory.get_current_dir() + "/" + fileName
 		if(rootDirectory.current_is_dir()):
-			var subdir = Directory.new()
-			if(subdir.open(filePath) == OK):
-				var subdirPage = AddPage(pageRoot, fileName)
-				SetupDocumentationCustomPagesParseFolder(subdirPage, subdir)
-			else:
-				print("[Castagne] Editor: Couldn't open directory " + filePath)
+			subdirectories += [fileName]
 		elif(fileName.ends_with(".md")):
 			var pageName = fileName.left(fileName.length()-3)
 			var page = AddPage(pageRoot, pageName)
@@ -65,10 +63,20 @@ func SetupDocumentationCustomPagesParseFolder(pageRoot, rootDirectory):
 			if(file.open(filePath, File.READ) == OK):
 				var text = file.get_as_text()
 				file.close()
-				page["Text"] = text
+				SetupPageFromText(page, text)
 			else:
 				print("[Castagne] Editor: Couldn't open file " + filePath)
 		fileName = rootDirectory.get_next()
+	
+	for fn in subdirectories:
+		fileName = fn
+		var filePath = rootDirectory.get_current_dir() + "/" + fileName
+		var subdir = Directory.new()
+		if(subdir.open(filePath) == OK):
+			var subdirPage = AddPageIfDoesntExist(pageRoot, fileName)
+			SetupDocumentationCustomPagesParseFolder(subdirPage, subdir)
+		else:
+			print("[Castagne] Editor: Couldn't open directory " + filePath)
 
 
 func SetupDocumentationModule(modulesRoot, module):
@@ -116,24 +124,27 @@ func AddPage(pageRoot, pageName, pageData = {}):
 	var treeNode = null
 	pageName = str(pageName)
 	var path = pageName
+	
 	if(pageRoot != null):
-		treeNode = tree.create_item(pageRoot["TreeNode"])
 		path = pageRoot["Path"] + "/"+pageName
-	else:
-		treeNode = tree.create_item()
 	
 	var page = {
 		"Name":pageName,
 		"Path":path,
 		"Text":"No contents",
 		"TreeNode":treeNode,
+		"Order":1000,
+		"Metadata":{},
+		"Root": pageRoot,
+		"Children":[],
 	}
 	Castagne.FuseDataOverwrite(page, pageData)
 	
-	treeNodesToPath[treeNode] = path
-	treeNode.set_text(0, page["Name"])
+	if(pageRoot != null):
+		pageRoot["Children"] += [page]
 	if(!page.has("Title")):
 		page["Title"] = page["Name"]
+		
 	pages[path] = page
 	return page
 
@@ -145,10 +156,84 @@ func AddPageIfDoesntExist(pageRoot, pageName, pageData = {}):
 		return pages[path]
 	return AddPage(pageRoot, pageName, pageData)
 
+func SetupPageFromText(page, fulltext):
+	var text = fulltext
+	var metadata = {}
+	if(fulltext.begins_with("---")):
+		var endOfHeader = fulltext.find("---", 4)
+		if(endOfHeader > 0):
+			text = fulltext.right(endOfHeader + 4).strip_edges()
+			var headerText = fulltext.left(endOfHeader)
+			var lines = headerText.split("\n")
+			for line in lines:
+				var delim = line.find(":")
+				if(delim < 1):
+					continue
+				metadata[line.left(delim).strip_edges()] = line.right(delim+1).strip_edges()
+		
+	
+	var textFiltered = ""
+	var nextComment = text.find("<!--")
+	while nextComment >= 0:
+		var endOfComment = text.find("-->", 3)
+		if(endOfComment < 0):
+			text = ""
+			break
+		
+		textFiltered += text.left(nextComment)
+		text = text.right(endOfComment+3)
+		
+		nextComment = text.find("<!--")
+	
+	textFiltered += text
+	
+	page["Text"] = textFiltered
+	page["Metadata"] = metadata
+	
+	var valuesToElevate = ["Name", "Title", "Order"]
+	for m in valuesToElevate:
+		var mlower = m.to_lower()
+		var mmeta = null
+		
+		if(metadata.has(m)):
+			mmeta = m
+		elif(metadata.has(mlower)):
+			mmeta = mlower
+		
+		if(mmeta != null):
+			var val = metadata[mmeta]
+			if(val.is_valid_integer()):
+				val = int(val)
+			page[m] = val
+			
+
 func ExitDocumentation():
 	hide()
 
 
+func SortPagesAndCreateTree(pageRoot = null):
+	var treeNode = null
+	if(pageRoot == null):
+		tree.clear()
+		pageRoot = pages[""]
+		treeNode = tree.create_item()
+	else:
+		treeNode = tree.create_item(pageRoot["Root"]["TreeNode"])
+	
+	pageRoot["TreeNode"] = treeNode
+	treeNodesToPath[treeNode] = pageRoot["Path"]
+	treeNode.set_text(0, pageRoot["Title"])
+	
+	var children = pageRoot["Children"]
+	children.sort_custom(self, "_SortPagesComparator")
+	
+	for c in children:
+		SortPagesAndCreateTree(c)
+
+func _SortPagesComparator(a, b):
+	if(a["Order"] != b["Order"]):
+		return a["Order"] < b["Order"]
+	return a["Name"] < b["Name"]
 
 
 func PageSelected():

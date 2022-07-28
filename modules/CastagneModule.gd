@@ -203,6 +203,18 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	if(documentation != null):
 		Castagne.FuseDataOverwrite(docs, documentation)
 	
+	var argTypes = docs["Types"]
+	if(argTypes == null):
+		argTypes = []
+	
+	var maxArgs = 0
+	for i in nbArguments:
+		maxArgs = max(maxArgs, i)
+	
+	for i in range(maxArgs - argTypes.size()):
+		argTypes += ["any"]
+	docs["Types"] = argTypes
+	
 	var funcData = {
 		"Name": functionName,
 		"NbArgs": nbArguments,
@@ -212,6 +224,7 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 		"Flags": flags,
 		"Documentation":docs,
 		"Category":currentCategory,
+		"Types":argTypes,
 	}
 	
 	moduleDocumentationCategories[currentCategory]["Functions"].append(funcData)
@@ -258,11 +271,11 @@ func HasFlag(eState, flagName):
 	if(eState.has("Flags")):
 		return eState["Flags"].has(flagName)
 	return false
-func SetFlag(eState, flagName):
-	if(!eState["Flags"].has(flagName)):
-		eState["Flags"] += [flagName]
-func UnsetFlag(eState, flagName):
-	eState["Flags"].erase(flagName)
+func SetFlag(eState, flagName, flagVarName = "Flags"):
+	if(!eState[flagVarName].has(flagName)):
+		eState[flagVarName] += [flagName]
+func UnsetFlag(eState, flagName, flagVarName = "Flags"):
+	eState[flagVarName].erase(flagName)
 
 func CallFunction(functionName, args, eState, data):
 	Castagne.functions[functionName]["ActionFunc"].call_func(args, eState, data)
@@ -277,7 +290,7 @@ func ModuleError(text, eState = null):
 func ArgStr(args, eState, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgRaw ("+argID+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgStr ("+argID+"): This argument needs a default but doesn't have one")
 		return default
 	var value = args[argID]
 	if(eState == null):
@@ -289,14 +302,15 @@ func ArgStr(args, eState, argID, default = null):
 func ArgVar(args, eState, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgRaw ("+argID+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgVar ("+argID+"): This argument needs a default but doesn't have one")
 		return default
 	return args[argID]
 
 func ArgInt(args, eState, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgRaw ("+str(argID)+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgInt ("+str(argID)+"): This argument needs a default but doesn't have one")
+			return 1
 		return default
 	var value = str(args[argID])
 	if(value.is_valid_integer()):
@@ -308,6 +322,8 @@ func ArgInt(args, eState, argID, default = null):
 		return int(v)
 	# :TODO:Panthavma:20220126:Make the message more precise
 	Castagne.Error("ArgInt ("+str(argID)+"): Couldn't find variable " + value)
+	if(default == null):
+		return 1
 	return default
 
 
@@ -315,7 +331,7 @@ func ArgInt(args, eState, argID, default = null):
 func ArgBool(args, eState, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgRaw ("+argID+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgBool ("+argID+"): This argument needs a default but doesn't have one")
 		return default
 	var value = str(args[argID])
 	if(value.is_valid_integer()):
@@ -362,6 +378,7 @@ func GetDefaultDocumentation(functionName, nbArguments, _flags):
 		"ArgsDesc":[],
 		"Description":"Unspecified.",
 		"Arguments":[],
+		"Types":null,
 	}
 	
 	for _i in range(nbArguments.size()):

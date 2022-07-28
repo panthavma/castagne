@@ -18,11 +18,21 @@ func ModuleSetup():
 		"Description": "Unsets a flag, if it was set earlier.",
 		"Arguments": ["Flag name"],
 		})
+	RegisterFunction("FlagNext", [1], ["AllPhases"], {
+		"Description": "Raises a flag at the beginning of the next frame.",
+		"Arguments": ["Flag name"],
+		})
+	RegisterFunction("UnflagNext", [1], ["AllPhases"], {
+		"Description": "Unsets a flag for the next frame, if it was set earlier.",
+		"Arguments": ["Flag name"],
+		})
 	RegisterVariableEntity("Flags", [], ["ResetEachFrame"])
+	RegisterVariableEntity("FlagsNext", [])
 	
 	RegisterFunction("Set", [2], null, {
 		"Description": "Sets a variable to a given integer value.",
 		"Arguments": ["Variable name", "Value"],
+		"Types": ["var", "int"],
 		})
 	RegisterFunction("SetStr", [2], null, {
 		"Description": "Sets a variable to a given string (text) value.",
@@ -341,6 +351,9 @@ func InitPhaseEndEntity(eState, data):
 
 func ActionPhaseStartEntity(eState, data):
 	eState["StateFrameID"] = data["State"]["FrameID"] - eState["StateStartFrame"]
+	for f in eState["FlagsNext"]:
+		SetFlag(eState, f)
+	eState["FlagsNext"] = []
 
 func TransitionPhaseEndEntity(eState, data):
 	TransitionApply(eState, data)
@@ -354,6 +367,10 @@ func Flag(args, eState, _data):
 	SetFlag(eState, ArgStr(args, eState, 0))
 func Unflag(args, eState, _data):
 	UnsetFlag(eState, ArgStr(args, eState, 0))
+func FlagNext(args, eState, _data):
+	SetFlag(eState, ArgStr(args, eState, 0), "FlagsNext")
+func UnflagNext(args, eState, _data):
+	UnsetFlag(eState, ArgStr(args, eState, 0), "FlagsNext")
 
 func Set(args, eState, _data):
 	var paramName = ArgVar(args, eState, 0)
@@ -416,7 +433,8 @@ func CreateEntity(args, eState, data):
 	data["SelectedEID"] = newEID
 
 func DestroyEntity(_args, eState, data):
-	data["State"]["EntitiesToDestroy"].append(eState["EID"])
+	if(!data["State"]["EntitiesToDestroy"].has(eState["EID"])):
+		data["State"]["EntitiesToDestroy"].append(eState["EID"])
 
 
 
@@ -490,14 +508,14 @@ func CopyFighterVariables(args, eState, data):
 	Castagne.FuseDataOverwrite(eState, fighterVars)
 
 func CopyVariable(args, eState, data):
-	var refVarName = ArgStr(args, eState, 0)
-	var targetVarName = ArgStr(args, eState, 1, refVarName)
+	var refVarName = ArgVar(args, eState, 0)
+	var targetVarName = ArgVar(args, eState, 1, refVarName)
 	# :TODO:Panthavma:20220311:Can't work completely until I implement a way to ignore the variable name translation (*operator ?)
 	eState[targetVarName] = data["State"][data["RefEID"]][refVarName]
 
 func CopyVariableFromMain(args, eState, data):
-	var refVarName = ArgStr(args, eState, 0)
-	var targetVarName = ArgStr(args, eState, 1, refVarName)
+	var refVarName = ArgVar(args, eState, 0)
+	var targetVarName = ArgVar(args, eState, 1, refVarName)
 	# :TODO:Panthavma:20220311:Can't work completely until I implement a way to ignore the variable name translation (*operator ?)
 	var meid = data["State"]["Players"][eState["Player"]]["MainEntity"]
 	eState[targetVarName] = data["State"][meid][refVarName]

@@ -37,6 +37,7 @@ func ModuleSetup():
 	RegisterConfig("HurtboxViewer-Hurtbox", "res://castagne/modules/gamemodes/assets/HurtboxViewer-Hurtbox.tscn")
 	RegisterConfig("HurtboxViewer-Hitbox", "res://castagne/modules/gamemodes/assets/HurtboxViewer-Hitbox.tscn")
 	RegisterConfig("HurtboxViewer-Colbox", "res://castagne/modules/gamemodes/assets/HurtboxViewer-Colbox.tscn")
+	RegisterConfig("StartingPosition", 20000)
 	
 
 func BattleInit(state, data, battleInitData):
@@ -181,9 +182,9 @@ func FrameStart(state, data):
 
 func InitPhaseEndEntity(eState, _data):
 	if(eState["EID"] == 0):
-		eState["PositionX"] = -20000
+		eState["PositionX"] = -Castagne.configData["StartingPosition"]
 	if(eState["EID"] == 1):
-		eState["PositionX"] = 20000
+		eState["PositionX"] = Castagne.configData["StartingPosition"]
 
 func ActionPhaseStartEntity(eState, _data):
 	if(eState["HP"] <= 0 and !trainingMode):

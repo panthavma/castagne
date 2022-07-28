@@ -39,19 +39,12 @@ By default you will only have two state scripts: `Character` and `Variables`. Th
 > From now on we will see some code written in Castagne Script (.casp). This language is made to be as simple as possible for the user (by automating a lot of the work and boilerplate code under the hood) and extensible, and is what allows Castagne's flexibility.
 > Concepts will be explained as we go on through comments (lines starting with `#`), and you may find the [full reference here]() for more information.
 
-Let's start by doing a few things to have our setup complete. Let's start from the `Character` block, to write the data we are going to need outside of the fights.
+Let's start by doing a few things to have our setup complete. Let's start from the `Character` block, to write the data we are going to need outside of the fights. This is also where we will link to the model. Because the Castagneur is the base character, it will show up even if you don't do it, but you probably want to learn how to add characters down the line.
 
 ```
 # Let's start by writing in the name of the character.
 Name: Castagneur Jr.
-```
 
-> This is a bit empty right now as this block helps contain metadata about the character, which is going to be mostly used from Castagne 0.6 onwards.
-
-<!-- TODO Complete once we got Castagne 0.6 -->
-Then, lets continue by writing in the `Variables` block, in order to set up our character proper. Because the Castagneur is the base character, it will show up even if you don't do it, but you probably want to learn how to add characters down the line.
-
-```
 # ------ If using models (our case)
 
 # This allows the engine to know what model to load by writing in the Godot path containing it. (Should be a valid model to display)
@@ -63,6 +56,10 @@ ANIMPLAYER_PATH: AnimationPlayer
 # This controls the scale of the model in permil (1000 = 1.0). Default: 1000
 MODEL_SCALE: 1000
 ```
+
+> This is a bit empty right now as this block helps contain metadata about the character, which is going to be mostly used from Castagne 0.6 onwards.
+
+<!-- TODO Complete once we got Castagne 0.6 -->
 
 Here's what you do if you use Sprites instead :
 
@@ -92,8 +89,6 @@ Press the reload button to see your changes. The model should appear in the game
 
 <!-- TODO Change the spritesheet once we have a default 2D Character -->
 
-> Variables might be easier to set in a future version
-<!-- TODO Complete when that's done -->
 
 ## Tuning the variables
 
@@ -148,6 +143,8 @@ DefaultAttackLandingLag: 7
 
 Press reload as needed while tuning these. You should be able to feel the difference in handling!
 
+> Variables might be easier to set in a future version
+<!-- TODO Complete when that's done -->
 
 <!-- TODO Sounds when we have sound -->
 <!-- TODO Redo once it's easier (variable writer) -->
@@ -155,6 +152,9 @@ Press reload as needed while tuning these. You should be able to feel the differ
 ## Our first move: Straight Jab
 
 Finally! Let's write our first attack here, a simple standing jab. While you may name your attack however you want, in practice it's easier to name your attack using [numpad notation](), as it will get picked up automatically by `Base.casp`. Here let's name it `5A`.
+<!-- TODO Make page for numpad notation and other concepts later -->
+
+> To make a new state, press the New State button in the character editor's navigation panel (top right). This will open a template selector, but for these examples you can use the empty one.
 
 ```
 # This is a function, which allows us to actually affect the state of the game.
@@ -196,7 +196,6 @@ You may now press the reload button to see your attack by pressing whatever you 
 <!-- TODO Update code when tutorial is done -->
 <!-- TODO Come back when we got sequential branching -->
 <!-- TODO Numpad notation page -->
-<!-- TODO Update once it's easier (templates) -->
 
 ## Second move: Crouching Sweep
 

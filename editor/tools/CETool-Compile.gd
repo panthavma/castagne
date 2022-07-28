@@ -6,15 +6,33 @@ func SetupTool():
 	smallErrorWindow = $CompileSmall/Errors
 	toolName = "Compiler Output"
 	toolDescription = "Base tool that shows the results of compilation, especially errors."
+	Castagne.connect("castagne_error", self, "OnError")
+	Castagne.connect("castagne_log", self, "OnLog")
 
-func OnEngineRestarting(engine, battleInitData):
+var acceptRuntimeErrors = false
+
+func ResetErrorData():
 	smallErrorWindow.clear()
 	errorData = []
 
+func OnEngineRestarting(engine, battleInitData):
+	ResetErrorData()
+	acceptRuntimeErrors = false
+
 func OnEngineRestarted(engine):
+	ResetErrorData()
 	smallErrorWindow.add_item("No compilation errors!", null, false)
+	acceptRuntimeErrors = true
 
 func OnEngineInitError(engine):
+	var onlyRuntimeErrors = true
+	for ed in errorData:
+		if(!ed["Runtime"]):
+			onlyRuntimeErrors = false
+			break
+	if(onlyRuntimeErrors):
+		ResetErrorData()
+	
 	for e in Castagne.Parser._errors:
 		var filePath = e["FilePath"]
 		var line = e["LineID"]
@@ -41,6 +59,7 @@ func OnEngineInitError(engine):
 			"FileID":fileID,
 			"State":state,
 			"Line":stateLine,
+			"Runtime":false,
 		}
 		
 		errorData += [ed]
@@ -48,9 +67,32 @@ func OnEngineInitError(engine):
 		var t = "["+str(e["Type"])+"] " + filePath +" - "+state+" l." + str(stateLine) + ": " + e["Text"]
 		smallErrorWindow.add_item(t)
 
+func OnError(message):
+	AddLogOrError("Error /!\\ " + message)
+func OnLog(message):
+	AddLogOrError(message)
+
+func AddLogOrError(message):
+	if(errorData.size() == 0):
+		ResetErrorData()
+	
+	if(!acceptRuntimeErrors):
+		return
+	
+	var ed = {
+		"Runtime":true,
+	}
+	errorData += [ed]
+	
+	smallErrorWindow.add_item(message)
+	smallErrorWindow.select(smallErrorWindow.get_item_count() - 1)
+	smallErrorWindow.ensure_current_is_visible()
+
 
 func _on_Errors_item_activated(index):
 	if(errorData.size() <= index):
 		return
 	var ed = errorData[index]
+	if(ed["Runtime"]):
+		return
 	editor.ChangeCodePanelState(ed["State"], ed["FileID"], ed["Line"])

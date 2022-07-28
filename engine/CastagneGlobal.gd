@@ -156,16 +156,22 @@ func GetDefaultBattleInitData():
 		FuseDataOverwrite(bid, m.battleInitDataDefault.duplicate(true))
 	return bid
 
+signal castagne_log(message)
 func Log(text):
+	emit_signal("castagne_log", text)
 	print("[Castagne] " + str(text))
 
+signal castagne_error(message)
 func Error(text):
+	emit_signal("castagne_error", text)
 	print("[Castagne] ! " + str(text))
 
 func GetAllCharactersMetadata():
 	var characters = []
-	for cpath in configData["CharacterPaths"]:
-		characters.append(Parser.GetCharacterMetadata(cpath))
+	for cpath in SplitStringToArray(configData["CharacterPaths"]):
+		var cdata = Parser.GetCharacterMetadata(cpath)
+		if(cdata != null):
+			characters.append(cdata)
 	return characters
 
 # ------------------------------------------------------------------------------

@@ -13,9 +13,9 @@ func ModuleSetup():
 	# :TODO:Panthavma:20220310:Add sprite support
 	
 	RegisterCategory("Animations")
-	RegisterFunction("Anim", [1,2,3], null, {
+	RegisterFunction("Anim", [1,2], null, {
 		"Description": "Plays an animation frame by frame. The animation updates only when this function is called, and starts at the first frame the function is called.",
-		"Arguments": ["Animation Name", "(Optional) Offset", "(Optional) Loop"],
+		"Arguments": ["Animation Name", "(Optional) Offset"],
 		})
 	RegisterFunction("AnimFrame", [1,2], null, {
 		"Description": "Plays an animation frame by frame. The animation updates only when this function is called, and if not specified will use the amount of frames you were in that state..",
@@ -25,6 +25,10 @@ func ModuleSetup():
 		"Description": "Progresses an already playing animation. Can also be used to scroll.",
 		"Arguments": ["(Optional) Amount of frames to progress"],
 		})
+	RegisterFunction("AnimLoop", [1, 2], null, {
+		"Description": "Loops an animation around by setting it to the start point when reaching the specified frame.",
+		"Arguments": ["Loop point (exclusive)", "(Optional) Start point of the loop."]
+	})
 	RegisterFunction("AnimReset", [0], null, {
 		"Description": "Resets the animation variables.",
 		"Arguments": [],
@@ -66,14 +70,11 @@ func UpdateGraphics(state, data):
 func Anim(args, eState, data):
 	var newAnim = ArgStr(args, eState, 0)
 	var offset = ArgInt(args, eState, 1, 0)
-	var loop = ArgInt(args, eState, 2, 0)
 	if(newAnim != eState["Anim"] or offset != eState["AnimOffset"]):
 		eState["AnimStartFrame"] = (eState["StateStartFrame"] - offset)+1
 		eState["AnimOffset"] = offset
 	eState["Anim"] = newAnim
 	var frame = 1+data["State"]["FrameID"] - eState["AnimStartFrame"]
-	if(loop > 0):
-		frame %= loop
 	
 	eState["AnimFrame"] = frame
 func AnimFrame(args, eState, data):
@@ -82,6 +83,9 @@ func AnimFrame(args, eState, data):
 	eState["AnimOffset"] = null
 func AnimProgress(args, eState, _data):
 	eState["AnimFrame"] += ArgStr(args, eState, 0, 1)
+func AnimLoop(args, eState, _data):
+	if(eState["AnimFrame"] >= ArgInt(args, eState, 0)):
+		eState["AnimFrame"] = ArgInt(args, eState, 1, 0)
 func AnimReset(_args, eState, _data):
 	eState["Anim"] = null
 	eState["AnimOffset"] = null

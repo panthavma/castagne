@@ -21,6 +21,8 @@ func EnterMenu(cID):
 	
 	ReloadCodePanel()
 	ReloadEngine()
+	
+	$Popups.hide()
 
 func ExitMenu():
 	hide()
@@ -47,8 +49,6 @@ func _on_Back_pressed():
 
 
 
-
-
 # --------------------------------------------------------------------------------------------------
 # Engine
 
@@ -63,6 +63,8 @@ func ReloadEngine():
 	if(engineErrorScreen != null):
 		engineErrorScreen.queue_free()
 		engineErrorScreen = null
+	
+	HidePopups()
 	
 	var enginePrefab = load(Castagne.configData["Engine"])
 	Castagne.battleInitData["p1"] = characterID
@@ -99,7 +101,7 @@ func ReloadEngine():
 
 func _input(event):
 	if(event is InputEventMouseButton and event.is_pressed()):
-		if($ToolsWindow.is_visible() || $"../Documentation".is_visible()):
+		if($ToolsWindow.is_visible() || $Popups.is_visible() || $"../Documentation".is_visible()):
 			UnfocusGame()
 		else:
 			var vpRect = $EngineVP.get_global_rect()
@@ -114,7 +116,7 @@ func FocusGame():
 	
 	SetAllUIModulate(Color(0.5,0.5,0.5,1.0))
 	var nodes = get_children()
-	nodes.erase($Popups)
+	HidePopups()
 	while(!nodes.empty()):
 		var n = nodes.pop_back()
 		if(n.has_method("release_focus")):
@@ -144,9 +146,33 @@ func _process(_delta):
 			lockInput = null
 
 
+var _popupFunction = null
+func ShowPopup(popupName):
+	$Popups.show()
+	_popupFunction = null
+	UnfocusGame()
+	for c in $Popups/Window.get_children():
+		c.hide()
+	var popup = $Popups/Window.get_node(popupName)
+	if(popup.has_method("InitPopup")):
+		popup.InitPopup()
+	popup.show()
+	return popup
+func HidePopups():
+	$Popups.hide()
+	if(_popupFunction != null):
+		_popupFunction.call_func()
 
+# Needs a function of form name(confirmed = false)
+func ShowConfirmPopup(associatedFunction, text, title = ""):
+	var popup = ShowPopup("Confirm")
+	_popupFunction = associatedFunction
+	popup.get_node("Text").set_text(text)
+	popup.get_node("Title").set_text(title)
 
-
+func _on_ConfirmYes_pressed():
+	if(_popupFunction != null):
+		_popupFunction.call_func(true)
 
 
 
@@ -217,13 +243,17 @@ func ChangeCodePanelState(newState, newFile = -1, newLine = 1):
 		curState = "Character"
 	var state = file["States"][curState]
 	
-	$CodePanel/Header/File.set_text(file["Path"])
+	var filePath = file["Path"]
+	var locked = IsFileLocked(filePath)
+	
+	$CodePanel/Header/File.set_text(filePath + (" [LOCKED]" if locked else ""))
 	$CodePanel/Header/State.set_text(curState)
 	$CodePanel/Header/CalledScripts.set_text(str(BuildCalledStatesList(state).size())+" Called Scripts")
 	var code = $CodePanel/Code
 	code.set_text(state["Text"])
 	code.cursor_set_line(newLine-1)
 	code.cursor_set_column(0)
+	code.set_readonly(locked)
 
 
 func _on_FuncdocButton_pressed():
@@ -242,23 +272,26 @@ func SaveFile():
 			continue
 		fileData["Modified"] = false
 		var filePath = fileData["Path"]
+		if(IsFileLocked(filePath)):
+			continue
+		
 		print("Editor: Saving to " + filePath)
 		
 		var statesToSave = fileData["States"].keys()
-		if(!statesToSave.has("Character")):
-			fileData["States"]["Character"] = {"Text":"\n"}
+		statesToSave.sort()
 		if(!statesToSave.has("Variables")):
 			fileData["States"]["Variables"] = {"Text":"\n\n"}
+		if(!statesToSave.has("Character")):
+			fileData["States"]["Character"] = {"Text":"\n"}
 		statesToSave.erase("Character")
 		statesToSave.erase("Variables")
-		
-		for s in statesToSave:
-			var stext = fileData["States"][s]["Text"].strip_edges()
-			if(stext.empty()):
-				statesToSave.erase(s)
-		
 		statesToSave.push_front("Variables")
 		statesToSave.push_front("Character")
+		
+		# Remove Trailing Whitespace
+		for s in statesToSave:
+			var stext = fileData["States"][s]["Text"].strip_edges()
+			fileData["States"][s]["Text"] = stext
 		
 		var fulltext = ""
 		for s in statesToSave:
@@ -281,6 +314,13 @@ func SaveFile():
 enum NAVPANEL_MODE {
 	ChooseState, ChooseFile, CalledStates
 }
+func IsFileLocked(fileName):
+	if(fileName.begins_with("res://castagne/") and Castagne.configData["Editor-LockCastagneFiles"]):
+		return true
+	if(fileName == Castagne.configData["Skeleton-default"] and Castagne.configData["Editor-LockBaseSkeleton"]):
+		return true
+	return false
+
 var navpanelMode = null
 func RefreshNavigationPanel(mode):
 	navpanelMode = mode
@@ -296,7 +336,8 @@ func RefreshNavigationPanel(mode):
 	
 	if(mode == NAVPANEL_MODE.ChooseFile):
 		for i in range(character["NbFiles"]):
-			list.add_item(character[i]["Path"])
+			var path = character[i]["Path"]
+			list.add_item(path + (" [LOCKED]" if IsFileLocked(path) else ""))
 	elif(mode == NAVPANEL_MODE.CalledStates):
 		var state = character[curFile]["States"][curState]
 		var calledStates = BuildCalledStatesList(state)
@@ -323,7 +364,10 @@ func RefreshNavigationPanel(mode):
 		list.add_item("Variables")
 		
 		var tagList = statesPerTag.keys()
+		tagList.erase(null)
 		tagList.sort()
+		if(statesPerTag.has(null)):
+			tagList.append(null)
 		
 		for tag in tagList:
 			var tagName = ("Untagged" if tag == null else tag)
@@ -379,6 +423,8 @@ func _on_Navigation_MoveList_item_activated(index):
 
 
 func _on_NewState_pressed():
+	ShowPopup("NewState")
+	return
 	var stateName = $CodePanel/Navigation/ChooseState/Bottom/NewStateName.get_text().strip_edges()
 	$CodePanel/Navigation/ChooseState/Bottom/NewStateName.set_text("")
 	if(stateName.empty()):
@@ -392,6 +438,20 @@ func _on_NewState_pressed():
 	ChangeCodePanelState(stateName)
 
 
+func _on_DeleteState_pressed():
+	if(curState == "Character" or curState == "Variables"):
+		return
+	ShowConfirmPopup(funcref(self, "DeleteStateCallback"), "Delete state "+str(curState)+" ?")
+
+func DeleteStateCallback(confirmed = false):
+	if(confirmed):
+		character[curFile]["States"].erase(curState)
+		character[curFile]["Modified"] = true
+		var cf = curFile
+		SaveFile()
+		ReloadCodePanel()
+		ReloadEngine()
+		ChangeCodePanelState("Character", cf)
 
 
 
@@ -722,6 +782,7 @@ func HideToolWindow():
 func _on_ToolCancel_pressed():
 	HideToolWindow()
 
+#:TODO:Panthavma:20220715:Oops I added popup system and forgot this exists, will have to convert I guess
 
 func _on_ToolSelect_pressed():
 	var itemList = $ToolsWindow/Window/ToolList
@@ -772,5 +833,10 @@ func _on_ToolList_nothing_selected():
 
 func _on_ToolList_item_activated(_index):
 	_on_ToolSelect_pressed()
+
+
+
+
+
 
 

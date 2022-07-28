@@ -26,7 +26,10 @@ extends "../modules/CastagneModule.gd"
 func GetCharacterMetadata(filePath):
 	_StartParsing(filePath)
 	_ParseMetadata(0)
-	return _EndParsing()["Character"]
+	var parsedCharacter = _EndParsing()
+	if(parsedCharacter == null):
+		return null
+	return parsedCharacter["Character"]
 
 func CreateFullCharacter(filePath):
 	_StartParsing(filePath)
@@ -68,6 +71,7 @@ var _errors
 
 var PHASES = ["Init", "Action", "Transition", "Freeze", "Manual"]
 
+var _moduleVariables
 func _StartParsing(filePath):
 	_currentLines = []
 	_lineIDs = []
@@ -83,6 +87,11 @@ func _StartParsing(filePath):
 	_aborting = false
 	_invalidFile = false
 	_errors = []
+	
+	# Helpers
+	_moduleVariables = {}
+	for m in Castagne.modules:
+		m.CopyVariablesEntity(_moduleVariables)
 	
 	_OpenFile(filePath)
 
@@ -138,6 +147,9 @@ func _ParseFullFile():
 			_OpenFile(md["Skeleton"])
 		if(_aborting):
 			return
+	
+	# Pass the variables from the metadata block to the variables block
+	Castagne.FuseDataOverwrite(_variables, _metadata)
 	
 	# 2. Parse the constants
 	_Log(">>> Parsing the constants...")
@@ -516,23 +528,38 @@ func _ParseBlockState(fileID):
 			if(f[0] in Castagne.functions):
 				var fData = Castagne.functions[f[0]]
 				if(f[1].size() in fData["NbArgs"]):
-					var action = null
-					var parseData = {
-						"CurrentState": _currentState,
-					}
-					if(fData["ParseFunc"] == null):
-						action = StandardParseFunction(f[0], f[1])
-					else:
-						action = fData["ParseFunc"].call_func(self, f[1], parseData)
+					# type check
+					var types = fData["Types"]
+					var typeCheck = true
+					for i in range(f[1].size()):
+						var a = str(f[1][i])
+						var t = types[i]
+						if(t == "int"):
+							if(!a.is_valid_integer() and !(a in _variables or a in _moduleVariables)):
+								_Error("Function " + f[0] + " argument " + str(i) + " ("+a+") not an integer.")
+								typeCheck = false
+						elif(t == "var"):
+							if(!(a in _variables or a in _moduleVariables)):
+								_Error("Function " + f[0] + " argument " + str(i) + " ("+a+") not a registered variable.")
+								typeCheck = false
+					if(typeCheck):
+						var action = null
+						var parseData = {
+							"CurrentState": _currentState,
+						}
+						if(fData["ParseFunc"] == null):
+							action = StandardParseFunction(f[0], f[1])
+						else:
+							action = fData["ParseFunc"].call_func(self, f[1], parseData)
 						
-					if(action != null):
-						var d = [action["Func"], action["Args"]]
-						for p in PHASES:
-							if(p in action["Flags"]):
-								if(currentSubblock == null):
-									stateActions[p] += [d]
-								else:
-									currentSubblock[currentSubblockList][p] += [d]
+						if(action != null):
+							var d = [action["Func"], action["Args"]]
+							for p in PHASES:
+								if(p in action["Flags"]):
+									if(currentSubblock == null):
+										stateActions[p] += [d]
+									else:
+										currentSubblock[currentSubblockList][p] += [d]
 				else:
 					_Error(f[0] + " : Expected " + str(fData["NbArgs"]) + " arguments, got " + str(f[1].size()) + "("+str(f[1])+")")
 			else:

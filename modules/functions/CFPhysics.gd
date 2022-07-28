@@ -155,6 +155,7 @@ func ModuleSetup():
 	RegisterFlag("HaltMomentum")
 	RegisterFlag("IgnoreGravity")
 	RegisterFlag("IgnoreFriction")
+	RegisterFlag("ApplyFacing")
 	RegisterFlag("PFAirborne")
 	RegisterFlag("PFGrounded")
 	RegisterFlag("AllowArenaExit")
@@ -336,7 +337,7 @@ func _BreakMomentumAxis(args, eState, _data, axis, facing=1.0):
 	var m = eState[axis]
 	var mBreak = abs(ArgInt(args, eState, 0))
 	var mMin = ArgInt(args, eState, 1, 0) * facing
-	var mMax = ArgInt(args, eState, 2, -mMin) * facing
+	var mMax = ArgInt(args, eState, 2, -mMin)
 	
 	if(mMin > mMax):
 		var a = mMin
