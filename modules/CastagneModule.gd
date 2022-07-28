@@ -1,17 +1,6 @@
 extends Node
 
 
-# :TODO:Panthavma:20211230:Register Variables & Flags
-# :TODO:Panthavma:20211230:Register Module
-# :TODO:Panthavma:20211230:Rename to tool or module
-# :TODO:Panthavma:20211230:More flexible tool loading
-# :TODO:Panthavma:20211230:Make individual function interface more flexible but also parallelizable
-# :TODO:Panthavma:20211230:Review the different callbacks
-# :TODO:Panthavma:20211230:Implement the init callback and cycle
-# :TODO:Panthavma:20211230:Ability to document module, functions, variables, and flags.
-# :TODO:Panthavma:20211230:Move some functions to graphics, presentation, or fighting game
-# :TODO:Panthavma:20211230:Control the internal loop a bit more (different castagne engine ? or through callbacks ?)
-# :TODO:Panthavma:20211230:Clear module subclass sandbox
 # :TODO:Panthavma:20220124:Allow only some modules to be called for slight perf boost ?
 
 
@@ -181,6 +170,7 @@ func _RegisterVariableCommon(variableName, defaultValue, flags, documentation, e
 func RegisterFunction(functionName, nbArguments, flags = null, documentation = null):
 	var parseFunc = null
 	var actionFunc = null
+	var gizmoFunc = null
 	
 	if(flags == null):
 		flags = []
@@ -202,6 +192,9 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	if(has_method(functionName)):
 		actionFunc = funcref(self, functionName)
 	
+	if(has_method("Gizmo"+functionName)):
+		gizmoFunc = funcref(self, "Gizmo"+functionName)
+	
 	if(parseFunc == null and actionFunc == null):
 		Castagne.Error(functionName+" : Parse function or Action func couldn't be found.")
 		return
@@ -210,14 +203,28 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	if(documentation != null):
 		Castagne.FuseDataOverwrite(docs, documentation)
 	
+	var argTypes = docs["Types"]
+	if(argTypes == null):
+		argTypes = []
+	
+	var maxArgs = 0
+	for i in nbArguments:
+		maxArgs = max(maxArgs, i)
+	
+	for i in range(maxArgs - argTypes.size()):
+		argTypes += ["any"]
+	docs["Types"] = argTypes
+	
 	var funcData = {
 		"Name": functionName,
 		"NbArgs": nbArguments,
 		"ParseFunc": parseFunc,
 		"ActionFunc": actionFunc,
+		"GizmoFunc": gizmoFunc,
 		"Flags": flags,
 		"Documentation":docs,
 		"Category":currentCategory,
+		"Types":argTypes,
 	}
 	
 	moduleDocumentationCategories[currentCategory]["Functions"].append(funcData)
@@ -234,12 +241,16 @@ func RegisterFlag(flagName, documentation = null):
 
 # Registers a configuration option
 func RegisterConfig(keyName, defaultValue, documentation=null):
-	if(documentation == null):
-		documentation = {
-			"Description": ""
-		}
-	documentation["Name"]=keyName
-	moduleDocumentationCategories[currentCategory]["Config"].append(documentation)
+	var docs = {
+		"Description": "",
+		"Flags":[],
+		"Name":keyName,
+	}
+	if(documentation != null):
+		Castagne.FuseDataOverwrite(docs, documentation)
+	docs["Key"]=keyName
+	docs["Default"]=defaultValue
+	moduleDocumentationCategories[currentCategory]["Config"].append(docs)
 	
 	configDefault[keyName] = defaultValue
 
@@ -255,15 +266,16 @@ func RegisterBattleInitData(keyName, defaultValue, documentation=null):
 	battleInitDataDefault[keyName] = defaultValue
 
 
+# :TODO:Panthavma:20220420:Make them actual flags instead of strings, with a more global system
 func HasFlag(eState, flagName):
 	if(eState.has("Flags")):
 		return eState["Flags"].has(flagName)
 	return false
-func SetFlag(eState, flagName):
-	if(!eState["Flags"].has(flagName)):
-		eState["Flags"] += [flagName]
-func UnsetFlag(eState, flagName):
-	eState["Flags"].erase(flagName)
+func SetFlag(eState, flagName, flagVarName = "Flags"):
+	if(!eState[flagVarName].has(flagName)):
+		eState[flagVarName] += [flagName]
+func UnsetFlag(eState, flagName, flagVarName = "Flags"):
+	eState[flagVarName].erase(flagName)
 
 func CallFunction(functionName, args, eState, data):
 	Castagne.functions[functionName]["ActionFunc"].call_func(args, eState, data)
@@ -278,9 +290,11 @@ func ModuleError(text, eState = null):
 func ArgStr(args, eState, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgRaw ("+argID+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgStr ("+argID+"): This argument needs a default but doesn't have one")
 		return default
 	var value = args[argID]
+	if(eState == null):
+		return default
 	if(eState.has(value)):
 		return str(eState[value])
 	return value
@@ -288,23 +302,28 @@ func ArgStr(args, eState, argID, default = null):
 func ArgVar(args, eState, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgRaw ("+argID+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgVar ("+argID+"): This argument needs a default but doesn't have one")
 		return default
 	return args[argID]
 
 func ArgInt(args, eState, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgRaw ("+str(argID)+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgInt ("+str(argID)+"): This argument needs a default but doesn't have one")
+			return 1
 		return default
 	var value = str(args[argID])
 	if(value.is_valid_integer()):
 		return int(value)
+	if(eState == null):
+		return default
 	if(eState.has(value)):
 		var v = eState[value]
 		return int(v)
 	# :TODO:Panthavma:20220126:Make the message more precise
 	Castagne.Error("ArgInt ("+str(argID)+"): Couldn't find variable " + value)
+	if(default == null):
+		return 1
 	return default
 
 
@@ -312,7 +331,7 @@ func ArgInt(args, eState, argID, default = null):
 func ArgBool(args, eState, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgRaw ("+argID+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgBool ("+argID+"): This argument needs a default but doesn't have one")
 		return default
 	var value = str(args[argID])
 	if(value.is_valid_integer()):
@@ -359,6 +378,7 @@ func GetDefaultDocumentation(functionName, nbArguments, _flags):
 		"ArgsDesc":[],
 		"Description":"Unspecified.",
 		"Arguments":[],
+		"Types":null,
 	}
 	
 	for _i in range(nbArguments.size()):

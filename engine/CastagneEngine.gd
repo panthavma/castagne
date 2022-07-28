@@ -22,10 +22,13 @@ var instancesRoot
 
 var modules
 var physicsModule
-const POSITION_SCALE = 0.0001
+var editorModule
+var graphicsModule
 
 var useOnline = false
 var initError = false
+var runAutomatically = true
+var renderGraphics = true
 
 #---------------------------------------------------------------------------------------------------
 # Initialize
@@ -48,15 +51,14 @@ func Init(battleInitData):
 	# 2. Load map
 	# Load maps and music
 	#:TODO:Panthavma:20220124:Review the map system, maybe as an entity ?
-	var prefabMap = Load(Castagne.configData["StagePaths"][battleInitData["map"]])
+	var prefabMap = Load(Castagne.SplitStringToArray(Castagne.configData["StagePaths"])[battleInitData["map"]])
 	var map = prefabMap.instance()
 	add_child(map)
 	instancedData["map"] = map
 	instancesRoot = self
 	
 	if(initError):
-		queue_free()
-		Castagne.Error("Initialization failed at the map init stage. Aborting.")
+		AbortWithError("Initialization failed at the map init stage. Aborting.")
 		return
 		
 	# 3. Prepare the first frame
@@ -94,8 +96,7 @@ func Init(battleInitData):
 	
 	
 	if(initError):
-		queue_free()
-		Castagne.Error("Initialization failed at the player init stage. Aborting.")
+		AbortWithError("Initialization failed at the player init stage. Aborting.")
 		return
 	
 	# :TODO:Panthavma:20220124:Allow less modules to be in play
@@ -107,8 +108,7 @@ func Init(battleInitData):
 	
 	
 	if(initError):
-		queue_free()
-		Castagne.Error("Initialization failed at the fighter init stage. Aborting.")
+		AbortWithError("Initialization failed at the fighter init stage. Aborting.", true)
 		return
 	
 	Castagne.Log("Init Ended\n----------------")
@@ -127,6 +127,9 @@ func Init(battleInitData):
 # Main Loop
 
 func EngineTick(previousState, playerInputs):
+	if(initError):
+		return
+	
 	# 1. Frame and input setup
 	var state = previousState.duplicate(true)
 	state["TrueFrameID"] += 1
@@ -150,11 +153,14 @@ func EngineTick(previousState, playerInputs):
 		m.FrameStart(state, moduleCallbackData)
 	
 	
-	# 3b. If skipping, special loop using the Freeze phase
+	# 3b. If skipping, stop here. If frozen, special loop using the Freeze phase
 	if(state["SkipFrame"]):
+		return state
+	
+	if(state["FrozenFrame"]):
 		var activeEIDs = state["ActiveEntities"]
-		#for module in modules:
-		#	module.ResetVariables(state, activeEIDs)
+		for module in modules:
+			module.ResetVariables(state, activeEIDs)
 		ExecuteScriptPhase("Freeze", activeEIDs, moduleCallbackData)
 		return state
 	
@@ -251,7 +257,9 @@ func ExecuteFighterScript(fighterScript, eid, moduleCallbackData):
 		moduleCallbackData["SelectedEID"] = eid
 		moduleCallbackData["RefEID"] = eid
 	
-	for action in fighterScript["Actions"]:
+	var actionList = fighterScript[phaseName]
+	
+	for action in actionList:
 		if(moduleCallbackData["SelectedEID"] != eid):
 			eid = moduleCallbackData["SelectedEID"]
 			entityState = state[eid]
@@ -259,7 +267,8 @@ func ExecuteFighterScript(fighterScript, eid, moduleCallbackData):
 			rEID = moduleCallbackData["RefEID"]
 			moduleCallbackData["rState"] = state[rEID]
 		
-		ExecuteAction(action, phaseName, entityState, moduleCallbackData)
+		action[0].call_func(action[1], entityState, moduleCallbackData)
+		#ExecuteAction(action, phaseName, entityState, moduleCallbackData)
 
 func ExecuteAction(action, phaseName, entityState, moduleCallbackData):
 	if(phaseName in action["Flags"]):
@@ -401,6 +410,7 @@ func AddNewEntity(state, playerID, fighterID, initStateName):
 	
 	var entityInstanceData = {
 		"Root": null, "Model":null, "AnimPlayer":null,
+		"Sprite":null,
 	}
 	
 	state["CurrentEntityID"] += 1
@@ -457,16 +467,48 @@ func _ready():
 
 func _physics_process(_delta):
 	# Physics process is fixed at 60 FPS
-	if(!useOnline):
-		var playerInputs = []
-		for player in instancedData["Players"]:
-			playerInputs.append(player["InputProvider"].PollRaw())
-		_gameState = EngineTick(_gameState, playerInputs)
+	if(!useOnline and runAutomatically):
+		LocalStep()
+
+func LocalStep():
+	var playerInputs = []
+	for player in instancedData["Players"]:
+		playerInputs.append(player["InputProvider"].PollRaw())
+	_gameState = EngineTick(_gameState, playerInputs)
+
+func LocalStepNoInput():
+	var playerInputs = []
+	for player in instancedData["Players"]:
+		playerInputs.append(player["InputProvider"].GetEmptyRawInputData())
+	_gameState = EngineTick(_gameState, playerInputs)
 
 var _lastGraphicsFrameUpdate = -1
 func _process(_delta):
+	if(!renderGraphics):
+		return
 	var trueFrameID = _gameState["TrueFrameID"]
 	if(_lastGraphicsFrameUpdate < trueFrameID):
 		_lastGraphicsFrameUpdate = trueFrameID
 		UpdateGraphics(_gameState)
 
+var _errorScreen = null
+func AbortWithError(error, showParserErrors = false):
+	queue_free()
+	Castagne.Error(error)
+	
+	var l = Label.new()
+	var t = ""
+	
+	if(showParserErrors):
+		var nbErrors = {"Warning":0, "Error":0, "Fatal Error":0}
+		for e in Castagne.Parser._errors:
+			nbErrors[e["Type"]] += 1
+			t += "["+str(e["Type"])+"] " + e["FilePath"] +" l." + str(e["LineID"]) + ": " + e["Text"] +"\n"
+		t = "\n\n---- "+str(nbErrors["Warning"])+" Warnings / "+str(nbErrors["Error"])+" Errors / "+str(nbErrors["Fatal Error"])+" Fatal Errors ----\n" + t
+	
+	l.set_text(error + t)
+	get_node("..").add_child(l)
+	l.set_anchors_and_margins_preset(Control.PRESET_WIDE)
+	l.set_align(Label.ALIGN_CENTER)
+	l.set_valign(Label.VALIGN_CENTER)
+	_errorScreen = l

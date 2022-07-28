@@ -1,0 +1,33 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/editor/tools/CETool-Compile.gd" type="Script" id=1]
+
+[node name="Compile" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="CompileSmall" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Errors" type="ItemList" parent="CompileSmall"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Stats" type="TextEdit" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "---- Compiling Stats ----
+Total compilation time:
+Amount of States: "
+readonly = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="item_activated" from="CompileSmall/Errors" to="." method="_on_Errors_item_activated"]

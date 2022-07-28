@@ -21,7 +21,7 @@ func Editor():
 	call_deferred("LoadLevel", Castagne.configData["Editor"])
 
 func DevTools():
-	print("no")
+	call_deferred("LoadLevel", Castagne.configData["DevTools"])
 
 # --------------------------------------------------------------------------------------------------
 # Internals
@@ -58,10 +58,10 @@ func _ready():
 		var listID = 0
 		for list in $Characters.get_children():
 			list.clear()
-			for c in Castagne.configData["CharacterPaths"]:
+			for c in Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"]):
 				list.add_item(c)
 			var charToSelect = Castagne.configData["Starter-P"+str(listID+1)]
-			if(charToSelect >= Castagne.configData["CharacterPaths"].size()):
+			if(charToSelect >= Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"]).size()):
 				charToSelect = 0
 			list.select(charToSelect)
 			listID += 1

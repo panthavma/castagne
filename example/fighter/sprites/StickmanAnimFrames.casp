@@ -1,0 +1,125 @@
+:Character:
+	Name: Stickman (Anim Frames)
+	
+	Skeleton: res://castagne/Base.casp
+	
+	# Palette materials, for now.
+	Palette1:res://castagne/example/fighter/model/Pal1.tres
+	Palette2:res://castagne/example/fighter/model/Pal2.tres
+
+
+# The variables block allows us to hold data for later use.
+:Variables:
+	# Character Specific
+	HPMax: 10000
+	BallSpeed: 2300
+	
+	# This is for the graphical side, it will instance the model.
+	USE_SPRITES: 1
+	SPRITESHEET_PATH: res://castagne/example/fighter/sprites/StickmanSpriteSheet.png
+	SPRITESHEET_NB_X: 16
+	SPRITESHEET_NB_Y: 4
+	SPRITESHEET_PIXELSIZE: 400
+	SPRITE_ORIGIN_X: 32
+	SPRITE_ORIGIN_Y: 4
+
+:AnimStand:
+	Sprite(0)
+
+:AnimWalkF:
+	Mod(StateFrameID, 32, RegA)
+	VRegA<=15:
+		VRegA<=7:
+			Sprite(1)
+		else
+			Sprite(2)
+		endif
+	else
+		VRegA<=23:
+			Sprite(3)
+		else
+			Sprite(2)
+		endif
+	endif
+
+:AnimWalkB:
+	Mod(StateFrameID, 32, RegA)
+	VRegA<=15:
+		VRegA<=7:
+			Sprite(3)
+		else
+			Sprite(2)
+		endif
+	else
+		VRegA<=23:
+			Sprite(1)
+		else
+			Sprite(2)
+		endif
+	endif
+
+:AnimCrouch:
+	Sprite(9)
+
+:AnimLanding:
+	Sprite(11)
+:AnimAirIdle:
+	Sprite(10)
+:AnimJumpsquat:
+	Sprite(11)
+
+:AnimJumpN:
+	Call(AnimAirIdle)
+:AnimJumpF:
+	Call(AnimAirIdle)
+:AnimJumpB:
+	Call(AnimAirIdle)
+
+
+
+
+:5A:
+	Call(StandingAttack)
+	Hurtbox(-5000,5000,0,20000)
+	Sprite(1)
+	F6+:
+		Sprite(4)
+		F6-8:
+			Attack(600,16)
+			Hitbox(0,12000,10000,15000)
+		endif
+	endif
+
+
+:5B:
+	Call(StandingAttack)
+	Hurtbox(-5000,5000,0,20000)
+	Sprite(8)
+	F6+:
+		Sprite(5)
+		F6-8:
+			Attack(600,16)
+			Hitbox(0,12000,10000,15000)
+		endif
+	endif
+
+
+
+:5C:
+	Call(StandingAttack)
+	Hurtbox(-5000,5000,0,20000)
+	F1-4:
+		Sprite(3)
+	endif
+	F5-11:
+		Sprite(6)
+	endif
+	F12-14:
+		Sprite(7)
+		Attack(1200, 30)
+		Hitbox(0,15000,5000,15000)
+	endif
+	F15+:
+		Sprite(8)
+	endif
+	

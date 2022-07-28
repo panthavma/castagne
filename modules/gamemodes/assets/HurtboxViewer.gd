@@ -8,6 +8,7 @@ var nbUsedBoxes = []
 var NB_BASE_HURTBOXES = 50
 var NB_BASE_HITBOXES = 50
 var NB_BASE_COLBOXES = 50
+var POSITION_SCALE
 
 func _ready():
 	set_translation(Vector3(0.0,0.0,-0.15))
@@ -38,6 +39,7 @@ func _ready():
 
 func UpdateGraphics(state, data):
 	engine = data["Engine"]
+	POSITION_SCALE = Castagne.configData["PositionScale"]
 	
 	for node in modelHurtboxes.get_children():
 		node.hide()
@@ -81,8 +83,8 @@ func SetBox(node, box, fighterState):
 	var boxSizeHor = boxPos["Right"] - boxPos["Left"]
 	var boxSizeVer = boxPos["Up"] - boxPos["Down"]
 	
-	node.set_translation(Vector3(boxCenterHor, boxCenterVer, 0) * engine.POSITION_SCALE)
-	node.set_scale(Vector3(boxSizeHor, boxSizeVer, 1) * engine.POSITION_SCALE * 0.5)
+	node.set_translation(Vector3(boxCenterHor, boxCenterVer, 0) * POSITION_SCALE)
+	node.set_scale(Vector3(boxSizeHor, boxSizeVer, 1) * POSITION_SCALE * 0.5)
 	
 func GetBoxPosition(fighterState, box):
 	var boxLeft = fighterState["PositionX"]

@@ -26,22 +26,34 @@ __meta__ = {
 }
 
 [node name="MainMenu" type="Button" parent="Buttons"]
-margin_top = 47.0
+margin_top = 23.0
 margin_right = 576.0
-margin_bottom = 67.0
+margin_bottom = 43.0
 text = "Main Menu"
 
 [node name="Training" type="Button" parent="Buttons"]
-margin_top = 71.0
+margin_top = 47.0
 margin_right = 576.0
-margin_bottom = 91.0
+margin_bottom = 67.0
 text = "Training"
 
 [node name="LocalBattle" type="Button" parent="Buttons"]
+margin_top = 71.0
+margin_right = 576.0
+margin_bottom = 91.0
+text = "Battle"
+
+[node name="Editor" type="Button" parent="Buttons"]
 margin_top = 95.0
 margin_right = 576.0
 margin_bottom = 115.0
-text = "Battle"
+text = "Editor"
+
+[node name="DevTools" type="Button" parent="Buttons"]
+margin_top = 119.0
+margin_right = 576.0
+margin_bottom = 139.0
+text = "Dev Tools"
 
 [node name="SecretButtons" type="VBoxContainer" parent="."]
 visible = false
@@ -53,12 +65,6 @@ alignment = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="Editor" type="Button" parent="SecretButtons"]
-margin_top = 59.0
-margin_right = 576.0
-margin_bottom = 79.0
-text = "Editor"
 
 [node name="DevTools" type="Button" parent="SecretButtons"]
 margin_top = 83.0

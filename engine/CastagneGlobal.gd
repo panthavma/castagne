@@ -19,7 +19,7 @@ onready var Menus
 # Dict with options
 
 const CONFIG_FILE_PATH = "res://castagne-config.json"
-const CONFIG_CORE_MODULE_PATH = "res://castagne/modules/functions/Core.tscn"
+const CONFIG_CORE_MODULE_PATH = "res://castagne/modules/functions/CFCore.gd"
 const INPUT_LOCAL = 0
 const INPUT_ONLINE = 1
 const INPUT_AI = 2
@@ -60,7 +60,7 @@ func _ready():
 	LoadModule(configData["Modules-core"])
 	
 	# 2.2 Load all the other modules
-	for modulePath in configData["Modules"]:
+	for modulePath in SplitStringToArray(configData["Modules"]):
 		LoadModule(modulePath)
 	
 	# 3. Set BattleInitData
@@ -114,20 +114,34 @@ func SaveConfigFile(configFilePath=null):
 	return OK
 
 func LoadModule(modulePath):
-	if(!modulePath.ends_with(".tscn")):
+	var module = null
+	if(modulePath.ends_with(".tscn")):
+		var modulePrefab = load(modulePath)
+		if(modulePrefab == null):
+			Error("Can't find module to load: "+str(modulePath))
+			return
+		
+		module = modulePrefab.instance()
+	elif(modulePath.ends_with(".gd")):
+		var scriptPrefab = load(modulePath)
+		if(scriptPrefab == null):
+			Error("Can't find script to load: "+str(modulePath))
+			return
+		module = Node.new()
+		module.set_script(scriptPrefab)
+		var moduleName = modulePath.right(modulePath.find_last("/"))
+		module.set_name(moduleName.left(moduleName.length()-2))
+	else:
 		if(!configData.has("Modules-"+modulePath)):
 			Error("Can't find module list to load: "+modulePath)
 			return
-		for mPath in configData["Modules-"+modulePath]:
+		for mPath in SplitStringToArray(configData["Modules-"+modulePath]):
 			LoadModule(mPath)
 		return
 	
-	var modulePrefab = load(modulePath)
-	if(modulePrefab == null):
-		Error("Can't find module to load: "+str(modulePath))
+	if(module == null):
+		Error("Module couldn't be loaded: "+str(modulePath))
 		return
-	
-	var module = modulePrefab.instance()
 	Log("Loading Module: " + module.get_name())
 	
 	add_child(module)
@@ -142,16 +156,22 @@ func GetDefaultBattleInitData():
 		FuseDataOverwrite(bid, m.battleInitDataDefault.duplicate(true))
 	return bid
 
+signal castagne_log(message)
 func Log(text):
+	emit_signal("castagne_log", text)
 	print("[Castagne] " + str(text))
 
+signal castagne_error(message)
 func Error(text):
+	emit_signal("castagne_error", text)
 	print("[Castagne] ! " + str(text))
 
 func GetAllCharactersMetadata():
 	var characters = []
-	for cpath in configData["CharacterPaths"]:
-		characters.append(Parser.GetCharacterMetadata(cpath))
+	for cpath in SplitStringToArray(configData["CharacterPaths"]):
+		var cdata = Parser.GetCharacterMetadata(cpath)
+		if(cdata != null):
+			characters.append(cdata)
 	return characters
 
 # ------------------------------------------------------------------------------
@@ -216,3 +236,12 @@ func AreDictionariesEqual(a, b):
 		if(!b.has(k) or a[k] != b[k]):
 			return false
 	return true
+
+func SplitStringToArray(stringToSeparate, separator=","):
+	var a = []
+	var strings = stringToSeparate.split(separator)
+	for s in strings:
+		s = s.strip_edges()
+		if(!s.empty()):
+			a.push_back(s)
+	return a

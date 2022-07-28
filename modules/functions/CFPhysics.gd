@@ -155,6 +155,7 @@ func ModuleSetup():
 	RegisterFlag("HaltMomentum")
 	RegisterFlag("IgnoreGravity")
 	RegisterFlag("IgnoreFriction")
+	RegisterFlag("ApplyFacing")
 	RegisterFlag("PFAirborne")
 	RegisterFlag("PFGrounded")
 	RegisterFlag("AllowArenaExit")
@@ -336,7 +337,7 @@ func _BreakMomentumAxis(args, eState, _data, axis, facing=1.0):
 	var m = eState[axis]
 	var mBreak = abs(ArgInt(args, eState, 0))
 	var mMin = ArgInt(args, eState, 1, 0) * facing
-	var mMax = ArgInt(args, eState, 2, -mMin) * facing
+	var mMax = ArgInt(args, eState, 2, -mMin)
 	
 	if(mMin > mMax):
 		var a = mMin
@@ -432,6 +433,26 @@ func Hitbox(args, eState, _data):
 		"AttackData":eState["AttackData"],
 	})
 
+func GizmoBox(emodule, args, lineActive, gdata, type):
+	var color = [Color(0.4, 0.4, 1.0), Color(1.0, 0.4, 0.4), Color(0.4, 1.0, 0.4)][type]
+	var colorBack = [Color(0.3, 0.3, 1.0, 0.45), Color(1.0, 0.3, 0.3, 0.45), Color(0.3, 1.0, 0.3, 0.45)][type]
+	var widthActive = [6,6,6][type]
+	var widthInactive = [2,2,2][type]
+	var l = ArgInt(args, null, 0, 0)
+	var r = ArgInt(args, null, 1, 0)
+	var d = ArgInt(args, null, 2, 0)
+	var t = ArgInt(args, null, 3, 0)
+	if(lineActive):
+		emodule.GizmoFilledBox(Vector2(l,t), Vector2(r,d), colorBack, color, widthActive)
+	else:
+		emodule.GizmoBox(Vector2(l,t), Vector2(r,d), color, widthInactive)
+
+func GizmoHurtbox(emodule, args, lineActive, gdata):
+	GizmoBox(emodule, args, lineActive, gdata, 0)
+func GizmoHitbox(emodule, args, lineActive, gdata):
+	GizmoBox(emodule, args, lineActive, gdata, 1)
+func GizmoColbox(emodule, args, lineActive, gdata):
+	GizmoBox(emodule, args, lineActive, gdata, 2)
 
 
 
@@ -630,4 +651,8 @@ func AreBoxesOverlapping(boxA, boxB):
 
 
 
-
+func TranslatePosEntityToGlobal(pos, eState):
+	var x = eState["PositionX"]
+	var y = eState["PositionY"]
+	
+	return Vector2(x + pos.x * (1 if eState["Facing"] > 0 else -1), y + pos.y)

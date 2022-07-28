@@ -14,9 +14,11 @@ func Poll():
 func PollRaw():
 	return GetEmptyRawInputData()
 
+var lockInput = false
+
 # :TODO:Panthavma:20220126:Need to rework this
 func EnrichInput(raw, richPrevious, state, pid):
-	if(raw.size() == 0): # When missing input online
+	if(raw.size() == 0 or lockInput): # When missing input online and editor
 		raw = GetEmptyRawInputData()
 	if(richPrevious == null or richPrevious.size() == 0): # First frame
 		richPrevious = GetEmptyEnrichedInputData() # :TODO:Panthavma:20220203:Actually enrich it
@@ -34,13 +36,16 @@ func EnrichInput(raw, richPrevious, state, pid):
 	id["R"] = id["R"] || id["M3"]
 	
 	# :TODO:Panthavma:20220203:Make it a module function and move Facing related stuff to 2D physics
-	var eState = state[state["Players"][pid]["MainEntity"]]
+	var eState = null
+	#if(state.has("Players") and state["Players"].has(pid)):
+	if(state.has("Players")):
+		eState = state[state["Players"][pid]["MainEntity"]]
 	
 	var facing = 1
 	var facingTrue = 1
 	
 	# Kinda hacky way to wait for init
-	if(eState.has("Facing")):
+	if(eState != null and eState.has("Facing")):
 		facing = eState["Facing"]
 		facingTrue = eState["FacingTrue"]
 	

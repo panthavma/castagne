@@ -1,127 +1,293 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://castagne/editor/CastagneEditor.gd" type="Script" id=1]
+[ext_resource path="res://castagne/editor/CastagneEditorConfig.gd" type="Script" id=2]
+[ext_resource path="res://castagne/editor/CastagneEditorCharacter.tscn" type="PackedScene" id=3]
+[ext_resource path="res://castagne/editor/CEDocumentation.gd" type="Script" id=4]
+[ext_resource path="res://castagne/editor/EditorTheme.tres" type="Theme" id=5]
+[ext_resource path="res://castagne/editor/MovingBackground.tres" type="Material" id=6]
 
 [node name="CastagneEditor" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+theme = ExtResource( 5 )
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="StatePrinter" type="Control" parent="."]
-margin_right = 40.0
-margin_bottom = 40.0
-
-[node name="TextEdit" type="TextEdit" parent="."]
-margin_right = 453.0
-margin_bottom = 297.0
-
-[node name="CharacterEdit" type="Control" parent="."]
+[node name="Background" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="CodePanel" type="Panel" parent="CharacterEdit"]
-anchor_left = 0.6
+[node name="ColorRect" type="ColorRect" parent="Background"]
+material = ExtResource( 6 )
 anchor_right = 1.0
 anchor_bottom = 1.0
+color = Color( 0.113725, 0.145098, 0.121569, 1 )
+
+[node name="MainMenu" type="Control" parent="."]
+anchor_left = 0.05
+anchor_top = 0.05
+anchor_right = 0.95
+anchor_bottom = 0.95
+margin_left = 32.0
+margin_top = 32.0
+margin_right = -32.0
+margin_bottom = -32.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Documentation" type="Control" parent="CharacterEdit/CodePanel"]
-anchor_top = 0.8
+[node name="Panel" type="Panel" parent="MainMenu"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_right = -8.0
-margin_bottom = -8.0
 
-[node name="Title" type="Label" parent="CharacterEdit/CodePanel/Documentation"]
+[node name="Title" type="Label" parent="MainMenu"]
 anchor_right = 1.0
-margin_left = 16.0
-margin_right = -16.0
-margin_bottom = 18.0
-text = "Hitbox (Back, Front, Bottom, Top)"
+anchor_bottom = 0.15
+text = "--- Castagne Editor ---
+Castagne v0.0
+GAME NAME
+GAME VERSION"
+align = 1
 valign = 1
 
-[node name="FuncdocButton" type="Button" parent="CharacterEdit/CodePanel/Documentation"]
-anchor_left = 0.8
-anchor_right = 1.0
+[node name="VBoxContainer" type="VBoxContainer" parent="MainMenu"]
+anchor_top = 0.2
+anchor_right = 0.5
 anchor_bottom = 1.0
-margin_top = 24.0
-text = "Docs"
-clip_text = true
-
-[node name="TextEdit" type="TextEdit" parent="CharacterEdit/CodePanel/Documentation"]
-anchor_right = 0.8
-anchor_bottom = 1.0
-margin_top = 24.0
-text = "Function description
-
-Or Argument description
-Can be long
-long"
-readonly = true
-wrap_enabled = true
-
-[node name="TextEdit" type="TextEdit" parent="CharacterEdit/CodePanel"]
-anchor_top = 0.1
-anchor_right = 1.0
-anchor_bottom = 0.8
-margin_left = 8.0
-margin_top = 8.0
-margin_right = -8.0
-margin_bottom = -8.0
-text = "Call(GroundedAttack)
-Hurtbox(0,10000,0,10000)
-F20-30:
-	Attack(50,50)
-	Hitbox(0,2000,0,20000)
-endif
-Anim(SuperAttack)"
-highlight_current_line = true
-syntax_highlighting = true
-show_line_numbers = true
-highlight_all_occurrences = true
-smooth_scrolling = true
-wrap_enabled = true
-
-[node name="Header" type="Control" parent="CharacterEdit/CodePanel"]
-anchor_right = 1.0
-anchor_bottom = 0.1
-margin_left = 8.0
-margin_top = 8.0
-margin_right = -8.0
-
-[node name="State" type="Button" parent="CharacterEdit/CodePanel/Header"]
-anchor_top = 0.4
-anchor_right = 1.0
-anchor_bottom = 1.0
-text = ":5A:"
-
-[node name="File" type="Button" parent="CharacterEdit/CodePanel/Header"]
-anchor_right = 0.7
-anchor_bottom = 0.4
-text = "Castagneur.casp"
-
-[node name="CheckParent" type="Button" parent="CharacterEdit/CodePanel/Header"]
-anchor_left = 0.7
-anchor_right = 1.0
-anchor_bottom = 0.4
-text = "Parents"
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+alignment = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="TopBar" type="Panel" parent="CharacterEdit"]
-anchor_right = 0.6
-margin_bottom = 32.0
+[node name="Documentation" type="Button" parent="MainMenu/VBoxContainer"]
+margin_top = 316.0
+margin_right = 800.0
+margin_bottom = 334.0
+text = "Documentation"
 
-[node name="BottomPanel" type="Panel" parent="CharacterEdit"]
-anchor_top = 0.8
-anchor_right = 0.6
+[node name="Container" type="HBoxContainer" parent="MainMenu/VBoxContainer"]
+margin_top = 338.0
+margin_right = 800.0
+margin_bottom = 356.0
+
+[node name="Config" type="Button" parent="MainMenu/VBoxContainer/Container"]
+margin_right = 718.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+text = "Config Editor"
+
+[node name="ConfigAdv" type="Button" parent="MainMenu/VBoxContainer/Container"]
+margin_left = 722.0
+margin_right = 800.0
+margin_bottom = 18.0
+text = "Advanced"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/VBoxContainer"]
+margin_top = 360.0
+margin_right = 800.0
+margin_bottom = 378.0
+
+[node name="CharacterEdit" type="Button" parent="MainMenu/VBoxContainer/HBoxContainer"]
+margin_right = 688.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+text = "Character Editor"
+
+[node name="CharacterEditNew" type="Button" parent="MainMenu/VBoxContainer/HBoxContainer"]
+margin_left = 692.0
+margin_right = 800.0
+margin_bottom = 18.0
+text = "New Character"
+
+[node name="Characters" type="ItemList" parent="MainMenu"]
+anchor_left = 0.5
+anchor_top = 0.2
+anchor_right = 1.0
 anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+
+[node name="NewCharDialog" type="FileDialog" parent="MainMenu"]
+anchor_left = 0.2
+anchor_top = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+filters = PoolStringArray( "*.casp" )
+
+[node name="Config" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="Config"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="Config"]
+anchor_left = 0.3
+anchor_right = 0.8
+anchor_bottom = 0.1
+text = "Configuration Editor"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BackButton" type="Button" parent="Config"]
+anchor_right = 0.1
+anchor_bottom = 0.1
+text = "Back"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Save" type="Button" parent="Config"]
+anchor_left = 0.1
+anchor_right = 0.3
+anchor_bottom = 0.1
+text = "Save (Reload)"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Docs" type="Button" parent="Config"]
+anchor_left = 0.8
+anchor_right = 1.0
+anchor_bottom = 0.1
+text = "Documentation"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Tabs" type="TabContainer" parent="Config"]
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CharacterEdit" parent="." instance=ExtResource( 3 )]
+visible = false
+
+[node name="Documentation" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Back" type="ColorRect" parent="Documentation"]
+modulate = Color( 1, 1, 1, 0.494118 )
+material = ExtResource( 6 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.494118 )
+
+[node name="Window" type="Control" parent="Documentation"]
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Background" type="Panel" parent="Documentation/Window"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="PageList" type="Tree" parent="Documentation/Window"]
+anchor_right = 0.3
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[node name="TopBar" type="HBoxContainer" parent="Documentation/Window"]
+anchor_left = 0.3
+anchor_right = 1.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = 32.0
+alignment = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DocumentationTitle" type="Label" parent="Documentation/Window/TopBar"]
+margin_top = 5.0
+margin_right = 103.0
+margin_bottom = 19.0
+text = "Documentation:"
+
+[node name="PageName" type="Label" parent="Documentation/Window/TopBar"]
+margin_left = 107.0
+margin_right = 1024.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+size_flags_vertical = 5
+text = "PAGE NAME"
+align = 1
+valign = 1
+
+[node name="Exit" type="Button" parent="Documentation/Window/TopBar"]
+margin_left = 1028.0
+margin_right = 1067.0
+margin_bottom = 24.0
+text = "Exit"
+
+[node name="PageContents" type="TextEdit" parent="Documentation/Window"]
+anchor_left = 0.3
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 40.0
+margin_right = -8.0
+margin_bottom = -8.0
+text = "Blablabla page contents"
+readonly = true
+
+[connection signal="pressed" from="MainMenu/VBoxContainer/Documentation" to="." method="_on_MainMenuDocumentation_pressed"]
+[connection signal="pressed" from="MainMenu/VBoxContainer/Container/Config" to="." method="_on_Config_pressed"]
+[connection signal="pressed" from="MainMenu/VBoxContainer/Container/ConfigAdv" to="." method="_on_Config_pressed" binds= [ true ]]
+[connection signal="pressed" from="MainMenu/VBoxContainer/HBoxContainer/CharacterEdit" to="." method="_on_CharacterEdit_pressed"]
+[connection signal="pressed" from="MainMenu/VBoxContainer/HBoxContainer/CharacterEditNew" to="." method="_on_CharacterEditNew_pressed"]
+[connection signal="item_activated" from="MainMenu/Characters" to="." method="_on_Characters_item_activated"]
+[connection signal="file_selected" from="MainMenu/NewCharDialog" to="." method="_on_NewCharDialog_file_selected"]
+[connection signal="pressed" from="Config/BackButton" to="Config" method="_on_BackButton_pressed"]
+[connection signal="pressed" from="Config/Save" to="Config" method="_on_Save_pressed"]
+[connection signal="pressed" from="Config/Docs" to="Config" method="_on_Docs_pressed"]
+[connection signal="resized" from="Config/Tabs" to="Config" method="FitTabs"]
+[connection signal="item_activated" from="Documentation/Window/PageList" to="Documentation" method="PageSelected"]
+[connection signal="pressed" from="Documentation/Window/TopBar/Exit" to="Documentation" method="ExitDocumentation"]

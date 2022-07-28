@@ -2,8 +2,57 @@ extends Control
 
 # :TODO:Panthavma:20220408:Add a way to have automatic tests to see if combos still work (or work with different positions)
 
+var documentation
 
 func _ready():
+	EnterMenu()
+
+func EnterMenu():
+	$Background.show()
+	$MainMenu.show()
+	$Config.hide()
+	$CharacterEdit.hide()
+	$Documentation.hide()
+	
+	$Documentation.SetupDocumentation()
+	
+	# Write title
+	var title = "--- Castagne Editor ---\n"
+	title += Castagne.configData["CastagneVersion"] + "\n"
+	title += Castagne.configData["GameTitle"]+"\n"
+	title += Castagne.configData["GameVersion"]
+	$MainMenu/Title.set_text(title)
+	
+	# Write character list
+	var list = $MainMenu/Characters
+	list.clear()
+	for c in Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"]):
+		list.add_item(c)
+	var charToSelect = Castagne.configData["Starter-P1"]#Castagne.configData["Editor-SelectedCharacter"]
+	if(charToSelect >= Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"]).size()):
+		charToSelect = 0
+	list.select(charToSelect)
+
+
+func OpenDocumentation(page = null):
+	$Documentation.show()
+	$Documentation.OpenDocumentation(page)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+func _tools_ready():
 	$TextEdit.set_text(PrintDocumentation())
 	
 	return
@@ -73,16 +122,17 @@ func PrintDocumentation():
 			
 			
 			if(!funcs.empty()):
-				t += "### Functions\n"
+				t += "\n### Functions\n"
 				for f in funcs:
-					t += f["Name"] + ": " + f["Documentation"]["Description"] + " ("+str(f["Documentation"]["Arguments"])+")\n"
+					t += "--- " + f["Name"] + ":  ("+str(f["Documentation"]["Arguments"])+")\n"
+					t += f["Documentation"]["Description"] + "\n\n"
 			
 			if(!vars.empty()):
-				t += "### Variables\n"
+				t += "\n### Variables\n"
 				for v in vars:
 					t += v["Name"] + ": " + v["Description"] + "\n"
 			if(!flags.empty()):
-				t += "### Flags\n"
+				t += "\n### Flags\n"
 				for f in flags:
 					t += f["Name"] + ": " + f["Description"] + "\n"
 			
@@ -90,3 +140,41 @@ func PrintDocumentation():
 		t += "----\n"
 	
 	return t
+
+
+func _on_Config_pressed(advanced=false):
+	$MainMenu.hide()
+	$Config.EnterMenu(advanced)
+
+
+func _on_CharacterEdit_pressed():
+	$MainMenu.hide()
+	$CharacterEdit.EnterMenu($MainMenu/Characters.get_selected_items()[0])
+
+
+func _on_CharacterEditNew_pressed():
+	var fileEdit = $MainMenu/NewCharDialog
+	fileEdit.popup_centered()
+
+
+func _on_NewCharDialog_file_selected(path):
+	Castagne.configData["CharacterPaths"] += ","+path
+	var f = File.new()
+	
+	if(!f.file_exists(path)):
+		f.open(path, File.WRITE)
+		f.store_string(":Character:\n\n:Variables:\n\n")
+		f.close()
+	
+	Castagne.SaveConfigFile()
+	$MainMenu.hide()
+	$CharacterEdit.EnterMenu($MainMenu/Characters.get_item_count())
+
+
+func _on_MainMenuDocumentation_pressed():
+	OpenDocumentation($Documentation.defaultPage)
+
+
+
+func _on_Characters_item_activated(_index):
+	_on_CharacterEdit_pressed()
