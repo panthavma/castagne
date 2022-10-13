@@ -1,4 +1,4 @@
-extends Spatial
+extends Node
 
 
 # :TODO:Panthavma:20220209:Make SyncManager optional
@@ -51,11 +51,10 @@ func Init(battleInitData):
 	# 2. Load map
 	# Load maps and music
 	#:TODO:Panthavma:20220124:Review the map system, maybe as an entity ?
-	var prefabMap = Load(Castagne.SplitStringToArray(Castagne.configData["StagePaths"])[battleInitData["map"]])
-	var map = prefabMap.instance()
-	add_child(map)
-	instancedData["map"] = map
-	instancesRoot = self
+	#var prefabMap = Load(Castagne.SplitStringToArray(Castagne.configData["StagePaths"])[battleInitData["map"]])
+	#var map = prefabMap.instance()
+	#add_child(map)
+	#instancedData["map"] = map
 	
 	if(initError):
 		AbortWithError("Initialization failed at the map init stage. Aborting.")
@@ -176,11 +175,11 @@ func EngineTick(previousState, playerInputs):
 	var entitiesToInit = state["EntitiesToInit"]
 	var activeEIDs = state["ActiveEntities"]
 	if(!entitiesToInit.empty()):
+		state["EntitiesToInit"] = []
 		for module in modules:
 			for eid in entitiesToInit:
 				module.CopyVariablesEntity(state[eid])
 		ExecuteScriptPhase("Init", entitiesToInit, moduleCallbackData)
-		state["EntitiesToInit"] = []
 	
 	# 4. Action Phase
 	for module in modules:
@@ -439,7 +438,7 @@ func InstanceModel(eid, modelPath, animPlayerPath=null):
 	var playerModel = playerModelPrefab.instance()
 	
 	instancedData["Entities"][eid]["Model"] = playerModel
-	instancedData["Entities"][eid]["Root"] = playerModel
+	var modelRoot = instancedData["Entities"][eid]["Root"]
 	
 	if(animPlayerPath != null):
 		var playerAnim = playerModel.get_node(animPlayerPath)
@@ -451,7 +450,7 @@ func InstanceModel(eid, modelPath, animPlayerPath=null):
 		else:
 			print("InstanceModel: AnimPlayer Path invalid, didn't find anything at path " +str(animPlayerPath))
 	
-	instancesRoot.add_child(playerModel)
+	modelRoot.add_child(playerModel)
 
 
 

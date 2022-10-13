@@ -40,7 +40,7 @@ func ModuleSetup():
 		})
 	
 
-	RegisterCategory("Mathematics")
+	RegisterCategory("Mathematics (Simple)")
 	RegisterFunction("Add", [2,3], null, {
 		"Description": "Adds two numbers and stores it in the first variable or an optional third variable.",
 		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
@@ -225,7 +225,7 @@ func ModuleSetup():
 	# Category : Debug -----------------------------------------------------------------------------
 	RegisterCategory("Debug")
 	
-	RegisterFunction("Log", [1], null, {
+	RegisterFunction("Log", [1], ["Init", "Action"], {
 		"Description": "Writes a log to the console output.",
 		"Arguments": ["Text to write"],
 		})
@@ -317,18 +317,23 @@ func ModuleSetup():
 	RegisterConfig("Modules-editor", "res://castagne/modules/castagne/CMEditor.gd", {"Flags":["Advanced", "ReloadFull"]})
 	RegisterConfig("Modules-attacks", "res://castagne/modules/functions/CFAttacks.gd", {"Flags":["Advanced", "ReloadFull"]})
 	RegisterConfig("Modules-physics2d", "res://castagne/modules/functions/CFPhysics.gd", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-graphicsbase", "res://castagne/modules/graphics/CMGraphicsBase.gd", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-graphics2d", "res://castagne/modules/graphics/CMGraphics2D.gd", {"Flags":["Advanced", "ReloadFull"]})
 	RegisterConfig("Modules-graphics25d", "res://castagne/modules/graphics/CMGraphics2HalfD.gd", {"Flags":["Advanced", "ReloadFull"]})
+	RegisterConfig("Modules-graphics3d", "res://castagne/modules/graphics/CMGraphics3D.gd", {"Flags":["Advanced", "ReloadFull"]})
 	RegisterConfig("Modules-fightinggame", "res://castagne/modules/gamemodes/CMFightingGame.gd", {"Flags":["Advanced", "ReloadFull"]})
 	RegisterConfig("Modules-ui", "res://castagne/modules/ui/FightingUI.tscn", {"Flags":["Advanced", "ReloadFull"]})
 	
+	RegisterConfig("Modules-2d","physics2d, graphics2d", {"Flags":["Advanced", "ReloadFull"]})
 	RegisterConfig("Modules-25d","physics2d, graphics25d", {"Flags":["Advanced", "ReloadFull"]})
 			
+	RegisterConfig("Modules-default-fg2D","basic, editor, 2d, attacks, fightinggame, ui", {"Flags":["Advanced", "ReloadFull"]})
 	RegisterConfig("Modules-default-fg25D","basic, editor, 25d, attacks, fightinggame, ui", {"Flags":["Advanced", "ReloadFull"]})
 	
 	
 	RegisterCategory("Castagne Starter")
 	RegisterConfig("Starter-Option", 0, {"Flags":["Hidden"]})
-	RegisterConfig("Starter-Timer", -1)
+	RegisterConfig("Starter-Timer", 0)
 	RegisterConfig("Starter-P1", 0, {"Flags":["Hidden"]})
 	RegisterConfig("Starter-P2", 0, {"Flags":["Hidden"]})
 	
@@ -346,6 +351,7 @@ func FrameStart(state, _data):
 
 func InitPhaseStartEntity(eState, data):
 	data["State"]["ActiveEntities"].append(eState["EID"])
+	eState["StateTarget"] = eState["State"]
 func InitPhaseEndEntity(eState, data):
 	TransitionApply(eState, data)
 
@@ -510,8 +516,13 @@ func CopyFighterVariables(args, eState, data):
 func CopyVariable(args, eState, data):
 	var refVarName = ArgVar(args, eState, 0)
 	var targetVarName = ArgVar(args, eState, 1, refVarName)
+	var rState = data["State"][data["RefEID"]]
 	# :TODO:Panthavma:20220311:Can't work completely until I implement a way to ignore the variable name translation (*operator ?)
-	eState[targetVarName] = data["State"][data["RefEID"]][refVarName]
+	# is it fixed ? probably
+	if(!rState.has(refVarName)):
+		ModuleError("CopyVariable: " + str(refVarName) + " doesn't exist in the reference entity!")
+		return
+	eState[targetVarName] = rState[refVarName]
 
 func CopyVariableFromMain(args, eState, data):
 	var refVarName = ArgVar(args, eState, 0)

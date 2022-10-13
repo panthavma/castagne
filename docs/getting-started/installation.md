@@ -20,13 +20,13 @@ Once done, unarchive both, and launch the Godot Editor. Select "Import Project",
 <!-- TODO Links -->
 If a new version of Castagne is out and you want to upgrade it, just follow this procedure:
 - Backup or version your current project as a safety measure.
-- Go to Castagne's [github page]() and download the latest version.
+- Go to Castagne's [github page](https://github.com/panthavma/castagne) and download the latest version.
 - Read the changelogs to see if anything needs your attention (mostly true for the early versions of Castagne)
 - Replace your `castagne` folder with the new one.
 
 If there were no breaking changes in the last version, you should be good to go!
 
-You may also download the development version from the [dev branch](), but as the name implies it won't be tested as much.
+You may also download the development version from the [dev branch](https://github.com/panthavma/castagne/tree/dev), but as the name implies it won't be tested as much.
 
 ## Setup from zero
 

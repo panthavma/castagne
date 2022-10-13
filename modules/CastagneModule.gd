@@ -106,6 +106,8 @@ var moduleDocumentation = {"Description":""}
 var moduleDocumentationCategories = {null:{"Name":"Uncategorized", "Description":"", "Variables":[], "Functions":[], "Flags":[], "Config":[], "BattleInitData":[]}}
 
 func RegisterModule(_moduleName, _moduleDocumentation = null):
+	if(moduleName != "Unnamed Module"):
+		return
 	moduleName = _moduleName
 	if(_moduleDocumentation != null):
 		moduleDocumentation = _moduleDocumentation
@@ -284,8 +286,8 @@ func ModuleLog(text, eState = null):
 	var eidName = ("Entity ["+str(eState["EID"])+"]" if eState != null else "")
 	Castagne.Log("Module "+moduleName+" Log "+eidName+" : " + text)
 func ModuleError(text, eState = null):
-	var eidName = ("Entity ["+str(eState["EID"])+"]" if eState != null else "")
-	Castagne.Error("Module "+moduleName+" Error "+eidName+" : " + text)
+	var eidName = (" Entity ["+str(eState["EID"])+"]" if eState != null else "")
+	Castagne.Error("Module "+moduleName+" Error"+eidName+": " + text)
 
 func ArgStr(args, eState, argID, default = null):
 	if(args.size() <= argID):

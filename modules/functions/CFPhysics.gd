@@ -182,8 +182,8 @@ func ModuleSetup():
 	RegisterVariableEntity("Hurtboxes", [], ["ResetEachFrame"])
 	RegisterVariableEntity("Colbox", {"Left":-1, "Right":1, "Down":0, "Up":1}, ["ResetEachFrame"])
 	
-	RegisterConfig("ArenaSize", 150000)
-	RegisterConfig("CameraSize", 70000)
+	RegisterConfig("ArenaSize", 180000)
+	RegisterConfig("CameraSize", 90000)
 
 func BattleInit(_state, _data, _battleInitData):
 	engine.physicsModule = self
@@ -430,7 +430,7 @@ func Hitbox(args, eState, _data):
 		"Down":ArgInt(args, eState, 2),
 		"Up":ArgInt(args, eState, 3),
 		"Owner":eState["EID"],
-		"AttackData":eState["AttackData"],
+		"AttackData":eState["AttackData"].duplicate(),
 	})
 
 func GizmoBox(emodule, args, lineActive, gdata, type):

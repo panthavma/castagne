@@ -168,10 +168,8 @@ func Error(text):
 
 func GetAllCharactersMetadata():
 	var characters = []
-	for cpath in SplitStringToArray(configData["CharacterPaths"]):
-		var cdata = Parser.GetCharacterMetadata(cpath)
-		if(cdata != null):
-			characters.append(cdata)
+	for cpath in configData["CharacterPaths"]:
+		characters.append(Parser.GetCharacterMetadata(cpath))
 	return characters
 
 # ------------------------------------------------------------------------------
