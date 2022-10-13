@@ -9,6 +9,24 @@ func ModuleSetup():
 	RegisterModule("CF Basic")
 	# :TODO:Panthavma:20220310:Can it support more than one ?
 	
+	RegisterCategory("Mathematics (Advanced)")
+	RegisterFunction("Cos", [2,3], null, {
+		"Description": "Returns the cosine of an angle (in milliradians) multiplied by a variable.",
+		"Arguments": ["Variable", "Angle", "(Optional) Destination Variable"]
+	})
+	RegisterFunction("Sin", [2,3], null, {
+		"Description": "Returns the sine of an angle (in milliradians) multiplied by a variable.",
+		"Arguments": ["Variable", "Angle", "(Optional) Destination Variable"]
+	})
+	RegisterFunction("CosD", [2,3], null, {
+		"Description": "Returns the cosine of an angle (in tenths of degrees) multiplied by a variable.",
+		"Arguments": ["Variable", "Angle", "(Optional) Destination Variable"]
+	})
+	RegisterFunction("SinD", [2,3], null, {
+		"Description": "Returns the sine of an angle (in tenths of degrees) multiplied by a variable.",
+		"Arguments": ["Variable", "Angle", "(Optional) Destination Variable"]
+	})
+	
 	# :TODO:Panthavma:20220310:Lock the model position/facing (maybe physics module ?)
 	# :TODO:Panthavma:20220310:Add sprite support
 	
@@ -40,11 +58,11 @@ func ModuleSetup():
 	RegisterVariableEntity("AnimStartFrame", 0)
 	RegisterVariableEntity("AnimOffset", null)
 	
-	RegisterCategory("Sprites")
-	RegisterFunction("Sprite", [1], null, {
-		"Description":"Display a previously set sprite frame",
-		"Arguments": ["Frame ID", "(Optional) Frame Position Y"],
-	})
+	RegisterVariableEntity("VVA", 0)
+	RegisterVariableEntity("VVB", 0)
+	RegisterVariableEntity("VVC", 0)
+	RegisterVariableEntity("VVD", 0)
+	
 
 
 func UpdateGraphics(state, data):
@@ -63,6 +81,19 @@ func UpdateGraphics(state, data):
 
 
 
+
+func Cos(args, eState, data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	eState[destVar] = int(ArgInt(args, eState, 0) * cos(ArgInt(args, eState, 1)/1000.0))
+func Sin(args, eState, data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	eState[destVar] = int(ArgInt(args, eState, 0) * sin(ArgInt(args, eState, 1)/1000.0))
+func CosD(args, eState, data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	eState[destVar] = int(ArgInt(args, eState, 0) * cos(deg2rad(ArgInt(args, eState, 1)/10.0)))
+func SinD(args, eState, data):
+	var destVar = ArgVar(args, eState, 2, ArgVar(args, eState, 0))
+	eState[destVar] = int(ArgInt(args, eState, 0) * sin(deg2rad(ArgInt(args, eState, 1)/10.0)))
 
 
 
@@ -94,5 +125,3 @@ func PlaySound(_args, _eState, _data):
 	pass
 
 
-func Sprite(args, eState, _data):
-	eState["SpriteFrame"] = ArgInt(args, eState, 0)

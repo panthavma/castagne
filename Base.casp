@@ -6,10 +6,13 @@ Skeleton: none
 
 # Model
 USE_SPRITES: 0
+SPRITEFRAMES_PATH: res://castagne/example/fighter/sprites/StickmanSpriteSheet.png
+USE_SPRITESHEETS: 1
+SPRITESHEET_NAME: Default
 SPRITESHEET_PATH: res://castagne/example/fighter/sprites/StickmanSpriteSheet.png
 SPRITESHEET_NB_X: 1
 SPRITESHEET_NB_Y: 1
-SPRITESHEET_PIXELSIZE: 100
+SPRITE_PIXELSIZE: 100
 SPRITE_ORIGIN_X: 0
 SPRITE_ORIGIN_Y: 0
 
@@ -21,6 +24,9 @@ MODEL_SCALE: 1000
 _EffectiveLandingLag:4
 
 
+HITSTUN_FORCE_TECH_ON_LANDING: 1
+
+INIT_INITIAL_STATE: Stand
 
 # Throw logic
 ThrowTechLockoutTime: 40
@@ -124,6 +130,8 @@ ANIM_AIRIDLE: AirIdle
 ANIM_THROWHELD: ThrowHeld
 ANIM_THROWTECHING: ThrowTeching
 ANIM_THROWTECHED: ThrowTeched
+
+_BASE_SPRITE_OFFSET: 0
 
 # Some tasks for later to make it easier to use:
 # :TODO:Panthavma:20220309:Make all variables accessible
@@ -270,10 +278,46 @@ Tag(Animations)
 VUSE_STANDARD_ANIMS:
 	AnimFrame(ANIM_AIRIDLE)
 endif
+:AnimBlock:
+LPFGrounded:
+	LAFLow:
+		Call(AnimBlockLow)
+	else
+		LAFOverhead:
+			Call(AnimBlockHigh)
+		else
+			IDown:
+				Call(AnimBlockLow)
+			else
+				Call(AnimBlockHigh)
+			endif
+		endif
+	endif
+else
+	Call(AnimBlockAir)
+endif
+:AnimBlockAir:
+TagLocal(Animations)
+	VUSE_STANDARD_ANIMS:
+		Anim(ANIM_BLOCK_AIR)
+	endif
 :AnimBlockHigh:
 Tag(Animations)
 VUSE_STANDARD_ANIMS:
-	AnimFrame(ANIM_BLOCK_STAND)
+	LAFOverhead:
+		AnimFrame(ANIM_BLOCK_OVERHEAD)
+	else
+		AnimFrame(ANIM_BLOCK_STAND)
+	endif
+endif
+:AnimBlockLow:
+TagLocal(Animations)
+VUSE_STANDARD_ANIMS:
+	LAFLow:
+		Anim(ANIM_BLOCK_LOW)
+	else
+		Anim(ANIM_BLOCK_CROUCH)
+	endif
 endif
 :AnimCrouch:
 Tag(Animations)
@@ -303,6 +347,12 @@ endif
 Tag(Animations)
 VUSE_STANDARD_ANIMS:
 	Anim(ANIM_KNOCKDOWN)
+endif
+:AnimHitstun:
+LPFAirborne:
+Call(AnimHitstunAir)
+else
+Call(AnimHitstunGround)
 endif
 :AnimHitstunAir:
 Tag(Animations)
@@ -341,7 +391,11 @@ VUSE_STANDARD_ANIMS:
 	LCrouching:
 		AnimFrame(ANIM_HITSTUN_CROUCH)
 	else
-		AnimFrame(ANIM_HITSTUN_STAND)
+		LAFAnimHigh:
+			AnimFrame(ANIM_HITSTUN_OVERHEAD)
+		else
+			AnimFrame(ANIM_HITSTUN_STAND)
+		endif
 	endif
 endif
 :AnimJumpB:
@@ -522,26 +576,10 @@ Call(AnimTechBack)
 :BlockAir:
 Call(VariableState)
 	Call(BlockstunCommon)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_BLOCK_AIR)
-	endif
+	Call(AnimBlockAir)
 	VBlockstunDuration<=0:
 		Transition(AirIdle)
 	endif
-
-
-
-
-
-
-
-
-# Techs ------------------------------------------------------------------------
-#  ______          __        
-# /_  __/__  _____/ /_  _____
-#  / / / _ \/ ___/ __ \/ ___/
-# / / /  __/ /__/ / / (__  ) 
-#/_/  \___/\___/_/ /_/____/
 :BlockHigh:
 Call(BlockstunCommon)
 Call(StandingState)
@@ -556,9 +594,7 @@ Call(AnimBlockHigh)
 :BlockLow:
 Call(CrouchingState)
 	Call(BlockstunCommon)
-	VUSE_STANDARD_ANIMS:
-		Anim(ANIM_BLOCK_CROUCH)
-	endif
+	Call(AnimBlockLow)
 	LPFAirborne:
 		Transition(BlockAir, 500)
 	endif
@@ -591,6 +627,8 @@ LPFBlock:
 		Call(OnBlock)
 	endif
 endif
+
+SpriteOrder(0)
 :ComputeLandingLag:
 TagLocal(Movement - Airborne)
 LAttacking:
@@ -603,6 +641,7 @@ Tag(Movement - Grounded)
 Call(CrouchingNeutralState)
 Call(AnimCrouch)
 :CrouchingAttack:
+Tag(Attacks - Crouching)
 Call(CrouchingState)
 F1:
 	AttackRearm()
@@ -746,12 +785,14 @@ Call(KnockdownCommon)
 
 # TODO Remove
 :HitstunAir:
+Tag(Hits - Hitstun)
 Call(HitstunCommon)
 AddMomentum(0, -40)
 Call(AnimHitstunAir)
 
 # TODO Put variable timing tech back in when training mode
-FHitstunDuration+:
+#FHitstunDuration+:
+VHitstunDuration<=0:
 	#ITech:
 		Transition(AirTech)
 	#endif
@@ -767,6 +808,9 @@ Flag(Hitstun)
 Flag(IgnoreGravity)
 Flag(IgnoreFriction)
 
+SpriteOrderOffset(-60)
+Add(SpriteOrderOffset, _BASE_SPRITE_OFFSET)
+
 LPFAirborne:
 	BreakMomentum(HitstunFrictionAir)
 	LAFFloat:
@@ -778,13 +822,17 @@ else
 	BreakMomentum(HitstunFrictionGround)
 endif
 
+Sub(HitstunDuration, 1)
+
 Call(StandardHurtbox)
 :HitstunCrouch:
 Flag(Crouching)
 Call(HitstunCommon)
 Call(AnimHitstunGround)
 BreakMomentum(100, 0)
-FHitstunDuration:
+
+#FHitstunDuration:
+VHitstunDuration<=0:
 	Transition(Crouch)
 endif
 LPFAirborne:
@@ -802,15 +850,23 @@ Call(HitstunCommon)
 Call(StandardHurtbox)
 Call(AnimHitstunGround)
 BreakMomentum(100, 0)
-FHitstunDuration:
+
+#FHitstunDuration:
+VHitstunDuration<=0:
 	Transition(Stand)
 endif
+Call(AnimHitstun)
+
 LPFAirborne:
 	Transition(HitstunAir)
 endif
 :Init:
 Tag(System)
-CopyFighterVariables()
+
+LINIT_DONT_COPY_FIGHTER_VARIABLES:
+else
+	CopyFighterVariables()
+endif
 
 VUSE_SPRITES:
 	Call(InitSprites)
@@ -819,15 +875,30 @@ else
 endif
 
 Call(NewRound)
-Transition(Stand)
+Transition(INIT_INITIAL_STATE)
 :InitModel:
 Tag(System)
 CreateModel(MODEL_PATH, ANIMPLAYER_PATH)
 ModelScale(MODEL_SCALE)
 :InitSprites:
 Tag(System)
-CreateSprite(SPRITESHEET_PATH, SPRITESHEET_NB_X, SPRITESHEET_NB_Y, SPRITESHEET_PIXELSIZE)
-SpriteOrigin(SPRITE_ORIGIN_X, SPRITE_ORIGIN_Y)
+
+VUSE_SPRITESHEETS:
+	CreateSprite()
+	Call(InitSpritesheets)
+else
+	CreateSprite(SPRITEFRAMES_PATH)
+	SpriteOrigin(SPRITE_ORIGIN_X, SPRITE_ORIGIN_Y)
+	SpritePixelSize(SPRITE_PIXELSIZE)
+endif
+
+
+Mul(PID, -60, _BASE_SPRITE_OFFSET)
+SpriteOrder(0, _BASE_SPRITE_OFFSET)
+:InitSpritesheets:
+Tag(System)
+
+RegisterSpritesheet(SPRITESHEET_NAME, SPRITESHEET_PATH, SPRITESHEET_NB_X, SPRITESHEET_NB_Y, SPRITE_ORIGIN_X, SPRITE_ORIGIN_Y, SPRITE_PIXELSIZE)
 :Intro:
 Tag(System)
 
@@ -957,11 +1028,14 @@ endif
 
 PTransition:
 	SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
+	Call(AnimBlock)
 	Call(VFXBlock)
 endif
 :OnHit:
 Tag(Hits - Hitstun)
 #PlaySound(Hit)
+
+#Set(HitstunRemaining, 
 
 LPFGrounded:
 	LAFForceLanding:
@@ -983,20 +1057,27 @@ endif
 
 PTransition:
 	SetMomentumAbsolute(AttackMomentumX, AttackMomentumY)
+	Call(AnimHitstun)
 	Call(VFXHit)
 endif
 :OnHitstunLanding:
 TagLocal(Hits - Hitstun)
+
 LAFGroundbounce:
 	Transition(HitstunGroundbounce, 6000)
 else
 	LAFKnockdown:
 		Transition(Knockdown, 6000)
 	else
+	
+	VHITSTUN_FORCE_TECH_ON_LANDING:
 		INeutralH:
 			Transition(SoftTech, 5500)
 		endif
 		Call(GroundTech)
+	else
+		Transition(HitstunStand, 5500)
+	endif
 	endif
 endif
 :ReturnedToNeutral:
@@ -1097,6 +1178,16 @@ endif
 Call(AttackAddSpecialCancels)
 :StateTemplate-Empty:
 TagLocal(State Template)
+:StateTemplate-Entity-Projectile:
+TagLocal(State Template)
+PInit:
+	# Create your model / sprite here
+else
+	F10-11:
+		Attack(1000, 60)
+		Hitbox(0, 10000, 0, 10000)
+	endif
+endif
 :StateTemplate-Throw-Grounded:
 TagLocal(State Template)
 Call(GroundedThrow)

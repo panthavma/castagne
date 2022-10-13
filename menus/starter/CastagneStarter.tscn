@@ -25,34 +25,34 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
+[node name="Editor" type="Button" parent="Buttons"]
+margin_top = 104.0
+margin_right = 1152.0
+margin_bottom = 124.0
+text = "Castagne Editor"
+
 [node name="MainMenu" type="Button" parent="Buttons"]
-margin_top = 23.0
-margin_right = 576.0
-margin_bottom = 43.0
-text = "Main Menu"
+margin_top = 128.0
+margin_right = 1152.0
+margin_bottom = 148.0
+text = "Start Game Normally"
 
 [node name="Training" type="Button" parent="Buttons"]
-margin_top = 47.0
-margin_right = 576.0
-margin_bottom = 67.0
+margin_top = 152.0
+margin_right = 1152.0
+margin_bottom = 172.0
 text = "Training"
 
 [node name="LocalBattle" type="Button" parent="Buttons"]
-margin_top = 71.0
-margin_right = 576.0
-margin_bottom = 91.0
+margin_top = 176.0
+margin_right = 1152.0
+margin_bottom = 196.0
 text = "Battle"
 
-[node name="Editor" type="Button" parent="Buttons"]
-margin_top = 95.0
-margin_right = 576.0
-margin_bottom = 115.0
-text = "Editor"
-
 [node name="DevTools" type="Button" parent="Buttons"]
-margin_top = 119.0
-margin_right = 576.0
-margin_bottom = 139.0
+margin_top = 200.0
+margin_right = 1152.0
+margin_bottom = 220.0
 text = "Dev Tools"
 
 [node name="SecretButtons" type="VBoxContainer" parent="."]

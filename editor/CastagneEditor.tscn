@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://castagne/editor/CastagneEditor.gd" type="Script" id=1]
 [ext_resource path="res://castagne/editor/CastagneEditorConfig.gd" type="Script" id=2]
@@ -6,6 +6,10 @@
 [ext_resource path="res://castagne/editor/CEDocumentation.gd" type="Script" id=4]
 [ext_resource path="res://castagne/editor/EditorTheme.tres" type="Theme" id=5]
 [ext_resource path="res://castagne/editor/MovingBackground.tres" type="Material" id=6]
+[ext_resource path="res://icon.png" type="Texture" id=7]
+[ext_resource path="res://castagne/assets/icons/CastagneLogo.png" type="Texture" id=8]
+[ext_resource path="res://castagne/editor/CastagneUpdater.tscn" type="PackedScene" id=9]
+[ext_resource path="res://castagne/editor/CastagneEditorFirstTimeFlow.gd" type="Script" id=10]
 
 [node name="CastagneEditor" type="Control"]
 anchor_right = 1.0
@@ -30,6 +34,7 @@ anchor_bottom = 1.0
 color = Color( 0.113725, 0.145098, 0.121569, 1 )
 
 [node name="MainMenu" type="Control" parent="."]
+visible = false
 anchor_left = 0.05
 anchor_top = 0.05
 anchor_right = 0.95
@@ -46,17 +51,39 @@ __meta__ = {
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="Title" type="Label" parent="MainMenu"]
+[node name="CastagneLogo" type="TextureRect" parent="MainMenu"]
+anchor_right = 0.2
+anchor_bottom = 0.2
+texture = ExtResource( 8 )
+expand = true
+stretch_mode = 6
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GameIcon" type="TextureRect" parent="MainMenu"]
+anchor_left = 0.8
 anchor_right = 1.0
+anchor_bottom = 0.2
+texture = ExtResource( 7 )
+expand = true
+stretch_mode = 6
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="MainMenu"]
+anchor_left = 0.2
+anchor_right = 0.8
 anchor_bottom = 0.15
-text = "--- Castagne Editor ---
-Castagne v0.0
+text = "Castagne v0.0 - [MAIN] 2022-00-00
+
 GAME NAME
 GAME VERSION"
 align = 1
 valign = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainMenu"]
+[node name="Items" type="VBoxContainer" parent="MainMenu"]
 anchor_top = 0.2
 anchor_right = 0.5
 anchor_bottom = 1.0
@@ -69,24 +96,30 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Documentation" type="Button" parent="MainMenu/VBoxContainer"]
-margin_top = 316.0
+[node name="Documentation" type="Button" parent="MainMenu/Items"]
+margin_top = 305.0
 margin_right = 800.0
-margin_bottom = 334.0
+margin_bottom = 323.0
 text = "Documentation"
 
-[node name="Container" type="HBoxContainer" parent="MainMenu/VBoxContainer"]
-margin_top = 338.0
+[node name="Updater" type="Button" parent="MainMenu/Items"]
+margin_top = 327.0
 margin_right = 800.0
-margin_bottom = 356.0
+margin_bottom = 345.0
+text = "Updater"
 
-[node name="Config" type="Button" parent="MainMenu/VBoxContainer/Container"]
+[node name="Config" type="HBoxContainer" parent="MainMenu/Items"]
+margin_top = 349.0
+margin_right = 800.0
+margin_bottom = 367.0
+
+[node name="Config" type="Button" parent="MainMenu/Items/Config"]
 margin_right = 718.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Config Editor"
 
-[node name="ConfigAdv" type="Button" parent="MainMenu/VBoxContainer/Container"]
+[node name="ConfigAdv" type="Button" parent="MainMenu/Items/Config"]
 margin_left = 722.0
 margin_right = 800.0
 margin_bottom = 18.0
@@ -95,18 +128,18 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HBoxContainer" type="HBoxContainer" parent="MainMenu/VBoxContainer"]
-margin_top = 360.0
+[node name="CharEdit" type="HBoxContainer" parent="MainMenu/Items"]
+margin_top = 371.0
 margin_right = 800.0
-margin_bottom = 378.0
+margin_bottom = 389.0
 
-[node name="CharacterEdit" type="Button" parent="MainMenu/VBoxContainer/HBoxContainer"]
+[node name="CharacterEdit" type="Button" parent="MainMenu/Items/CharEdit"]
 margin_right = 688.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Character Editor"
 
-[node name="CharacterEditNew" type="Button" parent="MainMenu/VBoxContainer/HBoxContainer"]
+[node name="CharacterEditNew" type="Button" parent="MainMenu/Items/CharEdit"]
 margin_left = 692.0
 margin_right = 800.0
 margin_bottom = 18.0
@@ -128,6 +161,8 @@ anchor_top = 0.2
 anchor_right = 0.8
 anchor_bottom = 0.8
 filters = PoolStringArray( "*.casp" )
+
+[node name="UpdaterPanel" parent="MainMenu" instance=ExtResource( 9 )]
 
 [node name="Config" type="Control" parent="."]
 visible = false
@@ -278,11 +313,135 @@ margin_bottom = -8.0
 text = "Blablabla page contents"
 readonly = true
 
-[connection signal="pressed" from="MainMenu/VBoxContainer/Documentation" to="." method="_on_MainMenuDocumentation_pressed"]
-[connection signal="pressed" from="MainMenu/VBoxContainer/Container/Config" to="." method="_on_Config_pressed"]
-[connection signal="pressed" from="MainMenu/VBoxContainer/Container/ConfigAdv" to="." method="_on_Config_pressed" binds= [ true ]]
-[connection signal="pressed" from="MainMenu/VBoxContainer/HBoxContainer/CharacterEdit" to="." method="_on_CharacterEdit_pressed"]
-[connection signal="pressed" from="MainMenu/VBoxContainer/HBoxContainer/CharacterEditNew" to="." method="_on_CharacterEditNew_pressed"]
+[node name="FirstTimeFlow" type="Control" parent="."]
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+margin_left = 32.0
+margin_top = 32.0
+margin_right = -32.0
+margin_bottom = -32.0
+script = ExtResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="FirstTimeFlow"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="CastagneLogo" type="TextureRect" parent="FirstTimeFlow"]
+anchor_right = 1.0
+anchor_bottom = 0.3
+texture = ExtResource( 8 )
+expand = true
+stretch_mode = 6
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="FirstTimeFlow"]
+anchor_top = 0.3
+anchor_right = 1.0
+anchor_bottom = 0.45
+text = "Thank you for downloading Castagne!
+This is still a work in progress, so don't hesitate to ask questions on github or discord!"
+align = 1
+valign = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="FirstTimeFlow"]
+anchor_left = 0.25
+anchor_top = 0.45
+anchor_right = 0.75
+anchor_bottom = 1.0
+margin_bottom = -16.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="FirstTimeFlow/VBoxContainer"]
+margin_right = 736.0
+margin_bottom = 14.0
+text = "Do you want help with the setup ?"
+align = 1
+valign = 1
+
+[node name="Button2D" type="Button" parent="FirstTimeFlow/VBoxContainer"]
+margin_top = 18.0
+margin_right = 736.0
+margin_bottom = 36.0
+text = "2D Fighter"
+
+[node name="Button25D" type="Button" parent="FirstTimeFlow/VBoxContainer"]
+margin_top = 40.0
+margin_right = 736.0
+margin_bottom = 58.0
+text = "2.5D Fighter (2D gameplay, 3D graphics)"
+
+[node name="Label2" type="Label" parent="FirstTimeFlow/VBoxContainer"]
+margin_top = 62.0
+margin_right = 736.0
+margin_bottom = 230.0
+size_flags_vertical = 7
+text = "These options will setup your game with some nice defaults based on what kind of game you want to make."
+align = 1
+
+[node name="ButtonManual" type="Button" parent="FirstTimeFlow/VBoxContainer"]
+margin_top = 234.0
+margin_right = 736.0
+margin_bottom = 252.0
+text = "Manual Setup"
+
+[node name="Label3" type="Label" parent="FirstTimeFlow/VBoxContainer"]
+margin_top = 256.0
+margin_right = 736.0
+margin_bottom = 424.0
+size_flags_vertical = 7
+text = "This is for more advanced users that wish to setup the engine directly.
+By default, the game is a 2.5D fighter.
+If you are opening an existing project, this option is the safest as it won't change the configuration."
+align = 1
+autowrap = true
+
+[node name="Restart" type="Control" parent="FirstTimeFlow"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel2" type="Panel" parent="FirstTimeFlow/Restart"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="ButtonRestart" type="Button" parent="FirstTimeFlow/Restart"]
+anchor_left = 0.1
+anchor_top = 0.7
+anchor_right = 0.9
+anchor_bottom = 0.9
+margin_right = 16.0
+margin_bottom = 18.0
+text = "Restart"
+
+[node name="Label" type="Label" parent="FirstTimeFlow/Restart"]
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.7
+margin_right = 40.0
+margin_bottom = 14.0
+text = "Setup done! Please restart the engine for the changes to take place!"
+align = 1
+valign = 1
+
+[connection signal="pressed" from="MainMenu/Items/Documentation" to="." method="_on_MainMenuDocumentation_pressed"]
+[connection signal="pressed" from="MainMenu/Items/Updater" to="." method="_on_Updater_pressed"]
+[connection signal="pressed" from="MainMenu/Items/Config/Config" to="." method="_on_Config_pressed"]
+[connection signal="pressed" from="MainMenu/Items/Config/ConfigAdv" to="." method="_on_Config_pressed" binds= [ true ]]
+[connection signal="pressed" from="MainMenu/Items/CharEdit/CharacterEdit" to="." method="_on_CharacterEdit_pressed"]
+[connection signal="pressed" from="MainMenu/Items/CharEdit/CharacterEditNew" to="." method="_on_CharacterEditNew_pressed"]
 [connection signal="item_activated" from="MainMenu/Characters" to="." method="_on_Characters_item_activated"]
 [connection signal="file_selected" from="MainMenu/NewCharDialog" to="." method="_on_NewCharDialog_file_selected"]
 [connection signal="pressed" from="Config/BackButton" to="Config" method="_on_BackButton_pressed"]
@@ -291,3 +450,7 @@ readonly = true
 [connection signal="resized" from="Config/Tabs" to="Config" method="FitTabs"]
 [connection signal="item_activated" from="Documentation/Window/PageList" to="Documentation" method="PageSelected"]
 [connection signal="pressed" from="Documentation/Window/TopBar/Exit" to="Documentation" method="ExitDocumentation"]
+[connection signal="pressed" from="FirstTimeFlow/VBoxContainer/Button2D" to="FirstTimeFlow" method="_on_Button2D_pressed"]
+[connection signal="pressed" from="FirstTimeFlow/VBoxContainer/Button25D" to="FirstTimeFlow" method="_on_Button25D_pressed"]
+[connection signal="pressed" from="FirstTimeFlow/VBoxContainer/ButtonManual" to="FirstTimeFlow" method="_on_ButtonManual_pressed"]
+[connection signal="pressed" from="FirstTimeFlow/Restart/ButtonRestart" to="FirstTimeFlow" method="_on_ButtonRestart_pressed"]

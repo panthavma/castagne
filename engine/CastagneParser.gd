@@ -26,10 +26,7 @@ extends "../modules/CastagneModule.gd"
 func GetCharacterMetadata(filePath):
 	_StartParsing(filePath)
 	_ParseMetadata(0)
-	var parsedCharacter = _EndParsing()
-	if(parsedCharacter == null):
-		return null
-	return parsedCharacter["Character"]
+	return _EndParsing()["Character"]
 
 func CreateFullCharacter(filePath):
 	_StartParsing(filePath)

@@ -11,6 +11,12 @@ func ModuleSetup():
 	RegisterConfig("Editor-Tools", "res://castagne/editor/tools/CETool-Compile.tscn", {"Flags":["Advanced"]})
 	RegisterConfig("Editor-LockCastagneFiles", true, {"Flags":["Advanced"]})
 	RegisterConfig("Editor-LockBaseSkeleton", false, {"Flags":["Advanced"]})
+	RegisterConfig("Editor-FirstTimeFlowDone", false, {"Flags":["Advanced"]})
+	
+	RegisterConfig("Updater-CheckOnStartup", true)
+	RegisterConfig("Updater-Branch", "Main", {"Flags":["Hidden"]})
+	RegisterConfig("Updater-LastUpdate", null, {"Flags":["Hidden"]})
+	RegisterConfig("Updater-Source", "http://castagneengine.com/builds/", {"Flags":["Advanced"]})
 	
 	RegisterBattleInitData("editor", false)
 

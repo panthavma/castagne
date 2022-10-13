@@ -13,12 +13,12 @@ func EnterMenu():
 	$Config.hide()
 	$CharacterEdit.hide()
 	$Documentation.hide()
+	$FirstTimeFlow.hide()
 	
 	$Documentation.SetupDocumentation()
 	
 	# Write title
-	var title = "--- Castagne Editor ---\n"
-	title += Castagne.configData["CastagneVersion"] + "\n"
+	var title = Castagne.configData["CastagneVersion"] + " - \n\n"
 	title += Castagne.configData["GameTitle"]+"\n"
 	title += Castagne.configData["GameVersion"]
 	$MainMenu/Title.set_text(title)
@@ -32,6 +32,12 @@ func EnterMenu():
 	if(charToSelect >= Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"]).size()):
 		charToSelect = 0
 	list.select(charToSelect)
+	
+	
+	# First time flow
+	if(!Castagne.configData["Editor-FirstTimeFlowDone"]):
+		$MainMenu.hide()
+		$FirstTimeFlow.show()
 
 
 func OpenDocumentation(page = null):
@@ -174,7 +180,11 @@ func _on_NewCharDialog_file_selected(path):
 func _on_MainMenuDocumentation_pressed():
 	OpenDocumentation($Documentation.defaultPage)
 
+func _on_Updater_pressed():
+	$MainMenu/UpdaterPanel.Open()
 
 
 func _on_Characters_item_activated(_index):
 	_on_CharacterEdit_pressed()
+
+

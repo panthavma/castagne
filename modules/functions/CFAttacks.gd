@@ -586,6 +586,8 @@ func AttackRecievedUnflag(args, eState, _data):
 		eState["LastAttackFlags"].erase(flagName)
 		UnsetFlag(eState, "AF"+flagName)
 
+func AttackAttribute(args, eState, _data):
+	eState["AttackData"]["Attribute"] = ArgStr(args, eState, 0, "Auto")
 
 
 func AttackFrameAdvantage(args, eState, _data):
@@ -658,7 +660,7 @@ func AttackKnockdown(args, eState, _data):
 		kdMax = max(kdMin, ArgInt(args, eState, 1, kdMin+_knockdownDefaultTimeDiff))
 	
 	eState["AttackData"]["KnockdownTimeMin"] = kdMin
-	eState["AttackData"]["KnockdownTimeMin"] = kdMax
+	eState["AttackData"]["KnockdownTimeMax"] = kdMax
 
 func AttackGroundbounce(args, eState, _data):
 	AttackFlag(["Groundbounce"], eState, _data)

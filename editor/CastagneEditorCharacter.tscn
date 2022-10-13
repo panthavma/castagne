@@ -32,17 +32,26 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="EngineVP" type="ViewportContainer" parent="."]
+[node name="EngineVP" type="AspectRatioContainer" parent="."]
 anchor_right = 0.6
 anchor_bottom = 0.8
 margin_top = 32.0
+ratio = 1.778
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="EngineVPC" type="ViewportContainer" parent="EngineVP"]
+margin_top = 92.0405
+margin_right = 1152.0
+margin_bottom = 739.959
 stretch = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Viewport" type="Viewport" parent="EngineVP"]
-size = Vector2( 1152, 832 )
+[node name="Viewport" type="Viewport" parent="EngineVP/EngineVPC"]
+size = Vector2( 1152, 647 )
 handle_input_locally = false
 render_target_update_mode = 3
 gui_disable_input = true

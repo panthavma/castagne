@@ -82,7 +82,7 @@ func ReloadEngine():
 	for t in _tools:
 		t["Tool"].OnEngineRestarting(engine, Castagne.battleInitData)
 	
-	$EngineVP/Viewport.add_child(engine)
+	$EngineVP/EngineVPC/Viewport.add_child(engine)
 	
 	if(engine.initError):
 		for t in _tools:

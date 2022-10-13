@@ -1,8 +1,7 @@
 :Character:
-	Name: Stickman (Anim Frames)
-	
-	Skeleton: res://castagne/Base.casp
-	
+Name: Stickman (Anim Frames)
+
+
 	# Palette materials, for now.
 	Palette1:res://castagne/example/fighter/model/Pal1.tres
 	Palette2:res://castagne/example/fighter/model/Pal2.tres
@@ -10,7 +9,7 @@
 
 # The variables block allows us to hold data for later use.
 :Variables:
-	# Character Specific
+# Character Specific
 	HPMax: 10000
 	BallSpeed: 2300
 	
@@ -22,64 +21,8 @@
 	SPRITESHEET_PIXELSIZE: 400
 	SPRITE_ORIGIN_X: 32
 	SPRITE_ORIGIN_Y: 4
-
-:AnimStand:
-	Sprite(0)
-
-:AnimWalkF:
-	Mod(StateFrameID, 32, RegA)
-	VRegA<=15:
-		VRegA<=7:
-			Sprite(1)
-		else
-			Sprite(2)
-		endif
-	else
-		VRegA<=23:
-			Sprite(3)
-		else
-			Sprite(2)
-		endif
-	endif
-
-:AnimWalkB:
-	Mod(StateFrameID, 32, RegA)
-	VRegA<=15:
-		VRegA<=7:
-			Sprite(3)
-		else
-			Sprite(2)
-		endif
-	else
-		VRegA<=23:
-			Sprite(1)
-		else
-			Sprite(2)
-		endif
-	endif
-
-:AnimCrouch:
-	Sprite(9)
-
-:AnimLanding:
-	Sprite(11)
-:AnimAirIdle:
-	Sprite(10)
-:AnimJumpsquat:
-	Sprite(11)
-
-:AnimJumpN:
-	Call(AnimAirIdle)
-:AnimJumpF:
-	Call(AnimAirIdle)
-:AnimJumpB:
-	Call(AnimAirIdle)
-
-
-
-
 :5A:
-	Call(StandingAttack)
+Call(StandingAttack)
 	Hurtbox(-5000,5000,0,20000)
 	Sprite(1)
 	F6+:
@@ -89,10 +32,8 @@
 			Hitbox(0,12000,10000,15000)
 		endif
 	endif
-
-
 :5B:
-	Call(StandingAttack)
+Call(StandingAttack)
 	Hurtbox(-5000,5000,0,20000)
 	Sprite(8)
 	F6+:
@@ -102,11 +43,8 @@
 			Hitbox(0,12000,10000,15000)
 		endif
 	endif
-
-
-
 :5C:
-	Call(StandingAttack)
+Call(StandingAttack)
 	Hurtbox(-5000,5000,0,20000)
 	F1-4:
 		Sprite(3)
@@ -122,4 +60,49 @@
 	F15+:
 		Sprite(8)
 	endif
-	
+:AnimAirIdle:
+Sprite(10)
+:AnimCrouch:
+Sprite(9)
+:AnimJumpB:
+Call(AnimAirIdle)
+:AnimJumpF:
+Call(AnimAirIdle)
+:AnimJumpN:
+Call(AnimAirIdle)
+:AnimJumpsquat:
+Sprite(11)
+:AnimLanding:
+Sprite(11)
+:AnimStand:
+Sprite(0)
+:AnimWalkB:
+Mod(StateFrameID, 32, RegA)
+	VRegA<=15:
+		VRegA<=7:
+			Sprite(3)
+		else
+			Sprite(2)
+		endif
+	else
+		VRegA<=23:
+			Sprite(1)
+		else
+			Sprite(2)
+		endif
+	endif
+:AnimWalkF:
+Mod(StateFrameID, 32, RegA)
+	VRegA<=15:
+		VRegA<=7:
+			Sprite(1)
+		else
+			Sprite(2)
+		endif
+	else
+		VRegA<=23:
+			Sprite(3)
+		else
+			Sprite(2)
+		endif
+	endif
