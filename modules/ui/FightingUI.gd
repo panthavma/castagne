@@ -11,7 +11,7 @@ func ModuleSetup():
 	
 func BattleInit(_state, _data, battleInitData):
 	ui = prefabUI.instance()
-	#engine.add_child(ui)
+	engine.add_child(ui)
 	ui.InitTool(engine, battleInitData)
 
 func UpdateGraphics(state, _data):

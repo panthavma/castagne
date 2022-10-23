@@ -20,6 +20,7 @@ Most of the development of Castagne will follow the development of Kronian Titan
 In bold projects having contributed code to Castagne.
 
 - [**Kronian Titans**](https://oddgeargames.itch.io/kronian-titans)
+- **Molten Winds**
 - Your project here?
 
 # Used Projects

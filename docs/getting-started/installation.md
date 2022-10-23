@@ -8,17 +8,25 @@ pathtoroot: ../../../
 
 # Installation / First Start
 
-To run Castagne, you will first need to download [Godot](https://godotengine.org/download). The most recent Godot 3 version should be good.
+Download your OS version from [the Castagne website](http://castagneengine.com), unarchive it, and click on the godot executable. You're good to go!
 
-<!-- TODO Link and images -->
-Then, the next step would be to download the [Castagne Empty Project]() from the official Castagne website or github.
+Alternatively, download the dev branch version to get more features but less stability, or if you already have Godot on your machine you can download the generic version.
 
-Once done, unarchive both, and launch the Godot Editor. Select "Import Project", and navigate to `castagne-empty-project/project.godot`. You should now have your project open and ready to roll!
+## Complete the setup
+
+In order to be able to add new assets, you need to open Castagne in the Godot editor. To do that, follow this procedure:
+- Move the Godot executable out of the project folder
+- Launch the editor, and press "Import Project"
+- Select "project.godot" in the root folder
+
+From then on, you can now access the editor and add new assets! Press F5 to play, which will bring you to the editor.
 
 ## Upgrading Castagne
 
+In order to update Castagne, just follow the procedure in the editor! Please backup your game before upgrading as a safety.
+
 <!-- TODO Links -->
-If a new version of Castagne is out and you want to upgrade it, just follow this procedure:
+<!--If a new version of Castagne is out and you want to upgrade it, just follow this procedure:
 - Backup or version your current project as a safety measure.
 - Go to Castagne's [github page](https://github.com/panthavma/castagne) and download the latest version.
 - Read the changelogs to see if anything needs your attention (mostly true for the early versions of Castagne)
@@ -26,7 +34,7 @@ If a new version of Castagne is out and you want to upgrade it, just follow this
 
 If there were no breaking changes in the last version, you should be good to go!
 
-You may also download the development version from the [dev branch](https://github.com/panthavma/castagne/tree/dev), but as the name implies it won't be tested as much.
+You may also download the development version from the [dev branch](https://github.com/panthavma/castagne/tree/dev), but as the name implies it won't be tested as much.-->
 
 ## Setup from zero
 
@@ -36,6 +44,6 @@ If you want to start from a blank state, these are the steps you need to take:
 - Set the starting scene to `castagne/menus/starter/CastagneStarter.tscn`
 - Add `castagne/Castagne.tscn` to the autoload list.
 - Add `*.casp` and `*.json` to the export list.
-- (Optional) Add `castagne-local` to your SCM's ignore list. (Done automatically by Castagne if you use git).
+- (Optional) Add `.castagne-local` to your SCM's ignore list. (Done automatically by Castagne if you use git).
 
-This is what has been done for the Castagne Empty Project.
+This is what has been done for the Castagne generic release.
