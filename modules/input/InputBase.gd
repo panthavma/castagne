@@ -17,7 +17,7 @@ func PollRaw():
 var lockInput = false
 
 # :TODO:Panthavma:20220126:Need to rework this
-func EnrichInput(raw, richPrevious, state, pid):
+func EnrichInput(raw, richPrevious, stateHandle):
 	if(raw.size() == 0 or lockInput): # When missing input online and editor
 		raw = GetEmptyRawInputData()
 	if(richPrevious == null or richPrevious.size() == 0): # First frame
@@ -27,7 +27,7 @@ func EnrichInput(raw, richPrevious, state, pid):
 	var bufferedButtonList = ["A", "B", "C", "D", ]
 	var PRESS_BUFFER = 3
 	var id = raw.duplicate()
-	var curFrame = state["FrameID"]
+	var curFrame = stateHandle.GlobalGet("_FrameID")
 	
 	id["A"] = id["A"] || id["M1"]
 	id["B"] = id["B"] || id["M1"] || id["M2"]
@@ -36,18 +36,19 @@ func EnrichInput(raw, richPrevious, state, pid):
 	id["R"] = id["R"] || id["M3"]
 	
 	# :TODO:Panthavma:20220203:Make it a module function and move Facing related stuff to 2D physics
-	var eState = null
+	#var hasInit = false
 	#if(state.has("Players") and state["Players"].has(pid)):
-	if(state.has("Players")):
-		eState = state[state["Players"][pid]["MainEntity"]]
+	#if(stateHandle.GlobalHas("Players")): # TODO Invalid
+	#	pass
+		#eState = state[state["Players"][pid]["MainEntity"]]
 	
 	var facing = 1
 	var facingTrue = 1
 	
 	# Kinda hacky way to wait for init
-	if(eState != null and eState.has("Facing")):
-		facing = eState["Facing"]
-		facingTrue = eState["FacingTrue"]
+	#if(hasInit and eState.has("Facing")):
+	#	facing = eState["Facing"]
+	#	facingTrue = eState["FacingTrue"]
 	
 	if(facing > 0):
 		id["Forward"] = raw["Right"]

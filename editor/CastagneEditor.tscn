@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://castagne/editor/CastagneEditor.gd" type="Script" id=1]
 [ext_resource path="res://castagne/editor/CastagneEditorConfig.gd" type="Script" id=2]
@@ -10,6 +10,15 @@
 [ext_resource path="res://castagne/assets/icons/CastagneLogo.png" type="Texture" id=8]
 [ext_resource path="res://castagne/editor/CastagneUpdater.tscn" type="PackedScene" id=9]
 [ext_resource path="res://castagne/editor/CastagneEditorFirstTimeFlow.gd" type="Script" id=10]
+[ext_resource path="res://castagne/editor/CEGenreSelector.gd" type="Script" id=11]
+[ext_resource path="res://castagne/assets/icons/editor/stateflags/EFAttackLow.png" type="Texture" id=12]
+[ext_resource path="res://castagne/editor/CETutorialSelect.gd" type="Script" id=13]
+[ext_resource path="res://castagne/editor/CastagneEditorFirstTimeLaunch.gd" type="Script" id=14]
+[ext_resource path="res://castagne/editor/tutorials/CETutorialSystem.gd" type="Script" id=15]
+[ext_resource path="res://castagne/editor/Submenus/CEInputConfig.tscn" type="PackedScene" id=16]
+[ext_resource path="res://castagne/editor/CEFlowSetup.gd" type="Script" id=17]
+[ext_resource path="res://castagne/editor/Submenus/CEModuleSet.tscn" type="PackedScene" id=18]
+[ext_resource path="res://castagne/editor/Submenus/CECharacterSet.tscn" type="PackedScene" id=19]
 
 [node name="CastagneEditor" type="Control"]
 anchor_right = 1.0
@@ -34,7 +43,6 @@ anchor_bottom = 1.0
 color = Color( 0.113725, 0.145098, 0.121569, 1 )
 
 [node name="MainMenu" type="Control" parent="."]
-visible = false
 anchor_left = 0.05
 anchor_top = 0.05
 anchor_right = 0.95
@@ -51,20 +59,29 @@ __meta__ = {
 anchor_right = 1.0
 anchor_bottom = 1.0
 
-[node name="CastagneLogo" type="TextureRect" parent="MainMenu"]
-anchor_right = 0.2
-anchor_bottom = 0.2
-texture = ExtResource( 8 )
-expand = true
-stretch_mode = 6
+[node name="HeaderBackground" type="ColorRect" parent="MainMenu"]
+anchor_right = 1.0
+anchor_bottom = 0.15
+color = Color( 0, 0, 0, 0.490196 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="GameIcon" type="TextureRect" parent="MainMenu"]
-anchor_left = 0.8
+[node name="Header" type="HBoxContainer" parent="MainMenu"]
 anchor_right = 1.0
-anchor_bottom = 0.2
+anchor_bottom = 0.15
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="GameIcon" type="TextureRect" parent="MainMenu/Header"]
+margin_right = 128.0
+margin_bottom = 71.0
+rect_min_size = Vector2( 128, 0 )
 texture = ExtResource( 7 )
 expand = true
 stretch_mode = 6
@@ -72,95 +89,313 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Title" type="Label" parent="MainMenu"]
-anchor_left = 0.2
-anchor_right = 0.8
-anchor_bottom = 0.15
-text = "Castagne v0.0 - [MAIN] 2022-00-00
-
-GAME NAME
+[node name="GameTitle" type="Label" parent="MainMenu/Header"]
+margin_left = 132.0
+margin_top = 20.0
+margin_right = 470.0
+margin_bottom = 51.0
+size_flags_horizontal = 3
+text = "GAME NAME
 GAME VERSION"
-align = 1
 valign = 1
 
-[node name="Items" type="VBoxContainer" parent="MainMenu"]
-anchor_top = 0.2
+[node name="CastagneTitle" type="Label" parent="MainMenu/Header"]
+margin_left = 474.0
+margin_top = 20.0
+margin_right = 812.0
+margin_bottom = 51.0
+size_flags_horizontal = 3
+text = "Castagne v0.0 
+2022-00-00 [MAIN]"
+align = 2
+valign = 1
+
+[node name="CastagneLogo" type="TextureRect" parent="MainMenu/Header"]
+margin_left = 816.0
+margin_right = 1072.0
+margin_bottom = 71.0
+rect_min_size = Vector2( 256, 0 )
+texture = ExtResource( 8 )
+expand = true
+stretch_mode = 6
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Menu" type="VBoxContainer" parent="MainMenu"]
+anchor_top = 0.15
 anchor_right = 0.5
 anchor_bottom = 1.0
-margin_left = 16.0
-margin_top = 16.0
-margin_right = -16.0
-margin_bottom = -16.0
+margin_left = 24.0
+margin_top = 8.0
+margin_right = -12.0
+margin_bottom = -8.0
 alignment = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Documentation" type="Button" parent="MainMenu/Items"]
-margin_top = 305.0
-margin_right = 800.0
-margin_bottom = 323.0
+[node name="Label" type="Label" parent="MainMenu/Menu"]
+margin_top = 114.0
+margin_right = 508.0
+margin_bottom = 128.0
+text = "---- Castagne ----"
+align = 1
+
+[node name="Tutorials" type="Button" parent="MainMenu/Menu"]
+margin_top = 132.0
+margin_right = 508.0
+margin_bottom = 150.0
+text = "Castagne Tutorials"
+
+[node name="Documentation" type="Button" parent="MainMenu/Menu"]
+margin_top = 154.0
+margin_right = 508.0
+margin_bottom = 172.0
+size_flags_stretch_ratio = 0.5
 text = "Documentation"
 
-[node name="Updater" type="Button" parent="MainMenu/Items"]
-margin_top = 327.0
-margin_right = 800.0
-margin_bottom = 345.0
+[node name="Updater" type="Button" parent="MainMenu/Menu"]
+margin_top = 176.0
+margin_right = 508.0
+margin_bottom = 194.0
+size_flags_horizontal = 3
 text = "Updater"
 
-[node name="Config" type="HBoxContainer" parent="MainMenu/Items"]
-margin_top = 349.0
-margin_right = 800.0
-margin_bottom = 367.0
+[node name="Label2" type="Label" parent="MainMenu/Menu"]
+margin_top = 198.0
+margin_right = 508.0
+margin_bottom = 229.0
+text = "
+---- Settings ----"
+align = 1
 
-[node name="Config" type="Button" parent="MainMenu/Items/Config"]
-margin_right = 718.0
+[node name="Config" type="HBoxContainer" parent="MainMenu/Menu"]
+margin_top = 233.0
+margin_right = 508.0
+margin_bottom = 251.0
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="Config" type="Button" parent="MainMenu/Menu/Config"]
+margin_right = 426.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Config Editor"
 
-[node name="ConfigAdv" type="Button" parent="MainMenu/Items/Config"]
-margin_left = 722.0
-margin_right = 800.0
+[node name="ConfigAdv" type="Button" parent="MainMenu/Menu/Config"]
+margin_left = 430.0
+margin_right = 508.0
 margin_bottom = 18.0
 text = "Advanced"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="CharEdit" type="HBoxContainer" parent="MainMenu/Items"]
-margin_top = 371.0
-margin_right = 800.0
-margin_bottom = 389.0
+[node name="Label3" type="Label" parent="MainMenu/Menu"]
+margin_top = 255.0
+margin_right = 508.0
+margin_bottom = 286.0
+text = "
+---- Game ----"
+align = 1
 
-[node name="CharacterEdit" type="Button" parent="MainMenu/Items/CharEdit"]
-margin_right = 688.0
-margin_bottom = 18.0
+[node name="CharacterEdit" type="Button" parent="MainMenu/Menu"]
+margin_top = 290.0
+margin_right = 508.0
+margin_bottom = 322.0
+rect_min_size = Vector2( 0, 32 )
 size_flags_horizontal = 3
 text = "Character Editor"
 
-[node name="CharacterEditNew" type="Button" parent="MainMenu/Items/CharEdit"]
-margin_left = 692.0
-margin_right = 800.0
+[node name="CharEditOptions" type="HBoxContainer" parent="MainMenu/Menu"]
+margin_top = 326.0
+margin_right = 508.0
+margin_bottom = 344.0
+
+[node name="CharacterEditNew" type="Button" parent="MainMenu/Menu/CharEditOptions"]
+margin_right = 252.0
 margin_bottom = 18.0
+size_flags_horizontal = 3
 text = "New Character"
 
-[node name="Characters" type="ItemList" parent="MainMenu"]
+[node name="CharacterEditSafe" type="Button" parent="MainMenu/Menu/CharEditOptions"]
+margin_left = 256.0
+margin_right = 508.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+text = "Character Editor (Safemode)"
+
+[node name="StartGame" type="Button" parent="MainMenu/Menu"]
+margin_top = 348.0
+margin_right = 508.0
+margin_bottom = 366.0
+size_flags_horizontal = 3
+disabled = true
+text = "Start Game Normally (Locked until v0.55)"
+
+[node name="FlowPanel" type="VBoxContainer" parent="MainMenu"]
 anchor_left = 0.5
-anchor_top = 0.2
+anchor_top = 0.15
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 16.0
-margin_top = 16.0
-margin_right = -16.0
-margin_bottom = -16.0
+margin_left = 12.0
+margin_top = 8.0
+margin_right = -24.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
-[node name="NewCharDialog" type="FileDialog" parent="MainMenu"]
-anchor_left = 0.2
-anchor_top = 0.2
-anchor_right = 0.8
-anchor_bottom = 0.8
-filters = PoolStringArray( "*.casp" )
+[node name="Custom" type="ScrollContainer" parent="MainMenu/FlowPanel"]
+visible = false
+margin_right = 508.0
+margin_bottom = 436.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="MainMenu/FlowPanel/Custom"]
+margin_right = 508.0
+margin_bottom = 436.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Generic" type="ScrollContainer" parent="MainMenu/FlowPanel"]
+visible = false
+margin_right = 508.0
+margin_bottom = 436.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="MainMenu/FlowPanel/Generic"]
+margin_right = 508.0
+margin_bottom = 436.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Flows" type="HBoxContainer" parent="MainMenu/FlowPanel/Generic/VBox"]
+margin_right = 508.0
+margin_bottom = 406.0
+size_flags_vertical = 3
+
+[node name="Recent" type="VBoxContainer" parent="MainMenu/FlowPanel/Generic/VBox/Flows"]
+margin_right = 242.0
+margin_bottom = 406.0
+size_flags_horizontal = 3
+
+[node name="Button" type="Button" parent="MainMenu/FlowPanel/Generic/VBox/Flows/Recent"]
+margin_right = 242.0
+margin_bottom = 18.0
+text = "2022-01-01 15:53:12"
+
+[node name="Button2" type="Button" parent="MainMenu/FlowPanel/Generic/VBox/Flows/Recent"]
+margin_top = 22.0
+margin_right = 242.0
+margin_bottom = 40.0
+text = "2022-01-01 15:53:12"
+
+[node name="Button3" type="Button" parent="MainMenu/FlowPanel/Generic/VBox/Flows/Recent"]
+margin_top = 44.0
+margin_right = 242.0
+margin_bottom = 62.0
+text = "2022-01-01 15:53:12"
+
+[node name="Button4" type="Button" parent="MainMenu/FlowPanel/Generic/VBox/Flows/Recent"]
+margin_top = 66.0
+margin_right = 242.0
+margin_bottom = 84.0
+text = "2022-01-01 15:53:12"
+
+[node name="Button5" type="Button" parent="MainMenu/FlowPanel/Generic/VBox/Flows/Recent"]
+margin_top = 88.0
+margin_right = 242.0
+margin_bottom = 106.0
+text = "2022-01-01 15:53:12"
+
+[node name="VSeparator4" type="VSeparator" parent="MainMenu/FlowPanel/Generic/VBox/Flows"]
+margin_left = 246.0
+margin_right = 262.0
+margin_bottom = 406.0
+rect_min_size = Vector2( 16, 0 )
+
+[node name="Pinned" type="VBoxContainer" parent="MainMenu/FlowPanel/Generic/VBox/Flows"]
+margin_left = 266.0
+margin_right = 508.0
+margin_bottom = 406.0
+size_flags_horizontal = 3
+
+[node name="Button" type="Button" parent="MainMenu/FlowPanel/Generic/VBox/Flows/Pinned"]
+margin_right = 242.0
+margin_bottom = 18.0
+text = "Team 1"
+
+[node name="Button2" type="Button" parent="MainMenu/FlowPanel/Generic/VBox/Flows/Pinned"]
+margin_top = 22.0
+margin_right = 242.0
+margin_bottom = 40.0
+text = "Team 2"
+
+[node name="HSeparator" type="HSeparator" parent="MainMenu/FlowPanel/Generic/VBox"]
+margin_top = 410.0
+margin_right = 508.0
+margin_bottom = 414.0
+
+[node name="Setup" type="HBoxContainer" parent="MainMenu/FlowPanel/Generic/VBox"]
+margin_top = 418.0
+margin_right = 508.0
+margin_bottom = 436.0
+
+[node name="FlowNewBID" type="Button" parent="MainMenu/FlowPanel/Generic/VBox/Setup"]
+margin_right = 504.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+text = "New Battle Init Data Setup"
+
+[node name="Options" type="VBoxContainer" parent="MainMenu/FlowPanel/Generic/VBox/Setup"]
+margin_left = 508.0
+margin_right = 508.0
+margin_bottom = 18.0
+
+[node name="Error" type="Label" parent="MainMenu/FlowPanel"]
+visible = false
+margin_top = 101.0
+margin_right = 508.0
+margin_bottom = 115.0
+size_flags_horizontal = 3
+size_flags_vertical = 6
+text = "No flow module found!"
+align = 1
+valign = 1
+
+[node name="TmpOut" type="Label" parent="MainMenu/FlowPanel"]
+margin_top = 211.0
+margin_right = 508.0
+margin_bottom = 225.0
+size_flags_horizontal = 3
+size_flags_vertical = 6
+text = "Disabled at the moment."
+align = 1
+valign = 1
+
+[node name="HSeparator" type="HSeparator" parent="MainMenu/FlowPanel"]
+margin_top = 440.0
+margin_right = 508.0
+margin_bottom = 444.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FlowAdvanced" type="Button" parent="MainMenu/FlowPanel"]
+margin_top = 448.0
+margin_right = 508.0
+margin_bottom = 480.0
+rect_min_size = Vector2( 0, 32 )
+toggle_mode = true
+text = "Advanced Flow Setup"
 
 [node name="UpdaterPanel" parent="MainMenu" instance=ExtResource( 9 )]
 
@@ -195,7 +430,7 @@ __meta__ = {
 [node name="BackButton" type="Button" parent="Config"]
 anchor_right = 0.1
 anchor_bottom = 0.1
-text = "Back"
+text = "Back without saving"
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -314,6 +549,7 @@ text = "Blablabla page contents"
 readonly = true
 
 [node name="FirstTimeFlow" type="Control" parent="."]
+visible = false
 anchor_left = 0.1
 anchor_top = 0.1
 anchor_right = 0.9
@@ -342,17 +578,16 @@ __meta__ = {
 }
 
 [node name="Title" type="Label" parent="FirstTimeFlow"]
+visible = false
 anchor_top = 0.3
 anchor_right = 1.0
 anchor_bottom = 0.45
-text = "Thank you for downloading Castagne!
-This is still a work in progress, so don't hesitate to ask questions on github or discord!"
 align = 1
 valign = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="FirstTimeFlow"]
 anchor_left = 0.25
-anchor_top = 0.45
+anchor_top = 0.3
 anchor_right = 0.75
 anchor_bottom = 1.0
 margin_bottom = -16.0
@@ -361,46 +596,51 @@ __meta__ = {
 }
 
 [node name="Label" type="Label" parent="FirstTimeFlow/VBoxContainer"]
-margin_right = 736.0
+margin_right = 480.0
 margin_bottom = 14.0
-text = "Do you want help with the setup ?"
+text = "Let's set up your game!"
 align = 1
 valign = 1
 
-[node name="Button2D" type="Button" parent="FirstTimeFlow/VBoxContainer"]
+[node name="ButtonGenre" type="Button" parent="FirstTimeFlow/VBoxContainer"]
 margin_top = 18.0
-margin_right = 736.0
-margin_bottom = 36.0
-text = "2D Fighter"
+margin_right = 480.0
+margin_bottom = 42.0
+rect_min_size = Vector2( 0, 24 )
+text = "Game Genre"
 
-[node name="Button25D" type="Button" parent="FirstTimeFlow/VBoxContainer"]
-margin_top = 40.0
-margin_right = 736.0
-margin_bottom = 58.0
-text = "2.5D Fighter (2D gameplay, 3D graphics)"
+[node name="ButtonInput" type="Button" parent="FirstTimeFlow/VBoxContainer"]
+margin_top = 46.0
+margin_right = 480.0
+margin_bottom = 70.0
+rect_min_size = Vector2( 0, 24 )
+text = "Input Setup"
 
 [node name="Label2" type="Label" parent="FirstTimeFlow/VBoxContainer"]
-margin_top = 62.0
-margin_right = 736.0
-margin_bottom = 230.0
+margin_top = 74.0
+margin_right = 480.0
+margin_bottom = 290.0
 size_flags_vertical = 7
-text = "These options will setup your game with some nice defaults based on what kind of game you want to make."
+text = "These may all be changed later from the config menu!"
 align = 1
+autowrap = true
 
-[node name="ButtonManual" type="Button" parent="FirstTimeFlow/VBoxContainer"]
-margin_top = 234.0
-margin_right = 736.0
-margin_bottom = 252.0
-text = "Manual Setup"
+[node name="ButtonDone" type="Button" parent="FirstTimeFlow/VBoxContainer"]
+margin_top = 294.0
+margin_right = 480.0
+margin_bottom = 342.0
+rect_min_size = Vector2( 0, 48 )
+text = "Finished Setup!"
 
 [node name="Label3" type="Label" parent="FirstTimeFlow/VBoxContainer"]
-margin_top = 256.0
-margin_right = 736.0
-margin_bottom = 424.0
+visible = false
+margin_top = 222.0
+margin_right = 480.0
+margin_bottom = 342.0
 size_flags_vertical = 7
 text = "This is for more advanced users that wish to setup the engine directly.
-By default, the game is a 2.5D fighter.
-If you are opening an existing project, this option is the safest as it won't change the configuration."
+This setting will mostly be used to make esoteric games.
+Alternatively, if opening an existing game project, this is the safest option as it won't change anything."
 align = 1
 autowrap = true
 
@@ -436,21 +676,640 @@ text = "Setup done! Please restart the engine for the changes to take place!"
 align = 1
 valign = 1
 
-[connection signal="pressed" from="MainMenu/Items/Documentation" to="." method="_on_MainMenuDocumentation_pressed"]
-[connection signal="pressed" from="MainMenu/Items/Updater" to="." method="_on_Updater_pressed"]
-[connection signal="pressed" from="MainMenu/Items/Config/Config" to="." method="_on_Config_pressed"]
-[connection signal="pressed" from="MainMenu/Items/Config/ConfigAdv" to="." method="_on_Config_pressed" binds= [ true ]]
-[connection signal="pressed" from="MainMenu/Items/CharEdit/CharacterEdit" to="." method="_on_CharacterEdit_pressed"]
-[connection signal="pressed" from="MainMenu/Items/CharEdit/CharacterEditNew" to="." method="_on_CharacterEditNew_pressed"]
-[connection signal="item_activated" from="MainMenu/Characters" to="." method="_on_Characters_item_activated"]
-[connection signal="file_selected" from="MainMenu/NewCharDialog" to="." method="_on_NewCharDialog_file_selected"]
+[node name="FirstTimeLaunch" type="Control" parent="."]
+visible = false
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+margin_left = 32.0
+margin_top = 32.0
+margin_right = -32.0
+margin_bottom = -32.0
+script = ExtResource( 14 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="FirstTimeLaunch"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="CastagneLogo" type="TextureRect" parent="FirstTimeLaunch"]
+anchor_right = 1.0
+anchor_bottom = 0.3
+texture = ExtResource( 8 )
+expand = true
+stretch_mode = 6
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="FirstTimeLaunch"]
+anchor_top = 0.3
+anchor_right = 1.0
+anchor_bottom = 0.45
+text = "Thank you for downloading Castagne!
+This is still a work in progress, so don't hesitate to ask questions on github or discord!"
+align = 1
+valign = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="FirstTimeLaunch"]
+anchor_left = 0.25
+anchor_top = 0.45
+anchor_right = 0.75
+anchor_bottom = 1.0
+margin_bottom = -16.0
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="FirstTimeLaunch/VBoxContainer"]
+margin_top = 65.0
+margin_right = 480.0
+margin_bottom = 96.0
+text = "Do you want to go through the tutorial?
+You may always access it from the main menu!"
+align = 1
+valign = 1
+
+[node name="ButtonTuto" type="Button" parent="FirstTimeLaunch/VBoxContainer"]
+margin_top = 100.0
+margin_right = 480.0
+margin_bottom = 148.0
+rect_min_size = Vector2( 0, 48 )
+text = "Do the tutorial!"
+
+[node name="Label2" type="Label" parent="FirstTimeLaunch/VBoxContainer"]
+visible = false
+margin_top = 46.0
+margin_right = 480.0
+margin_bottom = 213.0
+size_flags_vertical = 7
+text = "These may all be changed later from the config menu!"
+align = 1
+autowrap = true
+
+[node name="ButtonNoTuto" type="Button" parent="FirstTimeLaunch/VBoxContainer"]
+margin_top = 152.0
+margin_right = 480.0
+margin_bottom = 200.0
+rect_min_size = Vector2( 0, 48 )
+text = "No I'm good!"
+
+[node name="Label3" type="Label" parent="FirstTimeLaunch/VBoxContainer"]
+visible = false
+margin_top = 165.0
+margin_right = 480.0
+margin_bottom = 265.0
+size_flags_vertical = 7
+text = "This is for more advanced users that wish to setup the engine directly.
+This setting will mostly be used to make esoteric games.
+Alternatively, if opening an existing game project, this is the safest option as it won't change anything."
+align = 1
+autowrap = true
+
+[node name="GenreSelector" type="Control" parent="."]
+visible = false
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+script = ExtResource( 11 )
+
+[node name="Panel" type="Panel" parent="GenreSelector"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="GenreSelector"]
+anchor_right = 1.0
+margin_bottom = 32.0
+text = "Select Game Genre"
+align = 1
+valign = 1
+
+[node name="GenreList" type="ItemList" parent="GenreSelector"]
+anchor_right = 0.3
+anchor_bottom = 0.85
+margin_left = 8.0
+margin_top = 40.0
+items = [ "Item 0", ExtResource( 12 ), false, "Item 1", null, false ]
+
+[node name="DescPanel" type="Control" parent="GenreSelector"]
+anchor_left = 0.3
+anchor_right = 1.0
+anchor_bottom = 0.85
+margin_left = 8.0
+margin_top = 40.0
+margin_right = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Status" type="Control" parent="GenreSelector/DescPanel"]
+anchor_top = 0.7
+anchor_right = 1.0
+anchor_bottom = 0.7
+margin_top = -20.0
+margin_bottom = 20.0
+
+[node name="Panel" type="ColorRect" parent="GenreSelector/DescPanel/Status"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 4.0
+margin_bottom = -4.0
+color = Color( 0.117647, 0.290196, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel2" type="ColorRect" parent="GenreSelector/DescPanel/Status"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 4.0
+margin_bottom = -4.0
+color = Color( 0.290196, 0.270588, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel3" type="ColorRect" parent="GenreSelector/DescPanel/Status"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 4.0
+margin_bottom = -4.0
+color = Color( 0.290196, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel4" type="ColorRect" parent="GenreSelector/DescPanel/Status"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 4.0
+margin_bottom = -4.0
+color = Color( 0, 0.290196, 0.290196, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="GenreSelector/DescPanel/Status"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Status Text"
+align = 1
+valign = 1
+
+[node name="Description" type="TextEdit" parent="GenreSelector/DescPanel"]
+anchor_top = 0.7
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 20.0
+text = "Text text text"
+readonly = true
+
+[node name="PicBackground" type="ColorRect" parent="GenreSelector/DescPanel"]
+anchor_right = 1.0
+anchor_bottom = 0.7
+margin_bottom = -20.0
+color = Color( 0, 0, 0, 0.258824 )
+
+[node name="Picture" type="TextureRect" parent="GenreSelector/DescPanel"]
+anchor_right = 1.0
+anchor_bottom = 0.7
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -28.0
+texture = ExtResource( 8 )
+expand = true
+stretch_mode = 6
+
+[node name="Buttons" type="Control" parent="GenreSelector"]
+anchor_top = 0.85
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="OK" type="Button" parent="GenreSelector/Buttons"]
+anchor_right = 0.8
+anchor_bottom = 1.0
+margin_right = -8.0
+text = "Select"
+
+[node name="Cancel" type="Button" parent="GenreSelector/Buttons"]
+anchor_left = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Cancel"
+
+[node name="TutorialSelect" type="Control" parent="."]
+visible = false
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+script = ExtResource( 13 )
+
+[node name="Panel" type="Panel" parent="TutorialSelect"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="TutorialSelect"]
+anchor_right = 1.0
+margin_bottom = 32.0
+text = "Select Tutorial"
+align = 1
+valign = 1
+
+[node name="TutorialsList" type="ItemList" parent="TutorialSelect"]
+anchor_right = 0.3
+anchor_bottom = 0.85
+margin_left = 8.0
+margin_top = 40.0
+items = [ "Item 0", ExtResource( 12 ), false, "Item 1", null, false ]
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DescPanel" type="Control" parent="TutorialSelect"]
+anchor_left = 0.3
+anchor_right = 1.0
+anchor_bottom = 0.85
+margin_left = 8.0
+margin_top = 40.0
+margin_right = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Description" type="TextEdit" parent="TutorialSelect/DescPanel"]
+anchor_top = 0.7
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -20.0
+text = "Text text text"
+readonly = true
+
+[node name="PicBackground" type="ColorRect" parent="TutorialSelect/DescPanel"]
+anchor_right = 1.0
+anchor_bottom = 0.7
+margin_bottom = -20.0
+color = Color( 0, 0, 0, 0.258824 )
+
+[node name="Picture" type="TextureRect" parent="TutorialSelect/DescPanel"]
+anchor_right = 1.0
+anchor_bottom = 0.7
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -28.0
+texture = ExtResource( 8 )
+expand = true
+stretch_mode = 6
+
+[node name="Buttons" type="Control" parent="TutorialSelect"]
+anchor_top = 0.85
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="OK" type="Button" parent="TutorialSelect/Buttons"]
+anchor_right = 0.8
+anchor_bottom = 1.0
+margin_right = -8.0
+text = "Select"
+
+[node name="Cancel" type="Button" parent="TutorialSelect/Buttons"]
+anchor_left = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Cancel"
+
+[node name="TutorialSystem" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 15 )
+
+[node name="Stencil" type="Control" parent="TutorialSystem"]
+modulate = Color( 0.01, 0.0097, 0.0097, 0.670588 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="W" type="ColorRect" parent="TutorialSystem/Stencil"]
+anchor_bottom = 1.0
+margin_right = 160.0
+
+[node name="N" type="ColorRect" parent="TutorialSystem/Stencil"]
+margin_left = 160.0
+margin_right = 600.0
+margin_bottom = 200.0
+
+[node name="S" type="ColorRect" parent="TutorialSystem/Stencil"]
+anchor_bottom = 1.0
+margin_left = 160.0
+margin_top = 400.0
+margin_right = 600.0
+
+[node name="E" type="ColorRect" parent="TutorialSystem/Stencil"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 600.0
+
+[node name="CenterClickCatcher" type="ColorRect" parent="TutorialSystem/Stencil"]
+visible = false
+margin_left = 160.0
+margin_top = 200.0
+margin_right = 600.0
+margin_bottom = 400.0
+color = Color( 1, 1, 1, 0 )
+
+[node name="Dialog" type="Control" parent="TutorialSystem"]
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="ColorRect" parent="TutorialSystem/Dialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.286275 )
+
+[node name="Panel2" type="ColorRect" parent="TutorialSystem/Dialog"]
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = 8.0
+color = Color( 0.00392157, 0.0862745, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="TutorialSystem/Dialog"]
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+margin_left = 32.0
+margin_top = 20.0
+margin_right = -32.0
+margin_bottom = -8.0
+text = "Tutorial Text
+Line 2
+Line 3
+Line 4
+Line 5"
+autowrap = true
+
+[node name="Button" type="Button" parent="TutorialSystem/Dialog"]
+anchor_left = 0.3
+anchor_top = 0.8
+anchor_right = 0.7
+anchor_bottom = 1.0
+text = "Continue"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DialogTop" type="Control" parent="TutorialSystem"]
+anchor_right = 1.0
+anchor_bottom = 0.2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="ColorRect" parent="TutorialSystem/DialogTop"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.286275 )
+
+[node name="Panel2" type="ColorRect" parent="TutorialSystem/DialogTop"]
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = 8.0
+color = Color( 0.00392157, 0.0862745, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="TutorialSystem/DialogTop"]
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+margin_left = 32.0
+margin_top = 20.0
+margin_right = -32.0
+margin_bottom = -8.0
+text = "Tutorial Text
+Line 2
+Line 3
+Line 4
+Line 5"
+autowrap = true
+
+[node name="Button" type="Button" parent="TutorialSystem/DialogTop"]
+anchor_left = 0.3
+anchor_top = 0.8
+anchor_right = 0.7
+anchor_bottom = 1.0
+text = "Continue"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FlowSetup" type="Control" parent="."]
+visible = false
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+script = ExtResource( 17 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="FlowSetup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="FlowSetup"]
+anchor_right = 1.0
+margin_bottom = 32.0
+text = "Advanced Flow Setup"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Buttons" type="Control" parent="FlowSetup"]
+anchor_top = 0.85
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BID" type="ScrollContainer" parent="FlowSetup"]
+anchor_left = 0.4
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 40.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[node name="VBox" type="VBoxContainer" parent="FlowSetup/BID"]
+margin_right = 598.4
+margin_bottom = 528.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Parameters" type="VBoxContainer" parent="FlowSetup"]
+anchor_right = 0.4
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 40.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="FlowSetup/Parameters"]
+margin_right = 401.0
+margin_bottom = 14.0
+text = "Flow Parameters"
+align = 1
+
+[node name="FlowName" type="HBoxContainer" parent="FlowSetup/Parameters"]
+margin_top = 18.0
+margin_right = 401.0
+margin_bottom = 38.0
+
+[node name="Label" type="Label" parent="FlowSetup/Parameters/FlowName"]
+margin_top = 3.0
+margin_right = 42.0
+margin_bottom = 17.0
+text = "Name:"
+align = 2
+valign = 1
+
+[node name="LineEdit" type="LineEdit" parent="FlowSetup/Parameters/FlowName"]
+margin_left = 46.0
+margin_right = 401.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "2022-00-00"
+align = 1
+
+[node name="CheckButton" type="CheckButton" parent="FlowSetup/Parameters"]
+margin_top = 42.0
+margin_right = 401.0
+margin_bottom = 78.0
+text = "Shared with the team"
+
+[node name="CheckButton2" type="CheckButton" parent="FlowSetup/Parameters"]
+margin_top = 82.0
+margin_right = 401.0
+margin_bottom = 118.0
+text = "Pinned"
+
+[node name="Spacer" type="Control" parent="FlowSetup/Parameters"]
+margin_top = 122.0
+margin_right = 401.0
+margin_bottom = 484.0
+size_flags_vertical = 3
+
+[node name="HSeparator" type="HSeparator" parent="FlowSetup/Parameters"]
+margin_top = 488.0
+margin_right = 401.0
+margin_bottom = 492.0
+
+[node name="Buttons" type="HBoxContainer" parent="FlowSetup/Parameters"]
+margin_top = 496.0
+margin_right = 401.0
+margin_bottom = 528.0
+rect_min_size = Vector2( 0, 32 )
+
+[node name="Save" type="Button" parent="FlowSetup/Parameters/Buttons"]
+margin_right = 305.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+text = "Save"
+
+[node name="Cancel" type="Button" parent="FlowSetup/Parameters/Buttons"]
+margin_left = 309.0
+margin_right = 401.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.3
+text = "Cancel"
+
+[node name="InputConfig" parent="." instance=ExtResource( 16 )]
+visible = false
+
+[node name="CharacterSet" parent="." instance=ExtResource( 19 )]
+visible = false
+
+[node name="ModuleSet" parent="." instance=ExtResource( 18 )]
+visible = false
+
+[connection signal="pressed" from="MainMenu/Menu/Tutorials" to="." method="_on_Tutorials_pressed"]
+[connection signal="pressed" from="MainMenu/Menu/Documentation" to="." method="_on_MainMenuDocumentation_pressed"]
+[connection signal="pressed" from="MainMenu/Menu/Updater" to="." method="_on_Updater_pressed"]
+[connection signal="pressed" from="MainMenu/Menu/Config/Config" to="." method="_on_Config_pressed"]
+[connection signal="pressed" from="MainMenu/Menu/Config/ConfigAdv" to="." method="_on_Config_pressed" binds= [ true ]]
+[connection signal="pressed" from="MainMenu/Menu/CharacterEdit" to="." method="_on_CharacterEdit_pressed"]
+[connection signal="pressed" from="MainMenu/Menu/CharEditOptions/CharacterEditNew" to="." method="_on_CharacterEditNew_pressed"]
+[connection signal="pressed" from="MainMenu/Menu/CharEditOptions/CharacterEditSafe" to="." method="_on_CharacterEditSafe_pressed"]
+[connection signal="pressed" from="MainMenu/Menu/StartGame" to="." method="_on_StartGame_pressed"]
+[connection signal="pressed" from="MainMenu/FlowPanel/Generic/VBox/Setup/FlowNewBID" to="." method="_on_FlowNewBID_pressed"]
+[connection signal="toggled" from="MainMenu/FlowPanel/FlowAdvanced" to="." method="_on_FlowAdvanced_toggled"]
 [connection signal="pressed" from="Config/BackButton" to="Config" method="_on_BackButton_pressed"]
 [connection signal="pressed" from="Config/Save" to="Config" method="_on_Save_pressed"]
 [connection signal="pressed" from="Config/Docs" to="Config" method="_on_Docs_pressed"]
 [connection signal="resized" from="Config/Tabs" to="Config" method="FitTabs"]
 [connection signal="item_activated" from="Documentation/Window/PageList" to="Documentation" method="PageSelected"]
 [connection signal="pressed" from="Documentation/Window/TopBar/Exit" to="Documentation" method="ExitDocumentation"]
-[connection signal="pressed" from="FirstTimeFlow/VBoxContainer/Button2D" to="FirstTimeFlow" method="_on_Button2D_pressed"]
-[connection signal="pressed" from="FirstTimeFlow/VBoxContainer/Button25D" to="FirstTimeFlow" method="_on_Button25D_pressed"]
-[connection signal="pressed" from="FirstTimeFlow/VBoxContainer/ButtonManual" to="FirstTimeFlow" method="_on_ButtonManual_pressed"]
+[connection signal="pressed" from="FirstTimeFlow/VBoxContainer/ButtonGenre" to="FirstTimeFlow" method="_on_ButtonGenre_pressed"]
+[connection signal="pressed" from="FirstTimeFlow/VBoxContainer/ButtonInput" to="FirstTimeFlow" method="_on_ButtonInput_pressed"]
+[connection signal="pressed" from="FirstTimeFlow/VBoxContainer/ButtonDone" to="FirstTimeFlow" method="_on_ButtonDone_pressed"]
 [connection signal="pressed" from="FirstTimeFlow/Restart/ButtonRestart" to="FirstTimeFlow" method="_on_ButtonRestart_pressed"]
+[connection signal="pressed" from="FirstTimeLaunch/VBoxContainer/ButtonTuto" to="FirstTimeLaunch" method="_on_ButtonTuto_pressed"]
+[connection signal="pressed" from="FirstTimeLaunch/VBoxContainer/ButtonNoTuto" to="FirstTimeLaunch" method="_on_ButtonNoTuto_pressed"]
+[connection signal="item_selected" from="GenreSelector/GenreList" to="GenreSelector" method="_on_GenreList_item_selected"]
+[connection signal="pressed" from="GenreSelector/Buttons/OK" to="GenreSelector" method="_on_OK_pressed"]
+[connection signal="pressed" from="GenreSelector/Buttons/Cancel" to="GenreSelector" method="_on_Cancel_pressed"]
+[connection signal="item_selected" from="TutorialSelect/TutorialsList" to="TutorialSelect" method="_on_GenreList_item_selected"]
+[connection signal="pressed" from="TutorialSelect/Buttons/OK" to="TutorialSelect" method="_on_OK_pressed"]
+[connection signal="pressed" from="TutorialSelect/Buttons/Cancel" to="TutorialSelect" method="_on_Cancel_pressed"]
+[connection signal="pressed" from="TutorialSystem/Dialog/Button" to="TutorialSystem" method="_on_DialogButton_pressed"]
+[connection signal="pressed" from="TutorialSystem/DialogTop/Button" to="TutorialSystem" method="_on_DialogButton_pressed"]
+[connection signal="pressed" from="FlowSetup/Parameters/Buttons/Save" to="FlowSetup" method="_on_Save_pressed"]
+[connection signal="pressed" from="FlowSetup/Parameters/Buttons/Cancel" to="FlowSetup" method="_on_Cancel_pressed"]

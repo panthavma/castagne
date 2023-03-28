@@ -7,12 +7,12 @@ var ui
 var isTrainingMode = false
 func ModuleSetup():
 	
-	RegisterModule("Fighting UI (temporary module)")
+	RegisterModule("Fighting UI (temporary module)", null)
 	
-func BattleInit(_state, _data, battleInitData):
+func TODO_BattleInit(_state, _data, battleInitData):
 	ui = prefabUI.instance()
-	engine.add_child(ui)
+	#engine.add_child(ui)
 	ui.InitTool(engine, battleInitData)
 
-func UpdateGraphics(state, _data):
+func TODO_UpdateGraphics(state, _data):
 	ui.UpdateGraphics(state, engine)

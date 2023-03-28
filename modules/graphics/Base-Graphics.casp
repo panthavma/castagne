@@ -1,0 +1,155 @@
+:Character:
+## Base-Graphics: Holds some basic behavior for graphics, independant of 2D or 3D. (IN PROGRESS UNTIL v0.55)
+##
+## Its main purpose here is to provide model or sprite initialization, as well as help with standard animations.
+:Variables-Graphics-Anims-Movement:
+## Specified the animations to play with the standard animation system.
+## TODO
+
+def ANIM_Movement_Basic_Stand str() = Stand
+def ANIM_Movement_Basic_Stand_Loop int() = 56
+def ANIM_Movement_Basic_Crouching str() = Crouch
+def ANIM_Movement_Basic_Crouching_Loop int() = 56
+def ANIM_Movement_Basic_WalkF str() = WalkF
+def ANIM_Movement_Basic_WalkF_Loop int() = 52
+def ANIM_Movement_Basic_WalkB str() = WalkB
+def ANIM_Movement_Basic_WalkB_Loop int() = 30
+def ANIM_Movement_Basic_Landing str() = Jumpsquat
+
+def ANIM_Movement_Jump_Jumpsquat str() = Jumpsquat
+def ANIM_Movement_Jump_AirIdle str() = AirIdle
+def ANIM_Movement_Jump_JumpN str() = AirIdle
+def ANIM_Movement_Jump_JumpF str() = AirIdle
+def ANIM_Movement_Jump_JumpB str() = AirIdle
+
+
+# Copy from previous Base.casp
+#ANIM_KNOCKDOWN: Knockdown
+#ANIM_KNOCKEDDOWN: KnockedDown
+#ANIM_HITSTUN_AIR: H-HitstunAir
+#ANIM_HITSTUN_TRIP: H-HitstunAir
+#ANIM_HITSTUN_GROUNDBOUNCE: H-HitstunAir
+#ANIM_HITSTUN_AIR_UP: H-HitstunAir
+#ANIM_HITSTUN_AIR_BACK: H-HitstunAir
+#ANIM_HITSTUN_AIR_DOWN: H-HitstunAir
+#ANIM_HITSTUN_AIR_FRONT: H-HitstunAir
+#ANIM_HITSTUN_AIR_SPINFRONT: H-HitstunAir
+#ANIM_HITSTUN_AIR_SPINBACK: H-HitstunAir
+#ANIM_HITSTUN_AIR_SPINSIDE: H-HitstunAir
+#ANIM_HITSTUN_STAND: H-HitstunStand
+#ANIM_HITSTUN_CROUCH: H-HitstunCrouch
+#ANIM_BLOCK_STAND: B-BlockStand
+#ANIM_BLOCK_CROUCH: B-BlockCrouch
+#ANIM_BLOCK_AIR: B-BlockAir
+#ANIM_TECH_INPLACE: Wakeup
+#ANIM_TECH_FORWARD: Wakeup
+#ANIM_TECH_BACK: Wakeup
+#ANIM_TECH_SOFT: Wakeup
+#ANIM_TECH_AIR: Wakeup
+#ANIM_STAND: Stand
+#ANIM_STAND_LOOP:56
+#ANIM_STAND_TO_CROUCH: StandToCrouch
+#ANIM_STAND_TO_CROUCH_DURATION: 8
+#ANIM_CROUCH_TO_STAND: CrouchToStand
+#ANIM_CROUCH_TO_STAND_DURATION: 8
+#ANIM_CROUCH: Crouch
+#ANIM_CROUCH_LOOP:56
+#ANIM_WALKF: WalkF
+#ANIM_WALKF_LOOP:52
+#ANIM_WALKB: WalkB
+#ANIM_WALKB_LOOP:30
+#ANIM_JUMPSQUAT: Jumpsquat
+#ANIM_LANDING: Jumpsquat
+#ANIM_JUMPN: AirIdle
+#ANIM_JUMPF: AirIdle
+#ANIM_JUMPB: AirIdle
+#ANIM_AIRIDLE: AirIdle
+#ANIM_THROWHELD: ThrowHeld
+#ANIM_THROWTECHING: ThrowTeching
+#ANIM_THROWTECHED: ThrowTeched
+:Variables-Graphics:
+## Test TODO
+
+# res://castagne/assets/fighters/castagneur/CastagneurModel.tscn
+
+def GRAPHICS_ModelPath str() = res://castagne/assets/fighters/castagneur/CastagneurModel.tscn
+def GRAPHICS_ModelPath_AnimPlayer str() = AnimationPlayer
+
+def GRAPHICS_Scale int() = 1000
+
+# Will become a boolean later.
+def GRAPHICS_SpritesUse = 0
+
+# Will become a boolean and accessible from custom editors when those are implemented
+var ANIMS_UseStandardAnims int() = 1
+:AnimAirIdle:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims>0:
+	Anim(ANIM_Movement_Jump_AirIdle)
+endif
+:AnimCrouching:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims>0:
+	Anim(ANIM_Movement_Basic_Crouching)
+	AnimLoop(ANIM_Movement_Basic_Crouching_Loop)
+endif
+:AnimJumpB:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims>0:
+	Anim(ANIM_Movement_Jump_JumpB)
+endif
+:AnimJumpF:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims>0:
+	Anim(ANIM_Movement_Jump_JumpF)
+endif
+:AnimJumpN:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims>0:
+	Anim(ANIM_Movement_Jump_JumpN)
+endif
+:AnimJumpsquat:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims>0:
+	Anim(ANIM_Movement_Jump_Jumpsquat)
+endif
+:AnimLanding:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims>0:
+	Anim(ANIM_Movement_Basic_Landing)
+endif
+:AnimStand:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims>0:
+	Anim(ANIM_Movement_Basic_Stand)
+	AnimLoop(ANIM_Movement_Basic_Stand_Loop)
+endif
+:AnimWalkB:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims>0:
+	Anim(ANIM_Movement_Basic_WalkB)
+	AnimLoop(ANIM_Movement_Basic_WalkB_Loop)
+endif
+:AnimWalkF:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims>0:
+	Anim(ANIM_Movement_Basic_WalkF)
+	AnimLoop(ANIM_Movement_Basic_WalkF_Loop)
+endif
+:Init-Main:
+CallParent(Init-Main)
+Call(Init-Main-Graphics)
+:Init-Main-Graphics:
+## Helper that creates the model or sprites on entity instanciation.
+
+CreateModel(GRAPHICS_ModelPath, GRAPHICS_ModelPath_AnimPlayer)

@@ -1,9 +1,7 @@
 ---
 title: Starter Tips
 order: 8000
-
-template: docpage.hbt
-pathtoroot: ../../../
+todo: 54
 ---
 
 # Starter Tips

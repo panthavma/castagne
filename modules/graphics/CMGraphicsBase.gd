@@ -5,7 +5,8 @@ var POSITION_SCALE = 1.0
 # :TODO:Panthavma:20220216:Apply Palette
 
 func ModuleSetup():
-	RegisterModule("Graphics Base")
+	RegisterModule("Graphics Base", Castagne.MODULE_SLOTS_BASE.GRAPHICS)
+	RegisterBaseCaspFile("res://castagne/modules/graphics/Base-Graphics.casp")
 	RegisterCategory("Model")
 	RegisterFunction("CreateModel", [1, 2], null, {
 		"Description": "Creates a model for the current entity",
@@ -33,14 +34,16 @@ func ModuleSetup():
 		"Arguments":[]
 	})
 	
-	RegisterVariableEntity("ModelPositionX", 0)
-	RegisterVariableEntity("ModelPositionY", 0)
-	RegisterVariableEntity("ModelRotation", 0)
-	RegisterVariableEntity("ModelScale", 1000)
-	RegisterVariableEntity("ModelFacing", 1)
+	RegisterVariableEntity("_ModelPositionX", 0)
+	RegisterVariableEntity("_ModelPositionY", 0)
+	RegisterVariableEntity("_ModelRotation", 0)
+	RegisterVariableEntity("_ModelScale", 1000)
+	RegisterVariableEntity("_ModelFacing", 1)
 	RegisterFlag("ModelLockWorldPosition")
 	RegisterFlag("ModelLockRelativePosition")
 	RegisterFlag("ModelLockFacing")
+	
+	RegisterVariableGlobal("_GraphicsCamPos", Vector3()) # TEMP ?
 	
 	RegisterCategory("Sprites")
 	RegisterFunction("Sprite", [1, 2], null, {
@@ -85,12 +88,12 @@ func ModuleSetup():
 		"Arguments":["Sprite Order Offset"],
 	})
 	
-	RegisterVariableEntity("SpriteFrame", 0)
-	RegisterVariableEntity("SpriteAnim", "Null")
+	RegisterVariableEntity("_SpriteFrame", 0)
+	RegisterVariableEntity("_SpriteAnim", "Null")
 	# TODO Reduce the amount needed as static
-	RegisterVariableEntity("SpriteUseSpritesheets", 0)
-	RegisterVariableEntity("SpriteOrder", 0)
-	RegisterVariableEntity("SpriteOrderOffset", 0)
+	RegisterVariableEntity("_SpriteUseSpritesheets", 0)
+	RegisterVariableEntity("_SpriteOrder", 0)
+	RegisterVariableEntity("_SpriteOrderOffset", 0)
 	RegisterConfig("PositionScale", 0.0001)
 	
 	RegisterCategory("Camera")
@@ -101,79 +104,77 @@ func ModuleSetup():
 	RegisterConfig("CameraPosMinY", -1000000)
 	RegisterConfig("CameraPosMaxY",  1000000)
 
-func BattleInit(state, data, battleInitData):
+func BattleInit(stateHandle, battleInitData):
 	graphicsRoot = _CreateGraphicsRootNode(engine)
 	
-	var camera = _InitCamera(state, data, battleInitData)
+	var camera = _InitCamera(stateHandle, battleInitData)
 	graphicsRoot.add_child(camera)
 	engine.graphicsModule = self
 	
-	POSITION_SCALE = Castagne.configData["PositionScale"]
+	POSITION_SCALE = stateHandle.ConfigData().Get("PositionScale")
 	
-	data["InstancedData"]["GraphicsRoot"] = graphicsRoot
-	data["InstancedData"]["Camera"] = camera
+	stateHandle.IDGlobalSet("GraphicsRoot", graphicsRoot)
+	stateHandle.IDGlobalSet("Camera", camera)
 	lastRegisteredCamera = camera
 	
-	cameraOffset = Vector3(Castagne.configData["CameraOffsetX"], Castagne.configData["CameraOffsetY"], Castagne.configData["CameraOffsetZ"])
+	cameraOffset = Vector3(stateHandle.ConfigData().Get("CameraOffsetX"), stateHandle.ConfigData().Get("CameraOffsetY"), stateHandle.ConfigData().Get("CameraOffsetZ"))
 	
-	var prefabMap = engine.Load(Castagne.SplitStringToArray(Castagne.configData["StagePaths"])[battleInitData["map"]])
+	var prefabMap = Castagne.Loader.Load(Castagne.SplitStringToArray(stateHandle.ConfigData().Get("StagePaths"))[battleInitData["map"]])
 	var map = prefabMap.instance()
 	graphicsRoot.add_child(map)
-	engine.instancedData["map"] = map
+	stateHandle.IDGlobalSet("map", map)
 
 var lastRegisteredCamera = null
 var cameraOffset = Vector3()
-func UpdateGraphics(state, data):
-	var camera = data["InstancedData"]["Camera"]
+func UpdateGraphics(stateHandle):
+	var camera = stateHandle.IDGlobalGet("Camera")
 	
-	var playerPosCenter = Vector3(state["CameraX"], state["CameraY"], 0)
+	var playerPosCenter = Vector3(stateHandle.GlobalGet("_CameraX"), stateHandle.GlobalGet("_CameraY"), 0)
 	var cameraPos = playerPosCenter + cameraOffset
-	cameraPos.y = clamp(cameraPos.y, Castagne.configData["CameraPosMinY"], Castagne.configData["CameraPosMaxY"])
+	cameraPos.y = clamp(cameraPos.y, stateHandle.ConfigData().Get("CameraPosMinY"), stateHandle.ConfigData().Get("CameraPosMaxY"))
 	cameraPos = IngameToWorldPos(cameraPos.x, cameraPos.y, cameraPos.z)
-	_UpdateCamera(state, data, camera, cameraPos)
-	state["GraphicsCamPos"] = cameraPos
+	_UpdateCamera(stateHandle, camera, cameraPos)
+	stateHandle.GlobalSet("_GraphicsCamPos", cameraPos)
 	
-	for eid in state["ActiveEntities"]:
-		var eState = state[eid]
-		var modelPosition = IngameToWorldPos(eState["ModelPositionX"], eState["ModelPositionY"], 0.0)
-		var modelRotation = eState["ModelRotation"] * 0.1
-		var modelScale = eState["ModelScale"] / 1000.0
+	for eid in stateHandle.GlobalGet("_ActiveEntities"):
+		stateHandle.PointToEntity(eid)
+		var modelPosition = IngameToWorldPos(stateHandle.EntityGet("_ModelPositionX"), stateHandle.EntityGet("_ModelPositionY"), 0.0)
+		var modelRotation = stateHandle.EntityGet("_ModelRotation") * 0.1
+		var modelScale = stateHandle.EntityGet("_ModelScale") / 1000.0
 		#var camPosHor = Vector3(cameraPos.x, modelPosition.y, cameraPos.z)
 		
-		var iData = data["InstancedData"]["Entities"][eid]
-		
-		var modelRoot = iData["Root"]
+		var modelRoot = stateHandle.IDEntityGet("Root")
 		if(modelRoot != null):
-			_ModelApplyTransform(state, eState, data, modelRoot, modelPosition, modelRotation, modelScale)
+			_ModelApplyTransform(stateHandle, modelRoot, modelPosition, modelRotation, modelScale)
 		
-		var sprite = iData["Sprite"]
+		var sprite = stateHandle.IDEntityGet("Sprite")
 		if(sprite != null):
-			_UpdateSprite(sprite, eState, data)
+			_UpdateSprite(sprite, stateHandle)
 
-func InitPhaseEndEntity(eState, data):
-	SetPalette(eState, data, eState["Player"])
+func InitPhaseEndEntity(stateHandle):
+	SetPalette(stateHandle, stateHandle.GetPlayer())
 
 
-func PhysicsPhaseStartEntity(eState, _data):
-	if(!HasFlag(eState, "ModelLockWorldPosition")):
-		if(HasFlag(eState, "ModelLockRelativePosition")):
-			eState["ModelPositionX"] += eState["MovementX"]
-			eState["ModelPositionY"] += eState["MovementY"]
+func PhysicsPhaseStartEntity(stateHandle):
+	if(!stateHandle.EntityHasFlag("ModelLockWorldPosition")):
+		if(stateHandle.EntityHasFlag("ModelLockRelativePosition")):
+			stateHandle.EntityAdd("ModelPositionX", stateHandle.EntityGet("_MovementX"))
+			stateHandle.EntityAdd("ModelPositionY", stateHandle.EntityGet("_MovementY"))
 		else:
-			eState["ModelPositionX"] = eState["PositionX"]
-			eState["ModelPositionY"] = eState["PositionY"]
-	if(!HasFlag(eState, "ModelLockFacing")):
-		eState["ModelFacing"] = eState["Facing"]
+			stateHandle.EntitySet("_ModelPositionX", stateHandle.EntityGet("_PositionX"))
+			stateHandle.EntitySet("_ModelPositionY", stateHandle.EntityGet("_PositionY"))
+	if(!stateHandle.EntityHasFlag("ModelLockFacing")):
+		stateHandle.EntitySet("_ModelFacing", stateHandle.EntityGet("_Facing"))
 
-func SetPalette(eState, data, paletteID):
+func SetPalette(stateHandle, paletteID):
 	var paletteKey = "Palette"+str(paletteID+1)
-	var fighterMetadata = data["InstancedData"]["ParsedFighters"][eState["FighterID"]]["Character"]
+	var fighterMetadata = stateHandle.IDGlobalGet("ParsedFighters")[stateHandle.EntityGet("_FighterID")]["Character"]
 	if(!fighterMetadata.has(paletteKey)):
 		return
 	# :TODO:Panthavma:20220217:Do it better, maybe simply charge different models ?
 	var palettePath = fighterMetadata[paletteKey]
 	var paletteMaterial = Castagne.Loader.Load(palettePath)
-	var modelRoot = data["InstancedData"]["Entities"][eState["EID"]]["Model"]
+	var modelRoot = stateHandle.IDEntityGet("Model")
 	if(modelRoot == null):
 		return
 	var modelSearch = [modelRoot]
@@ -198,22 +199,22 @@ func SetPalette(eState, data, paletteID):
 
 
 
-func CreateModel(args, eState, data):
-	_EnsureRootIsSet(eState["EID"], data)
-	var animPath = (ArgStr(args, eState, 1) if args.size() > 1 else null)
-	engine.InstanceModel(eState["EID"], ArgStr(args, eState, 0), animPath)
-func ModelScale(args, eState, _data):
-	eState["ModelScale"] = ArgInt(args, eState, 0)
-func ModelRotation(args, eState, _data):
-	eState["ModelRotation"] = ArgInt(args, eState, 0)
-func ModelMove(args, eState, _data):
-	eState["ModelPositionX"] += eState["Facing"]*ArgInt(args, eState, 0)
-	eState["ModelPositionY"] += ArgInt(args, eState, 1, 0)
-func ModelMoveAbsolute(args, eState, _data):
-	eState["ModelPositionX"] += ArgInt(args, eState, 0)
-	eState["ModelPositionY"] += ArgInt(args, eState, 1, 0)
-func ModelSwitchFacing(args, eState, _data):
-	eState["ModelFacing"] *= -1
+func CreateModel(args, stateHandle):
+	_EnsureRootIsSet(stateHandle)
+	var animPath = (ArgStr(args, stateHandle, 1) if args.size() > 1 else null)
+	engine.InstanceModel(stateHandle.EntityGet("_EID"), ArgStr(args, stateHandle, 0), animPath) # TODO Needs a new system here I think
+func ModelScale(args, stateHandle):
+	stateHandle.EntitySet("_ModelScale", ArgInt(args, stateHandle, 0))
+func ModelRotation(args, stateHandle):
+	stateHandle.EntitySet("_ModelRotation", ArgInt(args, stateHandle, 0))
+func ModelMove(args, stateHandle):
+	stateHandle.EntityAdd("ModelPositionX", stateHandle.EntityGet("_Facing")*ArgInt(args, stateHandle, 0))
+	stateHandle.EntityAdd("ModelPositionY", ArgInt(args, stateHandle, 1, 0))
+func ModelMoveAbsolute(args, stateHandle):
+	stateHandle.EntityAdd("ModelPositionX", ArgInt(args, stateHandle, 0))
+	stateHandle.EntityAdd("ModelPositionY", ArgInt(args, stateHandle, 1, 0))
+func ModelSwitchFacing(_args, stateHandle):
+	stateHandle.EntitySet("_ModelFacing", stateHandle.EntityGet("_ModelFacing") * -1)
 
 
 # :TODO:Panthavma:20220417:Make the root separate from the model (and move it back here)
@@ -222,31 +223,31 @@ func ModelSwitchFacing(args, eState, _data):
 # :TODO:Panthavma:20220417:Change sprite origin
 
 
-func Sprite(args, eState, _data):
+func Sprite(args, stateHandle):
 	if(args.size() == 1):
-		eState["SpriteFrame"] = ArgInt(args, eState, 0)
+		stateHandle.EntitySet("_SpriteFrame", ArgInt(args, stateHandle, 0))
 	else:
-		eState["SpriteAnim"] = ArgStr(args, eState, 0)
-		eState["SpriteFrame"] = ArgInt(args, eState, 1)
-func SpriteProgress(args, eState, _data):
-	eState["SpriteFrame"] += ArgInt(args, eState, 0, 1)
+		stateHandle.EntitySet("_SpriteAnim", ArgStr(args, stateHandle, 0))
+		stateHandle.EntitySet("_SpriteFrame", ArgInt(args, stateHandle, 1))
+func SpriteProgress(args, stateHandle):
+	stateHandle.EntityAdd("SpriteFrame", ArgInt(args, stateHandle, 0, 1))
 
-func CreateSprite(args, eState, data):
+func CreateSprite(args, stateHandle):
 	var spriteFramesPath = null
 	if(args.size() == 1):
-		spriteFramesPath = ArgStr(args, eState, 0)
+		spriteFramesPath = ArgStr(args, stateHandle, 0)
 	
-	eState["SpriteUseSpritesheets"] = (1 if spriteFramesPath == null else 0)
+	stateHandle.EntitySet("_SpriteUseSpritesheets", (1 if spriteFramesPath == null else 0))
 	var sprite = _CreateSprite_Instance(spriteFramesPath)
 	
 	var spriteData = {
 		"Null": _CreateSpriteData()
 	}
 	
-	_EnsureRootIsSet(eState["EID"], data)
-	data["InstancedData"]["Entities"][eState["EID"]]["Root"].add_child(sprite)
-	data["InstancedData"]["Entities"][eState["EID"]]["Sprite"] = sprite
-	data["InstancedData"]["Entities"][eState["EID"]]["SpriteData"] = spriteData
+	_EnsureRootIsSet(stateHandle)
+	stateHandle.IDEntityGet("Root").add_child(sprite)
+	stateHandle.IDEntitySet("Sprite", sprite)
+	stateHandle.IDEntitySet("SpriteData", spriteData)
 
 func _CreateSpriteData():
 	return {
@@ -258,11 +259,11 @@ func _CreateSpriteData():
 		"PixelSize":100
 	}
 
-func _GetCurrentSpriteData(eState, data):
-	var spriteDataHolder = data["InstancedData"]["Entities"][eState["EID"]]["SpriteData"]
+func _GetCurrentSpriteData(stateHandle):
+	var spriteDataHolder = stateHandle.IDEntityGet("SpriteData")
 	var spriteData = null
-	var spriteAnim = eState["SpriteAnim"]
-	if(!eState["SpriteUseSpritesheets"]):
+	var spriteAnim = stateHandle.EntityGet("_SpriteAnim")
+	if(!stateHandle.EntityGet("_SpriteUseSpritesheets")):
 		spriteAnim = "Null"
 	
 	if(spriteDataHolder.has(spriteAnim)):
@@ -271,44 +272,44 @@ func _GetCurrentSpriteData(eState, data):
 		spriteData = _CreateSpriteData()
 	return spriteData
 
-func RegisterSpritesheet(args, eState, data):
-	var spriteData = _GetCurrentSpriteData(eState, data).duplicate()
-	spriteData["Name"] = ArgStr(args, eState, 0)
-	spriteData["SpritesheetPath"] = ArgStr(args, eState, 1)
-	spriteData["SpritesX"] = ArgInt(args, eState, 2, spriteData["SpritesX"])
-	spriteData["SpritesY"] = ArgInt(args, eState, 3, spriteData["SpritesY"])
-	spriteData["OriginX"] = ArgInt(args, eState, 4, spriteData["OriginX"])
-	spriteData["OriginY"] = ArgInt(args, eState, 5, spriteData["OriginY"])
-	spriteData["PixelSize"] = ArgInt(args, eState, 6, spriteData["PixelSize"])#/10000.0
+func RegisterSpritesheet(args, stateHandle):
+	var spriteData = _GetCurrentSpriteData(stateHandle).duplicate()
+	spriteData["Name"] = ArgStr(args, stateHandle, 0)
+	spriteData["SpritesheetPath"] = ArgStr(args, stateHandle, 1)
+	spriteData["SpritesX"] = ArgInt(args, stateHandle, 2, spriteData["SpritesX"])
+	spriteData["SpritesY"] = ArgInt(args, stateHandle, 3, spriteData["SpritesY"])
+	spriteData["OriginX"] = ArgInt(args, stateHandle, 4, spriteData["OriginX"])
+	spriteData["OriginY"] = ArgInt(args, stateHandle, 5, spriteData["OriginY"])
+	spriteData["PixelSize"] = ArgInt(args, stateHandle, 6, spriteData["PixelSize"])#/10000.0
 	spriteData["Spritesheet"] = Castagne.Loader.Load(spriteData["SpritesheetPath"])
-	data["InstancedData"]["Entities"][eState["EID"]]["SpriteData"][spriteData["Name"]] = spriteData
-	eState["SpriteAnim"] = spriteData["Name"]
-	eState["SpriteFrame"] = 0
+	stateHandle.IDEntityGet("SpriteData")[spriteData["Name"]] = spriteData
+	stateHandle.EntitySet("_SpriteAnim", spriteData["Name"])
+	stateHandle.EntitySet("_SpriteFrame", 0)
 
-func SpritesheetFrames(args, eState, data):
-	var spriteData = _GetCurrentSpriteData(eState, data)
-	spriteData["SpritesX"] = ArgInt(args, eState, 0)
-	spriteData["SpritesY"] = ArgInt(args, eState, 1)
+func SpritesheetFrames(args, stateHandle):
+	var spriteData = _GetCurrentSpriteData(stateHandle)
+	spriteData["SpritesX"] = ArgInt(args, stateHandle, 0)
+	spriteData["SpritesY"] = ArgInt(args, stateHandle, 1)
 
-func SpriteOrigin(args, eState, data):
-	var spriteData = _GetCurrentSpriteData(eState, data)
-	spriteData["OriginX"] = ArgInt(args, eState, 0)
-	spriteData["OriginY"] = ArgInt(args, eState, 1)
+func SpriteOrigin(args, stateHandle):
+	var spriteData = _GetCurrentSpriteData(stateHandle)
+	spriteData["OriginX"] = ArgInt(args, stateHandle, 0)
+	spriteData["OriginY"] = ArgInt(args, stateHandle, 1)
 
-func SpritePixelSize(args, eState, data):
-	var spriteData = _GetCurrentSpriteData(eState, data)
-	spriteData["PixelSize"] = ArgInt(args, eState, 0)
+func SpritePixelSize(args, stateHandle):
+	var spriteData = _GetCurrentSpriteData(stateHandle)
+	spriteData["PixelSize"] = ArgInt(args, stateHandle, 0)
 
-func SpriteOrder(args, eState, _data):
-	_SpriteOrderSet(eState, ArgInt(args, eState, 0), ArgInt(args, eState, 1, eState["SpriteOrderOffset"]))
-func SpriteOrderOffset(args, eState, _data):
-	_SpriteOrderSet(eState, eState["SpriteOrder"], ArgInt(args, eState, 0))
-func _SpriteOrderSet(eState, order, orderOffset):
-	eState["SpriteOrder"] = order
-	eState["SpriteOrderOffset"] = orderOffset
+func SpriteOrder(args, stateHandle):
+	_SpriteOrderSet(stateHandle, ArgInt(args, stateHandle, 0), ArgInt(args, stateHandle, 1, stateHandle.EntityGet("_SpriteOrderOffset")))
+func SpriteOrderOffset(args, stateHandle):
+	_SpriteOrderSet(stateHandle, stateHandle.EntityGet("_SpriteOrder"), ArgInt(args, stateHandle, 0))
+func _SpriteOrderSet(stateHandle, order, orderOffset):
+	stateHandle.EntitySet("_SpriteOrder", order)
+	stateHandle.EntitySet("_SpriteOrderOffset", orderOffset)
 	var finalOrder = order + orderOffset
 	if(finalOrder < VisualServer.CANVAS_ITEM_Z_MIN or finalOrder > VisualServer.CANVAS_ITEM_Z_MAX):
-		ModuleError("Sprite order out of bounds: " + str(finalOrder) + " ("+str(order)+"+"+str(orderOffset)+") is outside of ["+str(VisualServer.CANVAS_ITEM_Z_MIN)+", "+str(VisualServer.CANVAS_ITEM_Z_MAX)+"]!", eState)
+		ModuleError("Sprite order out of bounds: " + str(finalOrder) + " ("+str(order)+"+"+str(orderOffset)+") is outside of ["+str(VisualServer.CANVAS_ITEM_Z_MIN)+", "+str(VisualServer.CANVAS_ITEM_Z_MAX)+"]!", stateHandle)
 
 
 
@@ -323,13 +324,13 @@ func _SpriteOrderSet(eState, order, orderOffset):
 
 
 
-func _EnsureRootIsSet(eid, data):
-	if(data["InstancedData"]["Entities"][eid]["Root"] == null):
+func _EnsureRootIsSet(stateHandle):
+	if(stateHandle.IDEntityGet("Root") == null):
 		var root = _CreateRootNode()
-		data["InstancedData"]["Entities"][eid]["Root"] = root
+		stateHandle.IDEntitySet("Root", root)
 		graphicsRoot.add_child(root)
 
-func _InitCamera(_state, _data, _battleInitData):
+func _InitCamera(_stateHandle, _battleInitData):
 	var cam = Camera.new()
 	return cam
 
@@ -341,32 +342,32 @@ func _CreateSprite_Instance(spriteframesPath):
 		s.set_sprite_frames(Castagne.Loader.Load(spriteframesPath))
 		return s
 
-func _UpdateSprite(sprite, eState, data):
-	var spriteData = _GetCurrentSpriteData(eState, data)
-	if(eState["SpriteUseSpritesheets"]):
+func _UpdateSprite(sprite, stateHandle):
+	var spriteData = _GetCurrentSpriteData(stateHandle)
+	if(stateHandle.EntityGet("_SpriteUseSpritesheets")):
 		sprite.set_texture(spriteData["Spritesheet"])
 		sprite.set_hframes(spriteData["SpritesX"])
 		sprite.set_vframes(spriteData["SpritesY"])
 	else:
-		sprite.set_animation(eState["SpriteAnim"])
+		sprite.set_animation(stateHandle.EntityGet("_SpriteAnim"))
 	sprite.set_centered(false)
-	sprite.set_frame(eState["SpriteFrame"])
+	sprite.set_frame(stateHandle.EntityGet("_SpriteFrame"))
 
-func _UpdateCamera(state, data, camera, cameraPos):
+func _UpdateCamera(_stateHandle, camera, cameraPos):
 	camera.set_translation(cameraPos)
 
-func _ModelApplyTransform(_state, eState, _data, modelRoot, modelPosition, modelRotation, modelScale):
+func _ModelApplyTransform(stateHandle, modelRoot, modelPosition, modelRotation, modelScale):
 	modelRoot.set_translation(modelPosition)
-	modelRoot.set_rotation_degrees(Vector3(0, 90.0*eState["ModelFacing"] - 90.0, modelRotation))
-	modelRoot.set_scale(Vector3(modelScale, modelScale, eState["ModelFacing"] * modelScale))
+	modelRoot.set_rotation_degrees(Vector3(0, 90.0*stateHandle.EntityGet("_ModelFacing") - 90.0, modelRotation))
+	modelRoot.set_scale(Vector3(modelScale, modelScale, stateHandle.EntityGet("_ModelFacing") * modelScale))
 
 func _CreateRootNode():
 	return Spatial.new()
 
 func _CreateGraphicsRootNode(engine):
-	var graphicsRoot = _CreateRootNode()
-	engine.add_child(graphicsRoot)
-	return graphicsRoot
+	var gr = _CreateRootNode()
+	engine.add_child(gr)
+	return gr
 
 func IngameToWorldPos(ingamePositionX, ingamePositionY, ingamePositionZ = 0):
 	return Vector3(ingamePositionX, ingamePositionY, ingamePositionZ) * POSITION_SCALE

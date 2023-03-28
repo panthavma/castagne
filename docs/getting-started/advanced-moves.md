@@ -1,9 +1,7 @@
 ---
 title: Advanced Moves
 order: 5000
-
-template: docpage.hbt
-pathtoroot: ../../../
+todo: 54
 ---
 # Advanced Moves
 

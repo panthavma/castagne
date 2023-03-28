@@ -1,9 +1,7 @@
 ---
 title: Installation / First Start
 order: 1000
-
-template: docpage.hbt
-pathtoroot: ../../../
+todo: 54
 ---
 
 # Installation / First Start

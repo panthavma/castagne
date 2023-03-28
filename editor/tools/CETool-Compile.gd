@@ -44,7 +44,7 @@ func OnEngineInitError(engine):
 		filePath = filePath.right(filePath.find_last("/")+1)
 		
 		var state = ""
-		var stateLine = 0
+		var stateLine = -1
 		
 		var states = editor.character[fileID]["States"]
 		for sName in states:
@@ -54,6 +54,8 @@ func OnEngineInitError(engine):
 			if(sLineStart <= line and line < sLineEnd):
 				state = sName
 				stateLine = line - sLineStart
+				if(!s["StateFlags"].has("Error")):
+					s["StateFlags"] += ["Error"]
 		
 		var ed = {
 			"FileID":fileID,

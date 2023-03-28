@@ -19,7 +19,7 @@ func InitTool(_engine, battleInitData):
 
 
 
-func UpdateGraphics(state, _engine):
+func TODO_UpdateGraphics(state, _engine):
 	UpdatePlayer(state[state["Players"][0]["MainEntity"]], "p1", "L")
 	UpdatePlayer(state[state["Players"][1]["MainEntity"]], "p2", "R")
 	

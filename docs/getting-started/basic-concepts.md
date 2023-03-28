@@ -1,9 +1,7 @@
 ---
 title: Basic Concepts
 order: 2000
-
-template: docpage.hbt
-pathtoroot: ../../../
+todo: 54
 ---
 
 # Basic Concepts

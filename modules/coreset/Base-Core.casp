@@ -1,0 +1,18 @@
+:Character:
+## Base-Core: This file holds the most basic of functionnality, and has some default implementations for parts that modules can expect.
+:Variables-Core:
+def CORE_InitialState str() = Stand
+:Common:
+## The BaseState all states are supposed to call to. Serves as an important point to handle behavior at all times.
+## While it is possible to not use it, it is not recommended.
+
+_BaseState()
+
+ExecuteAfter(CommonAfter)
+:CommonAfter:
+## This state is called after every script that links back to :Common:. It's purpose it to hold some helpers, like putting default hurtboxes on characters.
+_Helper()
+:Init-Main:
+## Initialization script for this file's main entity.
+
+Transition(CORE_InitialState)

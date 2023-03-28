@@ -14,19 +14,19 @@ func _ready():
 	set_translation(Vector3(0.0,0.0,-0.15))
 	
 	var prefabHurtbox = load(Castagne.configData["HurtboxViewer-Hurtbox"])
-	for i in range(NB_BASE_HURTBOXES):
+	for _i in range(NB_BASE_HURTBOXES):
 		var hb = prefabHurtbox.instance()
 		hb.hide()
 		modelHurtboxes.add_child(hb)
 	
 	var prefabHitbox = load(Castagne.configData["HurtboxViewer-Hitbox"])
-	for i in range(NB_BASE_HITBOXES):
+	for _i in range(NB_BASE_HITBOXES):
 		var hb = prefabHitbox.instance()
 		hb.hide()
 		modelHitboxes.add_child(hb)
 	
 	var prefabColbox = load(Castagne.configData["HurtboxViewer-Colbox"])
-	for i in range(NB_BASE_COLBOXES):
+	for _i in range(NB_BASE_COLBOXES):
 		var hb = prefabColbox.instance()
 		hb.hide()
 		modelColboxes.add_child(hb)

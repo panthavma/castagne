@@ -19,8 +19,8 @@ func _ready():
 		i.Init(i.get_name())
 		returnedToNeutral[i] = true
 	inputCooldown = 0.2
-	$GameTitle.set_text(Castagne.configData["GameTitle"])
-	$Version.set_text(Castagne.configData["GameVersion"])
+	$GameTitle.set_text(Castagne.baseConfigData.Get("GameTitle"))
+	$Version.set_text(Castagne.baseConfigData.Get("GameVersion"))
 	$ChooseController.hide()
 
 func _process(delta):
@@ -115,7 +115,7 @@ func StartMatch():
 		Castagne.battleInitData["p2-control-type"] = "local"
 		Castagne.battleInitData["p2-control-param"] = controllerChosenR
 	
-	var ps = load(Castagne.configData["CharacterSelect"])
+	var ps = load(Castagne.baseConfigData.Get("CharacterSelect"))
 	var s = ps.instance()
 	get_tree().get_root().add_child(s)
 	queue_free()

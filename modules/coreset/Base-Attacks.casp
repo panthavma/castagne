@@ -1,0 +1,8 @@
+:Character:
+## Base-Attacks: This file hold helper functions for the attack module. (IN PROGRESS UNTIL v0.54!)
+:GroundedAttack:
+## A base state for grounded attacks. It is recommended to use StandingAttack or CrouchingAttack for more precision.
+## 
+## This state is an helper to ensure the correct behaviours are executed for both attack states and grounded states. If you want to modify some of those parts, it is recommended to check the states called upon by this one.
+
+## TODO

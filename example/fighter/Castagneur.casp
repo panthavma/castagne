@@ -1,6 +1,7 @@
 :Character:
 # The name is displayed in the character select screen
-	Name: Castagneur (Default Fighter)
+Name: Castagneur
+EditorName: Castagneur (Example Fighter)
 	
 # Palette materials, for now.
 Palette1:res://castagne/assets/fighters/castagneur/CastagneurPalette01.tres
@@ -12,14 +13,10 @@ Palette6:res://castagne/assets/fighters/castagneur/CastagneurPalette06.tres
 
 
 # The variables block allows us to hold data for later use.
+:Variables--Ball:
+var BallSpeed int() = 100
 :Variables:
-# Character Specific
-	HPMax: 10000
-	BallSpeed: 2300
-	
-MODEL_SCALE: 1100
-	
-USE_STANDARD_ANIMS: 1
+var BallSpeed int() = 200
 :2A:
 # This one is crouching, so we use CrouchingAttack instead
 Call(CrouchingAttack)
@@ -177,7 +174,11 @@ F17:
 	Hitbox(0, 16000, 0, 23000)
 endif
 :4D:
-# Overhead move with knockdown, can be held to ground bounce
+## Overhead move with knockdown, can be held to ground bounce
+
+## This move showcases knockdown, ground bounces, and how to have a move change by being held.
+## This might be a little complex, but the parts are clearly separated.
+
 Call(StandingAttack)
 Hurtbox(-5000, 5000, 0, 20000)
 
@@ -394,11 +395,11 @@ Call(StandingAttack)
 	
 
 	F15:
-		CreateEntity(BallForward)
-		CopyVariable(BallSpeed)
-		SetPositionRelativeToRef(5000, 10000)
-		CopyRefFacing()
-		SelectOriginalEntity()
+	#	CreateEntity(BallForward)
+		#CopyVariable(BallSpeed)
+		#SetPositionRelativeToRef(5000, 10000)
+		#CopyRefFacing()
+		#SelectOriginalEntity()
 	endif
 
 F1:
@@ -462,6 +463,11 @@ SetMomentum(-400, 1500)
 endif
 
 AttackDuration(20)
+:AnimStand:
+# I'm overriding here
+_Overriding()
+:Ball--BallForward:
+
 :BallForward:
 PInit:
 	CreateModel(res://castagne/example/fighter/Ball.tscn)
@@ -480,6 +486,10 @@ else
 		DestroyEntity()
 	endif
 endif
+:Init--Ball:
+
+:StateTemplate-Test:
+## TEST
 :ThrowF:
 Call(StandingAttack)
 

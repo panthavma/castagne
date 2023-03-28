@@ -1,0 +1,10 @@
+:Character:
+# Fighting Game Flow
+:Variables-Physics:
+# Overriden
+def WalkFSpeed = 900
+def BonusVar = 30
+:teststate1:
+# hehehe
+
+_Overridable(lol)

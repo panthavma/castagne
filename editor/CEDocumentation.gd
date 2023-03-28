@@ -1,6 +1,7 @@
 extends Control
 
 
+var editor = null
 var tree
 var pages = {}
 var treeNodesToPath = {}
@@ -29,16 +30,21 @@ func SetupDocumentation():
 	SetupDocumentationCustomPages(root)
 	
 	AddPageIfDoesntExist(root, "index", {"Name":"Index","Text":"Welcome to the Castagne documentation !"})
-	var modulesRoot = AddPageIfDoesntExist(root, "modules", {"Name":"Modules", "Text":"This is the base modules page. Click on a module to find more.", "Order":99999})
-	for module in Castagne.modules:
-		SetupDocumentationModule(modulesRoot, module)
+	var modulesRoot = AddPageIfDoesntExist(root, "modules", {"Name":"Modules", "Text":"This is the base modules page. Click on a module to find more.", "Order":99990})
+	var modulesUnloadedRoot = AddPageIfDoesntExist(root, "unloadedmodules", {"Name":"Unloaded Modules", "Text":"This is the base modules for the unloaded modules. Click on a module to find more.", "Order":89999})
+	for modulePath in Castagne.modulesLoaded:
+		var module = Castagne.modulesLoaded[modulePath]
+		if(module in editor.configData.GetModules()):
+			SetupDocumentationModule(modulesRoot, module)
+		else:
+			SetupDocumentationModule(modulesUnloadedRoot, module)
 	
 	SortPagesAndCreateTree()
 	
 	LoadPage(pages[defaultPage])
 
 func SetupDocumentationCustomPages(root):
-	var documentationFolders = Castagne.SplitStringToArray(Castagne.configData["Editor-DocumentationFolders"])
+	var documentationFolders = Castagne.SplitStringToArray(editor.configData.Get("Editor-DocumentationFolders"))
 	
 	# :TODO:Panthavma:20220501:Manage overwrite ?
 	for rootFolderPath in documentationFolders:

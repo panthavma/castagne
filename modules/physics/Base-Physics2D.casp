@@ -1,0 +1,339 @@
+:Character:
+## Base-Physics2D: This hold basic behavior for 2D games. (IN CONSTRUCTION UNTIL v0.56)
+##
+## Contains multiple default states to cover various standard types of movement.
+:Variables-Physics:
+## TODO
+
+var CurrentGravity int() = -200
+
+def MOVE_GravityBase int() = -200
+
+def MOVE_Walk_SpeedF int() = 1000
+def MOVE_Walk_SpeedB int() = -800
+def MOVE_Friction_Ground int() = 100
+def MOVE_Friction_Air int() = 20
+
+def MOVE_Jump_JumpsquatTime int() = 3
+def MOVE_Jump_JumpN_InitialMomentumX int() = 0
+def MOVE_Jump_JumpN_InitialMomentumY int() = 3000
+def MOVE_Jump_JumpB_InitialMomentumX int() = -1200
+def MOVE_Jump_JumpB_InitialMomentumY int() = 3000
+def MOVE_Jump_JumpF_InitialMomentumX int() = 1200
+def MOVE_Jump_JumpF_InitialMomentumY int() = 3000
+
+var LandingTime = 6
+def MOVE_Landing_TimeEmpty int() = 6
+
+
+# temp
+internal _PositionY
+internal _MomentumY
+:AirIdle:
+## TODO
+_Category(Movement/Basic)
+
+Call(AirborneNeutralState)
+Call(AnimAirIdle)
+:AirborneNeutralState:
+## TODO
+_Category(Movement)
+_BaseState()
+
+Call(AirborneState)
+Call(AirborneNeutralStateCommon)
+:AirborneNeutralStateCommon:
+## TODO
+_Category(Internals/Physics)
+_Helper()
+:AirborneState:
+## Basic airborne state, can handle landing.
+_Category(Internals/Physics)
+_BaseState()
+
+Flag(Airborne)
+Call(Common)
+_StateFlag(Airborne)
+
+AddMomentum(0, CurrentGravity)
+BreakMomentum(MOVE_Friction_Air)
+
+# Temporary Behavior
+V_PositionY<-2000:
+	PReaction:
+		Set(_PositionY, 0)
+		Max(_MomentumY, 0)
+		Transition(Landing)
+	endif
+endif
+:AnimAirIdle:
+## Animation for the AirIdle state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Movement/Animations)
+:AnimCrouching:
+## Animation for the Crouching state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Movement/Animations)
+:AnimJumpB:
+## Animation for jumping backwards
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Movement/Animations)
+:AnimJumpF:
+## Animation for jumping forward
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Movement/Animations)
+:AnimJumpN:
+## Animation for jumping up
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Movement/Animations)
+:AnimJumpsquat:
+## Animation for the Jumpsquat state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Movement/Animations)
+:AnimLanding:
+## Animation for the Landing state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Movement/Animations)
+:AnimStand:
+## Animation for the standing / idle state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Movement/Animations)
+:AnimWalkB:
+## Animation for walking backwards
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Movement/Animations)
+:AnimWalkF:
+## Animation for the walking forwards
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Movement/Animations)
+:Backdash:
+_Category(Movement/Dashes)
+## TODO
+:CommonAfter:
+CallParent(CommonAfter)
+
+LNoHurtbox:
+else
+	Call(StandardHurtbox)
+endif
+
+LNoColbox:
+else
+	Call(StandardColbox)
+endif
+:Crouching:
+## TODO
+_Category(Movement/Basic)
+
+Call(CrouchingNeutralState)
+Call(AnimCrouching)
+:CrouchingNeutralState:
+## TODO
+_Category(Movement)
+_BaseState()
+
+Call(CrouchingState)
+Call(GroundedNeutralStateCommon)
+:CrouchingState:
+## Crouching state. Simple variant of the grounded state, with the 'Crouching' flag.
+_Category(Internals/Physics)
+_BaseState()
+
+Flag(Crouching)
+Call(GroundedState)
+:GroundedNeutralState:
+## TODO
+_Category(Movement)
+_BaseState()
+
+Call(GroundedState)
+Call(GroundedNeutralStateCommon)
+:GroundedNeutralStateCommon:
+## TODO
+_Category(Internals/Physics)
+_Helper()
+
+# Walk Logic
+IUp:
+	Transition(Jumpsquat)
+else
+	IDown:
+		Transition(Crouching)
+	else
+		IForward:
+			Transition(WalkF)
+		else
+			IBack:
+				Transition(WalkB)
+			else
+				Transition(Stand)
+			endif
+		endif
+	endif
+endif
+:GroundedState:
+## TODO
+_Category(Internals/Physics)
+_BaseState()
+
+Flag(Grounded)
+Call(Common)
+_StateFlag(Grounded)
+
+BreakMomentum(MOVE_Friction_Ground)
+:JumpB:
+## TODO
+_Category(Movement/Basic)
+
+Call(AirborneNeutralState)
+Call(AnimJumpB)
+
+F1:
+	AddMomentum(MOVE_Jump_JumpB_InitialMomentumX, MOVE_Jump_JumpB_InitialMomentumY)
+endif
+:JumpF:
+## TODO
+_Category(Movement/Basic)
+
+Call(AirborneNeutralState)
+Call(AnimJumpF)
+
+F1:
+	AddMomentum(MOVE_Jump_JumpF_InitialMomentumX, MOVE_Jump_JumpF_InitialMomentumY)
+endif
+:JumpN:
+## TODO
+_Category(Movement/Basic)
+
+Call(AirborneNeutralState)
+Call(AnimJumpN)
+
+F1:
+	AddMomentum(MOVE_Jump_JumpN_InitialMomentumX, MOVE_Jump_JumpN_InitialMomentumY)
+endif
+:Jumpsquat:
+## State for preparing to jump. It has the particularity of counting as airborne, in order to avoid throws.
+_Category(Movement/Basic)
+
+Call(CrouchingState)
+Call(AnimJumpsquat)
+Unflag(Grounded)
+Flag(Airborne)
+
+Set(CurrentGravity, MOVE_GravityBase)
+
+VMOVE_Jump_JumpsquatTime<1:
+	Flag(_Jumpsquat_StartJump)
+endif
+
+FMOVE_Jump_JumpsquatTime:
+	Flag(_Jumpsquat_StartJump)
+endif
+
+IForward:
+	Flag(_Jumpsquat_Forward)
+	Unflag(_Jumpsquat_Back)
+endif
+
+IBack:
+	Flag(_Jumpsquat_Back)
+	Unflag(_Jumpsquat_Forward)
+endif
+
+L_Jumpsquat_Forward:
+	FlagNext(_Jumpsquat_Forward)
+else
+L_Jumpsquat_Back:
+	FlagNext(_Jumpsquat_Back)
+endif
+endif
+
+L_Jumpsquat_StartJump:
+	L_Jumpsquat_Forward:
+		Transition(JumpF)
+	else
+	L_Jumpsquat_Back:
+		Transition(JumpB)
+	else
+		Transition(JumpN)
+	endif
+	endif
+endif
+:Landing:
+## TODO
+_Category(Movement/Basic)
+
+Call(CrouchingState)
+Call(AnimLanding)
+
+Set(CurrentGravity, MOVE_GravityBase)
+
+VLandingTime<1:
+	Flag(_FinishedLanding)
+endif
+
+FLandingTime:
+	Flag(_FinishedLanding)
+endif
+
+L_FinishedLanding:
+	Transition(Stand)
+endif
+:Stand:
+## The standing idle state, and default state of the character.
+_Category(Movement/Basic)
+
+Call(StandingNeutralState)
+Call(AnimStand)
+:StandardColbox:
+## Adds a Colbox automatically. Can be removed with the flag 'NoColbox'
+_Category(Internals/Physics)
+_Helper()
+
+Colbox(-4000, 4000, 0, 16000)
+:StandardHurtbox:
+## Adds a Hurtbox automatically. Can be removed with the flag 'NoHurtbox'
+_Category(Internals/Physics)
+_Helper()
+
+Hurtbox(-5000, 5000, 0, 20000)
+:StandingNeutralState:
+## TODO
+_Category(Movement)
+_BaseState()
+
+Call(StandingState)
+Call(GroundedNeutralStateCommon)
+:StandingState:
+## TODO
+_Category(Internals/Physics)
+_BaseState()
+
+Call(GroundedState)
+:WalkB:
+## TODO
+_Category(Movement/Basic)
+
+Call(StandingNeutralState)
+Call(AnimWalkB)
+
+Move(MOVE_Walk_SpeedB)
+:WalkF:
+## The standard forward walk state.
+## TODO
+_Category(Movement/Basic)
+
+Call(StandingNeutralState)
+Call(AnimWalkF)
+
+Move(MOVE_Walk_SpeedF)

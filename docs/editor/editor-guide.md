@@ -1,9 +1,7 @@
 ---
 title: Editor Overview
 order: 1000
-
-template: docpage.hbt
-pathtoroot: ../../../
+todo: 54
 ---
 
 # Castagne Editor Overview

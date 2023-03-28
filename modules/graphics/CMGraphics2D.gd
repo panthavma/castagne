@@ -6,7 +6,7 @@ var viewport
 var viewportContainer
 
 func ModuleSetup():
-	RegisterModule("Graphics 2D")
+	RegisterModule("Graphics 2D", Castagne.MODULE_SLOTS_BASE.GRAPHICS)
 	.ModuleSetup()
 	
 	RegisterConfig("2DScreenSizeX", 1920)
@@ -16,37 +16,37 @@ func ModuleSetup():
 	
 	RegisterConfig("PixelArtMode", true)
 
-func BattleInit(state, data, battleInitData):
-	.BattleInit(state, data, battleInitData)
+func BattleInit(stateHandle, battleInitData):
+	.BattleInit(stateHandle, battleInitData)
 	# Pixels per unit
-	POSITION_SCALE = float(Castagne.configData["2DScreenSizeX"]) / Castagne.configData["UnitsInScreen"]
-	pixelArtMode = Castagne.configData["PixelArtMode"]
+	POSITION_SCALE = float(stateHandle.ConfigData().Get("2DScreenSizeX")) / stateHandle.ConfigData().Get("UnitsInScreen")
+	pixelArtMode = stateHandle.ConfigData().Get("PixelArtMode")
 	
 	
 
 
 
-func CreateModel(args, eState, data):
-	ModuleError("CreateModel is not supported for 2D", eState)
-	.CreateModel(args, eState, data)
+func CreateModel(args, stateHandle):
+	ModuleError("CreateModel is not supported for 2D", stateHandle)
+	.CreateModel(args, stateHandle)
 
 
 
-func _UpdateSprite(sprite, eState, data):
-	._UpdateSprite(sprite, eState, data)
-	var spriteOrder = eState["SpriteOrder"] + eState["SpriteOrderOffset"]
+func _UpdateSprite(sprite, stateHandle):
+	._UpdateSprite(sprite, stateHandle)
+	var spriteOrder = stateHandle.EntityGet("SpriteOrder") + stateHandle.EntityGet("SpriteOrderOffset")
 	sprite.set_z_index(spriteOrder)
 	
-	var spriteData = _GetCurrentSpriteData(eState, data)
+	var spriteData = _GetCurrentSpriteData(stateHandle)
 	var spriteSizeY = 0
-	if(eState["SpriteUseSpritesheets"]):
+	if(stateHandle.EntityGet("SpriteUseSpritesheets")):
 		var texture = sprite.get_texture()
 		if(texture != null):
 			spriteSizeY = texture.get_size().y / sprite.get_vframes()
 	else:
 		var spriteFrames = sprite.get_sprite_frames()
 		if(spriteFrames != null):
-			var curFrame = spriteFrames.get_frame(eState["SpriteAnim"], eState["SpriteFrame"])
+			var curFrame = spriteFrames.get_frame(stateHandle.EntityGet("SpriteAnim"), stateHandle.EntityGet("SpriteFrame"))
 			if(curFrame != null):
 				spriteSizeY = curFrame.get_size().y
 	sprite.set_offset(Vector2(-spriteData["OriginX"], spriteData["OriginY"] - spriteSizeY))
@@ -58,7 +58,7 @@ func _UpdateSprite(sprite, eState, data):
 
 
 
-func _InitCamera(_state, _data, _battleInitData):
+func _InitCamera(_stateHandle, _battleInitData):
 	var cam = Camera2D.new()
 	#cam.set_zoom(Vector2(0.5, 0.5))
 	cam.make_current()
@@ -73,20 +73,20 @@ func _CreateSprite_Instance(spriteframesPath):
 		return s
 
 
-func _UpdateCamera(state, data, camera, cameraPos):
+func _UpdateCamera(_stateHandle, camera, cameraPos):
 	# TODO Camera size isn't really consistent, needs design
 	if(pixelArtMode):
 		cameraPos = cameraPos.round()
 	
 	camera.set_position(cameraPos)
 
-func _ModelApplyTransform(_state, eState, _data, modelRoot, modelPosition, modelRotation, modelScale):
+func _ModelApplyTransform(stateHandle, modelRoot, modelPosition, modelRotation, modelScale):
 	if(pixelArtMode):
 		modelPosition = modelPosition.round()
 	
 	modelRoot.set_position(modelPosition)
 	modelRoot.set_rotation_degrees(modelRotation)
-	modelRoot.set_scale(Vector2(eState["ModelFacing"] * modelScale, modelScale))
+	modelRoot.set_scale(Vector2(stateHandle.EntityGet("_ModelFacing") * modelScale, modelScale))
 
 func _CreateRootNode():
 	return Node2D.new()
@@ -103,7 +103,7 @@ func _CreateGraphicsRootNode(engine):
 	viewport = vp
 	
 	mainRoot.set_anchors_and_margins_preset(Control.PRESET_WIDE)
-	vp.set_size(Vector2(Castagne.configData["2DScreenSizeX"], Castagne.configData["2DScreenSizeY"]))
+	vp.set_size(Vector2(engine.configData.Get("2DScreenSizeX"), engine.configData.Get("2DScreenSizeY")))
 	vpc.set_anchors_and_margins_preset(Control.PRESET_WIDE)
 	
 	vp.set_usage(Viewport.USAGE_2D)

@@ -5,34 +5,35 @@ var prefabHitboxViewer = preload("res://castagne/modules/gamemodes/assets/Hurtbo
 
 func ModuleSetup():
 	RegisterModule("Fighting Game Flow")
+	RegisterBaseCaspFile("res://castagne/modules/gamemodes/Base-Flow-FightingGame.casp", 2000)
 	
 	RegisterCategory("Game Mode: Fighting Game")
-	RegisterVariableGlobal("WhoHasWon", 0)
-	RegisterVariableGlobal("TimeSinceDead", 0)
-	RegisterVariableEntity("TimeSinceHitstun", 0)
+	RegisterVariableGlobal("_WhoHasWon", 0)
+	RegisterVariableGlobal("_TimeSinceDead", 0)
+	RegisterVariableEntity("_TimeSinceHitstun", 0)
 	
-	RegisterVariableEntity("HP", 10000)
+	RegisterVariableEntity("_HP", 10000)
 	# :TODO:Panthavma:20220131:Set HP from HPMax once the game starts
-	RegisterVariableEntity("HPMax", 10000)
-	RegisterVariableEntity("Meter", 0)
+	RegisterVariableEntity("_HPMax", 10000)
+	RegisterVariableEntity("_Meter", 0)
 	
-	RegisterVariableGlobal("Timer", 6000)
-	RegisterVariableGlobal("CameraHor", 0)
-	RegisterVariableGlobal("CameraVer", 0)
-	RegisterVariableGlobal("PlayerOnTheLeft", 0)
+	RegisterVariableGlobal("_Timer", 6000)
+	RegisterVariableGlobal("_CameraHor", 0)
+	RegisterVariableGlobal("_CameraVer", 0)
+	RegisterVariableGlobal("_PlayerOnTheLeft", 0)
 	
-	RegisterBattleInitData("p1",0)
-	RegisterBattleInitData("p1-control-type","local")
-	RegisterBattleInitData("p1-control-param","k1")
-	RegisterBattleInitData("p1-palette",0)
-	RegisterBattleInitData("p1-onlinepeer",1)
-	RegisterBattleInitData("p2-onlinepeer",1)
-	RegisterBattleInitData("p2",0)
-	RegisterBattleInitData("p2-control-type","local")
-	RegisterBattleInitData("p2-control-param","c1")
-	RegisterBattleInitData("p2-palette",1)
-	RegisterBattleInitData("p1Points",0)
-	RegisterBattleInitData("p2Points",0)
+	#RegisterBattleInitData("p1",0)
+	#RegisterBattleInitData("p1-control-type","local")
+	#RegisterBattleInitData("p1-control-param","k1")
+	#RegisterBattleInitData("p1-palette",0)
+	#RegisterBattleInitData("p1-onlinepeer",1)
+	#RegisterBattleInitData("p2-onlinepeer",1)
+	#RegisterBattleInitData("p2",0)
+	#RegisterBattleInitData("p2-control-type","local")
+	#RegisterBattleInitData("p2-control-param","c1")
+	#RegisterBattleInitData("p2-palette",1)
+	#RegisterBattleInitData("p1Points",0)
+	#RegisterBattleInitData("p2Points",0)
 	
 	RegisterConfig("HurtboxViewer-Hurtbox", "res://castagne/modules/gamemodes/assets/HurtboxViewer-Hurtbox.tscn")
 	RegisterConfig("HurtboxViewer-Hitbox", "res://castagne/modules/gamemodes/assets/HurtboxViewer-Hitbox.tscn")
@@ -40,14 +41,14 @@ func ModuleSetup():
 	RegisterConfig("StartingPosition", 20000)
 	
 
-func BattleInit(state, data, battleInitData):
+func BattleInit(stateHandle, battleInitData):
 	
 	# Create the entities
-	for player in data["InstancedData"]["Players"]:
+	for player in stateHandle.IDGlobalGet("Players"):
 		# Parse fighter, create entity, then create model. Return error if problem
 		var characterPath = battleInitData[player["Name"]]
 		if(!str(characterPath).ends_with(".casp")):
-			characterPath = Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"])[characterPath]
+			characterPath = Castagne.SplitStringToArray(stateHandle.ConfigData().Get("CharacterPaths"))[characterPath]
 		var playerID = player["PID"]
 		
 		var fighterID = engine.ParseFighterScript(characterPath)
@@ -55,8 +56,10 @@ func BattleInit(state, data, battleInitData):
 			ModuleError("CMFightingGame: Fighter parsing failed for " + str(characterPath) + " !")
 			return
 		
-		engine.AddNewEntity(state, playerID, fighterID, "Init")
+		engine.AddNewEntity(stateHandle, playerID, fighterID)
 	
+	
+	return #TODO
 	
 	
 	trainingMode = (battleInitData["mode"] == "Training")
@@ -85,26 +88,27 @@ func BattleInit(state, data, battleInitData):
 		engine.add_child(hitboxViewer)
 
 var _tmpSkipFirstFrame = true
-func FrameStart(state, data):
+func FrameStart(stateHandle):
 	# Pause Management
 	if(pausedPID != null):
-		state["SkipFrame"] = true
-		PausedIdle(pausedPID, state, data)
+		stateHandle.GlobalSet("_SkipFrame", true)
+		PausedIdle(pausedPID, stateHandle)
 		return
 		
 	var slowmo = false
-	var slowmoFast = false
+	var _slowmoFast = false
 	var slowmoFactor = 8
-	if(slowmo and state["TrueFrameID"] % slowmoFactor != 0):
-		state["SkipFrame"] = true
+	if(slowmo and stateHandle.GlobalGet("_TrueFrameID") % slowmoFactor != 0):
+		stateHandle.GlobalSet("_SkipFrame", true)
 	
-	var mainEIDs = []
-	for player in state["Players"]:
-		var i = player["Inputs"]
-		mainEIDs.append(player["MainEntity"])
-		if(i["PausePress"]):
-			Pause(player["PID"])
-			return
+	var _mainEIDs = []
+	#for player in stateHandle.GlobalGet("_Players"):
+	#	# TODO for each player
+	#	var i = stateHandle.PlayerGet("Inputs")
+	#	mainEIDs.append(player["MainEntity"])
+	#	if(i["PausePress"]):
+	#		Pause(player["PID"])
+	#		return
 	
 	
 	# :TODO:Panthavma:20220207:Remove this hack
@@ -122,85 +126,88 @@ func FrameStart(state, data):
 	# :TODO:Panthavma:20220207:Manage several rounds from one instance, both local and online
 	
 	# :TODO:Panthavma:20220207:Put this in a separate function
-	var p1Dead = HasFlag(state[mainEIDs[0]], "Dead")
-	var p2Dead = HasFlag(state[mainEIDs[1]], "Dead")
+	# TODO Disabled
+	#var p1Dead = HasFlag(state[mainEIDs[0]], "Dead")
+	#var p2Dead = HasFlag(state[mainEIDs[1]], "Dead")
+	var _p1Dead = false
+	var _p2Dead = false
 	# :TODO:Panthavma:20220207:This is Kronian Titans specific, remove it cleanly
 	#var fuelEmpty = HasFlag(state[mainEIDs[0]], "FuelEmpty") or HasFlag(state[mainEIDs[1]], "FuelEmpty")
 	
-	if(p1Dead or p2Dead):
-		state["TimeSinceDead"] += 1
-		var timeSinceDead = state["TimeSinceDead"]
-		
-		if(timeSinceDead == 20):
-			winner = 0
-			if(p1Dead):
-				winner += 1
-			if(p2Dead):
-				winner -= 1
-			if(winner == 0):
-				# :TODO:Panthavma:20220207:Should be ratio over HP Max
-				var p1HP = float(state[mainEIDs[0]]["HP"]) / float(state[mainEIDs[0]]["HPMax"])
-				var p2HP = float(state[mainEIDs[1]]["HP"]) / float(state[mainEIDs[1]]["HPMax"])
-				winner = sign(p2HP - p1HP)
-			state["WhoHasWon"] = winner + 2
-		
-		# Slowdown
-		if(timeSinceDead > 15 and timeSinceDead % 2):
-			state["SkipFrame"] = true
-		
-		if(timeSinceDead == 150):
-			# :TODO:Panthavma:20220207:Should refactor the winning code I think
-			if(winner == 0): # Tie
-				if(Castagne.battleInitData["p1Points"] < nbRoundsToWin-1):
-					Castagne.battleInitData["p1Points"] += 1
-				if(Castagne.battleInitData["p2Points"] < nbRoundsToWin-1):
-					Castagne.battleInitData["p2Points"] += 1
-			elif(winner == -1): # P1 Win
-				Castagne.battleInitData["p1Points"] += 1
-			else: # P2 Win
-				Castagne.battleInitData["p2Points"] += 1
-			
-			var fightFinished = Castagne.battleInitData["p1Points"] >= nbRoundsToWin or Castagne.battleInitData["p2Points"] >= nbRoundsToWin
-			
-			if(engine.useOnline):
-				engine.rpc("OnlineEndMatch")
-			
-			fightFinished = true
-			
-			if(fightFinished):
-				if(engine.useOnline):
-					LoadLevel("res://dev/rollback-test/RollbackOnlineTest.tscn")
-				else:
-					LoadLevel(Castagne.configData["PostBattle"])
-			else:
-				if(engine.useOnline):
-					Castagne.Net.StartNetworkMatch()
-				else:
-					LoadLevel("res://castagne/engine/CastagneEngine.tscn")
-			engine.queue_free()
-			state["SkipFrame"] = true
+	#if(p1Dead or p2Dead):
+	#	state["TimeSinceDead"] += 1
+	#	var timeSinceDead = state["TimeSinceDead"]
+	#	
+	#	if(timeSinceDead == 20):
+	#		winner = 0
+	#		if(p1Dead):
+	#			winner += 1
+	#		if(p2Dead):
+	#			winner -= 1
+	#		if(winner == 0):
+	#			# :TODO:Panthavma:20220207:Should be ratio over HP Max
+	#			var p1HP = float(state[mainEIDs[0]]["HP"]) / float(state[mainEIDs[0]]["HPMax"])
+	#			var p2HP = float(state[mainEIDs[1]]["HP"]) / float(state[mainEIDs[1]]["HPMax"])
+	#			winner = sign(p2HP - p1HP)
+	#		state["WhoHasWon"] = winner + 2
+	#	
+	#	# Slowdown
+	#	if(timeSinceDead > 15 and timeSinceDead % 2):
+	#		state["SkipFrame"] = true
+	#	
+	#	if(timeSinceDead == 150):
+	#		# :TODO:Panthavma:20220207:Should refactor the winning code I think
+	#		if(winner == 0): # Tie
+	#			if(Castagne.battleInitData["p1Points"] < nbRoundsToWin-1):
+	#				Castagne.battleInitData["p1Points"] += 1
+	#			if(Castagne.battleInitData["p2Points"] < nbRoundsToWin-1):
+	#				Castagne.battleInitData["p2Points"] += 1
+	#		elif(winner == -1): # P1 Win
+	#			Castagne.battleInitData["p1Points"] += 1
+	#		else: # P2 Win
+	#			Castagne.battleInitData["p2Points"] += 1
+	#		
+	#		var fightFinished = Castagne.battleInitData["p1Points"] >= nbRoundsToWin or Castagne.battleInitData["p2Points"] >= nbRoundsToWin
+	#		
+	#		if(engine.useOnline):
+	#			engine.rpc("OnlineEndMatch")
+	#		
+	#		fightFinished = true
+	#		
+	#		if(fightFinished):
+	#			if(engine.useOnline):
+	#				LoadLevel("res://dev/rollback-test/RollbackOnlineTest.tscn")
+	#			else:
+	#				LoadLevel(Castagne.configData["PostBattle"])
+	#		else:
+	#			if(engine.useOnline):
+	#				Castagne.Net.StartNetworkMatch()
+	#			else:
+	#				LoadLevel("res://castagne/engine/CastagneEngine.tscn")
+	#		engine.queue_free()
+	#		state["SkipFrame"] = true
 
-func InitPhaseEndEntity(eState, _data):
-	if(eState["EID"] == 0):
-		eState["PositionX"] = -Castagne.configData["StartingPosition"]
-	if(eState["EID"] == 1):
-		eState["PositionX"] = Castagne.configData["StartingPosition"]
+func InitPhaseEndEntity(stateHandle):
+	if(stateHandle.EntityGet("_EID") == 0):
+		stateHandle.EntitySet("_PositionX", -stateHandle.ConfigData().Get("StartingPosition"))
+	if(stateHandle.EntityGet("_EID") == 1):
+		stateHandle.EntitySet("_PositionX", stateHandle.ConfigData().Get("StartingPosition"))
 
-func ActionPhaseStartEntity(eState, _data):
-	if(eState["HP"] <= 0 and !trainingMode):
-		SetFlag(eState, "Die")
+func ActionPhaseStartEntity(stateHandle):
+	if(stateHandle.EntityGet("_HP") <= 0 and !trainingMode):
+		stateHandle.EntitySetFlag("Die")
 
-func UpdateGraphics(state, data):
+func UpdateGraphics(stateHandle):
 	if(trainingMode):
-		hitboxViewer.UpdateGraphics(state, data)
+		hitboxViewer.UpdateGraphics(stateHandle)
 
 
 
-func PhysicsPhaseStartEntity(eState, data):
+func PhysicsPhaseStartEntity(stateHandle):
 	if(trainingMode):
-		TrainingApplyOptions(eState, data)
-	if(data["State"]["FrameID"] == STARTFRAMES):
-		SetFlag(eState,"StartRound")
+		TrainingApplyOptions(stateHandle)
+	if(stateHandle.GlobalGet("_FrameID") == STARTFRAMES):
+		stateHandle.EntitySetFlag("StartRound")
 
 var STARTFRAMES = 120
 var winner = 0
@@ -240,7 +247,9 @@ func Unpause():
 	pausedPID = null
 	pauseMenu.hide()
 
-func PausedIdle(pid, state, _data):
+func PausedIdle(pid, _stateHandle):
+	return # TODO
+	var state = null
 	var input = state["Players"][pid]["Inputs"]
 	state["SkipFrame"] = true
 	
@@ -362,7 +371,10 @@ enum REGEN_MODE {
 	No, Full
 }
 
-func TrainingApplyOptions(eState, data):
+func TrainingApplyOptions(_stateHandle):
+	return # TODO
+	var eState = null
+	var data = null
 	eState["TotalFuel"] = 60*100
 	eState["Flags"] += ["StartRound"]
 	if(eState["EID"] != data["State"]["Players"][dummyPID]["MainEntity"]):

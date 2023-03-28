@@ -19,60 +19,46 @@ color = Color( 0, 0, 0, 1 )
 anchor_left = 0.2
 anchor_top = 0.2
 anchor_right = 0.8
-anchor_bottom = 0.5
+anchor_bottom = 0.8
 alignment = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Editor" type="Button" parent="Buttons"]
-margin_top = 104.0
-margin_right = 1152.0
-margin_bottom = 124.0
+margin_top = 182.0
+margin_right = 768.0
+margin_bottom = 202.0
 text = "Castagne Editor"
 
 [node name="MainMenu" type="Button" parent="Buttons"]
-margin_top = 128.0
-margin_right = 1152.0
-margin_bottom = 148.0
+margin_top = 206.0
+margin_right = 768.0
+margin_bottom = 226.0
 text = "Start Game Normally"
 
 [node name="Training" type="Button" parent="Buttons"]
-margin_top = 152.0
-margin_right = 1152.0
-margin_bottom = 172.0
+visible = false
+margin_top = 98.0
+margin_right = 768.0
+margin_bottom = 118.0
 text = "Training"
 
 [node name="LocalBattle" type="Button" parent="Buttons"]
-margin_top = 176.0
-margin_right = 1152.0
-margin_bottom = 196.0
+visible = false
+margin_top = 110.0
+margin_right = 768.0
+margin_bottom = 130.0
 text = "Battle"
 
 [node name="DevTools" type="Button" parent="Buttons"]
-margin_top = 200.0
-margin_right = 1152.0
-margin_bottom = 220.0
+margin_top = 230.0
+margin_right = 768.0
+margin_bottom = 250.0
 text = "Dev Tools"
 
-[node name="SecretButtons" type="VBoxContainer" parent="."]
-visible = false
-anchor_left = 0.2
-anchor_top = 0.2
-anchor_right = 0.8
-anchor_bottom = 0.5
-alignment = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="DevTools" type="Button" parent="SecretButtons"]
-margin_top = 83.0
-margin_right = 576.0
-margin_bottom = 103.0
-text = "Devevelopper Tools"
-
 [node name="Characters" type="Control" parent="."]
+visible = false
 anchor_left = 0.2
 anchor_top = 0.5
 anchor_right = 0.8

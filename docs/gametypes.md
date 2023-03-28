@@ -1,9 +1,7 @@
 ---
 title: Gametypes [COMING SOON]
 order: 400
-
-template: docpage.hbt
-pathtoroot: ../../
+todo: 56
 ---
 
 # Game Types

@@ -1,9 +1,7 @@
 ---
 title: Your First Character
 order: 4000
-
-template: docpage.hbt
-pathtoroot: ../../../
+todo: 54
 ---
 
 # Your first character

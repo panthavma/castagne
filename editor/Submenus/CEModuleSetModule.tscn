@@ -1,0 +1,44 @@
+[gd_scene format=2]
+
+[node name="Module" type="VBoxContainer"]
+margin_right = 350.0
+margin_bottom = 56.0
+size_flags_horizontal = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HSeparator" type="HSeparator" parent="."]
+margin_right = 350.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 0, 24 )
+
+[node name="HBox" type="HBoxContainer" parent="."]
+margin_top = 28.0
+margin_right = 350.0
+margin_bottom = 48.0
+
+[node name="Label" type="Label" parent="HBox"]
+margin_top = 3.0
+margin_right = 80.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.3
+text = "Unspecified:"
+align = 2
+
+[node name="OptionButton" type="OptionButton" parent="HBox"]
+margin_left = 84.0
+margin_right = 350.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "[Disable]"
+items = [ "[Disable]", null, false, 0, null ]
+selected = 0
+
+[node name="User" type="LineEdit" parent="."]
+margin_top = 52.0
+margin_right = 350.0
+margin_bottom = 76.0
+editable = false
+placeholder_text = "User Module"

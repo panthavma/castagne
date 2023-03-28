@@ -1,9 +1,7 @@
 ---
 title: Choosing Modules
 order: 3000
-
-template: docpage.hbt
-pathtoroot: ../../../
+todo: 54
 ---
 
 # Choosing Modules

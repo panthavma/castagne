@@ -14,80 +14,104 @@ extends Node
 func ModuleSetup():
 	pass
 
+# Called when a config data registers this module
+func OnModuleRegistration(_configData):
+	pass
+
 # :TODO:Panthavma:20220124:Document the exact time it starts
 # Used at the beginning of a battle
-func BattleInit(_state, _data, _battleInitData):
+func BattleInit(_stateHandle, _battleInitData):
 	pass
 
-# Called at the very beginning of each frame, before inputs
-func FramePreStart(_state, _playerInputs, _data):
+# Called at the beginning of each frame, before choosing the loop
+func FramePreStart(_stateHandle):
 	pass
 # Called at the beginning of each frame
-func FrameStart(_state, _data):
+func FrameStart(_stateHandle):
 	pass
 
-# :TODO:Panthavma:20220124:Add per entity functions
+
+# AI Phase: Helpful to execute the AI logic for an entity and create fake button presses
+func AIPhaseStart(_gameStateHandle):
+	pass
+func AIPhaseStartEntity(_gameStateHandle):
+	pass
+func AIPhaseEndEntity(_gameStateHandle):
+	pass
+func AIPhaseEnd(_gameStateHandle):
+	pass
+
+# Input Phase: Applies the input to the entities
+func InputPhaseStart(_gameStateHandle):
+	pass
+func InputPhaseStartEntity(_gameStateHandle):
+	pass
+func InputPhaseEndEntity(_gameStateHandle):
+	pass
+func InputPhaseEnd(_gameStateHandle):
+	pass
+
 # Init Phase: Prepares the entities themselves
-func InitPhaseStart(_state, _data):
+func InitPhaseStart(_gameStateHandle):
 	pass
-func InitPhaseStartEntity(_eState, _data):
+func InitPhaseStartEntity(_gameStateHandle):
 	pass
-func InitPhaseEndEntity(_eState, _data):
+func InitPhaseEndEntity(_gameStateHandle):
 	pass
-func InitPhaseEnd(_state, _data):
+func InitPhaseEnd(_gameStateHandle):
 	pass
 
 # Action Phase: Allows the characters to act
-func ActionPhaseStart(_state, _data):
+func ActionPhaseStart(_gameStateHandle):
 	pass
-func ActionPhaseStartEntity(_eState, _data):
+func ActionPhaseStartEntity(_gameStateHandle):
 	pass
-func ActionPhaseEndEntity(_eState, _data):
+func ActionPhaseEndEntity(_gameStateHandle):
 	pass
-func ActionPhaseEnd(_state, _data):
+func ActionPhaseEnd(_gameStateHandle):
 	pass
 
 # Physics Phase: Allows the characters to move, and computes the hits
-func PhysicsPhaseStart(_state, _data):
+func PhysicsPhaseStart(_gameStateHandle):
 	pass
-func PhysicsPhaseStartEntity(_eState, _data):
+func PhysicsPhaseStartEntity(_gameStateHandle):
 	pass
-func PhysicsPhaseEndEntity(_eState, _data):
+func PhysicsPhaseEndEntity(_gameStateHandle):
 	pass
-func PhysicsPhaseEnd(_state, _data):
+func PhysicsPhaseEnd(_gameStateHandle):
 	pass
 # :TODO:Panthavma:20220124:Allow a more flexible physics phase through modules
 
-# Transition Phase: Allows the entities to change their state
-func TransitionPhaseStart(_state, _data):
+# Reaction Phase: Allows the entities to change their state
+func ReactionPhaseStart(_gameStateHandle):
 	pass
-func TransitionPhaseStartEntity(_eState, _data):
+func ReactionPhaseStartEntity(_gameStateHandle):
 	pass
-func TransitionPhaseEndEntity(_eState, _data):
+func ReactionPhaseEndEntity(_gameStateHandle):
 	pass
-func TransitionPhaseEnd(_state, _data):
+func ReactionPhaseEnd(_gameStateHandle):
 	pass
 
 # Freeze Phase: Called when skipping frames
-func FreezePhaseStart(_state, _data):
+func FreezePhaseStart(_gameStateHandle):
 	pass
-func FreezePhaseStartEntity(_eState, _data):
+func FreezePhaseStartEntity(_gameStateHandle):
 	pass
-func FreezePhaseEndEntity(_eState, _data):
+func FreezePhaseEndEntity(_gameStateHandle):
 	pass
-func FreezePhaseEnd(_state, _data):
+func FreezePhaseEnd(_gameStateHandle):
 	pass
 
 
 # Called on each graphical frame to keep the display up to date
-func UpdateGraphics(_state, _data):
+func UpdateGraphics(_gameStateHandle):
 	pass
 
 
 # Confirms or infirms attacks
-func IsAttackConfirmed(hitconfirm, _attackData, _hurtboxData, _aState, _dState, _state):
+func IsAttackConfirmed(hitconfirm, _attackData, _hurtboxData, _attackerHandle, _defenderHandle):
 	return hitconfirm
-func OnAttackConfirmed(_hitconfirm, _attackData, _hurtboxData, _aState, _dState, _state):
+func OnAttackConfirmed(_hitconfirm, _attackData, _hurtboxData, _attackerHandle, _defenderHandle):
 	pass
 
 
@@ -101,16 +125,25 @@ func OnAttackConfirmed(_hitconfirm, _attackData, _hurtboxData, _aState, _dState,
 # Helper functions
 
 var moduleName = "Unnamed Module"
+var moduleSlot = null
 var moduleDocumentation = {"Description":""}
 
 var moduleDocumentationCategories = {null:{"Name":"Uncategorized", "Description":"", "Variables":[], "Functions":[], "Flags":[], "Config":[], "BattleInitData":[]}}
 
-func RegisterModule(_moduleName, _moduleDocumentation = null):
+func RegisterModule(_moduleName, _moduleSlot=null, _moduleDocumentation = null):
 	if(moduleName != "Unnamed Module"):
 		return
 	moduleName = _moduleName
-	if(_moduleDocumentation != null):
-		moduleDocumentation = _moduleDocumentation
+	moduleSlot = _moduleSlot
+	if(_moduleDocumentation == null):
+		_moduleDocumentation = moduleDocumentation
+	moduleDocumentation = _moduleDocumentation
+	
+	if(!moduleDocumentation.has("docname")):
+		moduleDocumentation["docname"] = moduleName.to_lower()
+	
+	if(_battleInitDataDefault.size() == 0):
+		_battleInitDataDefault = {Castagne.MEMORY_STACKS.Global:{}, Castagne.MEMORY_STACKS.Entity:{}, Castagne.MEMORY_STACKS.Player:{}}
 
 
 # Call before declaring functions or variables to group them in a category
@@ -118,9 +151,10 @@ func RegisterCategory(categoryName, categoryDocumentation = null):
 	# TODO
 	currentCategory = categoryName
 	if(categoryDocumentation == null):
-		categoryDocumentation = {
+		categoryDocumentation = {}
+	Castagne.FuseDataNoOverwrite(categoryDocumentation, {
 			"Description":"",
-		}
+		})
 	categoryDocumentation["Name"] = categoryName
 	categoryDocumentation["Variables"] = []
 	categoryDocumentation["Functions"] = []
@@ -129,7 +163,6 @@ func RegisterCategory(categoryName, categoryDocumentation = null):
 	categoryDocumentation["BattleInitData"] = []
 	moduleDocumentationCategories[categoryName] = categoryDocumentation
 
-# 
 func RegisterVariableEntity(variableName, defaultValue, flags = null, documentation = null):
 	variablesEntity[variableName] = _RegisterVariableCommon(variableName, defaultValue, flags, documentation, true)
 
@@ -180,10 +213,13 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	# :TODO:Panthavma:20220124:Look at making it parallel through the ThreadSafe flag
 	# :TODO:Panthavma:20220124:Rework the flags
 	
-	if(flags.has("AllPhases")):
-		flags += ["Init", "Action", "Transition"]
+	if(flags.has("Transition")):
+		print("CHANGE TO REACTION: "+functionName)
 	
-	if(!flags.has("Transition") and !flags.has("Action") and !flags.has("Init") and !flags.has("NoFunc")):
+	if(flags.has("AllPhases")):
+		flags += ["Init", "Action", "Reaction"]
+	
+	if(!flags.has("Reaction") and !flags.has("Action") and !flags.has("Init") and !flags.has("NoFunc")):
 		flags += ["Init", "Action"]
 	if(!flags.has("NoManual")):
 		flags += ["Manual"]
@@ -213,7 +249,7 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	for i in nbArguments:
 		maxArgs = max(maxArgs, i)
 	
-	for i in range(maxArgs - argTypes.size()):
+	for _i in range(maxArgs - argTypes.size()):
 		argTypes += ["any"]
 	docs["Types"] = argTypes
 	
@@ -230,7 +266,7 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	}
 	
 	moduleDocumentationCategories[currentCategory]["Functions"].append(funcData)
-	Castagne.functions[functionName] = funcData
+	_moduleFunctions[functionName] = funcData
 
 # Registers a flag for the documentation
 func RegisterFlag(flagName, documentation = null):
@@ -256,8 +292,20 @@ func RegisterConfig(keyName, defaultValue, documentation=null):
 	
 	configDefault[keyName] = defaultValue
 
+func RegisterCustomConfig(buttonName, submenuName, documentation=null):
+	var docs = {
+		"Description": "",
+		"Flags":[],
+		"Name":buttonName,
+	}
+	if(documentation != null):
+		Castagne.FuseDataOverwrite(docs, documentation)
+	docs["Flags"] += ["Custom"]
+	docs["SubmenuName"] = submenuName
+	moduleDocumentationCategories[currentCategory]["Config"].append(docs)
+
 # Register a battle init data value, used by castagne at initialization.
-func RegisterBattleInitData(keyName, defaultValue, documentation=null):
+func RegisterBattleInitData(memoryStack, keyName, defaultValue, documentation=null):
 	if(documentation == null):
 		documentation = {
 			"Description": ""
@@ -265,7 +313,23 @@ func RegisterBattleInitData(keyName, defaultValue, documentation=null):
 	documentation["Name"]=keyName
 	moduleDocumentationCategories[currentCategory]["BattleInitData"].append(documentation)
 	
-	battleInitDataDefault[keyName] = defaultValue
+	_battleInitDataDefault[memoryStack][keyName] = defaultValue
+
+
+func RegisterStateFlag(flagName, documentation=null):
+	if(documentation == null):
+		documentation = {}
+	_moduleStateFlags[flagName] = documentation
+
+
+var baseCaspFilePath = null
+func RegisterBaseCaspFile(filePaths = null, order=0):
+	if(filePaths == null):
+		baseCaspFilePath = null
+	if(typeof(filePaths) != TYPE_ARRAY):
+		filePaths = [filePaths]
+	baseCaspFilePath = [filePaths, order, 0]
+
 
 
 # :TODO:Panthavma:20220420:Make them actual flags instead of strings, with a more global system
@@ -279,36 +343,36 @@ func SetFlag(eState, flagName, flagVarName = "Flags"):
 func UnsetFlag(eState, flagName, flagVarName = "Flags"):
 	eState[flagVarName].erase(flagName)
 
-func CallFunction(functionName, args, eState, data):
-	Castagne.functions[functionName]["ActionFunc"].call_func(args, eState, data)
+func CallFunction(functionName, args, stateHandle):
+	stateHandle.ConfigData().GetModuleFunctions()[functionName]["ActionFunc"].call_func(args, stateHandle)
 
-func ModuleLog(text, eState = null):
-	var eidName = ("Entity ["+str(eState["EID"])+"]" if eState != null else "")
+func ModuleLog(text, stateHandle = null):
+	var eidName = ("Entity ["+str(stateHandle.EntityGet("_EID"))+"]" if stateHandle != null else "")
 	Castagne.Log("Module "+moduleName+" Log "+eidName+" : " + text)
-func ModuleError(text, eState = null):
-	var eidName = (" Entity ["+str(eState["EID"])+"]" if eState != null else "")
+func ModuleError(text, stateHandle = null):
+	var eidName = (" Entity ["+str(stateHandle.EntityGet("_EID"))+"]" if stateHandle != null else "")
 	Castagne.Error("Module "+moduleName+" Error"+eidName+": " + text)
 
-func ArgStr(args, eState, argID, default = null):
+func ArgStr(args, stateHandle, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
 			Castagne.Error("ArgStr ("+argID+"): This argument needs a default but doesn't have one")
 		return default
 	var value = args[argID]
-	if(eState == null):
+	if(stateHandle == null):
 		return default
-	if(eState.has(value)):
-		return str(eState[value])
+	if(stateHandle.EntityHas(value)):
+		return str(stateHandle.EntityGet(value))
 	return value
 
-func ArgVar(args, eState, argID, default = null):
+func ArgVar(args, _stateHandle, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
 			Castagne.Error("ArgVar ("+argID+"): This argument needs a default but doesn't have one")
 		return default
 	return args[argID]
 
-func ArgInt(args, eState, argID, default = null):
+func ArgInt(args, stateHandle, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
 			Castagne.Error("ArgInt ("+str(argID)+"): This argument needs a default but doesn't have one")
@@ -317,10 +381,10 @@ func ArgInt(args, eState, argID, default = null):
 	var value = str(args[argID])
 	if(value.is_valid_integer()):
 		return int(value)
-	if(eState == null):
+	if(stateHandle == null):
 		return default
-	if(eState.has(value)):
-		var v = eState[value]
+	if(stateHandle.EntityHas(value)):
+		var v = stateHandle.EntityGet(value)
 		return int(v)
 	# :TODO:Panthavma:20220126:Make the message more precise
 	Castagne.Error("ArgInt ("+str(argID)+"): Couldn't find variable " + value)
@@ -330,7 +394,7 @@ func ArgInt(args, eState, argID, default = null):
 
 
 # :TODO:Panthavma:20220203:Replace by True/False constants
-func ArgBool(args, eState, argID, default = null):
+func ArgBool(args, stateHandle, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
 			Castagne.Error("ArgBool ("+argID+"): This argument needs a default but doesn't have one")
@@ -338,8 +402,8 @@ func ArgBool(args, eState, argID, default = null):
 	var value = str(args[argID])
 	if(value.is_valid_integer()):
 		return int(value) > 0
-	if(eState.has(value)):
-		return int(eState[value]) > 0
+	if(stateHandle.EntityHas(value)):
+		return int(stateHandle.EntityGet(value)) > 0
 	# :TODO:Panthavma:20220126:Make the message more precise
 	Castagne.Error("ArgBool ("+argID+"): Couldn't find variable " + value)
 	return default
@@ -360,7 +424,9 @@ var _variablesInitEntity = {}
 var _variablesResetGlobal = {}
 var _variablesResetEntity = {}
 var configDefault = {}
-var battleInitDataDefault = {}
+var _battleInitDataDefault = {}
+var _moduleFunctions = {}
+var _moduleStateFlags = {}
 
 func ArgRaw(args, argID, default = null):
 	if(args.size() <= argID):
@@ -388,13 +454,33 @@ func GetDefaultDocumentation(functionName, nbArguments, _flags):
 	
 	return d
 
-func CopyVariablesGlobal(state):
-	Castagne.FuseDataOverwrite(state, _variablesInitGlobal.duplicate(true))
+func CopyVariablesGlobal(memory):
+	var vars = _variablesInitGlobal.duplicate(true)
+	for key in vars:
+		memory.GlobalSet(key, vars[key], true)
+	
+	#Castagne.FuseDataOverwrite(state, _variablesInitGlobal.duplicate(true))
 
-func CopyVariablesEntity(eState):
-	Castagne.FuseDataNoOverwrite(eState, _variablesInitEntity.duplicate(true))
+func CopyVariablesEntityParsing(data):
+	Castagne.FuseDataNoOverwrite(data, _variablesInitEntity.duplicate(true))
 
-func ResetVariables(state, activeEIDs):
-	Castagne.FuseDataOverwrite(state, _variablesResetGlobal.duplicate(true))
+func CopyVariablesEntity(stateHandle, newValue = false):
+	var vars = _variablesInitEntity.duplicate(true)
+	for key in vars:
+		if(newValue):
+			if(!stateHandle.Memory().EntityHas(stateHandle._eid, key)):
+				stateHandle.Memory().EntitySet(stateHandle._eid, key, vars[key], true)
+		else:
+			stateHandle.EntitySet(key, vars[key])
+
+func ResetVariables(stateHandle, activeEIDs):
+	#Castagne.FuseDataOverwrite(state, _variablesResetGlobal.duplicate(true))
+	var vrg = (_variablesResetGlobal.duplicate(true))
+	for k in vrg:
+		stateHandle.GlobalSet(k, vrg[k])
 	for eid in activeEIDs:
-		Castagne.FuseDataOverwrite(state[eid], _variablesResetEntity.duplicate(true))
+		stateHandle.PointToEntity(eid)
+		var vre = _variablesResetEntity.duplicate(true)
+		for k in vre:
+			stateHandle.EntitySet(k, vre[k])
+		#Castagne.FuseDataOverwrite(state[eid], )
