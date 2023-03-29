@@ -43,7 +43,7 @@ func ShowConfigPanel():
 	var physicalInput = layout[inputID]
 	var piType = physicalInput["Type"]
 	
-	var dataRoot = $InputData/Data
+	var dataRoot = $InputData/DataScroll/Data
 	
 	dataRoot.get_node("Name/NameField").set_text(physicalInput["Name"])
 	
@@ -58,7 +58,7 @@ func ShowConfigPanel():
 		c.queue_free()
 	var paramsStretchRatio = dataRoot.get_node("Name/Label").get_stretch_ratio()
 	
-	var bindingsRoot = $InputData/Bindings
+	var bindingsRoot = $InputData/BindingsScroll/Bindings
 	for c in bindingsRoot.get_children():
 		c.queue_free()
 	
@@ -70,19 +70,23 @@ func ShowConfigPanel():
 	var gameInputNamesLabels = ["Game Input"]
 	if(gameInputNames.size() > 1):
 		gameInputNamesLabels = []
+		
+		# Populate with default names
+		for i in range(gameInputNames.size()):
+			gameInputNamesLabels += ["Action "+str(i)]
 		var nbAxis = int(gameInputNames.size()/2)
 		for i in range(nbAxis):
-			gameInputNamesLabels += ["Axis"+str(i)+"-", "Axis"+str(i)+"+"]
+			gameInputNamesLabels[2*i]   = "Axis "+str(i)+" (-)"
+			gameInputNamesLabels[2*i+1] = "Axis "+str(i)+" (+)"
 		
+		# Overwrite with relevant label names
+		var defaultLabelNames = []
 		if(piType == Castagne.PHYSICALINPUT_TYPES.AXIS):
-			gameInputNamesLabels[0] = "Negative"
-			gameInputNamesLabels[1] = "Positive"
-		
+			defaultLabelNames = ["Negative", "Positive"]
 		if(piType == Castagne.PHYSICALINPUT_TYPES.STICK):
-			gameInputNamesLabels[0] = "Left"
-			gameInputNamesLabels[1] = "Right"
-			gameInputNamesLabels[2] = "Down"
-			gameInputNamesLabels[3] = "Up"
+			defaultLabelNames = ["Left", "Right", "Down", "Up", "Back", "Forward", "Portside", "Starboard", "NeutralH", "NeutralV"]
+		for i in range(defaultLabelNames.size()):
+			gameInputNamesLabels[i] = defaultLabelNames[i]
 	
 	var keyboardBindings = castagneInput.PhysicalInputGetKeyboardBindings(physicalInput)
 	var controllerBindings = castagneInput.PhysicalInputGetControllerBindings(physicalInput)
@@ -130,6 +134,13 @@ func ShowConfigPanel():
 			hboxBindings.set_h_size_flags(SIZE_EXPAND_FILL)
 			hboxMain.add_child(hboxBindings)
 			
+			var deviceBindings = (controllerBindings if isController else keyboardBindings)
+			while(deviceBindings.size() <= gameInputID):
+				deviceBindings.push_back([])
+			while(deviceBindings[gameInputID].size() <= layoutID):
+				deviceBindings[gameInputID].push_back([])
+			
+			var bindings = deviceBindings[gameInputID][layoutID]
 			if(isController):
 				var controllerButtonNames = []
 				for i in range(0, JOY_BUTTON_MAX):
@@ -150,7 +161,6 @@ func ShowConfigPanel():
 				controllerButtonNames[JOY_R3] += " (RS)"
 				controllerButtonNames[JOY_START] += " (Start)"
 				controllerButtonNames[JOY_SELECT] += " (Select)"
-				var bindings = controllerBindings[gameInputID][layoutID]
 				for bindingID in range(bindings.size()):
 					var b = bindings[bindingID]
 					var buttonCBinding = OptionButton.new()
@@ -163,7 +173,6 @@ func ShowConfigPanel():
 					
 					hboxBindings.add_child(buttonCBinding)
 			else:
-				var bindings = keyboardBindings[gameInputID][layoutID]
 				for bindingID in range(bindings.size()):
 					var b = bindings[bindingID]
 					var t = "[Empty]"

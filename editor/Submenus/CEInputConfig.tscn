@@ -76,9 +76,6 @@ margin_left = 8.0
 margin_top = 48.0
 margin_right = -16.0
 margin_bottom = -64.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Title" type="Label" parent="InputData"]
 anchor_right = 1.0
@@ -100,28 +97,35 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Bindings" type="VBoxContainer" parent="InputData"]
+[node name="BindingsScroll" type="ScrollContainer" parent="InputData"]
 anchor_left = 0.5
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 8.0
 margin_top = 64.0
-size_flags_horizontal = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Data" type="VBoxContainer" parent="InputData"]
+[node name="Bindings" type="VBoxContainer" parent="InputData/BindingsScroll"]
+margin_right = 338.4
+margin_bottom = 400.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DataScroll" type="ScrollContainer" parent="InputData"]
 anchor_right = 0.5
 anchor_bottom = 1.0
 margin_top = 32.0
 margin_right = -8.0
+
+[node name="Data" type="VBoxContainer" parent="InputData/DataScroll"]
+margin_right = 338.4
+margin_bottom = 432.0
 size_flags_horizontal = 3
+size_flags_vertical = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Title2" type="Label" parent="InputData/Data"]
+[node name="Title2" type="Label" parent="InputData/DataScroll/Data"]
 margin_right = 338.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 0, 32 )
@@ -132,12 +136,12 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Name" type="HBoxContainer" parent="InputData/Data"]
+[node name="Name" type="HBoxContainer" parent="InputData/DataScroll/Data"]
 margin_top = 36.0
 margin_right = 338.0
 margin_bottom = 56.0
 
-[node name="Label" type="Label" parent="InputData/Data/Name"]
+[node name="Label" type="Label" parent="InputData/DataScroll/Data/Name"]
 margin_top = 3.0
 margin_right = 95.0
 margin_bottom = 17.0
@@ -146,18 +150,18 @@ size_flags_stretch_ratio = 0.4
 text = "Name:"
 align = 2
 
-[node name="NameField" type="LineEdit" parent="InputData/Data/Name"]
+[node name="NameField" type="LineEdit" parent="InputData/DataScroll/Data/Name"]
 margin_left = 99.0
 margin_right = 338.0
 margin_bottom = 20.0
 size_flags_horizontal = 3
 
-[node name="Type" type="HBoxContainer" parent="InputData/Data"]
+[node name="Type" type="HBoxContainer" parent="InputData/DataScroll/Data"]
 margin_top = 60.0
 margin_right = 338.0
 margin_bottom = 78.0
 
-[node name="Label" type="Label" parent="InputData/Data/Type"]
+[node name="Label" type="Label" parent="InputData/DataScroll/Data/Type"]
 margin_top = 2.0
 margin_right = 95.0
 margin_bottom = 16.0
@@ -166,18 +170,18 @@ size_flags_stretch_ratio = 0.4
 text = "Type:"
 align = 2
 
-[node name="TypeField" type="OptionButton" parent="InputData/Data/Type"]
+[node name="TypeField" type="OptionButton" parent="InputData/DataScroll/Data/Type"]
 margin_left = 99.0
 margin_right = 338.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 
-[node name="HSeparator" type="HSeparator" parent="InputData/Data"]
+[node name="HSeparator" type="HSeparator" parent="InputData/DataScroll/Data"]
 margin_top = 82.0
 margin_right = 338.0
 margin_bottom = 86.0
 
-[node name="Params" type="VBoxContainer" parent="InputData/Data"]
+[node name="Params" type="VBoxContainer" parent="InputData/DataScroll/Data"]
 margin_top = 90.0
 margin_right = 338.0
 margin_bottom = 432.0
@@ -337,8 +341,8 @@ rect_min_size = Vector2( 8, 0 )
 [connection signal="item_activated" from="InputList/ItemList" to="." method="_on_ItemList_item_activated"]
 [connection signal="pressed" from="InputList/AddNew" to="." method="_on_AddNew_pressed"]
 [connection signal="pressed" from="InputList/DeleteInput" to="." method="_on_DeleteInput_pressed"]
-[connection signal="text_changed" from="InputData/Data/Name/NameField" to="." method="_on_NameField_text_changed"]
-[connection signal="item_selected" from="InputData/Data/Type/TypeField" to="." method="_on_TypeField_item_selected"]
+[connection signal="text_changed" from="InputData/DataScroll/Data/Name/NameField" to="." method="_on_NameField_text_changed"]
+[connection signal="item_selected" from="InputData/DataScroll/Data/Type/TypeField" to="." method="_on_TypeField_item_selected"]
 [connection signal="pressed" from="Buttons/SeeInputSchema" to="." method="_on_SeeInputSchema_pressed"]
 [connection signal="pressed" from="Buttons/Confirm" to="." method="_on_Confirm_pressed"]
 [connection signal="pressed" from="Buttons/Cancel" to="." method="_on_Cancel_pressed"]

@@ -123,7 +123,6 @@ func LoadModulesAndConfig(configFilePath = null, localConfigFilePath = null):
 	if(localConfigFilePath != null):
 		if(!configData.LoadFromLocalConfigFile(localConfigFilePath)):
 			Log("LoadModulesAndConfig: Local Config file "+str(localConfigFilePath)+" doesn't exist. This is normal on first run.")
-			return null
 	
 	# 2. Load the core module, which will give the path to other modules
 	modulesLoaded = {}
