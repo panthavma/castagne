@@ -45,6 +45,22 @@ func ModuleSetup():
 	RegisterFunction("InputTransition", [1,2,3], ["Action"], {"Description":"Sets up an input transition, which will do a transition when the input given is pressed.", "Arguments":["The input to watch for, in numpad notation.", "(Optional) The name of the state to transition to. By default, the same as the notation.", "(Optional) The priority for the transition. By default, the value specified in the castagne config."]})
 	RegisterVariableEntity("_InputTransitionList", [], ["ResetEachFrame"], {"Description":"List of the input transitions to watch for."})
 	RegisterConfig("_InputTransitionDefaultPriority", 1000, {"Description":"The default Transition priority for InputTransition."})
+	
+	RegisterModule("Motion Inputs", null, {"Description":"Module handling motion inputs, allowing them to used as part of the input and attack cancel systems."})
+	
+	
+	RegisterCategory("Motion Inputs", {"Description":"System for detecting when motion input has been performed by a player."})
+	
+	RegisterConfig("DirectionalInputBuffer", 60, {"Description":"Number of frames the module retains the directional inputs from. This value should be greater than the longest motion input times the individual input interval for that motion."})
+	RegisterConfig("ShortMotionInterval", 12, {"Description":"Maximum number of frames between inputs for a motion to remain valid. This value is for motions with three directions or less."})
+	RegisterConfig("LongMotionInterval", 8, {"Description":"Maximum number of frames between inputs for a motion to remain valid. This value is for motions with more than three directions."})
+	RegisterConfig("ButtonInterval", 8, {"Description":"Maximum number of frames between motion input and pressing the button for a motion to remain valid."})
+	#crosseyed: the above three values determine the number of frames between inputs in a motion. By default, shorter motions have more leniency.
+	
+	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, 252",{"Description":"Motion inputs in numpad notation that the system will check for."})
+	
+	RegisterVariableEntity("DirectionalInputLog", [], {"Description":"Array containing just the raw directional inputs for a player. Inputs are held for a number of frames equal to the buffer config variable."})
+	RegisterVariableEntity("PerformedMotions",[],{"Description":"Array containing the motions that have been performed by the player."})
 
 var _castagneInputScript = load("res://castagne/engine/CastagneInput.gd")
 func OnModuleRegistration(configData):
@@ -149,6 +165,21 @@ func InputPhase(stateHandle, _previousStateHandle, activeEIDs):
 			pass
 		stateHandle.EntitySet("_Inputs", inputs)
 
+func InputPhaseEndEntity(stateHandle):
+	LogDirectionalInputs(stateHandle)
+	
+	var validMotions = Castagne.SplitStringToArray(stateHandle.ConfigData().Get("ValidMotionInputs"))
+	var motions = []
+	
+	for m in validMotions:
+		if MotionInputCheck(stateHandle, m):
+			motions += [m]
+	stateHandle.EntitySet("PerformedMotions", motions)
+	
+	#print performed motions to the log for testing
+#	if motions.size() > 0:
+#		print(motions)
+
 func ReactionPhaseStartEntity(stateHandle):
 	var inputTransitionList = stateHandle.EntityGet("_InputTransitionList")
 	var inputs = stateHandle.EntityGet("_Inputs")
@@ -192,6 +223,9 @@ func ReactionPhaseStartEntity(stateHandle):
 		elif(inputs["Back"]):
 			directions += ["4"]
 		directions += ["5"]
+		
+	#add motion inputs to the list of "directions"
+	directions += stateHandle.EntityGet("PerformedMotions")
 	
 	var attackButtons = []
 	
@@ -306,3 +340,59 @@ func AddInputTransition(stateHandle, inputNotation, targetState, data = {}):
 	Castagne.FuseDataOverwrite(itd, data)
 	
 	stateHandle.EntityAdd("_InputTransitionList", [itd])
+
+#motion input stuff:
+func LogDirectionalInputs(stateHandle):
+	var inputs = stateHandle.EntityGet("_Inputs")
+	var buffer = stateHandle.ConfigData().Get("DirectionalInputBuffer")
+	var direction = "5"
+	var inputLog = stateHandle.EntityGet("DirectionalInputLog")
+	
+	if(inputs["Up"]):
+		if(inputs["Forward"]):
+			direction = "9"
+		elif(inputs["Back"]):
+			direction = "7"
+		else:
+			direction = "8"
+	elif(inputs["Down"]):
+		if(inputs["Forward"]):
+			direction = "3"
+		elif(inputs["Back"]):
+			direction = "1"
+		else:
+			direction = "2"
+	else:
+		if(inputs["Forward"]):
+			direction = "6"
+		elif(inputs["Back"]):
+			direction = "4"
+		
+	inputLog.push_front(direction)
+	inputLog.resize(buffer)
+	stateHandle.EntitySet("DirectionalInputLog", inputLog)
+
+func MotionInputCheck(stateHandle, motion):
+	var inputLog = stateHandle.EntityGet("DirectionalInputLog")
+	var inputFrames = [0]
+	
+	var directions = []
+	
+	for i in motion:
+		directions.push_front(i)
+	
+	var intervals = []
+	intervals.resize(len(directions)-1)
+	
+	if len(directions) <= 3:
+		intervals.fill(stateHandle.ConfigData().Get("ShortMotionInterval"))
+	else:
+		intervals.fill(stateHandle.ConfigData().Get("LongMotionInterval"))
+	intervals.append(stateHandle.ConfigData().Get("ButtonInterval"))
+	
+	for i in range(0, len(directions)):
+		var frame = inputLog.find(directions[i],inputFrames[i])
+		inputFrames.append(frame)
+		if !frame in range(inputFrames[i],inputFrames[i]+intervals[i]):
+			return
+	return motion
