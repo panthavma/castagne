@@ -55,12 +55,15 @@ func ModuleSetup():
 	RegisterConfig("ShortMotionInterval", 12, {"Description":"Maximum number of frames between inputs for a motion to remain valid. This value is for motions with three directions or less."})
 	RegisterConfig("LongMotionInterval", 8, {"Description":"Maximum number of frames between inputs for a motion to remain valid. This value is for motions with more than three directions."})
 	RegisterConfig("ButtonInterval", 8, {"Description":"Maximum number of frames between motion input and pressing the button for a motion to remain valid."})
-	#crosseyed: the above three values determine the number of frames between inputs in a motion. By default, shorter motions have more leniency.
+	RegisterConfig("MinChargeTime", 30, {"Description":"Minimum number of frames for a direction to be held for a valid charge input."})
+	#the above three values determine the number of frames between inputs in a motion. By default, shorter motions have more leniency.
 	
-	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, 252",{"Description":"Motion inputs in numpad notation that the system will check for."})
+	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, 252, C46, C28",{"Description":"Motion inputs in numpad notation that the system will check for."})
 	
-	RegisterVariableEntity("DirectionalInputLog", [], {"Description":"Array containing just the raw directional inputs for a player. Inputs are held for a number of frames equal to the buffer config variable."})
-	RegisterVariableEntity("PerformedMotions",[],{"Description":"Array containing the motions that have been performed by the player."})
+	RegisterVariableEntity("_DirectionalInputLog", [], {"Description":"Array containing just the raw directional inputs for a player on each frame. Inputs are held for a number of frames equal to the buffer config variable."})
+	RegisterVariableEntity("_ChargeInputLog", [], {"Description":"Array containing the inputs that have been held long enough to charge on each frame. Diagonal inputs also add the cardinal direction inputs. Inputs are held for a number of frames equal to the buffer config variable."})
+	RegisterVariableEntity("_ChargeTime", {"Up":0,"Down":0,"Forward":0,"Back":0},{"Description":"Dict containing the number of frames each direction has been held."})
+	RegisterVariableEntity("_PerformedMotions", [], {"Description":"Array containing the motions that have been performed by the player."})
 
 var _castagneInputScript = load("res://castagne/engine/CastagneInput.gd")
 func OnModuleRegistration(configData):
@@ -174,7 +177,7 @@ func InputPhaseEndEntity(stateHandle):
 	for m in validMotions:
 		if MotionInputCheck(stateHandle, m):
 			motions += [m]
-	stateHandle.EntitySet("PerformedMotions", motions)
+	stateHandle.EntitySet("_PerformedMotions", motions)
 	
 	#print performed motions to the log for testing
 #	if motions.size() > 0:
@@ -225,7 +228,7 @@ func ReactionPhaseStartEntity(stateHandle):
 		directions += ["5"]
 		
 	#add motion inputs to the list of "directions"
-	directions += stateHandle.EntityGet("PerformedMotions")
+	directions += stateHandle.EntityGet("_PerformedMotions")
 	
 	var attackButtons = []
 	
@@ -345,35 +348,73 @@ func AddInputTransition(stateHandle, inputNotation, targetState, data = {}):
 func LogDirectionalInputs(stateHandle):
 	var inputs = stateHandle.EntityGet("_Inputs")
 	var buffer = stateHandle.ConfigData().Get("DirectionalInputBuffer")
-	var direction = "5"
-	var inputLog = stateHandle.EntityGet("DirectionalInputLog")
+	var direction = 5
+	var inputLog = stateHandle.EntityGet("_DirectionalInputLog")
+	var minChargeTime = stateHandle.ConfigData().Get("MinChargeTime")
+	var chargeTime = stateHandle.EntityGet("_ChargeTime")
+	var chargeLog = stateHandle.EntityGet("_ChargeInputLog")
+	var currentCharge = ""
+	
 	
 	if(inputs["Up"]):
-		if(inputs["Forward"]):
-			direction = "9"
-		elif(inputs["Back"]):
-			direction = "7"
-		else:
-			direction = "8"
-	elif(inputs["Down"]):
-		if(inputs["Forward"]):
-			direction = "3"
-		elif(inputs["Back"]):
-			direction = "1"
-		else:
-			direction = "2"
+		chargeTime["Up"] += 1
+		direction += 3
 	else:
-		if(inputs["Forward"]):
-			direction = "6"
-		elif(inputs["Back"]):
-			direction = "4"
+		chargeTime["Up"] = 0
 		
+	if(inputs["Down"]):
+		chargeTime["Down"] += 1
+		direction -= 3
+	else:
+		chargeTime["Down"] = 0
+		
+	if(inputs["Forward"]):
+		chargeTime["Forward"] += 1
+		direction += 1
+	else:
+		chargeTime["Forward"] = 0
+		
+	if(inputs["Back"]):
+		chargeTime["Back"] += 1
+		direction -= 1
+	else:
+		chargeTime["Back"] = 0
+		
+	direction = str(direction)
+	
+	if chargeTime["Down"] >= minChargeTime:
+		if chargeTime["Back"] >= minChargeTime:
+			currentCharge += "1"
+		currentCharge += "2"
+		if chargeTime["Forward"] >= minChargeTime:
+			currentCharge += "3"
+		
+	if chargeTime["Back"] >= minChargeTime:
+		currentCharge += "4"
+	
+	if chargeTime["Forward"] >= minChargeTime:
+		currentCharge += "6"
+	
+	if chargeTime["Up"] >= minChargeTime:
+		if chargeTime["Back"] >= minChargeTime:
+			currentCharge += "7"
+		currentCharge += "8"
+		if chargeTime["Forward"] >= minChargeTime:
+			currentCharge += "9"
+	
 	inputLog.push_front(direction)
 	inputLog.resize(buffer)
-	stateHandle.EntitySet("DirectionalInputLog", inputLog)
+	stateHandle.EntitySet("_DirectionalInputLog", inputLog)
+	
+	chargeLog.push_front(currentCharge)
+	chargeLog.resize(buffer)
+	stateHandle.EntitySet("_ChargeInputLog", chargeLog)
+	
+	stateHandle.EntitySet("_ChargeTime", chargeTime)
 
 func MotionInputCheck(stateHandle, motion):
-	var inputLog = stateHandle.EntityGet("DirectionalInputLog")
+	var inputLog = stateHandle.EntityGet("_DirectionalInputLog")
+	var chargeLog = stateHandle.EntityGet("_ChargeInputLog")
 	var inputFrames = [0]
 	
 	var directions = []
@@ -391,8 +432,13 @@ func MotionInputCheck(stateHandle, motion):
 	intervals.append(stateHandle.ConfigData().Get("ButtonInterval"))
 	
 	for i in range(0, len(directions)):
-		var frame = inputLog.find(directions[i],inputFrames[i])
-		inputFrames.append(frame)
-		if !frame in range(inputFrames[i],inputFrames[i]+intervals[i]):
-			return
+		if directions[i] == "C":
+			var chargeDir = directions[i-1]
+			if !chargeDir in chargeLog[inputFrames[i]]:
+				return
+		else:
+			var frame = inputLog.find(directions[i],inputFrames[i])
+			inputFrames.append(frame)
+			if !frame in range(inputFrames[i],inputFrames[i]+intervals[i]):
+				return
 	return motion
