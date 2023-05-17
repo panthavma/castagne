@@ -438,10 +438,8 @@ func MotionInputCheck(stateHandle, motion):
 		intervals.fill(stateHandle.ConfigData().Get("LongMotionInterval"))
 	intervals.append(stateHandle.ConfigData().Get("ButtonInterval"))
 	
-	
 	for i in range(0, len(directions)):
 		if directions[i] == "[":
-			pass
 			var chargeDir = directions[i-1]
 			if !chargeDir in chargeLog[inputFrames[i]]:
 				return
