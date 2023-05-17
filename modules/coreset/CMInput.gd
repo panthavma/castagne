@@ -58,7 +58,7 @@ func ModuleSetup():
 	RegisterConfig("MinChargeTime", 30, {"Description":"Minimum number of frames for a direction to be held for a valid charge input."})
 	#the above three values determine the number of frames between inputs in a motion. By default, shorter motions have more leniency.
 	
-	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, 252, C46, C28",{"Description":"Motion inputs in numpad notation that the system will check for."})
+	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, C46, C28, 22",{"Description":"Motion inputs in numpad notation that the system will check for."})
 	
 	RegisterVariableEntity("_DirectionalInputLog", [], {"Description":"Array containing just the raw directional inputs for a player on each frame. Inputs are held for a number of frames equal to the buffer config variable."})
 	RegisterVariableEntity("_ChargeInputLog", [], {"Description":"Array containing the inputs that have been held long enough to charge on each frame. Diagonal inputs also add the cardinal direction inputs. Inputs are held for a number of frames equal to the buffer config variable."})
@@ -419,8 +419,15 @@ func MotionInputCheck(stateHandle, motion):
 	
 	var directions = []
 	
-	for i in motion:
-		directions.push_front(i)
+	for i in len(motion):
+		if motion[i] == "]":
+			pass
+		else:
+			directions.push_front(motion[i])
+		
+		if i > 0 && motion[i] == motion[i-1]:
+			directions.insert(1,"5")
+		
 	
 	var intervals = []
 	intervals.resize(len(directions)-1)
@@ -431,14 +438,19 @@ func MotionInputCheck(stateHandle, motion):
 		intervals.fill(stateHandle.ConfigData().Get("LongMotionInterval"))
 	intervals.append(stateHandle.ConfigData().Get("ButtonInterval"))
 	
+	
 	for i in range(0, len(directions)):
-		if directions[i] == "C":
+		if directions[i] == "[":
+			pass
 			var chargeDir = directions[i-1]
 			if !chargeDir in chargeLog[inputFrames[i]]:
 				return
 		else:
 			var frame = inputLog.find(directions[i],inputFrames[i])
 			inputFrames.append(frame)
-			if !frame in range(inputFrames[i],inputFrames[i]+intervals[i]):
-				return
+			if i < len(directions)-1 && directions[i+1] == "[":
+				pass
+			else:
+				if !frame in range(inputFrames[i],inputFrames[i]+intervals[i]):
+					return
 	return motion
