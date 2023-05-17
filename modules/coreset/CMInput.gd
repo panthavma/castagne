@@ -58,7 +58,7 @@ func ModuleSetup():
 	RegisterConfig("MinChargeTime", 30, {"Description":"Minimum number of frames for a direction to be held for a valid charge input."})
 	#the above three values determine the number of frames between inputs in a motion. By default, shorter motions have more leniency.
 	
-	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, C46, C28, 22",{"Description":"Motion inputs in numpad notation that the system will check for."})
+	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, 22, [4]6, [2]8",{"Description":"Motion inputs in numpad notation that the system will check for."})
 	
 	RegisterVariableEntity("_DirectionalInputLog", [], {"Description":"Array containing just the raw directional inputs for a player on each frame. Inputs are held for a number of frames equal to the buffer config variable."})
 	RegisterVariableEntity("_ChargeInputLog", [], {"Description":"Array containing the inputs that have been held long enough to charge on each frame. Diagonal inputs also add the cardinal direction inputs. Inputs are held for a number of frames equal to the buffer config variable."})
