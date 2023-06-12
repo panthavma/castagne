@@ -239,7 +239,11 @@ func _on_Confirm_pressed():
 func _on_NewCharDialog_file_selected(path):
 	if(!CheckIfCaspFileIsValidOrCreateIt(path)):
 		return
-	
+	CharacterIsAdded(path)
+
+
+
+func CharacterIsAdded(path):
 	AddCharacterFromPath(path)
 	SortCharacters(sortKey, sortReversed)
 	UpdateCharacterList()
@@ -248,17 +252,25 @@ func CheckIfCaspFileIsValidOrCreateIt(path):
 	var f = File.new()
 	var fileExists = f.file_exists(path)
 	
-	if(path.begins_with("res://castagne/") and !fileExists): # TODO Make it visible to the user
+	if(path.begins_with("res://castagne/") and !fileExists):
 		Castagne.Error("Can't create a character inside of the Castagne folders!")
+		$ErrorDialog.popup_centered()
 		return false
 	
 	if(!fileExists):
-		f.open(path, File.WRITE)
-		f.store_string(":Character:\n\n:Variables:\n\n")
-		f.close()
+		editor.EnterSubmenu("CharacterAddNew", funcref(self, "OnReturnFromCharacterNewMenu"), path)
+		return false
 	
 	return true
 
+func OnReturnFromCharacterNewMenu(path):
+	get_node("../CharacterAddNew").hide()
+	show()
+	
+	if(path == null):
+		return
+	
+	CharacterIsAdded(path)
 
 
 func _on_SkeletonList_item_selected(index):

@@ -10,15 +10,19 @@ func InitMemory():
 	pass
 
 func CopyFrom(other):
+	#var start = OS.get_ticks_usec()
 	_memoryGlobal = other._memoryGlobal.duplicate(true)
-	for op in other._memoryPlayers:
-		if(op != null):
-			op = op.duplicate(true)
-		_memoryPlayers += [op]
-	for oe in other._memoryEntities:
-		if(oe != null):
-			oe = oe.duplicate(true)
-		_memoryEntities += [oe]
+	_memoryPlayers = other._memoryPlayers.duplicate(true)
+	_memoryEntities = other._memoryEntities.duplicate(true)
+	#print("Copy mem percent budget: " + str(((OS.get_ticks_usec() - start)/1000000.0)/(100.0/60.0)))
+	#for op in other._memoryPlayers:
+	#	if(op != null):
+	#		op = op.duplicate(true)
+	#	_memoryPlayers += [op]
+	#for oe in other._memoryEntities:
+	#	if(oe != null):
+	#		oe = oe.duplicate(true)
+	#	_memoryEntities += [oe]
 
 func GlobalGet(keyName):
 	if(_memoryGlobal.has(keyName)):

@@ -1,14 +1,9 @@
-extends Node
+extends "TutorialBase.gd"
 
-var system
-var editor
 
 var doGlobalPres = true
 var doConfigPres = true
 var doCharPres = true
-
-func Setup():
-	return system.TutorialSetupBasic("res://castagne/editor/tutorials/assets/ConfigSimple.json")
 
 func TutorialScript():
 	
@@ -283,6 +278,12 @@ These are added automatically to states based on their contents, and displayed a
 		system.ShowDialogue("""And there we are! The whole editor! You may learn more about it through the other tutorials, but I hope it's more clear already!""")
 		
 		yield()
+		
+		system.ShowDialogue("""One final thing: during tutorials you will find this button on top of the screen which opens a menu during the practical parts!
+From there you can continue the tutorial, reset the file, or quit.""")
+		system.StencilNode(editor.get_node("CharacterEdit/TopBar/HBoxContainer/TutorialWindow"))
+		
+		yield()
 	
 	
 	
@@ -295,8 +296,7 @@ These are added automatically to states based on their contents, and displayed a
 	editor.EnterMenu()
 	system.ShowDialogue("""Alright! That was the Castagne presentation!
 
-If this was your first time starting the engine, you'll be whisked back to complete the setup by choosing a genre!
-(My favourites are 2D airdashers and character action games btw, but depending on when you read this the latter might not be supported yet!)""")
+If this was your first time starting the engine, you'll be whisked back to complete the setup by choosing a genre!""")
 	
 	yield()
 	

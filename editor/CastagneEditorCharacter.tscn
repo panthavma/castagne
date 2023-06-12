@@ -69,16 +69,10 @@ action_mode = 0
 [node name="TopBar" type="Panel" parent="."]
 anchor_right = 0.6
 margin_bottom = 32.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="HBoxContainer" type="HBoxContainer" parent="TopBar"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Back" type="Button" parent="TopBar/HBoxContainer"]
 margin_right = 46.0
@@ -102,13 +96,18 @@ text = "Editing Castagneur.casp"
 align = 1
 valign = 1
 
+[node name="TutorialWindow" type="Button" parent="TopBar/HBoxContainer"]
+visible = false
+margin_left = 1027.0
+margin_right = 1152.0
+margin_bottom = 32.0
+shortcut = SubResource( 2 )
+text = "Tutorial Menu!"
+
 [node name="BottomPanel" type="Control" parent="."]
 anchor_top = 0.8
 anchor_right = 0.6
 anchor_bottom = 1.8
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="BBigPanel" type="Panel" parent="BottomPanel"]
 self_modulate = Color( 0.662745, 0.662745, 0.662745, 1 )
@@ -260,7 +259,7 @@ margin_right = 521.0
 margin_bottom = 18.0
 
 [node name="Flow" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_right = 513.0
+margin_right = 250.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 
@@ -292,16 +291,16 @@ margin_bottom = 18.0
 text = "Next Frame"
 
 [node name="VSeparator" type="VSeparator" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_left = 517.0
-margin_right = 521.0
+margin_left = 254.0
+margin_right = 258.0
 margin_bottom = 18.0
 
 [node name="Phase" type="Label" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
 visible = false
-margin_left = 443.0
-margin_top = 3.0
-margin_right = 489.0
-margin_bottom = 17.0
+margin_left = 859.0
+margin_top = 2.0
+margin_right = 905.0
+margin_bottom = 16.0
 text = "Phase: "
 
 [node name="PhaseA" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
@@ -317,6 +316,40 @@ margin_left = 518.0
 margin_right = 537.0
 margin_bottom = 20.0
 text = "T"
+
+[node name="Other" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+margin_left = 262.0
+margin_right = 521.0
+margin_bottom = 18.0
+
+[node name="Blocking" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
+margin_right = 70.0
+margin_bottom = 18.0
+toggle_mode = true
+text = "Blocking"
+
+[node name="BlockingLow" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
+margin_left = 74.0
+margin_right = 115.0
+margin_bottom = 18.0
+toggle_mode = true
+pressed = true
+text = "Low"
+
+[node name="BlockingOverhead" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
+margin_left = 119.0
+margin_right = 156.0
+margin_bottom = 18.0
+toggle_mode = true
+pressed = true
+text = "OH"
+
+[node name="HideGizmos" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
+margin_left = 160.0
+margin_right = 259.0
+margin_bottom = 18.0
+toggle_mode = true
+text = "Hide Gizmos"
 
 [node name="MiniTool" type="Control" parent="BottomPanel/BMiniPanel/HBox/Middle"]
 margin_top = 22.0
@@ -369,9 +402,6 @@ __meta__ = {
 anchor_left = 0.6
 anchor_right = 1.0
 anchor_bottom = 1.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Documentation" type="Control" parent="CodePanel"]
 anchor_top = 0.8
@@ -421,9 +451,6 @@ margin_right = -8.0
 margin_bottom = 32.0
 toggle_mode = true
 text = "Use Custom Editors"
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Code" type="TextEdit" parent="CodePanel"]
 anchor_top = 0.1
@@ -459,9 +486,6 @@ margin_top = 40.0
 margin_right = -8.0
 margin_bottom = -40.0
 scroll_horizontal_enabled = false
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="PanelContainer" type="PanelContainer" parent="CodePanel/CustomEditor"]
 self_modulate = Color( 0.701961, 0.517647, 0.0235294, 1 )
@@ -721,9 +745,6 @@ margin_left = 16.0
 margin_top = 16.0
 margin_right = -16.0
 margin_bottom = -16.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="MoveList" type="ItemList" parent="CodePanel/Navigation/ChooseState"]
 visible = false
@@ -845,10 +866,28 @@ text = "--- Filtering (X/Y) ---"
 align = 1
 valign = 2
 
-[node name="ToggleHelpers" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="OpenCloseStates" type="HBoxContainer" parent="CodePanel/Navigation/ChooseState/Menu"]
 margin_top = 186.0
 margin_right = 243.0
-margin_bottom = 222.0
+margin_bottom = 204.0
+
+[node name="NavOpenCategories" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates"]
+margin_right = 122.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+text = "Open Categories"
+
+[node name="NavCloseCategories" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates"]
+margin_left = 126.0
+margin_right = 243.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+text = "Close"
+
+[node name="ToggleHelpers" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 208.0
+margin_right = 243.0
+margin_bottom = 244.0
 pressed = true
 text = "Show helpers with states"
 align = 2
@@ -857,9 +896,9 @@ __meta__ = {
 }
 
 [node name="ToggleShowVariables" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
-margin_top = 226.0
+margin_top = 248.0
 margin_right = 243.0
-margin_bottom = 262.0
+margin_bottom = 284.0
 text = "Show all variables"
 align = 2
 __meta__ = {
@@ -867,9 +906,9 @@ __meta__ = {
 }
 
 [node name="ToggleOverridableStates" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
-margin_top = 266.0
+margin_top = 288.0
 margin_right = 243.0
-margin_bottom = 302.0
+margin_bottom = 324.0
 text = "Show overridable states"
 align = 2
 __meta__ = {
@@ -877,9 +916,9 @@ __meta__ = {
 }
 
 [node name="ToggleAllStates" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
-margin_top = 306.0
+margin_top = 328.0
 margin_right = 243.0
-margin_bottom = 342.0
+margin_bottom = 364.0
 text = "Show from all files"
 align = 2
 __meta__ = {
@@ -887,18 +926,18 @@ __meta__ = {
 }
 
 [node name="FilterNumber" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
-margin_top = 346.0
+margin_top = 368.0
 margin_right = 243.0
-margin_bottom = 360.0
+margin_bottom = 382.0
 size_flags_vertical = 9
 text = "Filter by Flag"
 align = 1
 valign = 2
 
 [node name="ToggleShowAllFlags" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
-margin_top = 364.0
+margin_top = 386.0
 margin_right = 243.0
-margin_bottom = 400.0
+margin_bottom = 422.0
 text = "Show unused flags"
 align = 2
 __meta__ = {
@@ -906,13 +945,13 @@ __meta__ = {
 }
 
 [node name="Flags" type="GridContainer" parent="CodePanel/Navigation/ChooseState/Menu"]
-margin_top = 404.0
+margin_top = 426.0
 margin_right = 243.0
-margin_bottom = 440.0
+margin_bottom = 462.0
 columns = 4
 
 [node name="Button2" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/Flags"]
-margin_right = 60.0
+margin_right = 61.0
 margin_bottom = 36.0
 rect_min_size = Vector2( 36, 36 )
 size_flags_horizontal = 3
@@ -1079,7 +1118,6 @@ margin_bottom = 32.0
 text = "X"
 
 [node name="Popups" type="Control" parent="."]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 __meta__ = {
@@ -1385,7 +1423,6 @@ margin_bottom = 32.0
 text = "Back"
 
 [node name="Confirm" type="Panel" parent="Popups/Window"]
-visible = false
 anchor_left = 0.2
 anchor_top = 0.3
 anchor_right = 0.8
@@ -1441,9 +1478,65 @@ margin_right = -8.0
 margin_bottom = -8.0
 text = "No"
 
+[node name="Tutorial" type="Panel" parent="Popups/Window"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="Popups/Window/Tutorial"]
+anchor_right = 1.0
+margin_bottom = 24.0
+text = "Tutorial"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Text" type="Label" parent="Popups/Window/Tutorial"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 24.0
+margin_right = -8.0
+margin_bottom = -56.0
+text = "Tutorial brief!"
+align = 1
+valign = 1
+
+[node name="Buttons" type="HBoxContainer" parent="Popups/Window/Tutorial"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -48.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[node name="TutorialContinue" type="Button" parent="Popups/Window/Tutorial/Buttons"]
+margin_right = 520.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+text = "Continue Tutorial / Skip"
+
+[node name="TutorialReset" type="Button" parent="Popups/Window/Tutorial/Buttons"]
+margin_left = 524.0
+margin_right = 652.0
+margin_bottom = 40.0
+text = "Reset CASP script"
+
+[node name="TutorialQuit" type="Button" parent="Popups/Window/Tutorial/Buttons"]
+margin_left = 656.0
+margin_right = 752.0
+margin_bottom = 40.0
+text = "Quit Tutorial"
+
 [connection signal="pressed" from="EngineVP/FocusEngine" to="." method="FocusGame"]
 [connection signal="pressed" from="TopBar/HBoxContainer/Back" to="." method="_on_Back_pressed"]
 [connection signal="pressed" from="TopBar/HBoxContainer/Save" to="." method="_on_Save_pressed"]
+[connection signal="pressed" from="TopBar/HBoxContainer/TutorialWindow" to="." method="_on_TutorialWindow_pressed"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/ResetExecuteMove" to="." method="_on_ResetExecuteMove_pressed"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset1/ResetGround" to="." method="_on_ResetGround_pressed"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset1/ResetAir" to="." method="_on_ResetAir_pressed"]
@@ -1454,6 +1547,7 @@ text = "No"
 [connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay" to="." method="_on_FlowPlay_toggled"]
 [connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo" to="." method="_on_FlowSlowmo_toggled"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowNextFrame" to="." method="_on_FlowNextFrame_pressed"]
+[connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/HideGizmos" to="." method="_on_HideGizmos_toggled"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/Reload" to="." method="_on_Reload_pressed"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/ChangeTool" to="." method="_on_ChangeTool_pressed"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/BigToolExpand" to="." method="_on_BigToolExpand_pressed"]
@@ -1472,6 +1566,8 @@ text = "No"
 [connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OverrideState" to="." method="_on_OverrideState_pressed"]
 [connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/RenameState" to="." method="_on_RenameState_pressed"]
 [connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/DeleteState" to="." method="_on_DeleteState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates/NavOpenCategories" to="." method="_on_NavOpenCategories_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates/NavCloseCategories" to="." method="_on_NavCloseCategories_pressed"]
 [connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleHelpers" to="." method="OnNavigationPanelParamsChanged"]
 [connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleShowVariables" to="." method="OnNavigationPanelParamsChanged"]
 [connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleOverridableStates" to="." method="OnNavigationPanelParamsChanged"]
@@ -1500,3 +1596,6 @@ text = "No"
 [connection signal="pressed" from="Popups/Window/NewEntity/Buttons/Back" to="." method="HidePopups"]
 [connection signal="pressed" from="Popups/Window/Confirm/Yes" to="." method="_on_ConfirmYes_pressed"]
 [connection signal="pressed" from="Popups/Window/Confirm/No" to="." method="HidePopups"]
+[connection signal="pressed" from="Popups/Window/Tutorial/Buttons/TutorialContinue" to="." method="_on_TutorialContinue_pressed"]
+[connection signal="pressed" from="Popups/Window/Tutorial/Buttons/TutorialReset" to="." method="_on_TutorialReset_pressed"]
+[connection signal="pressed" from="Popups/Window/Tutorial/Buttons/TutorialQuit" to="." method="_on_TutorialQuit_pressed"]

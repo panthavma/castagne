@@ -31,19 +31,30 @@ func LoadTutorialScript(tutorialPath):
 
 # SANDBOX
 
+var tutorialFolderRoot = "user://tutorial/"
 func TutorialSetupBasic(basicConfigFile, filesToCopy = []):
-	filesToCopy += [basicConfigFile]
+	filesToCopy.push_front(basicConfigFile)
+	filesToCopy += ["res://castagne/editor/tutorials/assets/TutorialBaston.casp"]
+	
 	var dir = Directory.new()
+	if(!dir.dir_exists(tutorialFolderRoot)):
+		dir.make_dir_recursive(tutorialFolderRoot)
+	dir.open(tutorialFolderRoot)
+	dir.list_dir_begin(true)
 	
-	var tutorialRoot = "user://tutorial/"
-	if(!dir.dir_exists(tutorialRoot)):
-		dir.make_dir_recursive(tutorialRoot)
+	var fpath = dir.get_next()
+	while !fpath.empty():
+		dir.remove(fpath)
+		fpath = dir.get_next()
 	
-	var configDstPath
+	
+	var configDstPath = null
 	for srcPath in filesToCopy:
 		var fileName = srcPath.right(srcPath.rfind("/")+1)
-		var dstPath = tutorialRoot + fileName
-		configDstPath = dstPath
+		var dstPath = tutorialFolderRoot + fileName
+		
+		if(configDstPath == null):
+			configDstPath = dstPath
 		
 		if(dir.copy(srcPath, dstPath) != OK):
 			Castagne.Error("Tutorial setup failed to copy file, aborting")
@@ -52,6 +63,7 @@ func TutorialSetupBasic(basicConfigFile, filesToCopy = []):
 	var tutoEditor = Castagne.InstanceCastagneEditor(Castagne.LoadModulesAndConfig(configDstPath))
 	tutoEditor.skipFirstTimeFlow = true
 	return tutoEditor
+
 
 func ShowDialogue(text):
 	$Dialog/Label.set_text(text)
@@ -86,11 +98,46 @@ func StencilNone():
 	StencilRect(Rect2(-50,-50,0,0))
 
 
+func PressButton(node):
+	node.emit_signal("pressed")
+
+func ContinueNextFrame():
+	call_deferred("Continue")
+
+var codeReset_CodeFile = ""
+func StartCoding(instructions, codeReset):
+	editor.get_node("CharacterEdit/Popups/Window/Tutorial/Text").set_text(instructions)
+	codeReset_CodeFile = codeReset
+	hide()
+	ResetCode()
+	#editor.get_node("CharacterEdit")._on_Reload_pressed()
+
+func ResetCode():
+	SetCode(codeReset_CodeFile)
+func SetCode(code):
+	var characterEditor = editor.get_node("CharacterEdit")
+	var fileData = characterEditor.character[characterEditor.character["NbFiles"]-1]
+	var filePath = fileData["Path"]
+	
+	var file = File.new()
+	file.open(fileData["Path"], File.WRITE)
+	file.store_string(code)
+	file.close()
+	editor.get_node("CharacterEdit")._on_Reload_pressed()
+
+func StopCoding():
+	ResetCode()
+	Continue()
+
 func EndTutorial():
 	editor.queue_free()
 	
 	var newEditor = Castagne.InstanceCastagneEditor()
 	get_tree().get_root().add_child(newEditor)
 
-func _on_DialogButton_pressed():
+func Continue():
+	show()
 	scriptState = scriptState.resume()
+
+func _on_DialogButton_pressed():
+	Continue()

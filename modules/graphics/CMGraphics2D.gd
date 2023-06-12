@@ -34,12 +34,12 @@ func CreateModel(args, stateHandle):
 
 func _UpdateSprite(sprite, stateHandle):
 	._UpdateSprite(sprite, stateHandle)
-	var spriteOrder = stateHandle.EntityGet("SpriteOrder") + stateHandle.EntityGet("SpriteOrderOffset")
+	var spriteOrder = stateHandle.EntityGet("_SpriteOrder") + stateHandle.EntityGet("_SpriteOrderOffset")
 	sprite.set_z_index(spriteOrder)
 	
 	var spriteData = _GetCurrentSpriteData(stateHandle)
 	var spriteSizeY = 0
-	if(stateHandle.EntityGet("SpriteUseSpritesheets")):
+	if(stateHandle.EntityGet("_SpriteUseSpritesheets")):
 		var texture = sprite.get_texture()
 		if(texture != null):
 			spriteSizeY = texture.get_size().y / sprite.get_vframes()
@@ -86,7 +86,9 @@ func _ModelApplyTransform(stateHandle, modelRoot, modelPosition, modelRotation, 
 	
 	modelRoot.set_position(modelPosition)
 	modelRoot.set_rotation_degrees(modelRotation)
-	modelRoot.set_scale(Vector2(stateHandle.EntityGet("_ModelFacing") * modelScale, modelScale))
+	var spriteData = _GetCurrentSpriteData(stateHandle)
+	#modelScale *= spriteData["PixelSize"]
+	modelRoot.set_scale(Vector2(stateHandle.EntityGet("_FacingHModel") * modelScale, modelScale))
 
 func _CreateRootNode():
 	return Node2D.new()
@@ -118,12 +120,12 @@ func _CreateGraphicsRootNode(engine):
 	
 	return vp
 
-func IngameToWorldPos(ingamePositionX, ingamePositionY, _ingamePositionZ = 0):
-	return Vector2(ingamePositionX, -ingamePositionY) * POSITION_SCALE
+func IngameToGodotPos(ingamePosition):
+	return Vector2(ingamePosition[0], -ingamePosition[1]) * POSITION_SCALE
 
-func TranslateIngamePosToScreen(ingamePositionX, ingamePositionY, _ingamePositionZ = 0):
+func TranslateIngamePosToScreen(ingamePosition):
 	if(lastRegisteredCamera != null):
-		var pos = IngameToWorldPos(ingamePositionX, ingamePositionY) - lastRegisteredCamera.get_position()
+		var pos = IngameToGodotPos(ingamePosition) - lastRegisteredCamera.get_position()
 		# Apply the transform manually by finding where we are in the camera, and then put it in the viewport
 		var screenPos = viewportContainer.get_global_position() + (pos / viewport.get_size() + Vector2(0.5, 0.5))* viewportContainer.get_size()
 		return screenPos

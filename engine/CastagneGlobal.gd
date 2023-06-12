@@ -27,15 +27,13 @@ const INPUT_ONLINE = 1
 const INPUT_AI = 2
 const INPUT_DUMMY = 3
 
-enum HITCONFIRMED {
-	NONE, BLOCK, HIT
-}
+enum HITCONFIRMED { NONE, BLOCK, HIT, CLASH }
 
 enum STATE_TYPE { Normal, BaseState, Helper, Special }
 enum VARIABLE_MUTABILITY { Variable, Define, Internal }
-enum VARIABLE_TYPE { Int, Str, Var, Vec2, Vec3, Box }
-enum MEMORY_STACKS { Global, Player, Entity}
-enum MODULE_SLOTS_BASE { CORE, PHYSICS, GRAPHICS, FLOW, EDITOR, INPUT, CUSTOM_1, CUSTOM_2, CUSTOM_3 }
+enum VARIABLE_TYPE { Int, Str, Var, Vec2, Vec3, Box, Bool }
+enum MEMORY_STACKS { Global, Player, Entity }
+enum MODULE_SLOTS_BASE { CORE, PHYSICS, ATTACKS, GRAPHICS, FLOW, EDITOR, INPUT, CUSTOM_1, CUSTOM_2, CUSTOM_3 }
 
 enum INPUTDEVICE_TYPES { EMPTY, KEYBOARD, CONTROLLER }
 enum PHYSICALINPUT_TYPES { RAW, BUTTON, AXIS, STICK, COMBINATION }
@@ -348,7 +346,42 @@ func AreDictionariesEqual(a, b):
 	if(a.size() != b.size()):
 		return false
 	for k in a:
-		if(!b.has(k) or a[k] != b[k]):
+		if(!b.has(k)):
+			return false
+		if(a[k] == b[k]):
+			continue
+		
+		var typeA = typeof(a[k])
+		var typeB = typeof(b[k])
+		if(typeA != typeB):
+			return false
+		
+		if(typeA == TYPE_DICTIONARY):
+			var r = AreDictionariesEqual(a[k], b[k])
+		elif(typeA == TYPE_ARRAY):
+			var r = AreArraysEqual(a[k], b[k])
+		else:
+			return false
+	return true
+func AreArraysEqual(a, b):
+	if(a == b):
+		return true
+	if(a.size() != b.size()):
+		return false
+	for i in range(a.size()):
+		if(a[i] == b[i]):
+			continue
+		
+		var typeA = typeof(a[i])
+		var typeB = typeof(b[i])
+		if(typeA != typeB):
+			return false
+		
+		if(typeA == TYPE_DICTIONARY):
+			var r = AreDictionariesEqual(a[i], b[i])
+		elif(typeA == TYPE_ARRAY):
+			var r = AreArraysEqual(a[i], b[i])
+		else:
 			return false
 	return true
 

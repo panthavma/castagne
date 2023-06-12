@@ -102,7 +102,8 @@ func Anim(args, stateHandle):
 	var newAnim = ArgStr(args, stateHandle, 0)
 	var offset = ArgInt(args, stateHandle, 1, 0)
 	if(newAnim != stateHandle.EntityGet("_Anim") or offset != stateHandle.EntityGet("_AnimOffset")):
-		stateHandle.EntitySet("_AnimStartFrame", (stateHandle.EntityGet("_StateStartFrame") - offset)+1)
+		var startFrame = stateHandle.EntityGet("_StateStartFrame") + stateHandle.EntityGet("_StateFrameID") - offset
+		stateHandle.EntitySet("_AnimStartFrame", startFrame)
 		stateHandle.EntitySet("_AnimOffset", offset)
 	stateHandle.EntitySet("_Anim", newAnim)
 	var frame = 1+stateHandle.GlobalGet("_FrameID") - stateHandle.EntityGet("_AnimStartFrame")

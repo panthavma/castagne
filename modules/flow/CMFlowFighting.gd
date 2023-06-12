@@ -26,7 +26,6 @@ func GetBaseBattleInitData(configData):
 		var eBase = p["entities"][0]
 		
 		eBase["overrides"]["_PositionX"] = (-1 if pid == 0 else 1)*configData.Get("StartingDistance")
-		eBase["overrides"]["_Facing"] = (1 if pid == 0 else -1) # Temporary?
 		
 		for eid in range(configData.Get("CharactersPerPlayer")):
 			var e = {}
@@ -34,6 +33,14 @@ func GetBaseBattleInitData(configData):
 		bid["players"] += [p]
 	
 	return bid
+
+func ActionPhaseStartEntity(stateHandle):
+	.ActionPhaseStartEntity(stateHandle)
+	if(stateHandle.GlobalGet("_NbPlayers") == 2):
+		var playerPID = stateHandle.EntityGet("_Player")
+		var otherPID = (1 if playerPID == 0 else 0)
+		var otherMainEntity = stateHandle.Memory().PlayerGet(otherPID, "MainEntity")
+		stateHandle.SetTargetEntity(otherMainEntity)
 
 func EditorCreateFlowWindow(editor, root):
 	_EditorGetCharacterEditorData(editor.configData)
@@ -61,7 +68,7 @@ func _EditorCreateFlowWindow_Player(editor, pid):
 	for deviceName in editor.configData.Input().GetDevicesList():
 		var device = editor.configData.Input().GetDevice(deviceName)
 		playerInputDevice.add_item("Input Device: " + device["DisplayName"])
-	playerInputDevice.select(editor.configData.Get(cdbn+"inputdevice", 0))
+	playerInputDevice.select(editor.configData.Get(cdbn+"inputdevice", pid+1))
 	playerRoot.add_child(playerInputDevice)
 	
 	var characterList = HBoxContainer.new()

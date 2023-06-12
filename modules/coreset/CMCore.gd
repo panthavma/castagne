@@ -17,62 +17,95 @@ func ModuleSetup():
 	RegisterFunction("Flag", [1], ["AllPhases"], {
 		"Description": "Raises a flag. Flags are reset at the beginning of each frame and allow you to communicate easily between modules. Flags are tested with L branches.",
 		"Arguments": ["Flag name"],
+		"Flags":["Basic"],
 		"Types": ["str"],
 		})
 	RegisterFunction("Unflag", [1], ["AllPhases"], {
 		"Description": "Unsets a flag, if it was set earlier.",
 		"Arguments": ["Flag name"],
+		"Flags":["Basic"],
+		"Types": ["str"],
 		})
 	RegisterFunction("FlagNext", [1], ["AllPhases"], {
 		"Description": "Raises a flag at the beginning of the next frame.",
 		"Arguments": ["Flag name"],
+		"Flags":["Basic"],
+		"Types": ["str"],
 		})
 	RegisterFunction("UnflagNext", [1], ["AllPhases"], {
 		"Description": "Unsets a flag for the next frame, if it was set earlier with FlagNext.",
 		"Arguments": ["Flag name"],
+		"Flags":["Basic"],
+		"Types": ["str"],
 		})
-	RegisterVariableEntity("_Flags", [], ["ResetEachFrame"], {"Description":"The list of flags held by the entity"})
-	RegisterVariableEntity("_FlagsNext", [], null, {"Description":"The list of flags to be raised at the beginning of next frame."})
+	RegisterVariableEntity("_Flags", [], ["ResetEachFrame"], {
+		"Description":"The list of flags held by the entity",
+		"Flags":["Expert"],
+		})
+	RegisterVariableEntity("_FlagsNext", [], null, {
+		"Description":"The list of flags to be raised at the beginning of next frame.",
+		"Flags":["Expert"],
+		})
 	
 	RegisterFunction("Set", [2], null, {
 		"Description": "Sets a variable to a given integer value.",
 		"Arguments": ["Variable name", "Value"],
+		"Flags":["Basic"],
 		"Types": ["var", "int"],
 		})
 	RegisterFunction("SetStr", [2], null, {
 		"Description": "Sets a variable to a given string (text) value.",
 		"Arguments": ["Variable name", "Value"],
+		"Flags":["Basic"],
+		"Types": ["var", "str"],
 		})
 	
+
+
+
 
 	RegisterCategory("Mathematics (Simple)", {"Description":"Basic mathematical functions."})
 	RegisterFunction("Add", [2,3], null, {
 		"Description": "Adds two numbers and stores it in the first variable or an optional third variable.",
-		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"],
+		"Flags":["Basic"],
+		"Types": ["int", "int", "var"],
 	})
 	RegisterFunction("Sub", [2,3], null, {
 		"Description": "Substracts two numbers and stores it in the first variable or an optional third variable.",
-		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"],
+		"Flags":["Basic"],
+		"Types": ["int", "int", "var"],
 	})
 	RegisterFunction("Mul", [2,3], null, {
 		"Description": "Multiplies two numbers and stores it in the first variable or an optional third variable.",
-		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"],
+		"Flags":["Basic"],
+		"Types": ["int", "int", "var"],
 	})
 	RegisterFunction("Div", [2,3], null, {
 		"Description": "Divides two numbers and stores it in the first variable or an optional third variable.",
-		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"],
+		"Flags":["Basic"],
+		"Types": ["int", "int", "var"],
 	})
 	RegisterFunction("Mod", [2,3], null, {
 		"Description": "Computes the remainder of the division between two numbers and stores it in the first variable or an optional third variable.",
-		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"],
+		"Flags":["Basic"],
+		"Types": ["int", "int", "var"],
 	})
 	RegisterFunction("Max", [2,3], null, {
 		"Description": "Stores the bigger of the two numbers in the first variable or an optional third variable.",
-		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"],
+		"Flags":["Basic"],
+		"Types": ["int", "int", "var"],
 	})
 	RegisterFunction("Min", [2,3], null, {
 		"Description": "Stores the smaller of the two numbers in the first variable or an optional third variable.",
-		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"]
+		"Arguments": ["First number", "Second number", "(Optional) Destination Variable"],
+		"Flags":["Basic"],
+		"Types": ["int", "int", "var"],
 	})
 	
 	# :TODO:Panthavma:20211230:Booleans (as consts)
@@ -90,82 +123,163 @@ In the case of targetting an entity currently being created, the values will be 
 
 If several entities want to alter the same value on the same target entity, the behaviour should be considered undefined (but in practice, will use the one from the entity with the highest ID).
 
-The target entity is reset at the beginning of each frame, to the current entity."""})
+The target entity is reset at the beginning of each frame, to the current entity (it targets itself).
+This can be overriden by other modules (mainly, FlowFighting which will target the opponent if playing with two players)"""})
 	
 	RegisterFunction("CreateEntity", [1], null, {
+		"Description": "Creates a new entity at the beginning of the next frame, using the given entity name, and targets it.\n"+
+		"Also sets some parameters to make entity creation easier (position at root, copy facing)",
+		"Arguments":["Init Script"],
+		"Flags":["Intermediate"],
+		"Types": ["str"],
+	})
+	RegisterFunction("CreateEntityRaw", [1], null, {
 		"Description": "Creates a new entity at the beginning of the next frame, using the given entity name, and targets it.",
 		"Arguments":["Init Script"],
+		"Flags":["Intermediate"],
+		"Types": ["str"],
 	})
 	# :TODO:Panthavma:20220310:What happens if it was the main entity?
 	RegisterFunction("DestroyEntity", [0], null, {
 		"Description": "Deletes the currently targetted entity at the beginning of the next frame.",
 		"Arguments":[],
+		"Flags":["Intermediate"],
+		"Types": ["str"],
 	})
 	
 	RegisterFunction("GetCurrentEntityID", [1], null, {
 		"Description":"Write the current entity ID to a variable.",
-		"Arguments":["The variable to write the ID to"]
+		"Arguments":["The variable to write the ID to"],
+		"Flags":["Advanced"],
+		"Types": ["var"],
 	})
 	RegisterFunction("GetTargetEntityID", [1], null, {
 		"Description":"Write the target entity ID to a variable.",
-		"Arguments":["The variable to write the ID to"]
+		"Arguments":["The variable to write the ID to"],
+		"Flags":["Advanced"],
+		"Types": ["var"],
 	})
 	
 	RegisterFunction("TargetEntityByID", [1], null, {
 		"Description":"Targets an entity using its ID",
-		"Arguments":["The ID of the entity to target"]
+		"Arguments":["The ID of the entity to target"],
+		"Flags":["Advanced"],
+		"Types": ["int"],
 	})
-	RegisterFunction("TargetEntityCurrent", [0], null, {
+	RegisterFunction("TargetEntitySelf", [0], null, {
 		"Description":"Targets the current entity (autotargetting).",
-		"Arguments":[]
+		"Arguments":[],
+		"Flags":["Advanced"],
 	})
 	# :TODO:Panthavma:20221223:Add functions to target opponent entities
 	
 	RegisterFunction("CopyFromTarget", [1,2], null, {
 		"Description":"Copies a variable from the target entity. This will however copy the variable value from the end of the last frame.",
-		"Arguments":["Variable name on current entity", "(Optional) Variable name on target entity"]
+		"Arguments":["Variable name on current entity", "(Optional) Variable name on target entity"],
+		"Flags":["Intermediate"],
+		"Types": ["var", "var"],
 	})
 	RegisterFunction("CopyToTarget", [1,2], null, {
 		"Description":"Copies a variable to the target entity. This will be applied at the end of the phase, or at initialization for new entities.",
-		"Arguments":["Variable name on current entity", "(Optional) Variable name on target entity"]
+		"Arguments":["Variable name on current entity", "(Optional) Variable name on target entity"],
+		"Flags":["Intermediate"],
+		"Types": ["var", "var"],
 	})
 	RegisterFunction("SetIntInTarget", [2], null, {
 		"Description":"Sets a variable in the target entity. This will be applied at the end of the phase, or at initialization for new entities.",
-		"Arguments":["Variable name on target entity", "Variable Value"]
+		"Arguments":["Variable name on target entity", "Variable Value"],
+		"Flags":["Intermediate"],
+		"Types": ["var", "int"],
 	})
 	RegisterFunction("SetStrInTarget", [2], null, {
 		"Description":"Sets a variable in the target entity. This will be applied at the end of the phase, or at initialization for new entities.",
-		"Arguments":["Variable name on target entity", "Variable Value"]
+		"Arguments":["Variable name on target entity", "Variable Value"],
+		"Flags":["Intermediate"],
+		"Types": ["var", "str"],
 	})
-	RegisterVariableGlobal("_CopyToBuffer", [], null, {"Description":"Global buffer to hold the variables entities set to each other."})
+	RegisterFunction("FlagInTarget", [1], null, {
+		"Description":"Sets a flag in the target. This will be applied at the end of the phase, but doesn't carry over to the next frame, meaning you'll most likely only access it in Reaction phase.",
+		"Arguments":["Flag Name"],
+		"Flags":["Intermediate"],
+		"Types": ["str"],
+	})
+	RegisterFunction("UnflagInTarget", [1], null, {
+		"Description":"Unsets a flag in the target. This will be applied at the end of the phase, but doesn't carry over to the next frame, meaning you'll most likely only access it in Reaction phase.",
+		"Arguments":["Flag Name"],
+		"Flags":["Intermediate"],
+		"Types": ["str"],
+	})
+	
+	RegisterVariableGlobal("_CopyToBuffer", [], null, {
+		"Description":"Global buffer to hold the variables entities set to each other.",
+		"Flags":["Expert"],
+		})
+	RegisterVariableGlobal("_FlagTargetBuffer", [], ["ResetEachFrame"], {
+		"Description":"Global buffer to hold the flags entities set to each other.",
+		"Flags":["Expert"],
+		})
+	RegisterVariableEntity("_TargetEID", -1, ["ResetEachFrame"], {
+		"Description":"Hold the current target EID, reset each frame.",
+		"Flags":["Advanced"],
+		})
+	
+	
+	
+	
+	
 	
 	
 	# Category : States ----------------------------------------------------------------------------
-	RegisterCategory("States", {"Description":"Holds functions and variables pertaining to the states themselves. Handles transitions, and state calls."})
+	RegisterCategory("States", {
+		"Description":"Holds functions and variables pertaining to the states themselves. Handles transitions, and state calls."
+		})
 	
 	RegisterFunction("Transition", [0,1,2,3], ["Init", "Reaction"], {
 		"Description": "Changes the current script/state. If multiple changes are made in the same frame, the first one with the biggest priority wins. Changes from one state to itself are ignored, except if allowing self-transition in the arguments. The change is buffered and executed at the end of the transition phase or the init phase. Calling the function without arguments will cancel the transition.",
 		"Arguments": ["State name", "(Optional) Priority", "(Optional) Allow self-transition"],
+		"Flags":["Basic"],
+		"Types": ["str", "int", "bool"],
 		})
 	RegisterFunction("TransitionBuffer", [0,1,2,3], ["Init", "Action", "Reaction"], {
 		"Description": "Same as Transition, but also works during the action phase. This can make some code simpler, and is separated because some confusing logic may happen when buffering all the time.",
 		"Arguments": ["State name", "(Optional) Priority", "(Optional) Allow self-transition"],
+		"Flags":["Basic"],
+		"Types": ["str", "int", "bool"],
 		})
 	#RegisterFunction("InstantTransition", [1,2,3], ["TransitionFunc"])
 	#RegisterFunction("ResetFrameID", [0], ["TransitionFunc"])
-	RegisterVariableEntity("_State", "Init-Main", ["NoInit"], {"Description":"The name of the current state"})
-	RegisterVariableEntity("_StateTarget", null, ["ResetEachFrame"], {"Description":"The name of the state we want to transition to."})
-	RegisterVariableEntity("_StateFrameID", 0, ["ResetEachFrame"], {"Description":"The FrameID counted from when we transitionned into the state. (Starts at 1, 0 being the frame the transition is done in.)"})
-	RegisterVariableEntity("_StateChangePriority", -100000, ["ResetEachFrame"], {"Description":"Current priority for the state transition, given by Transition()"})
-	RegisterVariableEntity("_StateStartFrame", 0, null, {"Description":"The FrameID the current state started in."})
+	RegisterVariableEntity("_State", "Init-Main", ["NoInit"], {
+		"Description":"The name of the current state",
+		"Flags":["Intermediate"],
+		})
+	RegisterVariableEntity("_StateTarget", null, ["ResetEachFrame"], {
+		"Description":"The name of the state we want to transition to.",
+		"Flags":["Advanced"],
+		})
+	RegisterVariableEntity("_StateFrameID", 0, ["ResetEachFrame"], {
+		"Description":"The FrameID counted from when we transitionned into the state. (Starts at 1, 0 being the frame the transition is done in.)",
+		"Flags":["Intermediate"],
+		})
+	RegisterVariableEntity("_StateChangePriority", -100000, ["ResetEachFrame"], {
+		"Description":"Current priority for the state transition, given by Transition()",
+		"Flags":["Expert"],
+		})
+	RegisterVariableEntity("_StateStartFrame", 0, null, {
+		"Description":"The FrameID the current state started in.",
+		"Flags":["Expert"],
+		})
 	
 	RegisterFunction("Call", [1], ["Init", "Action", "Reaction", "Freeze"], {
-		"Description": "Executes another script/state.",
+		"Description": "Executes another script/state. When the script is known at compile time, it is inlined and thus doesn't slow down execution.",
 		"Arguments": ["Name of the state to call"],
+		"Flags":["Basic"],
+		"Types": ["str"],
 		})
 	RegisterFunction("CallParent", [1], ["Init", "Action", "Reaction", "Freeze"], {
 		"Description": "Execute another script/state on the parent skeleton.",
 		"Arguments": ["Name of the state to call."],
+		"Flags":["Intermediate"],
+		"Types": ["str"],
 		})
 	RegisterVariableEntity("_CallParentLevel", 0, ["ResetEachFrame"], {"Description":"Helper variable for which level the CallParent function shall call to."})
 	
@@ -173,9 +287,14 @@ The target entity is reset at the beginning of each frame, to the current entity
 		"Description": "Schedules a call to be executed after the current one has been done.\n"+
 		"These will be executed only once - ExecuteAfter calls inside an ExecuteAfter are ignored.\n"+
 		"Giving no arguments will cancel existing calls, if done before the end.",
-		"Arguments":["(Optional) Name of state to call"]
+		"Arguments":["(Optional) Name of state to call"],
+		"Flags":["Intermediate"],
+		"Types": ["str"],
 	})
-	RegisterVariableEntity("_ExecuteAfterCalls", [], ["ResetEachFrame"], {"Description":"Hold the list of states that will be called after the main state, filled by ExecuteAfter()"})
+	RegisterVariableEntity("_ExecuteAfterCalls", [], ["ResetEachFrame"], {
+		"Description":"Hold the list of states that will be called after the main state, filled by ExecuteAfter()",
+		"Flags":["Expert"],
+		})
 	
 	
 	# :TODO:Panthavma:20220131:Add callparent with 0 arguments
@@ -185,17 +304,20 @@ The target entity is reset at the beginning of each frame, to the current entity
 	# Category : Debug -----------------------------------------------------------------------------
 	RegisterCategory("Debug", {"Description":"Functions that help understanding what happens inside the code."})
 	
-	RegisterFunction("Log", [1], ["Init", "Action"], {
-		"Description": "Writes a log to the console output.",
+	RegisterFunction("Log", [1], ["Init", "Action", "Freeze"], {
+		"Description": "Writes a log to the console output during the Action phase.",
 		"Arguments": ["Text to write"],
+		"Flags":["Basic"],
 		})
-	RegisterFunction("LogT", [1], ["Reaction"], {
+	RegisterFunction("LogR", [1], ["Reaction"], {
 		"Description": "Writes a log to the console output during the Reaction phase only.",
 		"Arguments": ["Text to write"],
+		"Flags":["Intermediate"],
 		})
 	RegisterFunction("LogB", [1], ["Init", "Action", "Reaction"], {
 		"Description": "Writes a log to the console output during the Init, Action, and Reaction phases.",
 		"Arguments": ["Text to write"],
+		"Flags":["Intermediate"],
 		})
 	
 	
@@ -207,35 +329,82 @@ The target entity is reset at the beginning of each frame, to the current entity
 	RegisterFunction("FreezeFrames", [1], null, {
 		"Description": "Sets an amount of freeze frames to be effective immediately. Uses the max of the remaining frames and current frames.",
 		"Arguments": ["Amount of frames to wait"],
+		"Flags":["Intermediate"],
+		"Types": ["int"],
 		})
 	
 	
 	# Category : Game specific ----------------------------------------------------------
 	RegisterCategory("Game Configuration", {"Description":"Configuration related to the game itself, including Characters and Stages."})
 	
-	RegisterConfig("GameTitle","Untitled Castagne Game", {"Description":"The name of the game."})
-	RegisterConfig("GameVersion","Unspecified Version", {"Description":"The version of the game, can be used to differenciate patches."})
+	RegisterConfig("GameTitle","Untitled Castagne Game", {
+		"Description":"The name of the game.",
+		"Flags":["Basic"],
+		})
+	RegisterConfig("GameVersion","Unspecified Version", {
+		"Description":"The version of the game, can be used to differenciate patches.",
+		"Flags":["Basic"],
+		})
 	RegisterCustomConfig("Genre Select", "GenreSelector", {"Flags":["ReloadFull", "LockBack"]})
-	RegisterConfig("CharacterPaths","res://castagne/example/fighter/Castagneur.casp", {"Flags":["Hidden"], "Description":"The list of characters that can be loaded."})
-	RegisterConfig("Skeletons", "", {"Flags":["Hidden"], "Description":"The list of skeletons that may be loaded. Used when the Skeleton parameter of a character is set to an int, or when none is given."})
+	RegisterConfig("CharacterPaths","res://castagne/example/fighter/baston/Baston.casp, res://castagne/example/fighter/baston/Baston2D.casp", {
+		"Flags":["Hidden"],
+		"Description":"The list of characters that can be loaded."
+		})
+	RegisterConfig("Skeletons", "", {
+		"Flags":["Hidden"],
+		"Description":"The list of skeletons that may be loaded. Used when the Skeleton parameter of a character is set to an int, or when none is given."
+		})
 	RegisterCustomConfig("Manage Characters", "CharacterSet", {"Flags":["LockBack"]})
-	RegisterConfig("StagePaths","res://castagne/example/stage/Stage.tscn", {"Description":"The list of stages that may be loaded."})
+	RegisterConfig("StagePaths","res://castagne/example/stage/Stage.tscn", {
+		"Description":"The list of stages that may be loaded.",
+		"Flags":["Intermediate"],
+		})
 	
 	
 	# Category : General engine variables ----------------------------------------------------------
 	RegisterCategory("Castagne Internals", {"Description":"Variables and configurations relating to the engine itself. Please be careful when changing these."})
 	
-	RegisterVariableGlobal("_FrameID", 0, null, {"Description":"The number of game frames since the beginning of the match."})
-	RegisterVariableGlobal("_TrueFrameID", 0, null, {"Description":"The number of actual frames since the beginning of the match."})
-	RegisterVariableGlobal("_SkipFrame", false, ["ResetEachFrame"], {"Description":"Tells the engine if it should do a skip loop."})
-	RegisterVariableGlobal("_FrozenFrame", false, ["ResetEachFrame"], {"Description":"Tells the engine if it should do a freeze loop"})
-	RegisterVariableGlobal("_SkipFrames", 0, null, {"Description":"Helper variable, counting the number of frames to skip remaining."})
-	RegisterVariableGlobal("_FreezeFrames", 0, null, {"Description":"Helper variable, counting the number of frames in freeze remaining."})
+	RegisterVariableGlobal("_FrameID", 0, null, {
+		"Description":"The number of game frames since the beginning of the match.",
+		"Flags":["Advanced"],
+		})
+	RegisterVariableGlobal("_TrueFrameID", 0, null, {
+		"Description":"The number of actual frames since the beginning of the match.",
+		"Flags":["Advanced"],
+		})
+	RegisterVariableGlobal("_SkipFrame", false, ["ResetEachFrame"], {
+		"Description":"Tells the engine if it should do a skip loop.",
+		"Flags":["Expert"],
+		})
+	RegisterVariableGlobal("_FrozenFrame", false, ["ResetEachFrame"], {
+		"Description":"Tells the engine if it should do a freeze loop",
+		"Flags":["Expert"],
+		})
+	RegisterVariableGlobal("_SkipFrames", 0, null, {
+		"Description":"Helper variable, counting the number of frames to skip remaining.",
+		"Flags":["Expert"],
+		})
+	RegisterVariableGlobal("_FreezeFrames", 0, null, {
+		"Description":"Helper variable, counting the number of frames in freeze remaining.",
+		"Flags":["Expert"],
+		})
 	
-	RegisterVariableGlobal("_CurrentEntityID", 0, null, {"Description":"Remembers the next ID for a new entity."})
-	RegisterVariableGlobal("_EntitiesToInit", [], null, {"Description":"List of entities to handle in the next Init Phase"})
-	RegisterVariableGlobal("_EntitiesToDestroy", [], null, {"Description":"List of entities to destroy at the beginning of the next loop."})
-	RegisterVariableGlobal("_ActiveEntities", [], null, {"Description":"List of entities that are executed each frame."})
+	RegisterVariableGlobal("_CurrentEntityID", 0, null, {
+		"Description":"Remembers the next ID for a new entity.",
+		"Flags":["Expert"],
+		})
+	RegisterVariableGlobal("_EntitiesToInit", [], null, {
+		"Description":"List of entities to handle in the next Init Phase",
+		"Flags":["Expert"],
+		})
+	RegisterVariableGlobal("_EntitiesToDestroy", [], null, {
+		"Description":"List of entities to destroy at the beginning of the next loop.",
+		"Flags":["Expert"],
+		})
+	RegisterVariableGlobal("_ActiveEntities", [], null, {
+		"Description":"List of entities that are executed each frame.",
+		"Flags":["Expert"],
+		})
 	#RegisterVariableEntity("_VariablesSet", [])
 	
 	# Variables defined in Engine, here for documentation
@@ -247,22 +416,48 @@ The target entity is reset at the beginning of each frame, to the current entity
 	#RegisterVariableEntity("MainEntity", -1, ["NoInit"])
 	#RegisterVariableEntity("PID", -1, ["NoInit"])
 	
-	RegisterVariableGlobal("_NbPlayers", 0, null, {"Description":"Remembers the amount of players."})
+	RegisterVariableGlobal("_NbPlayers", 0, null, {
+		"Description":"Remembers the amount of players.",
+		"Flags":["Advanced"],
+		})
 	
 	
-	RegisterConfig("CastagneVersion","Castagne v0.53", {"Flags":["Hidden", "Reload"], "Description":"Internal version of the Castagne engine."})
-	RegisterConfig("PathEngine", "res://castagne/engine/CastagneEngine.tscn", {"Flags":["Advanced"], "Description":"Filepath to the engine scene."})
-	RegisterConfig("PathEditor", "res://castagne/editor/CastagneEditor.tscn", {"Flags":["Advanced"], "Description":"Filepath to the editor scene."})
-	RegisterConfig("PathDevTools", "res://castagne/devtools/DevTools.tscn", {"Flags":["Advanced"], "Description":"Filepath to the devtools scene."})
-	RegisterConfig("PathMainMenu","res://castagne/menus/mainmenu/DefaultMainMenu.tscn", {"Flags":["Advanced"], "Description":"Filepath to the main menu scene."})
-	RegisterConfig("PathCharacterSelect","res://castagne/menus/characterselect/DefaultCharacterSelect.tscn", {"Flags":["Advanced"], "Description":"Filepath to the character select screen scene."})
-	RegisterConfig("PathPostBattle","res://castagne/menus/postbattle/DefaultPostBattle.tscn", {"Flags":["Advanced"], "Description":"Filepath to the post battle scene."})
+	RegisterConfig("CastagneVersion","Castagne v0.53", {
+		"Flags":["Hidden", "Reload", "Advanced"],
+		"Description":"Internal version of the Castagne engine."
+		})
+	RegisterConfig("PathEngine", "res://castagne/engine/CastagneEngine.tscn", {
+		"Flags":["Expert"],
+		"Description":"Filepath to the engine scene."
+		})
+	RegisterConfig("PathEditor", "res://castagne/editor/CastagneEditor.tscn", {
+		"Flags":["Expert"], "Description":"Filepath to the editor scene."
+		})
+	RegisterConfig("PathDevTools", "res://castagne/devtools/DevTools.tscn", {
+		"Flags":["Expert"],
+		"Description":"Filepath to the devtools scene."
+		})
+	RegisterConfig("PathMainMenu","res://castagne/menus/mainmenu/DefaultMainMenu.tscn", {
+		"Flags":["Advanced"],
+		"Description":"Filepath to the main menu scene."
+		})
+	RegisterConfig("PathCharacterSelect","res://castagne/menus/characterselect/DefaultCharacterSelect.tscn", {
+		"Flags":["Advanced"],
+		"Description":"Filepath to the character select screen scene."
+		})
+	RegisterConfig("PathPostBattle","res://castagne/menus/postbattle/DefaultPostBattle.tscn", {
+		"Flags":["Advanced"],
+		"Description":"Filepath to the post battle scene."
+		})
 	
 	#RegisterConfig("Skeleton-default", "base")
 	#RegisterConfig("Skeleton-base", "res://castagne/Base.casp", {"Flags":["Advanced"]})
 	
 	
-	RegisterConfig("ConfigSkeleton", "", {"Flags":["ReloadFull", "Advanced"], "Description":"Path to the config skeleton of this file. Used to build additively on top of a base config, which is done for the genre selection for instance."})
+	RegisterConfig("ConfigSkeleton", "", {
+		"Flags":["ReloadFull", "Advanced"],
+		"Description":"Path to the config skeleton of this file. Used to build additively on top of a base config, which is done for the genre selection for instance."
+		})
 	
 	
 	#RegisterBattleInitData("map",0)
@@ -272,7 +467,10 @@ The target entity is reset at the beginning of each frame, to the current entity
 	
 	RegisterCategory("Castagne Modules", {"Description":"Configurations relating to the module system of Castagne."})
 	RegisterCustomConfig("Set Modules", "ModuleSet", {"Flags":["Advanced", "ReloadFull", "LockBack"]})
-	RegisterConfig("Modules","coreset, physics, graphics, flow, user", {"Flags":["Hidden","ReloadFull"], "Description":"List of modules to load for matches."})
+	RegisterConfig("Modules","coreset, physics, graphics, flow, user", {
+		"Flags":["Hidden","ReloadFull", "Advanced"],
+		"Description":"List of modules to load for matches."}
+		)
 	var castagneStandardModules = {
 		# Coreset
 		"coreset":"editor, functions, attacks, sound, input, menus, tmp",
@@ -309,6 +507,7 @@ The target entity is reset at the beginning of each frame, to the current entity
 		"ui": "res://castagne/modules/ui/FightingUI.tscn",
 	}
 	var castagneStandardModulesList = null
+	
 	for moduleName in castagneStandardModules:
 		var modulePath = castagneStandardModules[moduleName]
 		if(modulePath.ends_with(".tscn") or modulePath.ends_with(".gd")):
@@ -318,17 +517,31 @@ The target entity is reset at the beginning of each frame, to the current entity
 				castagneStandardModulesList += ", "
 			castagneStandardModulesList += moduleName
 		
-		RegisterConfig("Modules-"+moduleName, modulePath, {"Flags":["Hidden", "ReloadFull"], "Description":"Standard Castagne Module. See the respective documentation for more info."})
+		RegisterConfig("Modules-"+moduleName, modulePath, {
+			"Flags":["Hidden", "ReloadFull", "Expert"],
+			"Description":"Standard Castagne Module. See the respective documentation for more info."})
+	
 	if(castagneStandardModulesList == null):
 		castagneStandardModulesList = ""
-	
-	RegisterConfig("Modules-castagne-standard", castagneStandardModulesList, {"Flags":["Hidden"], "Description":"List of the standard castagne modules, which are loaded automatically for documentation purposes"})
+	RegisterConfig("Modules-castagne-standard", castagneStandardModulesList, {
+		"Flags":["Hidden", "Advanced"],
+		"Description":"List of the standard castagne modules, which are loaded automatically for documentation purposes"})
 	
 	RegisterCategory("Castagne Starter", {"Description":"Data relating to the CastagneStarter system, which may start the editor or game depending on how the project is launched."})
-	RegisterConfig("Starter-Option", 0, {"Flags":["Hidden"], "Description":"Remembers the option chosen in the starter."})
-	RegisterConfig("Starter-Timer", 0, {"Description":"Time before a choice is made automatically, can be stopped with any keyboard input. Set to zero to skip the timer, or -1 to disable the time limit."})
-	RegisterConfig("Starter-P1", 0, {"Flags":["Hidden"], "Description":"Obsolete"})
-	RegisterConfig("Starter-P2", 0, {"Flags":["Hidden"], "Description":"Obsolete"})
+	RegisterConfig("Starter-Option", 0, {
+		"Flags":["Hidden", "Advanced"],
+		"Description":"Remembers the option chosen in the starter."}
+		)
+	RegisterConfig("Starter-Timer", 0, {
+		"Flags":["Intermediate"],
+		"Description":"Time before a choice is made automatically, can be stopped with any keyboard input. Set to zero to skip the timer, or -1 to disable the time limit."
+		})
+	RegisterConfig("Starter-P1", 0, {
+		"Flags":["Hidden", "Advanced"],
+		"Description":"Obsolete"})
+	RegisterConfig("Starter-P2", 0, {
+		"Flags":["Hidden", "Advanced"],
+		"Description":"Obsolete"})
 	
 
 
@@ -363,7 +576,7 @@ func ActionPhaseStartEntity(stateHandle):
 	CommonPhaseStartEntity(stateHandle)
 	stateHandle.EntitySet("_StateFrameID", stateHandle.GlobalGet("_FrameID") - stateHandle.EntityGet("_StateStartFrame"))
 	for f in stateHandle.EntityGet("_FlagsNext"):
-		SetFlag(stateHandle, f)
+		stateHandle.EntitySetFlag(f)
 	stateHandle.EntitySet("_FlagsNext", [])
 
 func ActionPhaseEndEntity(stateHandle):
@@ -372,12 +585,18 @@ func ActionPhaseEndEntity(stateHandle):
 func ActionPhaseEnd(stateHandle):
 	var activeEIDs = stateHandle.GlobalGet("_ActiveEntities")
 	_HandleCopyToBuffer(stateHandle.Memory(), activeEIDs)
+	_HandleFlagTargetBuffer(stateHandle, activeEIDs)
 
 func ReactionPhaseStartEntity(stateHandle):
 	CommonPhaseStartEntity(stateHandle)
 
 func ReactionPhaseEndEntity(stateHandle):
 	CommonPhaseEndEntity(stateHandle)
+
+func ReactionPhaseEnd(stateHandle):
+	var activeEIDs = stateHandle.GlobalGet("_ActiveEntities")
+	_HandleCopyToBuffer(stateHandle.Memory(), activeEIDs)
+	_HandleFlagTargetBuffer(stateHandle, activeEIDs)
 
 
 func CommonPhaseStartEntity(stateHandle):
@@ -405,9 +624,9 @@ func _HandleCopyToBuffer(memory, eidsToHandle):
 	copyToBuffer.sort_custom(self, "_CopyToBufferSort")
 	
 	for ctb in copyToBuffer:
-		var originalEID = ctb["OriginEID"]
-		if(originalEID in eidsToHandle):
-			var targetEID = ctb["TargetEID"]
+		var targetEID = ctb["TargetEID"]
+		if(targetEID in eidsToHandle):
+			var originalEID = ctb["OriginEID"]
 			var varName = ctb["Variable"]
 			
 			if(doMultipleChecks):
@@ -429,9 +648,24 @@ func _HandleCopyToBuffer(memory, eidsToHandle):
 			newBuffer += [ctb]
 	
 	memory.GlobalSet("_CopyToBuffer", newBuffer)
+	
+func _HandleFlagTargetBuffer(stateHandle, eidsToHandle):
+	var flagTargetBuffer = stateHandle.GlobalGet("_FlagTargetBuffer")
+	flagTargetBuffer.sort_custom(self, "_CopyToBufferSort")
+	
+	for ftb in flagTargetBuffer:
+		var targetEID = ftb["TargetEID"]
+		if(targetEID in eidsToHandle):
+			var originalEID = ftb["OriginEID"]
+			var flagName = ftb["Flag"]
+			var value = ftb["Value"]
+			
+			stateHandle.PointToEntity(targetEID)
+			stateHandle.EntitySetFlag(flagName, value)
+	stateHandle.GlobalSet("_FlagTargetBuffer", [])
 
 func _CopyToBufferSort(a, b):
-	return a["OriginalEID"] < b["OriginalEID"]
+	return a["OriginEID"] < b["OriginEID"]
 
 # --------------------------------------------------------------------------------------------------
 # Variables
@@ -440,9 +674,13 @@ func Flag(args, stateHandle):
 func Unflag(args, stateHandle):
 	stateHandle.EntitySetFlag(ArgStr(args, stateHandle, 0), false)
 func FlagNext(args, stateHandle):
-	stateHandle.EntitySetFlag(ArgStr(args, stateHandle, 0), "_FlagsNext")
+	var flagName = ArgStr(args, stateHandle, 0)
+	if(!stateHandle.EntityGet("_FlagsNext").has(flagName)):
+		stateHandle.EntityAdd("_FlagsNext", [flagName])
 func UnflagNext(args, stateHandle):
-	stateHandle.EntitySetFlag(ArgStr(args, stateHandle, 0), "_FlagsNext", false)
+	var flagName = ArgStr(args, stateHandle, 0)
+	if(stateHandle.EntityGet("_FlagsNext").has(flagName)):
+		stateHandle.EntityGet("_FlagsNext").erase(flagName)
 
 func Set(args, stateHandle):
 	var paramName = ArgVar(args, stateHandle, 0)
@@ -450,10 +688,10 @@ func Set(args, stateHandle):
 	# TODO Need check
 	#stateHandle.Memory().EntitySet(stateHandle.EntityGet("_EID"), paramName, value, true)
 	stateHandle.EntitySet(paramName, value)
-#func SetStr(args, stateHandle):
-#	var paramName = ArgVar(args, stateHandle, 0)
-#	var value = ArgStr(args, stateHandle, 1)
-#	stateHandle.EntitySet(paramName, value)
+func SetStr(args, stateHandle):
+	var paramName = ArgVar(args, stateHandle, 0)
+	var value = ArgStr(args, stateHandle, 1)
+	stateHandle.EntitySet(paramName, value)
 
 
 
@@ -496,6 +734,15 @@ func Min(args, stateHandle):
 # --------------------------------------------------------------------------------------------------
 # Entities
 func CreateEntity(args, stateHandle):
+	CreateEntityRaw(args, stateHandle)
+	CopyToTarget(["_PositionX"], stateHandle)
+	CopyToTarget(["_PositionY"], stateHandle)
+	CopyToTarget(["_FacingHPhysics"], stateHandle)
+	CopyToTarget(["_FacingVPhysics"], stateHandle)
+	CopyToTarget(["_FacingHModel"], stateHandle)
+	CopyToTarget(["_FacingVModel"], stateHandle)
+
+func CreateEntityRaw(args, stateHandle):
 	var playerID = stateHandle.EntityGet("_Player")
 	var fighterID = stateHandle.EntityGet("_FighterID")
 	var newEID = stateHandle.Engine().AddNewEntity(stateHandle, playerID, fighterID, ArgStr(args, stateHandle, 0))
@@ -516,16 +763,18 @@ func GetTargetEntityID(args, stateHandle):
 
 func TargetEntityByID(args, stateHandle):
 	var targetID = ArgInt(args, stateHandle, 0)
+	stateHandle.EntitySet("_TargetEID", targetID)
 	stateHandle.SetTargetEntity(targetID)
 
-func TargetEntityCurrent(_args, stateHandle):
+func TargetEntitySelf(_args, stateHandle):
+	stateHandle.EntitySet("_TargetEID", stateHandle.GetEntityID())
 	stateHandle.SetTargetEntity(stateHandle.GetEntityID())
 
 func CopyFromTarget(args, stateHandle):
 	if(!stateHandle.GetTargetEntity() in stateHandle.GlobalGet("_ActiveEntities")):
 		ModuleError("CopyFromTarget: Copying from a non initialized entity!", stateHandle)
 		return
-	
+	# :TODO:Panthavma:20230506:Not thread safe atm
 	var varCurEntity = ArgVar(args, stateHandle, 0)
 	var varTargetEntity = ArgStr(args, stateHandle, 1, varCurEntity)
 	stateHandle.EntitySet(varCurEntity, stateHandle.TargetEntityGet(varTargetEntity))
@@ -534,30 +783,24 @@ func CopyToTarget(args, stateHandle):
 	# TODO check if already in?
 	var varCurEntity = ArgVar(args, stateHandle, 0)
 	var varTargetEntity = ArgStr(args, stateHandle, 1, varCurEntity)
-	var copyData = {
-		"OriginEID": stateHandle.GetEntityID(), "TargetEID": stateHandle.GetTargetEntity(),
-		"Variable":varTargetEntity, "Value": stateHandle.EntityGet(varCurEntity),
-	}
-	stateHandle.GlobalAdd("_CopyToBuffer", [copyData])
+	var value = stateHandle.EntityGet(varCurEntity)
+	SetVariableInTarget(stateHandle, varTargetEntity, value)
 
 func SetIntInTarget(args, stateHandle):
 	var varTargetEntity = ArgStr(args, stateHandle, 0)
 	var value = ArgInt(args, stateHandle, 1)
-	var copyData = {
-		"OriginEID": stateHandle.GetEntityID(), "TargetEID": stateHandle.GetTargetEntity(),
-		"Variable":varTargetEntity, "Value": value,
-	}
-	stateHandle.GlobalAdd("_CopyToBuffer", [copyData])
+	SetVariableInTarget(stateHandle, varTargetEntity, value)
 
 func SetStrInTarget(args, stateHandle):
 	var varTargetEntity = ArgStr(args, stateHandle, 0)
 	var value = ArgStr(args, stateHandle, 1)
-	var copyData = {
-		"OriginEID": stateHandle.GetEntityID(), "TargetEID": stateHandle.GetTargetEntity(),
-		"Variable":varTargetEntity, "Value": value,
-	}
-	stateHandle.GlobalAdd("_CopyToBuffer", [copyData])
+	SetVariableInTarget(stateHandle, varTargetEntity, value)
 
+func FlagInTarget(args, stateHandle, flagValue = true):
+	var flagName = ArgStr(args, stateHandle, 0)
+	SetFlagInTarget(stateHandle, flagName, flagValue)
+func UnflagInTarget(args, stateHandle):
+	FlagInTarget(args, stateHandle, false)
 
 # --------------------------------------------------------------------------------------------------
 # States
@@ -631,7 +874,7 @@ func Log(args, stateHandle):
 	Castagne.Log("["+str(stateHandle.GlobalGet("_TrueFrameID"))+"] State Log "+str(stateHandle.EntityGet("_EID"))+" : " + ArgStr(args, stateHandle, 0))
 func LogB(args, stateHandle):
 	Log(args, stateHandle)
-func LogT(args, stateHandle):
+func LogR(args, stateHandle):
 	Log(args, stateHandle)
 
 # --------------------------------------------------------------------------------------------------

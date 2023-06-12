@@ -215,12 +215,13 @@ func _on_CharacterEdit_pressed():
 func _on_CharacterEditSafe_pressed():
 	StartCharacterEditor(true)
 
-func StartCharacterEditor(safeMode = false):
+func StartCharacterEditor(safeMode = false, battleInitData = null):
 	$MainMenu.hide()
 	$CharacterEdit.safeMode = safeMode
-	var bid = GetCurrentlySelectedBattleInitData()
+	if(battleInitData == null):
+		battleInitData = GetCurrentlySelectedBattleInitData()
 	
-	$CharacterEdit.EnterMenu(bid)
+	$CharacterEdit.EnterMenu(battleInitData)
 
 func GetCurrentlySelectedBattleInitData():
 	if($MainMenu/FlowPanel/FlowAdvanced.is_pressed()):

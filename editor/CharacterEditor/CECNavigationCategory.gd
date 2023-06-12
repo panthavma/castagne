@@ -1,9 +1,16 @@
 extends PanelContainer
 
+var editor
+var _categoryData
 
 func InitFromCategory(categoryData):
 	$Contents/Header/CategoryName.set_text(categoryData["Name"])
-	Expand()
+	editor = categoryData["Editor"]
+	_categoryData = categoryData
+	if(categoryData["Open"]):
+		Expand()
+	else:
+		Reduce()
 
 func AddItem(state):
 	$Contents/States/StateList.add_child(state)
@@ -19,7 +26,9 @@ func _on_ButtonExpand_pressed():
 func Expand():
 	$Contents/Header/ButtonExpand.set_text("-")
 	$Contents/States.show()
+	editor.categoriesStatus[_categoryData["FullName"]] = true
 
 func Reduce():
 	$Contents/Header/ButtonExpand.set_text("+")
 	$Contents/States.hide()
+	editor.categoriesStatus[_categoryData["FullName"]] = false

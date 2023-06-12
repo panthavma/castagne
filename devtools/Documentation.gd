@@ -57,15 +57,16 @@ func ExportDocumentation():
 				p += "<table>\n"
 				
 				for e in list:
+					var level = GetLevelOfElement(e)
 					if(tagKey == "Config"):
 						if(e.has("SubmenuName")):
 							continue
-						p += '<tr><th>'+e["Name"]+'</th><td colspan="2">'+str(e["Default"])+'</td><td>'+str(e["Flags"])+'</td></tr>'
-						p += '<tr><td colspan="4">'+e["Description"]+'</td></tr>\n'
+						p += '<tr><th>'+e["Name"]+'</th><td colspan="2">'+str(e["Default"])+'</td><td>'+str(e["Flags"])+'</td><th>'+level+'</th></tr>'
+						p += '<tr><td colspan="5">'+e["Description"]+'</td></tr>\n'
 					elif(tagKey == "Functions"):
 						var d = e["Documentation"]
-						p += '<tr><th>'+d["Name"]+'</th><td>'+str(e["NbArgs"])+'</td><td>'+str(e["Flags"])+'</td></tr>'
-						p += '<tr><td colspan="3">'+d["Description"]+'<ul>\n'
+						p += '<tr><th>'+d["Name"]+'</th><td>'+str(e["NbArgs"])+'</td><td>'+str(e["Flags"])+'</td><th>'+level+'</th></tr>'
+						p += '<tr><td colspan="4">'+d["Description"]+'<ul>\n'
 						var aID = 1
 						for a in d["Arguments"]:
 							p += '<li><strong>Arg '+str(aID)+':</strong> '+a+'</li>\n'
@@ -73,8 +74,8 @@ func ExportDocumentation():
 							#p += '<tr><th></th></tr>\n'
 						p += '</ul></td></tr>\n'
 					elif(tagKey == "Variables"):
-						p += '<tr><th>'+e["Name"]+'</th><td colspan="1">'+str(e["Default"])+'</td><td>'+str(e["Flags"])+'</td></tr>'
-						p += '<tr><td colspan="3">'+e["Description"]+'</td></tr>\n'
+						p += '<tr><th>'+e["Name"]+'</th><td colspan="1">'+str(e["Default"])+'</td><td>'+str(e["Flags"])+'</td><th>'+level+'</th></tr>'
+						p += '<tr><td colspan="4">'+e["Description"]+'</td></tr>\n'
 					elif(tagKey == "Flags"):
 						p += '<tr><th>'+e["Name"]+'</th><td colspan="2">'+e["Description"]+'</td></tr>\n'
 					elif(tagKey == "BattleInitData"):
@@ -103,3 +104,11 @@ func ExportDocumentation():
 	logText += str(stats["Variables"])+" Variables, "+str(stats["Flags"])+" Flags, "+str(stats["BattleInitData"])+" BID, "+str(stats["States"])+" States"
 	
 	$Label.set_text(logText)
+
+func GetLevelOfElement(e):
+	var levels = ["Expert", "Advanced", "Intermediate", "Basic"]
+	for l in levels:
+		if( ( e.has("Flags") and (l in e["Flags"]) ) or
+			( e.has("Documentation") and e["Documentation"].has("Flags") and (l in e["Documentation"]["Flags"]) ) ):
+			return l
+	return ""

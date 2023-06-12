@@ -25,7 +25,7 @@ Some games made with Castagne include:
 - Kronian Titans: 2D Airdasher with mechs
 
 It's recommended to start by reading the [*Getting Started*](getting-started) section, which will walk you through installation to making a character. You can also use the tutorials in-engine!
-As an alternative if you come from another engine, you may want to read the
+As an alternative if you come from another engine, you may want to read the TODO
 Then, once you experimented a bit with it, you may read the [*Intermediate Guide*](intermediate) and the [*Making a Game*](making-a-game) section.
 Otherwise, you might want to read the [*full feature list*](full-feature-list) to get an idea of what is possible through the engine.
 

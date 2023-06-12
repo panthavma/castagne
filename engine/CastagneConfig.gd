@@ -124,6 +124,8 @@ func SaveConfigFile(configFilePath = null, localConfigFilePath = null):
 		elif(Get(key) != GetBaseOrDefault(key)):
 			if(typeof(_configData[key]) == TYPE_DICTIONARY):
 				save = !Castagne.AreDictionariesEqual(Get(key), GetBaseOrDefault(key))
+			elif(typeof(_configData[key]) == TYPE_ARRAY):
+				save = !Castagne.AreArraysEqual(Get(key), GetBaseOrDefault(key))
 			else:
 				save = true
 		
@@ -219,6 +221,9 @@ func GetEditorCharacterList(sortByEditorOrder = false):
 	for i in range(charPaths.size()):
 		var path = charPaths[i]
 		var c = GetEditorCharacterData(path)
+		if(c == null):
+			Castagne.Error("Character path invalid: " + str(path))
+			continue
 		c["ID"] = characters.size()
 		if(editorOrders.size() > i):
 			c["EditorOrder"] = editorOrders[i]
@@ -247,6 +252,9 @@ func GetEditorCharacterData(path):
 	}
 	var data = Castagne.Parser.GetCharacterMetadata(path, self)
 	c["Data"] = data
+	
+	if(data == null):
+		return null
 	
 	if(data.has("Name")):
 		c["Name"] = data["Name"]

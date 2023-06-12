@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://castagne/editor/CastagneEditor.gd" type="Script" id=1]
 [ext_resource path="res://castagne/editor/CastagneEditorConfig.gd" type="Script" id=2]
@@ -19,15 +19,13 @@
 [ext_resource path="res://castagne/editor/CEFlowSetup.gd" type="Script" id=17]
 [ext_resource path="res://castagne/editor/Submenus/CEModuleSet.tscn" type="PackedScene" id=18]
 [ext_resource path="res://castagne/editor/Submenus/CECharacterSet.tscn" type="PackedScene" id=19]
+[ext_resource path="res://castagne/editor/Submenus/CECharacterAddNew.tscn" type="PackedScene" id=21]
 
 [node name="CastagneEditor" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 5 )
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Background" type="Control" parent="."]
 anchor_right = 1.0
@@ -51,9 +49,6 @@ margin_left = 32.0
 margin_top = 32.0
 margin_right = -32.0
 margin_bottom = -32.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Panel" type="Panel" parent="MainMenu"]
 anchor_right = 1.0
@@ -999,146 +994,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 text = "Cancel"
 
-[node name="TutorialSystem" type="Control" parent="."]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-script = ExtResource( 15 )
-
-[node name="Stencil" type="Control" parent="TutorialSystem"]
-modulate = Color( 0.01, 0.0097, 0.0097, 0.670588 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-
-[node name="W" type="ColorRect" parent="TutorialSystem/Stencil"]
-anchor_bottom = 1.0
-margin_right = 160.0
-
-[node name="N" type="ColorRect" parent="TutorialSystem/Stencil"]
-margin_left = 160.0
-margin_right = 600.0
-margin_bottom = 200.0
-
-[node name="S" type="ColorRect" parent="TutorialSystem/Stencil"]
-anchor_bottom = 1.0
-margin_left = 160.0
-margin_top = 400.0
-margin_right = 600.0
-
-[node name="E" type="ColorRect" parent="TutorialSystem/Stencil"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 600.0
-
-[node name="CenterClickCatcher" type="ColorRect" parent="TutorialSystem/Stencil"]
-visible = false
-margin_left = 160.0
-margin_top = 200.0
-margin_right = 600.0
-margin_bottom = 400.0
-color = Color( 1, 1, 1, 0 )
-
-[node name="Dialog" type="Control" parent="TutorialSystem"]
-anchor_top = 0.8
-anchor_right = 1.0
-anchor_bottom = 1.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Panel" type="ColorRect" parent="TutorialSystem/Dialog"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0, 0, 0, 0.286275 )
-
-[node name="Panel2" type="ColorRect" parent="TutorialSystem/Dialog"]
-anchor_left = 0.2
-anchor_right = 0.8
-anchor_bottom = 0.8
-margin_left = 16.0
-margin_top = 16.0
-margin_right = -16.0
-margin_bottom = 8.0
-color = Color( 0.00392157, 0.0862745, 0, 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Label" type="Label" parent="TutorialSystem/Dialog"]
-anchor_left = 0.2
-anchor_right = 0.8
-anchor_bottom = 0.8
-margin_left = 32.0
-margin_top = 20.0
-margin_right = -32.0
-margin_bottom = -8.0
-text = "Tutorial Text
-Line 2
-Line 3
-Line 4
-Line 5"
-autowrap = true
-
-[node name="Button" type="Button" parent="TutorialSystem/Dialog"]
-anchor_left = 0.3
-anchor_top = 0.8
-anchor_right = 0.7
-anchor_bottom = 1.0
-text = "Continue"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="DialogTop" type="Control" parent="TutorialSystem"]
-anchor_right = 1.0
-anchor_bottom = 0.2
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Panel" type="ColorRect" parent="TutorialSystem/DialogTop"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0, 0, 0, 0.286275 )
-
-[node name="Panel2" type="ColorRect" parent="TutorialSystem/DialogTop"]
-anchor_left = 0.2
-anchor_right = 0.8
-anchor_bottom = 0.8
-margin_left = 16.0
-margin_top = 16.0
-margin_right = -16.0
-margin_bottom = 8.0
-color = Color( 0.00392157, 0.0862745, 0, 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Label" type="Label" parent="TutorialSystem/DialogTop"]
-anchor_left = 0.2
-anchor_right = 0.8
-anchor_bottom = 0.8
-margin_left = 32.0
-margin_top = 20.0
-margin_right = -32.0
-margin_bottom = -8.0
-text = "Tutorial Text
-Line 2
-Line 3
-Line 4
-Line 5"
-autowrap = true
-
-[node name="Button" type="Button" parent="TutorialSystem/DialogTop"]
-anchor_left = 0.3
-anchor_top = 0.8
-anchor_right = 0.7
-anchor_bottom = 1.0
-text = "Continue"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="FlowSetup" type="Control" parent="."]
 visible = false
 anchor_left = 0.1
@@ -1280,6 +1135,149 @@ visible = false
 [node name="ModuleSet" parent="." instance=ExtResource( 18 )]
 visible = false
 
+[node name="CharacterAddNew" parent="." instance=ExtResource( 21 )]
+visible = false
+
+[node name="TutorialSystem" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 15 )
+
+[node name="Stencil" type="Control" parent="TutorialSystem"]
+modulate = Color( 0.01, 0.0097, 0.0097, 0.670588 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="W" type="ColorRect" parent="TutorialSystem/Stencil"]
+anchor_bottom = 1.0
+margin_right = 160.0
+
+[node name="N" type="ColorRect" parent="TutorialSystem/Stencil"]
+margin_left = 160.0
+margin_right = 600.0
+margin_bottom = 200.0
+
+[node name="S" type="ColorRect" parent="TutorialSystem/Stencil"]
+anchor_bottom = 1.0
+margin_left = 160.0
+margin_top = 400.0
+margin_right = 600.0
+
+[node name="E" type="ColorRect" parent="TutorialSystem/Stencil"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 600.0
+
+[node name="CenterClickCatcher" type="ColorRect" parent="TutorialSystem/Stencil"]
+visible = false
+margin_left = 160.0
+margin_top = 200.0
+margin_right = 600.0
+margin_bottom = 400.0
+color = Color( 1, 1, 1, 0 )
+
+[node name="Dialog" type="Control" parent="TutorialSystem"]
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="ColorRect" parent="TutorialSystem/Dialog"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.286275 )
+
+[node name="Panel2" type="ColorRect" parent="TutorialSystem/Dialog"]
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = 8.0
+color = Color( 0.00392157, 0.0862745, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="TutorialSystem/Dialog"]
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+margin_left = 32.0
+margin_top = 20.0
+margin_right = -32.0
+margin_bottom = -8.0
+text = "Tutorial Text
+Line 2
+Line 3
+Line 4
+Line 5"
+autowrap = true
+
+[node name="Button" type="Button" parent="TutorialSystem/Dialog"]
+anchor_left = 0.3
+anchor_top = 0.8
+anchor_right = 0.7
+anchor_bottom = 1.0
+text = "Continue"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DialogTop" type="Control" parent="TutorialSystem"]
+anchor_right = 1.0
+anchor_bottom = 0.2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="ColorRect" parent="TutorialSystem/DialogTop"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.286275 )
+
+[node name="Panel2" type="ColorRect" parent="TutorialSystem/DialogTop"]
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = 8.0
+color = Color( 0.00392157, 0.0862745, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="TutorialSystem/DialogTop"]
+anchor_left = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+margin_left = 32.0
+margin_top = 20.0
+margin_right = -32.0
+margin_bottom = -8.0
+text = "Tutorial Text
+Line 2
+Line 3
+Line 4
+Line 5"
+autowrap = true
+
+[node name="Button" type="Button" parent="TutorialSystem/DialogTop"]
+anchor_left = 0.3
+anchor_top = 0.8
+anchor_right = 0.7
+anchor_bottom = 1.0
+text = "Continue"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [connection signal="pressed" from="MainMenu/Menu/Tutorials" to="." method="_on_Tutorials_pressed"]
 [connection signal="pressed" from="MainMenu/Menu/Documentation" to="." method="_on_MainMenuDocumentation_pressed"]
 [connection signal="pressed" from="MainMenu/Menu/Updater" to="." method="_on_Updater_pressed"]
@@ -1309,7 +1307,7 @@ visible = false
 [connection signal="item_selected" from="TutorialSelect/TutorialsList" to="TutorialSelect" method="_on_GenreList_item_selected"]
 [connection signal="pressed" from="TutorialSelect/Buttons/OK" to="TutorialSelect" method="_on_OK_pressed"]
 [connection signal="pressed" from="TutorialSelect/Buttons/Cancel" to="TutorialSelect" method="_on_Cancel_pressed"]
-[connection signal="pressed" from="TutorialSystem/Dialog/Button" to="TutorialSystem" method="_on_DialogButton_pressed"]
-[connection signal="pressed" from="TutorialSystem/DialogTop/Button" to="TutorialSystem" method="_on_DialogButton_pressed"]
 [connection signal="pressed" from="FlowSetup/Parameters/Buttons/Save" to="FlowSetup" method="_on_Save_pressed"]
 [connection signal="pressed" from="FlowSetup/Parameters/Buttons/Cancel" to="FlowSetup" method="_on_Cancel_pressed"]
+[connection signal="pressed" from="TutorialSystem/Dialog/Button" to="TutorialSystem" method="_on_DialogButton_pressed"]
+[connection signal="pressed" from="TutorialSystem/DialogTop/Button" to="TutorialSystem" method="_on_DialogButton_pressed"]

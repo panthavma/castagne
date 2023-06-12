@@ -34,6 +34,8 @@ func EnterMenu(bid):
 	ShowTool(0)
 	HideToolWindow()
 	
+	$TopBar/HBoxContainer/TutorialWindow.set_visible(editor.tutorialPath != null)
+	
 	ReloadCodePanel()
 	ReloadEngine()
 	
@@ -100,6 +102,7 @@ func ReloadEngine():
 	editorModule = engine.configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.EDITOR)
 	
 	editorModule.connect("EngineTick_AIStartEntity", self, "EngineTick_AIStartEntity")
+	editorModule.connect("EngineTick_ActionStartEntity", self, "EngineTick_ActionStartEntity")
 	
 	for t in _tools:
 		t["Tool"].OnEngineRestarting(engine, bid)
@@ -116,6 +119,7 @@ func ReloadEngine():
 		return
 	
 	RestartOptions()
+	
 	
 	FocusGame()
 	
@@ -167,6 +171,16 @@ func EngineTick_AIStartEntity(stateHandle):
 			inputs[giName] = false
 		stateHandle.EntitySet("_Inputs", inputs)
 
+
+func EngineTick_ActionStartEntity(stateHandle):
+	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/Blocking").pressed):
+		stateHandle.EntitySetFlag("AutoBlocking")
+	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/BlockingLow").pressed):
+		stateHandle.EntitySetFlag("AutoBlockingLow")
+	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/BlockingOverhead").pressed):
+		stateHandle.EntitySetFlag("AutoBlockingOverhead")
+		
+		
 
 var _popupFunction = null
 func ShowPopup(popupName):
@@ -240,7 +254,6 @@ func _on_Code_text_changed():
 	$TopBar/HBoxContainer/Save.set_disabled(false)
 	character[curFile]["States"][curState]["Text"] = $CodePanel/Code.get_text()
 	character[curFile]["Modified"] = true
-	CompileGizmos()
 	UpdateGizmos()
 
 
@@ -388,6 +401,10 @@ func _CreateCustomEditorPanel(customEditorRoot, variables, partName, stateVariab
 			e = LineEdit.new()
 			e.set_text(v["Value"])
 			e.connect("text_changed", self, "_CustomEditorSetValue", [vName])
+		elif(vType == Castagne.VARIABLE_TYPE.Bool):
+			e = CheckBox.new()
+			e.set_pressed_no_signal(int(v["Value"]) > 0)
+			e.connect("toggled", self, "_CustomEditorSetValue", [vName])
 		else: # Not supported type
 			e = Label.new()
 			e.set_text("[Type Not Supported]")
@@ -403,6 +420,9 @@ func _CustomEditorSetValue(value, varName):
 	var file = character[curFile]
 	var state = file["States"][curState]
 	var v = state["Variables"][varName]
+	var type = v["Type"]
+	if(type == Castagne.VARIABLE_TYPE.Bool):
+		value = (1 if value else 0)
 	v["Value"] = value
 	
 	var lines = state["Text"].split("\n")
@@ -479,6 +499,8 @@ func SaveFile():
 		
 		# Remove Trailing Whitespace
 		for s in statesToSave:
+			if(fileData["States"][s]["Text"] == null):
+				fileData["States"][s]["Text"] = ""
 			var stext = fileData["States"][s]["Text"].strip_edges()
 			fileData["States"][s]["Text"] = stext
 		
@@ -515,6 +537,8 @@ var navpanelMode = null
 onready var prefabNavPanelCategory = preload("res://castagne/editor/CharacterEditor/CECNavigationCategory.tscn")
 onready var prefabNavPanelState = preload("res://castagne/editor/CharacterEditor/CECNavigationState.tscn")
 var _navigationSelected = null
+var categoriesStatus = {}
+var categoriesStatusDefault = true
 func RefreshNavigationPanel(mode):
 	navpanelMode = mode
 	var modesRoot = $CodePanel/Navigation.get_children()
@@ -679,7 +703,8 @@ func _NavigationParseCategoryTree(categoriesRaw, categoriesTree, categoryNameFul
 	
 	# Create the category node
 	var catNode = {
-		"Name": catNodeName, "States":catRaw["States"], "Categories":{}
+		"Name": catNodeName, "States":catRaw["States"], "Categories":{},
+		"FullName": categoryNameFull,
 	}
 	
 	# Add the node to the tree
@@ -694,6 +719,7 @@ func _NavigationCreateCategoryTree(parentCategory, stateListRoot = null):
 	var categories
 	var states = []
 	var isRootLevel = (stateListRoot != null)
+	var fullNameBase = ""
 	if(isRootLevel):
 		categories = parentCategory
 	else:
@@ -711,6 +737,10 @@ func _NavigationCreateCategoryTree(parentCategory, stateListRoot = null):
 				cNode["Name"] = "Uncategorized"
 			else:
 				continue
+		if(!categoriesStatus.has(cNode["FullName"])):
+			categoriesStatus[cNode["FullName"]] = categoriesStatusDefault
+		cNode["Open"] = categoriesStatus[cNode["FullName"]]
+		cNode["Editor"] = self
 		var category = prefabNavPanelCategory.instance()
 		category.InitFromCategory(cNode)
 		cNode["GodotNode"] = category
@@ -920,6 +950,10 @@ func _on_Code_cursor_changed():
 	UpdateDocumentation()
 
 func CompileGizmos():
+	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/HideGizmos").pressed):
+		engine.editorModule.currentGizmos = []
+		return
+	
 	# Temporary, but good enough for now
 	var currentGizmos = []
 	#return #TODO
@@ -1302,3 +1336,38 @@ func _on_CodePanel_WarningsToggled(button_pressed):
 
 
 
+
+
+func _on_NavOpenCategories_pressed():
+	_Nav_OpenCloseCategories(true)
+func _on_NavCloseCategories_pressed():
+	_Nav_OpenCloseCategories(false)
+func _Nav_OpenCloseCategories(v):
+	for c in categoriesStatus:
+		categoriesStatus[c] = v
+	categoriesStatusDefault = v
+	RefreshNavigationPanel(NAVPANEL_MODE.ChooseState)
+
+
+
+
+func _on_HideGizmos_toggled(_button_pressed):
+	UpdateGizmos()
+
+
+
+func _on_TutorialContinue_pressed():
+	HidePopups()
+	get_node("../TutorialSystem").StopCoding()
+
+func _on_TutorialReset_pressed():
+	HidePopups()
+	get_node("../TutorialSystem").ResetCode()
+
+
+func _on_TutorialQuit_pressed():
+	get_node("../TutorialSystem").EndTutorial()
+
+
+func _on_TutorialWindow_pressed():
+	ShowPopup("Tutorial")

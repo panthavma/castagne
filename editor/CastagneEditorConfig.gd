@@ -77,7 +77,7 @@ func CreateStandardPage(module):
 		var nbParams = 0
 		for config in category["Config"]:
 			if(config["Flags"].has("Hidden") or
-				(!showAdvancedParams and config["Flags"].has("Advanced"))):
+				(!showAdvancedParams and (config["Flags"].has("Advanced") or config["Flags"].has("Expert")))):
 				continue
 			
 			categoryRoot.add_child(CreateConfigOption(module, config))
@@ -149,7 +149,16 @@ func CreateConfigOption(module, config):
 	var currentValue = editor.configData.Get(paramKey)
 	var paramValueChangeFunction = null
 	var type = typeof(defaultValue)
-	if(type == TYPE_STRING):
+	if(config.has("Options")):
+		param = OptionButton.new()
+		var options = config["Options"]
+		for oKey in options:
+			param.add_item(options[oKey])
+		var selectedOption = options.keys().find(currentValue)
+		if(selectedOption >= 0):
+			param.select(selectedOption)
+		param.connect("item_selected", self, "FieldChangedCallback", [config])
+	elif(type == TYPE_STRING):
 		param = LineEdit.new()
 		param.set_text(currentValue)
 		param.connect("text_changed", self, "FieldChangedCallback", [config])
@@ -258,6 +267,8 @@ func UpdateBackButton():
 
 func FieldChangedCallback(value, config):
 	var paramName = config["Key"]
+	if(config.has("Options")):
+		value = config["Options"].keys()[value]
 	ConfigHasChangedCallback(config)
 	paramsToSave[paramName] = value
 

@@ -3,16 +3,29 @@ extends "../CastagneModule.gd"
 func ModuleSetup():
 	# :TODO:Panthavma:20211230:Hitstop
 	
-	RegisterModule("Attacks", null, {"Description":"Specialized module to help with making attacks and combat systems."})
+	RegisterModule("Attacks", Castagne.MODULE_SLOTS_BASE.ATTACKS, {"Description":"Specialized module to help with making attacks and combat systems."})
 	RegisterBaseCaspFile("res://castagne/modules/coreset/Base-Attacks.casp", -5000)
-	
+	# TODO Docs
 	RegisterCategory("Attacks")
-	RegisterFunction("Attack", [1,2], null, {
+	RegisterFunction("AttackRegister", [1,2], ["AllPhases"], {
 		"Description":"Initiates an attack with default parameters. This should be the first function called for a new attack, then you use other Attack functions to customize it, and finally you use Hitbox to apply it.",
-		"Arguments":["Damage", "(Optional) Total frames (must be specified at the first attack at least)"],
+		"Arguments":["Type", "(Optional) Notation"],
 		"Flags":["Basic"],
-		"Types":["int", "int"],
+		"Types":["str", "str"],
 	})
+	RegisterFunction("AttackRegisterNoNotation", [1], ["AllPhases"], {
+		"Description":"Same as AttackRegister, but won't actually add the attack to the list of cancels, which you'll have to do manually.",
+		"Arguments":["Type"],
+		"Flags":["Intermediate"],
+		"Types":["str"],
+	})
+	RegisterFunction("AttackAddNotation", [1], ["AllPhases"], {
+		"Description":"Registers the attack under an additional notation input. This will still count as the same attack.",
+		"Arguments":["Notation"],
+		"Flags":["Intermediate"],
+		"Types":["str"],
+	})
+	RegisterFunction("AttackDamage", [1], null, {})
 	RegisterFunction("AttackDuration", [1], null, {
 		"Description":"Changes the total duration of the attack. Can replace Attack's second parameter but must be called before it.",
 		"Arguments":["Total frames"],
@@ -21,7 +34,7 @@ func ModuleSetup():
 	})
 	RegisterFunction("AttackRearm", [0], null, {
 		"Description":"Sets the variables to be able to hit with another attack, and should be used between multihits. Resets the hit detection.",
-		"Flags":["Medium"],
+		"Flags":["Intermediate"],
 		"Types":[],
 	})
 	RegisterFunction("AttackParam", [2], null, {
@@ -42,6 +55,7 @@ func ModuleSetup():
 	RegisterFunction("AttackUnflag", [1], null, {
 		"Description":"Removes a flag from an attack.",
 		"Arguments":["Flag name"],
+		"Flags":["Intermediate"],
 		"Types":["str",],
 	})
 	RegisterFunction("AttackRecievedFlag", [1], null, {
@@ -60,6 +74,7 @@ func ModuleSetup():
 	RegisterFunction("AttackAttribute", [0, 1], null, {
 		"Description":"Sets an attack's attribute. This is used by the Invul-[Attrib] and Guard-[Attrib] family of flags. The Auto attribute will choose an attribute between Air, Mid, High, Low, Throw, and AirThrow depending on the attacker's state.",
 		"Arguments":["Attribute. Default: Auto"],
+		"Flags":["Intermediate"],
 		"Types":["str",],
 	})
 	
@@ -106,11 +121,13 @@ func ModuleSetup():
 	RegisterFunction("AttackProrationHitstun", [2], null, {
 		"Description":"Sets an attack's proration for hitstun. The lower it is, the more hitstun will decay with each hit. Values are in permil.",
 		"Arguments":["First hit proration (used instead of proration for the first hit)", "Subsequent hit proration"],
+		"Flags":["Intermediate"],
 		"Types":["int","int"],
 	})
 	RegisterFunction("AttackProrationDamage", [2], null, {
 		"Description":"Sets an attack's proration for damage. The lower it is, the more damage will decay with each hit. Values are in permil.",
 		"Arguments":["First hit proration (used instead of proration for the first hit)", "Subsequent hit proration"],
+		"Flags":["Intermediate"],
 		"Types":["int","int"],
 	})
 	
@@ -118,11 +135,13 @@ func ModuleSetup():
 	RegisterFunction("AttackChipDamage", [1], null, {
 		"Description":"Sets an attack's chip damage, the damage that gets inflicted when an opponent blocks.",
 		"Arguments":["The amount of chip damage"],
+		"Flags":["Intermediate"],
 		"Types":["int",],
 	})
 	RegisterFunction("AttackMinDamage", [1], null, {
 		"Description":"Sets an attack's minimum damage.",
 		"Arguments":["The minimum amount of damage"],
+		"Flags":["Intermediate"],
 		"Types":["int",],
 	})
 	
@@ -131,21 +150,25 @@ func ModuleSetup():
 	RegisterFunction("AttackMomentum", [1, 2, 3, 4], null, {
 		"Description":"Sets an attacks's added momentum to the opponent on hit and block.",
 		"Arguments":["Horizontal grounded momentum", "(Optional) Vertical grounded momentum", "(Optional) Horizontal airborne momentum", "(Optional) Vertical airborne momentum"],
+		"Flags":["Basic"],
 		"Types":["int","int","int","int"],
 	})
 	RegisterFunction("AttackMomentumHit", [1, 2, 3, 4], null, {
 		"Description":"Sets an attacks's added momentum to the opponent on hit.",
 		"Arguments":["Horizontal grounded momentum", "(Optional) Vertical grounded momentum", "(Optional) Horizontal airborne momentum", "(Optional) Vertical airborne momentum"],
+		"Flags":["Intermediate"],
 		"Types":["int","int","int","int"],
 	})
 	RegisterFunction("AttackMomentumBlock", [1, 2, 3, 4], null, {
 		"Description":"Sets an attacks's added momentum to the opponent on block.",
 		"Arguments":["Horizontal grounded momentum", "(Optional) Vertical grounded momentum", "(Optional) Horizontal airborne momentum", "(Optional) Vertical airborne momentum"],
+		"Flags":["Intermediate"],
 		"Types":["int","int","int","int"],
 	})
 	RegisterFunction("AttackFloat", [1], null, {
 		"Description":"Sets the opponent's gravity on hit to the specified value until the next attack.",
 		"Arguments":["New Gravity"],
+		"Flags":["Intermediate"],
 		"Types":["int",],
 	})
 	
@@ -153,11 +176,13 @@ func ModuleSetup():
 	RegisterFunction("AttackKnockdown", [0,1,2], null, {
 		"Description":"Sets an attack's minimum and maximum time on knockdown. Automatically applies the knockdown attack flag. If no arguments are given, use default values. If only one is given, the second is computed automatically from the difference between defaults.",
 		"Arguments":["(Optional) The minimum knockdown time", "(Optional) Maximum knockdown time"],
+		"Flags":["Intermediate"],
 		"Types":["int","int"],
 	})
 	RegisterFunction("AttackGroundbounce", [1,2,3], null, {
 		"Description":"Sets an attack's groundbounce",
 		"Arguments":["Groundbounce time", "Groundbounce Momentum", "(Optional) Maximum ground bounces"],
+		"Flags":["Intermediate"],
 		"Types":["int","int","int"],
 	})
 	# :TODO:Panthavma:20220331:Return to neutral callback?
@@ -184,11 +209,12 @@ func ModuleSetup():
 	RegisterConfig("Attack-ThrowInHitstun", false)
 	RegisterConfig("Attack-ThrowInBlockstun", false)
 	
+	RegisterVariableEntity("HP", 1)
 	
 	RegisterVariableEntity("_AttackMomentumX", 0)
 	RegisterVariableEntity("_AttackMomentumY", 0)
 	
-	RegisterFlag("Multihit", {"Description":"Allow an attack to hit again."})
+	#RegisterFlag("Multihit", {"Description":"Allow an attack to hit again."})
 	RegisterFlag("AFLow", {"Description":"Makes an attack unblockable while standing up."})
 	RegisterFlag("AFOverhead", {"Description":"Makes an attack unblockable while crouching."})
 	RegisterFlag("AFInheritMomentum", {"Description":"Makes it so that the attack inherits the attacker's momentum."})
@@ -216,82 +242,81 @@ func ModuleSetup():
 	RegisterStateFlag("Attack")
 	RegisterStateFlag("AttackLow")
 	RegisterStateFlag("AttackOverhead")
+	RegisterStateFlag("AttackType-Light")
+	RegisterStateFlag("AttackType-Medium")
+	RegisterStateFlag("AttackType-Heavy")
+	RegisterStateFlag("AttackType-Special")
+	RegisterStateFlag("AttackType-EX")
+	RegisterStateFlag("AttackType-Super")
+	RegisterStateFlag("AttackType-Throw")
+	RegisterStateFlag("AttackType-AirLight")
+	RegisterStateFlag("AttackType-AirMedium")
+	RegisterStateFlag("AttackType-AirHeavy")
+	RegisterStateFlag("AttackType-AirSpecial")
+	RegisterStateFlag("AttackType-AirEX")
+	RegisterStateFlag("AttackType-AirSuper")
+	RegisterStateFlag("AttackType-AirThrow")
+	RegisterStateFlag("Neutral")
 	
 	
 	RegisterCategory("Attack Cancels")
 	
-	RegisterFunction("AttackApplyCancels", [0,1], ["Reaction"], {
-		"Description":"Manages the transitions of attacks using numpad notation. A prefix can be added. It will only cancel into an attack if it wasn't already used since the last call to AttackResetDoneCancels.",
-		"Arguments":["(Optional) Prefix"]
+	RegisterFunction("AttackCancel", [1,2,3,4], null, {
+		"Description":"Adds an attack cancel. These will be active automatically in the sitations given by the 3rd argument.",
+		"Arguments":["State Name", "(Optional) Command in numpad notation. See InputTransition for more details. (Default: State Name)",
+			"(Optional) Cancel situation using ATTACKCANCEL_ON flags (default: ATTACKCANCEL_ON_TOUCH_NEUTRAL)",
+			"(Optional) Priority (Default: AttackCancelPriorityDefault config key)"],
+		"Flags":["Basic"],
+		"Types":["str", "str", "int", "int"],
+	})
+	RegisterFunction("AttackAddRegisteredCancels", [1, 2, 3], null, {
+		"Description":"Adds all attack cancels of a given type.",
+		"Arguments":["Attack type",
+			"(Optional) Cancel situation using ATTACKCANCEL_ON flags (default: ATTACKCANCEL_ON_TOUCH_NEUTRAL)",
+			"(Optional) Priority (Default: AttackCancelPriorityDefault config key)"],
+		"Flags":["Intermediate"],
+		"Types":["str", "int", "int"],
+	})
+	RegisterFunction("AttackCancelPrefix", [0,1], null, {
+		"Description":"Set the prefix used when looking for attack cancels",
+		"Arguments":["New prefix to use for this frame."],
+		"Flags":["Intermediate"],
+		"Types":["str"],
 	})
 	RegisterFunction("AttackResetDoneCancels", [0], null, {
 		"Description":"Resets the list of used attacks in cancels, meaning you can use them again. Mostly used when returning to neutral.",
 		"Flags":["Advanced"],
 	})
 	
+	var attackCancelConstants = ["_HIT", "_BLOCK", "_WHIFF", "_NEUTRAL"]
+	for value in range(pow(attackCancelConstants.size(), 2)):
+		var flags = []
+		var i = value
+		for j in range(attackCancelConstants.size()):
+			flags.push_back(i%2)
+			i /= 2
+		var text = ""
+		var textTouch = ""
+		for j in range(attackCancelConstants.size()):
+			if(!flags[j]):
+				continue
+			var f = attackCancelConstants[j]
+			text += f
+			if(j >= 2):
+				textTouch += f
+		if(text == ""):
+			continue
+		RegisterConstant("ATTACKCANCEL_ON"+text, value, {"Type":Castagne.VARIABLE_TYPE.Int})
+		if(flags[0] and flags[1]):
+			textTouch = "_TOUCH" + textTouch
+			RegisterConstant("ATTACKCANCEL_ON"+textTouch, value, {"Type":Castagne.VARIABLE_TYPE.Int})
 	
+	RegisterConfig("AttackCancelPriorityDefault", 10000)
 	
-	RegisterFunction("AttackCancelOnWhiff", [1,2], null, {
-		"Description":"Adds a possible cancel on whiff.",
-		"Arguments":["The command to be used in numpad notation.", "(Optional) Attack name if different from the numpad notation."]
-	})
-	RegisterFunction("AttackCancelOnBlock", [1,2], null, {
-		"Description":"Adds a possible cancel on block.",
-		"Arguments":["The command to be used in numpad notation.", "(Optional) Attack name if different from the numpad notation."]
-	})
-	RegisterFunction("AttackCancelOnHit", [1,2], null, {
-		"Description":"Adds a possible cancel on hit.",
-		"Arguments":["The command to be used in numpad notation.", "(Optional) Attack name if different from the numpad notation."]
-	})
-	RegisterFunction("AttackCancelOnTouch", [1,2], null, {
-		"Description":"Adds a possible cancel on block or hit.",
-		"Arguments":["The command to be used in numpad notation.", "(Optional) Attack name if different from the numpad notation."]
-	})
-	RegisterFunction("AttackCancelOnTouchAndWhiff", [1,2], null, {
-		"Description":"Adds a possible cancel on whiff, block, or hit.",
-		"Arguments":["The command to be used in numpad notation.", "(Optional) Attack name if different from the numpad notation."]
-	})
-	RegisterFunction("AttackCancelNeutral", [1,2], null, {
-		"Description":"Adds a possible cancel when in a neutral state.",
-		"Arguments":["The command to be used in numpad notation.", "(Optional) Attack name if different from the numpad notation."]
-	})
-	RegisterFunction("AttackCancelOnTouchAndNeutral", [1,2], null, {
-		"Description":"Adds a possible cancel when in a neutral state or on block or hit.",
-		"Arguments":["The command to be used in numpad notation.", "(Optional) Attack name if different from the numpad notation."]
-	})
-	
-	RegisterFunction("AttackAddAllCancelsOnWhiff", [1,2], null, {
-		"Description":"Adds all cancels from a button on whiff. For example using B and j as parameters will add j1B, j2B, j3B and so on.",
-		"Arguments":["The base button to use.", "(Optional) Prefix."]
-	})
-	RegisterFunction("AttackAddAllCancelsOnBlock", [1,2], null, {
-		"Description":"Adds all cancels from a button on block. For example using B and j as parameters will add j1B, j2B, j3B and so on.",
-		"Arguments":["The base button to use.", "(Optional) Prefix."]
-	})
-	RegisterFunction("AttackAddAllCancelsOnHit", [1,2], null, {
-		"Description":"Adds all cancels from a button on hit. For example using B and j as parameters will add j1B, j2B, j3B and so on.",
-		"Arguments":["The base button to use.", "(Optional) Prefix."]
-	})
-	RegisterFunction("AttackAddAllCancelsOnTouch", [1,2], null, {
-		"Description":"Adds all cancels from a button on block or hit. For example using B and j as parameters will add j1B, j2B, j3B and so on.",
-		"Arguments":["The base button to use.", "(Optional) Prefix."]
-	})
-	RegisterFunction("AttackAddAllCancelsOnTouchAndWhiff", [1,2], null, {
-		"Description":"Adds all cancels from a button on whiff, block, or hit. For example using B and j as parameters will add j1B, j2B, j3B and so on.",
-		"Arguments":["The base button to use.", "(Optional) Prefix."]
-	})
-	RegisterFunction("AttackAddAllCancelsNeutral", [1,2], null, {
-		"Description":"Adds all cancels from a button when in a neutral state. For example using B and j as parameters will add j1B, j2B, j3B and so on.",
-		"Arguments":["The base button to use.", "(Optional) Prefix."]
-	})
-	RegisterFunction("AttackAddAllCancelsOnTouchAndNeutral", [1,2], null, {
-		"Description":"Adds all cancels from a button when in a neutral state, or on block or hit. For example using B and j as parameters will add j1B, j2B, j3B and so on.",
-		"Arguments":["The base button to use.", "(Optional) Prefix."]
-	})
-	
+	RegisterVariableEntity("_AttackCancelPrefix", "", ["ResetEachFrame"])
+	RegisterVariableEntity("_AttackDoneCancels", [])
 	RegisterVariableEntity("_AttackInitialFrame", -1)
 	RegisterVariableEntity("_AttackHitconfirm_State", null)
-	RegisterVariableEntity("_AttackDoneCancels", [])
 	RegisterVariableEntity("_AttackPossibleCancelsWhiff", {}, ["ResetEachFrame"])
 	RegisterVariableEntity("_AttackPossibleCancelsBlock", {}, ["ResetEachFrame"])
 	RegisterVariableEntity("_AttackPossibleCancelsHit", {}, ["ResetEachFrame"])
@@ -300,41 +325,52 @@ func ModuleSetup():
 	RegisterVariableEntity("_AttackWasBlocked", false) 
 	RegisterVariableEntity("_AttackHasWhiffed", false)
 	RegisterVariableEntity("_AttackHasTouched", false)
+	RegisterVariableEntity("_HitstunGravityFloat", 0)
 	RegisterVariableEntity("_LastAttackFlags", [], null, {"Description":"Stores the attack flags of the last attack recieved."})
 	
+	RegisterVariableEntity("_RegisteredAttacksForEntityByType", {})
+	
 	RegisterCategory("Default Attack Params")
+	RegisterConfig("AttackDefault-Damage", 100)
+	RegisterConfig("AttackDefault-MinDamage", 1)
+	RegisterConfig("AttackDefault-Hitstun", -1)
+	RegisterConfig("AttackDefault-Blockstun", -1)
+	RegisterConfig("AttackDefault-ChipDamage", 0)
+	
+	RegisterConfig("AttackDefault-HitMomentumX", 1000)
+	RegisterConfig("AttackDefault-HitMomentumY", 0)
+	RegisterConfig("AttackDefault-HitMomentumAirX", 1000)
+	RegisterConfig("AttackDefault-HitMomentumAirY", 200)
+	
+	RegisterConfig("AttackDefault-BlockMomentumX", 1000)
+	RegisterConfig("AttackDefault-BlockMomentumY", 0)
+	RegisterConfig("AttackDefault-BlockMomentumAirX", 1000)
+	RegisterConfig("AttackDefault-BlockMomentumAirY", 200)
+	
+	RegisterConfig("AttackDefault-Attribute", "Auto")
+	RegisterConfig("AttackDefault-Flags", [])
+	
 	RegisterConfig("AttackDefault-ProrationDamage", 700)
 	RegisterConfig("AttackDefault-StarterProrationDamage", 950)
 	RegisterConfig("AttackDefault-ProrationHitstun", 900)
 	RegisterConfig("AttackDefault-StarterProrationHitstun", 950)
+	
 	RegisterConfig("AttackDefault-Hitstop", 4)
 	RegisterConfig("AttackDefault-Blockstop", 2)
+	
 	RegisterConfig("AttackDefault-KnockdownTimeMin", 13)
 	RegisterConfig("AttackDefault-KnockdownTimeMax", 43)
+	
 	RegisterConfig("AttackDefault-GroundbounceTime", 30)
 	RegisterConfig("AttackDefault-GroundbounceMomentum", 1000)
 	RegisterConfig("AttackDefault-MaxGroundbounces", 3)
+	
 	RegisterConfig("AttackDefault-FloatGravity", 0)
 
 var _defaultAttackData = {}
 var _knockdownDefaultTimeDiff = 0
 func BattleInit(stateHandle, _battleInitData):
-	_defaultAttackData = {
-		"Damage": 100, "MinDamage": 1,
-		"Hitstun": 20, "Blockstun": 20,
-		
-		"ChipDamage": 0,
-		
-		"MetergainHit": 6, "MetergainBlock":0,
-		"MetergainFoeHit": 0, "MetergainFoeBlock":0,
-		
-		"HitMomentumX":1000, "HitMomentumY":0,
-		"HitMomentumAirX":1000, "HitMomentumAirY":200,
-		"BlockMomentumX":1000, "BlockMomentumY":0,
-		"BlockMomentumAirX":1000, "BlockMomentumAirY":0,
-		
-		"Flags":[], "Attribute":"Auto",
-	}
+	_defaultAttackData = {}
 	
 	# Take variables from the config stating with AttackDefault
 	var configDerivedDataPrefix = "AttackDefault-"
@@ -345,9 +381,31 @@ func BattleInit(stateHandle, _battleInitData):
 	
 	_knockdownDefaultTimeDiff = max(0, stateHandle.ConfigData().Get("AttackDefault-KnockdownTimeMax") - stateHandle.ConfigData().Get("AttackDefault-KnockdownTimeMin"))
 
+func InitPhaseStartEntity(stateHandle):
+	var fighterScripts = engine.GetFighterAllScripts(stateHandle.EntityGet("_FighterID"))
+	var entityName = stateHandle.EntityGet("_State").right(5) # Init-
+	var attacks = {null:{}}
+	for stateName in fighterScripts:
+		var fs = fighterScripts[stateName]
+		if(fs["Metadata"]["AttackNotations"].empty() or fs["Metadata"]["Entity"] != entityName or fs["Metadata"]["ParentLevel"] > 0):
+			continue
+		var notations = fs["Metadata"]["AttackNotations"]
+		var type = fs["Metadata"]["AttackType"]
+		
+		attacks[null][stateName] = {"Type":type, "Notations":notations}
+		if(!attacks.has(type)):
+			attacks[type] = {}
+		for notation in notations:
+			attacks[type][notation] = stateName
+		
+		#ModuleLog("Attack found: " + stateName +" Notation:"+ fs["Metadata"]["AttackNotation"])
+	stateHandle.EntitySet("_RegisteredAttacksForEntityByType", attacks)
+
 func ActionPhaseStartEntity(stateHandle):
 	for af in stateHandle.EntityGet("_LastAttackFlags"):
 		stateHandle.EntitySetFlag("AF"+af)
+	var attackData = _defaultAttackData.duplicate(true)
+	stateHandle.EntitySet("_AttackData", attackData)
 
 func ActionPhaseEndEntity(stateHandle):
 	if(stateHandle.EntityHasFlag("Multihit")):
@@ -358,75 +416,121 @@ func PhysicsPhaseEndEntity(stateHandle):
 	var hitconfirmState = stateHandle.EntityGet("_AttackHitconfirm_State")
 	if(stateHandle.EntityGet("_Hitboxes").size() > 0 and hitconfirmState == null):
 		stateHandle.EntitySet("_AttackHitconfirm_State", "Whiff")
+		# :TODO:Panthavma:20220525:Improve whiff detection to be AFTER hitboxes disappear
 	if(hitconfirmState != null):
 		stateHandle.EntitySet("_AttackHasHit", (hitconfirmState == "Hit"))
 		stateHandle.EntitySet("_AttackWasBlocked", (hitconfirmState == "Block"))
 		stateHandle.EntitySet("_AttackHasWhiffed", (hitconfirmState == "Whiff"))
 		stateHandle.EntitySet("_AttackHasTouched", (stateHandle.EntityGet("_AttackHasHit") or stateHandle.EntityGet("_AttackWasBlocked")))
+	
+	# TODO add input transitions
+	
+	var listToUse = "Neutral"
+	if(stateHandle.EntityHasFlag("Attacking")):
+		listToUse = stateHandle.EntityGet("_AttackHitconfirm_State")
+		if(listToUse == null):
+			return
+	var cancelList = stateHandle.EntityGet("_AttackPossibleCancels"+listToUse)
+	
+	var inputModule = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.INPUT)
+	var attackCancelPrefix = stateHandle.EntityGet("_AttackCancelPrefix")
+	var attackCancelPrefixLength = attackCancelPrefix.length()
+	for rawNotation in cancelList:
+		if(!rawNotation.begins_with(attackCancelPrefix)):
+			continue
+		var notation = rawNotation.right(attackCancelPrefixLength)
+		var attackName = cancelList[rawNotation]
+		
+		if(stateHandle.EntityGet("_AttackDoneCancels").has(attackName)):
+			continue
+		var data = {
+			"Priority": 0
+		}
+		inputModule.AddInputTransition(stateHandle, notation, attackName)
 
 
 
 
 
 
-
-
-
-
-
-
+# Returns true if the hit is confirmed and search should stop
+func HandleHit(stateHandle, attackerEID, hitbox, defenderEID, hurtbox):
+	var attackData = hitbox["AttackData"]
+	var defenderHandle = stateHandle.CloneStateHandle()
+	defenderHandle.PointToEntity(defenderEID)
+	stateHandle.PointToEntity(attackerEID)
+	
+	var attackHit = IsAttackHitting(attackData, stateHandle, hitbox, defenderHandle, hurtbox)
+	if(attackHit == Castagne.HITCONFIRMED.NONE):
+		return false
+	
+	ApplyAttackToAttacker(attackHit, attackData, stateHandle, hitbox, defenderHandle, hurtbox)
+	
+	if(attackHit != Castagne.HITCONFIRMED.CLASH):
+		ApplyAttackToDefender(attackHit, attackData, stateHandle, hitbox, defenderHandle, hurtbox)
+	
+	return true
 
 
 # :TODO:Panthavma:20220413:Separate it in smaller functions for easier custom?
-func IsAttackConfirmed(hitconfirm, attackData, _hurtboxData, attackerHandle, defenderHandle):
-	if(hitconfirm == Castagne.HITCONFIRMED.HIT):
-		if(attackerHandle.EntityGet("_AttackHitEntities").has(defenderHandle.EntityGet("_EID"))):
-			return Castagne.HITCONFIRMED.NONE
-		var dInputs = defenderHandle.PlayerGet("Inputs")
-		
-		# :TODO:Panthavma:20220204:Make "am i trying to defend" independant of physics, maybe an input
-		var inBlockstun = defenderHandle.EntityHasFlag("Blockstun")
-		var inHitstun = defenderHandle.EntityHasFlag("Hitstun")
-		
-		var autoblocking = defenderHandle.EntityHasFlag("AutoBlocking")
-		var blocking = dInputs["TrueBack"] or inBlockstun or autoblocking
-		blocking = blocking and defenderHandle.EntityHasFlag("CanBlock")
-		
-		var airborne = defenderHandle.EntityHasFlag("PFAirborne")
-		
-		var lowBreak = HasFlag(attackData, "Low") and ((!autoblocking and !dInputs["Down"]) or (autoblocking and !defenderHandle.EntityHasFlag("AutoBlockingLow")))
-		var highBreak = HasFlag(attackData, "Overhead") and ((!autoblocking and dInputs["Down"]) or (autoblocking and !defenderHandle.EntityHasFlag("AutoBlockingOverhead")))
-		var groundUnblockableBreak = HasFlag(attackData, "GroundUnblockable") and !airborne
-		var airUnblockableBreak = HasFlag(attackData, "AirUnblockable") and airborne
-		
-		var attribute = attackData["Attribute"]
-		if(attribute == "Auto"):
-			attribute = AttributeAuto(hitconfirm, attackData, _hurtboxData, attackerHandle, defenderHandle)
-		var attributeAttack = attribute in ["Mid", "Low", "High", "Air"] # :TODO:Panthavama:20220413:Make it customizable
-		var guarding = defenderHandle.EntityHasFlag("Guard-"+attribute) or defenderHandle.EntityHasFlag("Guard-All") or (attributeAttack and defenderHandle.EntityHasFlag("Guard-Attack"))
-		var invuling = defenderHandle.EntityHasFlag("Invul-"+attribute) or defenderHandle.EntityHasFlag("Invul-All") or (attributeAttack and defenderHandle.EntityHasFlag("Invul-Attack"))
-		if(guarding):
-			defenderHandle.EntitySetFlag("Guarded")
-			SetFlag(attackData, "Guarded")
-		if(invuling):
-			defenderHandle.EntitySetFlag("Invuled")
-		
-		
-		var isThrow = HasFlag(attackData, "Throw")
-		var blockBreak = (lowBreak or highBreak or groundUnblockableBreak or airUnblockableBreak)
-		blockBreak = blockBreak and !invuling and !guarding
-		var phaseAttack = isThrow or invuling
-		
-		if(isThrow and
-			((inBlockstun and !Castagne.configData["Attack-ThrowInBlockstun"]) or
-			 (inHitstun and !Castagne.configData["Attack-ThrowInHitstun"]))):
-			blockBreak = false
-		
-		if((blocking or isThrow or guarding or invuling) and !blockBreak):
-			return (Castagne.HITCONFIRMED.NONE if phaseAttack else Castagne.HITCONFIRMED.BLOCK)
-	return hitconfirm
+func IsAttackHitting(attackData, attackerHandle, hitbox, defenderHandle, hurtbox):
+	if(attackerHandle.EntityGet("_AttackHitEntities").has(defenderHandle.EntityGet("_EID"))):
+		return Castagne.HITCONFIRMED.NONE
+	if(hurtbox["Hitbox"]):
+		return Castagne.HITCONFIRMED.CLASH
+	
+	var dInputs = defenderHandle.EntityGet("_Inputs")
+	
+	# :TODO:Panthavma:20220204:Make "am i trying to defend" independant of physics, maybe an input
+	var inBlockstun = defenderHandle.EntityHasFlag("Blockstun")
+	var inHitstun = defenderHandle.EntityHasFlag("Hitstun")
+	var autoblocking = defenderHandle.EntityHasFlag("AutoBlocking")
+	# :TODO:Panthavma:20230513:Use block facing here
+	var blocking = dInputs["Back"] or inBlockstun or autoblocking
+	blocking = blocking and defenderHandle.EntityHasFlag("CanBlock")
+	
+	var airborne = defenderHandle.EntityHasFlag("Airborne")
+	
+	var lowBreak = HasFlag(attackData, "Low") and ((!autoblocking and !dInputs["Down"]) or (autoblocking and !defenderHandle.EntityHasFlag("AutoBlockingLow")))
+	var highBreak = HasFlag(attackData, "Overhead") and ((!autoblocking and dInputs["Down"]) or (autoblocking and !defenderHandle.EntityHasFlag("AutoBlockingOverhead")))
+	var groundUnblockableBreak = HasFlag(attackData, "GroundUnblockable") and !airborne
+	var airUnblockableBreak = HasFlag(attackData, "AirUnblockable") and airborne
+	
+	var attribute = attackData["Attribute"]
+	if(attribute == "Auto"):
+		attribute = AttributeAuto(attackData, attackerHandle)
+	var attributeAttack = attribute in ["Mid", "Low", "High", "Air"] # :TODO:Panthavama:20220413:Make it customizable
+	var guarding = defenderHandle.EntityHasFlag("Guard-"+attribute) or defenderHandle.EntityHasFlag("Guard-All") or (attributeAttack and defenderHandle.EntityHasFlag("Guard-Attack"))
+	var invuling = defenderHandle.EntityHasFlag("Invul-"+attribute) or defenderHandle.EntityHasFlag("Invul-All") or (attributeAttack and defenderHandle.EntityHasFlag("Invul-Attack"))
+	if(guarding):
+		defenderHandle.EntitySetFlag("Guarded")
+		SetFlag(attackData, "Guarded")
+	if(invuling):
+		defenderHandle.EntitySetFlag("Invuled")
+	
+	
+	var isThrow = HasFlag(attackData, "Throw")
+	var blockBreak = (lowBreak or highBreak or groundUnblockableBreak or airUnblockableBreak)
+	blockBreak = blockBreak and !invuling and !guarding
+	var phaseAttack = isThrow or invuling
+	
+	if(isThrow and
+		((inBlockstun and !attackerHandle.ConfigData().Get("Attack-ThrowInBlockstun")) or
+		 (inHitstun and !attackerHandle.ConfigData().Get("Attack-ThrowInHitstun")))):
+		blockBreak = false
+	
+	if((airborne and HasFlag(attackData, "PhasethroughAir")) or (!airborne and HasFlag(attackData, "PhasethroughGround"))):
+		blockBreak = false
+		phaseAttack = true
+		invuling = true
+	
+	if((blocking or isThrow or guarding or invuling) and !blockBreak):
+		return (Castagne.HITCONFIRMED.NONE if phaseAttack else Castagne.HITCONFIRMED.BLOCK)
+	
+	return Castagne.HITCONFIRMED.HIT
 
-func AttributeAuto(_hitconfirm, attackData, _hurtboxData, attackerHandle, _defenderHandle):
+
+func AttributeAuto(attackData, attackerHandle):
 	if(attackerHandle.EntityHasFlag("PFAirborne")):
 		if(HasFlag(attackData, "Throw")):
 			return "AirThrow"
@@ -442,16 +546,34 @@ func AttributeAuto(_hitconfirm, attackData, _hurtboxData, attackerHandle, _defen
 		else:
 			return "Mid"
 
-
-
-func OnAttackConfirmed(hitconfirm, attackData, _hurtboxData, attackerHandle, defenderHandle):
-	# :TODO:Panthavma:20220214:Rework attack logic : one attack per entity. How to manage multiple hits on the same frame ?
+func ApplyAttackToAttacker(hitconfirm, attackData, attackerHandle, hitbox, defenderHandle, hurtbox):
+	var hit = (hitconfirm != Castagne.HITCONFIRMED.BLOCK)
+	var hitBlock = ("Hit" if hit else "Block")
+	attackerHandle.EntitySet("_AttackHitconfirm_State", hitBlock)
+	attackerHandle.EntityAdd("_AttackHitEntities", [defenderHandle.EntityGet("_EID")])
 	
-	var hit = (hitconfirm == Castagne.HITCONFIRMED.HIT)
+	var coreModule = attackerHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.CORE)
+	var targetEID = attackerHandle.GetTargetEntity()
+	attackerHandle.SetPhase("Manual")
+	attackerHandle.SetTargetEntity(defenderHandle.EntityGet("_EID"))
+	if(hitconfirm == Castagne.HITCONFIRMED.HIT):
+		coreModule.Call(["OnAttackHit"], attackerHandle)
+	elif(hitconfirm == Castagne.HITCONFIRMED.BLOCK):
+		coreModule.Call(["OnAttackBlock"], attackerHandle)
+	else:
+		coreModule.Call(["OnAttackClash"], attackerHandle)
+	attackerHandle.SetTargetEntity(targetEID)
+
+func ApplyAttackToDefender(hitconfirm, attackData, attackerHandle, hitbox, defenderHandle, hurtbox):
+	var hit = (hitconfirm != Castagne.HITCONFIRMED.BLOCK)
 	var hitBlock = ("Hit" if hit else "Block")
 	var attackFlags = attackData["Flags"]
 	
-	attackerHandle.EntitySet("_AttackHitconfirm_State", hitBlock)
+	var physicsModule = attackerHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.PHYSICS)
+	var attackerFacing = physicsModule.GetFacingHV(attackerHandle)
+	var defenderFacing = physicsModule.GetFacingHV(defenderHandle)
+	
+	# :TODO:Panthavma:20230513:Momentum here is physics dependant, should move it there I think
 	
 	if(hit):
 		var prorationDamage = Castagne.PRORATION_SCALE
@@ -473,10 +595,10 @@ func OnAttackConfirmed(hitconfirm, attackData, _hurtboxData, attackerHandle, def
 		defenderHandle.EntitySet("_BlockstunDuration", max(1,attackData["Blockstun"]))
 	
 	if(defenderHandle.EntityHasFlag("PFGrounded")):
-		defenderHandle.EntitySet("_AttackMomentumX", attackerHandle.EntityGet("_Facing") * attackData[hitBlock+"MomentumX"])
+		defenderHandle.EntitySet("_AttackMomentumX", attackerFacing[0] * defenderFacing[0] * attackData[hitBlock+"MomentumX"])
 		defenderHandle.EntitySet("_AttackMomentumY", attackData[hitBlock+"MomentumY"])
 	else:
-		defenderHandle.EntitySet("_AttackMomentumX", attackerHandle.EntityGet("_Facing") * attackData[hitBlock+"MomentumAirX"])
+		defenderHandle.EntitySet("_AttackMomentumX", attackerFacing[0] * defenderFacing[0] * attackData[hitBlock+"MomentumAirX"])
 		defenderHandle.EntitySet("_AttackMomentumY", attackData[hitBlock+"MomentumAirY"])
 	
 	if(HasFlag(attackData, "InheritMomentum")):
@@ -492,7 +614,7 @@ func OnAttackConfirmed(hitconfirm, attackData, _hurtboxData, attackerHandle, def
 	defenderHandle.EntitySet("_KnockdownTimeMax", attackData["KnockdownTimeMax"])
 	if(attackFlags.has("Groundbounce")):
 		if(defenderHandle.EntityGet("_Groundbounces") < attackData["MaxGroundbounces"]):
-			defenderHandle.EntityAdd("Groundbounces", 1)
+			defenderHandle.EntityAdd("_Groundbounces", 1)
 			defenderHandle.EntitySet("_GroundbounceTime", attackData["GroundbounceTime"])
 			defenderHandle.EntitySet("_GroundbounceMomentum", attackData["GroundbounceMomentum"])
 			attackFlags += ["AnimGroundbounce"]
@@ -504,7 +626,6 @@ func OnAttackConfirmed(hitconfirm, attackData, _hurtboxData, attackerHandle, def
 	# :TODO:Panthavma:20220216:Move to physics
 	defenderHandle.EntitySetFlag("PF"+hitBlock)
 	defenderHandle.EntitySetFlag("PFTouched")
-	attackerHandle.EntityAdd("AttackHitEntities", [defenderHandle.EntityGet("_EID")])
 	
 	var flagPrefix = "AF"
 	for laf in defenderHandle.EntityGet("_LastAttackFlags"):
@@ -513,50 +634,66 @@ func OnAttackConfirmed(hitconfirm, attackData, _hurtboxData, attackerHandle, def
 	for f in attackFlags:
 		defenderHandle.EntitySetFlag(flagPrefix+f)
 	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-func Attack(args, stateHandle):
-	var damage = ArgInt(args, stateHandle, 0)
-	var recovery = ArgInt(args, stateHandle, 1, stateHandle.EntityGet("_AttackDuration"))
+	var coreModule = attackerHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.CORE)
+	var targetEID = defenderHandle.GetTargetEntity()
+	defenderHandle.SetPhase("Manual")
+	defenderHandle.SetTargetEntity(attackerHandle.EntityGet("_EID"))
+	if(hit):
+		coreModule.Call(["OnHit"], defenderHandle)
+	else:
+		coreModule.Call(["OnBlock"], defenderHandle)
+	defenderHandle.SetTargetEntity(targetEID)
 	
-	var attackData = _defaultAttackData.duplicate(true)
-	attackData["Damage"] = damage
-	attackData["MinDamage"] = min(attackData["MinDamage"], damage)
-	stateHandle.EntitySet("_AttackDuration", recovery)
-	stateHandle.EntitySet("_AttackData", attackData)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+func AttackRegister(args, stateHandle):
+	AttackRegisterNoNotation(args, stateHandle)
+func AttackRegisterNoNotation(args, stateHandle):
+	var attackType = ArgStr(args, stateHandle, 0) # TODO CAST 54 Default
+	var core = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.CORE)
+	core.Call(["AttackType-"+attackType], stateHandle)
+	if(stateHandle.EntityGet("_StateFrameID") == 1):
+		stateHandle.EntityAdd("_AttackDoneCancels", [stateHandle.EntityGet("_State")])
 	if(stateHandle.EntityGet("_AttackInitialFrame") < 0):
 		stateHandle.EntitySet("_AttackInitialFrame", stateHandle.GlobalGet("_FrameID") - stateHandle.EntityGet("_StateStartFrame"))
-	EnrichDefaultAttack(stateHandle)
-func EnrichDefaultAttack(stateHandle):
-	AttackFrameAdvantage([0], stateHandle)
+func AttackAddNotation(_args, _stateHandle):
+	pass
 
-
+func AttackDamage(args, stateHandle):
+	var damage = ArgInt(args, stateHandle, 0)
+	var attackData = stateHandle.EntityGet("_AttackData")
+	attackData["Damage"] = damage
+	attackData["MinDamage"] = min(attackData["MinDamage"], damage)
 func AttackDuration(args, stateHandle):
 	stateHandle.EntitySet("_AttackDuration", ArgInt(args, stateHandle, 0))
+	if(stateHandle.EntityGet("_AttackData")["Hitstun"] <= 0):
+		AttackFrameAdvantageHit([0], stateHandle)
+	if(stateHandle.EntityGet("_AttackData")["Blockstun"] <= 0):
+		AttackFrameAdvantageBlock([0], stateHandle)
 
 func AttackRearm(_args, stateHandle):
 	stateHandle.EntitySet("_AttackHitconfirm_State", null)
@@ -660,8 +797,8 @@ func AttackFloat(args, stateHandle):
 
 func AttackKnockdown(args, stateHandle):
 	AttackFlag(["Knockdown"], stateHandle)
-	var kdMin = Castagne.configData["AttackDefault-KnockdownTimeMin"]
-	var kdMax = Castagne.configData["AttackDefault-KnockdownTimeMax"]
+	var kdMin = stateHandle.ConfigData().Get("AttackDefault-KnockdownTimeMin")
+	var kdMax = stateHandle.ConfigData().Get("AttackDefault-KnockdownTimeMax")
 	
 	if(args.size() >= 1):
 		kdMin = max(1, ArgInt(args, stateHandle, 0, kdMin))
@@ -672,101 +809,54 @@ func AttackKnockdown(args, stateHandle):
 
 func AttackGroundbounce(args, stateHandle):
 	AttackFlag(["Groundbounce"], stateHandle)
-	stateHandle.EntityGet("_AttackData")["GroundbounceTime"] = ArgInt(args, stateHandle, 0, Castagne.configData["AttackDefault-GroundbounceTime"])
-	stateHandle.EntityGet("_AttackData")["GroundbounceMomentum"] = ArgInt(args, stateHandle, 1, Castagne.configData["AttackDefault-GroundbounceMomentum"])
-	stateHandle.EntityGet("_AttackData")["MaxGroundbounces"] = ArgInt(args, stateHandle, 2, Castagne.configData["AttackDefault-MaxGroundbounces"])
+	stateHandle.EntityGet("_AttackData")["GroundbounceTime"] = ArgInt(args, stateHandle, 0, stateHandle.ConfigData().Get("AttackDefault-GroundbounceTime"))
+	stateHandle.EntityGet("_AttackData")["GroundbounceMomentum"] = ArgInt(args, stateHandle, 1, stateHandle.ConfigData().Get("AttackDefault-GroundbounceMomentum"))
+	stateHandle.EntityGet("_AttackData")["MaxGroundbounces"] = ArgInt(args, stateHandle, 2, stateHandle.ConfigData().Get("AttackDefault-MaxGroundbounces"))
 	
 
 
 
 
 
-func AttackApplyCancels(args, stateHandle):
-	var prefix = ArgStr(args, stateHandle, 0, "")
-	
-	var listToUse = "Neutral"
-	if(stateHandle.EntityHasFlag("Attacking")):
-		listToUse = stateHandle.EntityGet("_AttackHitconfirm_State")
-		if(listToUse == null):
-			return
-	
-	var alwaysAllowNeutralV = (prefix != "") # Prevents cancels to 5x when crouching
-	
-	# TODO Refactor ?
-	var input = stateHandle.PlayerGet("Inputs")
-	var directions = []
-	
-	if(input["Up"]):
-		if(input["Forward"]):
-			directions += ["9"]
-		elif(input["Back"]):
-			directions += ["7"]
-		directions += ["8"]
-	elif(input["Down"]):
-		if(input["Forward"]):
-			directions += ["3"]
-		elif(input["Back"]):
-			directions += ["1"]
-		directions += ["2"]
-	
-	if(directions.empty() or alwaysAllowNeutralV):
-		if(input["Forward"]):
-			directions += ["6"]
-		elif(input["Back"]):
-			directions += ["4"]
-		directions += ["5"]
-	
-	var attackButtons = []
-	
-	if(input["DPress"]):
-		attackButtons += ["D"]
-	if(input["CPress"]):
-		attackButtons += ["C"]
-	if(input["BPress"]):
-		attackButtons += ["B"]
-	if(input["APress"]):
-		attackButtons += ["A"]
-	
-	var combinedAttackButtons = []
-	var nbAttackButtons = attackButtons.size()
-	var nbAttackButtonCombinations = int(pow(2, nbAttackButtons))
-	# :TODO:Panthavma:20220310:There's certainly a smarter way to do it as this is litterally combinatory algebra but today I want to see man do punch and not formulas. Revisit when doing input.
-	# List all possibilities. Order should be from strongest combinations to least.
-	# This is not exactly true, as not all three letter combinations are first, but I can live with that for now.
-	
-	for i in range(nbAttackButtonCombinations-1,-1,-1):
-		var buttonName = ""
-		var modulo = 2
-		var nbActive = 0
-		for j in range(nbAttackButtons-1, -1, -1):
-			if(i % modulo):
-				i -= modulo/2
-				buttonName += attackButtons[j]
-				nbActive += 1
-			modulo *= 2
-		if(nbActive > 1):
-			combinedAttackButtons += [buttonName]
-	
-	attackButtons = combinedAttackButtons + attackButtons
-	
-	
-	for b in attackButtons:
-		for d in directions:
-			var notation = prefix + d + b
-			# Check if the input is in the current cancel list
-			if(stateHandle.EntityGet("_AttackPossibleCancels" + listToUse).has(notation)):
-				var attackName = stateHandle.EntityGet("_AttackPossibleCancels"+listToUse)[notation]
-				
-				# We ignore if the attack has already used and that it exists
-				if(stateHandle.EntityGet("_AttackDoneCancels").has(attackName)
-					or !stateHandle.FighterScripts()[stateHandle.EntityGet("_FighterID")].has(attackName)):
-					continue
-				
-				stateHandle.EntityAdd("AttackDoneCancels", [attackName])
-				CallFunction("Transition", [attackName, 100], stateHandle)
-				return
+
 func AttackResetDoneCancels(_args, stateHandle):
 	stateHandle.EntitySet("_AttackDoneCancels", [])
+
+
+func AttackCancel(args, stateHandle):
+	var attackName = ArgStr(args, stateHandle, 0)
+	var notation = ArgStr(args, stateHandle, 1, attackName)
+	var flags = ArgInt(args, stateHandle, 2, 1+2+8) # ATTACKCANCEL_ON_TOUCH_NEUTRAL
+	var priority = ArgInt(args, stateHandle, 3, stateHandle.ConfigData().Get("AttackCancelPriorityDefault"))
+	AddAttackCancel(stateHandle, notation, attackName, flags)
+
+func AttackAddRegisteredCancels(args, stateHandle):
+	var type = ArgStr(args, stateHandle, 0)
+	var flags = ArgInt(args, stateHandle, 1, 1+2+8) # ATTACKCANCEL_ON_TOUCH_NEUTRAL
+	var priority = ArgInt(args, stateHandle, 2, stateHandle.ConfigData().Get("AttackCancelPriorityDefault"))
+	
+	var registeredAttacks = stateHandle.EntityGet("_RegisteredAttacksForEntityByType")
+	if(registeredAttacks.has(type)):
+		for notation in registeredAttacks[type]:
+			var attackName = registeredAttacks[type][notation]
+			AddAttackCancel(stateHandle, notation, attackName, flags)
+
+func AddAttackCancel(stateHandle, notation, attackName, flags):
+	var flagsRef = ["Hit", "Block", "Whiff", "Neutral"]
+	for i in range(flagsRef.size()):
+		if(flags % 2):
+			stateHandle.EntityGet("_AttackPossibleCancels"+flagsRef[i])[notation] = attackName
+		flags /= 2
+
+func _AttackCancelRegister(args, stateHandle, lists):
+	var notation = ArgStr(args, stateHandle, 0)
+	var attackName = ArgStr(args, stateHandle, 1, notation)
+	for l in lists:
+		stateHandle.EntityGet("_AttackPossibleCancels"+l)[notation] = attackName
+
+func AttackCancelPrefix(args, stateHandle):
+	var acp = ArgStr(args, stateHandle, 0, "")
+	stateHandle.EntitySet("_AttackCancelPrefix", acp)
 
 
 func AttackCancelOnWhiff(args, stateHandle):
@@ -783,11 +873,6 @@ func AttackCancelNeutral(args, stateHandle):
 	_AttackCancelRegister(args, stateHandle, ["Neutral"])
 func AttackCancelOnTouchAndNeutral(args, stateHandle):
 	_AttackCancelRegister(args, stateHandle, ["Block", "Hit", "Neutral"])
-func _AttackCancelRegister(args, stateHandle, lists):
-	var notation = ArgStr(args, stateHandle, 0)
-	var attackName = ArgStr(args, stateHandle, 1, notation)
-	for l in lists:
-		stateHandle.EntityGet("_AttackPossibleCancels"+l)[notation] = attackName
 
 func AttackAddAllCancelsOnWhiff(args, stateHandle):
 	_AttackAllCancelRegister(args, stateHandle, ["Whiff"])

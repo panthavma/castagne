@@ -40,8 +40,14 @@ func ModuleSetup():
 	RegisterConfig("Editor-LockCastagneFiles", true, {"Flags":["Advanced"]})
 	RegisterConfig("Editor-LockBaseSkeleton", false, {"Flags":["Advanced"]})
 	RegisterConfig("Editor-OnlyAllowCustomEditors", false)
-	RegisterConfig("Editor-FirstTimeFlowDone", false, {"Flags":["Advanced"]})
-	RegisterConfig("LocalConfig-Editor-FirstTimeLaunchDone", false, {"Flags":["Advanced"]})
+	RegisterConfig("Editor-FirstTimeFlowDone", false, {
+		"Flags":["Advanced"],
+		"Description":"Marker for if first time setup has been done for this project.",
+		})
+	RegisterConfig("LocalConfig-Editor-FirstTimeLaunchDone", false, {
+		"Flags":["Advanced"],
+		"Description":"Local marker for if this user has been through the first time launch, meaning the tutorial prompt.",
+		})
 	
 	RegisterConfig("Updater-CheckOnStartup", true)
 	RegisterConfig("Updater-Branch", "Main", {"Flags":["Hidden"]})
@@ -61,9 +67,13 @@ func ModuleSetup():
 	RegisterStateFlag("Warning")
 	RegisterStateFlag("Error")
 	RegisterStateFlag("TODO")
+	RegisterStateFlag("CASTTODO")
 	RegisterStateFlag("Overridable")
 	RegisterStateFlag("Overriding")
 	RegisterStateFlag("CustomEditor")
+	RegisterStateFlag("Marker1")
+	RegisterStateFlag("Marker2")
+	RegisterStateFlag("Marker3")
 	
 	#RegisterBattleInitData("editor", false)
 	
@@ -203,10 +213,10 @@ func GizmoLine(startPoint, endPoint, color, width=3):
 	GizmoLineGlobal(startPoint, endPoint, color, width, mainEID)
 
 func GizmoBoxGlobal(corner1, corner2, color, width=3, referenceEID = null):
-	var tl = corner1
-	var tr = Vector2(corner2.x, corner1.y)
-	var br = corner2
-	var bl = Vector2(corner1.x, corner2.y)
+	var tl = [corner1[0], corner1[1], 0]
+	var tr = [corner2[0], corner1[1], 0]
+	var br = [corner2[0], corner2[1], 0]
+	var bl = [corner1[0], corner2[1], 0]
 	
 	GizmoLineGlobal(tl, tr, color, width, referenceEID)
 	GizmoLineGlobal(tr, br, color, width, referenceEID)
@@ -229,5 +239,5 @@ func GizmoFilledBox(corner1, corner2, colorBack, colorBorder, width=3):
 
 func TranslatePointToDraw(point, stateHandle = null):
 	if(stateHandle != null):
-		point = engine.physicsModule.TranslatePosEntityToGlobal(point, stateHandle)
-	return engine.graphicsModule.TranslateIngamePosToScreen(point.x, point.y)
+		point = engine.physicsModule.TransformPosEntityToWorld(point, stateHandle)
+	return engine.graphicsModule.TranslateIngamePosToScreen(point)

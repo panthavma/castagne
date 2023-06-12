@@ -108,12 +108,6 @@ func UpdateGraphics(_gameStateHandle):
 	pass
 
 
-# Confirms or infirms attacks
-func IsAttackConfirmed(hitconfirm, _attackData, _hurtboxData, _attackerHandle, _defenderHandle):
-	return hitconfirm
-func OnAttackConfirmed(_hitconfirm, _attackData, _hurtboxData, _attackerHandle, _defenderHandle):
-	pass
-
 
 
 
@@ -166,6 +160,9 @@ func RegisterCategory(categoryName, categoryDocumentation = null):
 func RegisterVariableEntity(variableName, defaultValue, flags = null, documentation = null):
 	variablesEntity[variableName] = _RegisterVariableCommon(variableName, defaultValue, flags, documentation, true)
 
+func RegisterConstant(constantName, value, documentation = null):
+	RegisterVariableEntity(constantName, value, null, documentation)
+
 func RegisterVariableGlobal(variableName, defaultValue, flags = null, documentation = null):
 	variablesGlobal[variableName] = _RegisterVariableCommon(variableName, defaultValue, flags, documentation, false)
 
@@ -188,9 +185,13 @@ func _RegisterVariableCommon(variableName, defaultValue, flags, documentation, e
 			_variablesInitGlobal[variableName] = defaultValue
 	
 	if(documentation == null):
-		documentation = {
-			"Description": ""
-		}
+		documentation = {}
+	
+	var defaultDocumentation = {
+		"Description": ""
+	}
+	
+	Castagne.FuseDataNoOverwrite(documentation, defaultDocumentation)
 	
 	documentation["Name"] = variableName
 	documentation["Default"] = defaultValue
@@ -343,6 +344,14 @@ func SetFlag(eState, flagName, flagVarName = "Flags"):
 func UnsetFlag(eState, flagName, flagVarName = "Flags"):
 	eState[flagVarName].erase(flagName)
 
+func EntityHasFlag(stateHandle, flagName):
+	return stateHandle.EntityGet("_Flags").has(flagName)
+func EntitySetFlag(stateHandle, flagName):
+	if(!EntityHasFlag(stateHandle, flagName)):
+		stateHandle.EntityGet("_Flags").push_back(flagName)
+func EntityUnsetFlag(stateHandle, flagName):
+	stateHandle.EntityGet("_Flags").erase(flagName)
+
 func CallFunction(functionName, args, stateHandle):
 	stateHandle.ConfigData().GetModuleFunctions()[functionName]["ActionFunc"].call_func(args, stateHandle)
 
@@ -409,6 +418,20 @@ func ArgBool(args, stateHandle, argID, default = null):
 	return default
 
 
+
+func SetVariableInTarget(stateHandle, varTargetEntity, value):
+	# TODO check if already in?
+	var copyData = {
+		"OriginEID": stateHandle.GetEntityID(), "TargetEID": stateHandle.GetTargetEntity(),
+		"Variable":varTargetEntity, "Value": value,
+	}
+	stateHandle.GlobalAdd("_CopyToBuffer", [copyData])
+func SetFlagInTarget(stateHandle, flagName, value = true):
+	var flagData = {
+		"OriginEID": stateHandle.GetEntityID(), "TargetEID": stateHandle.GetTargetEntity(),
+		"Flag":flagName, "Value": value,
+	}
+	stateHandle.GlobalAdd("_FlagTargetBuffer", [flagData])
 
 
 

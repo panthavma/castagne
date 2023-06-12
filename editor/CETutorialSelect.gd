@@ -10,8 +10,10 @@ func _ready():
 	
 	AddTutorialTemp("", "D3. Input Setup", null, "Here, we will look at how to set up input and bindings.")
 	
-	AddTutorialTemp("", "D2. Creating a character", null, "")
-	AddTutorialTemp("", "D3. Creating an attack", null, "")
+	AddTutorial("TutorialD2", "D2. Creating a character", null,
+		"""Let's see how to create a new character, and some basics of the engine along the way!""")
+	AddTutorial("TutorialD3", "D3. Creating an attack!", null,
+		"""Now it's serious! Let's add some attacks to our character!""")
 	AddTutorialTemp("", "D4. Importing graphical assets", null, "")
 	AddTutorialTemp("", "D5. Genre Features", null, "")
 	AddTutorialTemp("", "D6. Advanced Attacks", null, "")

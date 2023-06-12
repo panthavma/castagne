@@ -72,7 +72,7 @@ func OnEngineRestarting(engine, battleInitData):
 func OnEngineRestarted(engine):
 	CreatePanelForPlayer(engine)
 
-func OnEngineInitError(engine):
+func OnEngineInitError(_engine):
 	ClearInputPanel()
 
 func ShowPID(pidToShow):

@@ -3,15 +3,31 @@ title: Advanced Moves
 order: 5000
 todo: 54
 ---
+
+<!-- TODO Throws -->
+
+<!-- TODO Knockdown -->
+<!-- TODO Momentum / Float -->
+
 # Advanced Moves
 
 This section gives a few tips and examples on how to do more complex moves, to help you get started.
+
+> In progress
 
 ## Move Properties
 This category focuses on specific parts that can happen in a lot of different attacks.
 
 ### Low / Overheads / Unblockables
 <!-- TODO -->
+
+```
+AttackFlag(Low)
+AttackFlag(Overhead)
+
+AttackFlag(GroundUnblockable)
+AttackFlag(AirUnblockable)
+```
 
 ### Moving attacks
 <!-- Moving attacks, like Castagneur's *Slide Heel* (3C) -->
@@ -43,11 +59,9 @@ This is often achieved by the `AttackRearm` function, which resets the hit logic
 
 ```
 # First Attack
+AttackDamage(1000)
+AttackDuration(35)
 F6-7:
-	Attack(1000, 35)
-	AttackMomentum(200, 200)
-	AttackHitstunBlockstun(60, 60)
-	AttackFloat(-10)
 	Hitbox(0, 15000, 0, 22000)
 endif
 
@@ -58,7 +72,7 @@ endif
 
 # Second attack
 F17-18:
-	Attack(1000)
+	AttackDamage(2000)
 	Hitbox(0, 16000, 0, 23000)
 endif
 ```
@@ -74,8 +88,6 @@ Castagneur's 4D (uncharged) is an example of one. By using `AttackKnockdown`, yo
 <!-- TODO -->
 ```
 F20-24:
-	Attack(1000, 45)
-
 	# This forces a knockdown of specified duration. With only one parameter, the knockdown's duration can be controlled by the person hit.
 	AttackKnockdown(30)
 
@@ -93,8 +105,6 @@ Castagneur's 4D (Charged) is again an example of that. The rules are the same as
 
 ```
 F30-34:
-	Attack(1500, 55)
-
 	# This will activate a ground bounce of specified duration and momentum if still within the limit.
 	AttackGroundbounce(60, 1600)
 
@@ -118,7 +128,7 @@ The simplest way to do that in Castagne is to take advantage of the priority of 
 
 ```
 # Sweetspot
-Attack(2000, 50)
+AttackDamage(2000)
 Hitbox(500, 600, 500, 600)
 
 # Sourspot
@@ -132,8 +142,6 @@ Some attacks, like Castagneur's 2B, are made to launch an opponent in the air or
 
 ```
 F10-12:
-	Attack(1250, 40)
-
 	# AttackMomentum allows us to determine how much the opponent will be pushed. Having a positive value in the second slot will launch him upwards.
 	AttackMomentumHit(700, 1400)
 
@@ -147,9 +155,9 @@ F10-12:
 endif
 ```
 
-### Hopping Moves / Air-to-Ground / Ground-To-Air
+<!-- ### Hopping Moves / Air-to-Ground / Ground-To-Air -->
 <!--Castagneur's *Thief Tackle* (6D)-->
-Some moves change if they are grounded or not during their execution. This can be done by using `VariableAttack` instead of `AirborneAttack` or `StandingAttack`. Additionally, the flags `PFGrounded` and `PFAirborne` may be used to determine if we are grounded or not.
+<!-- Some moves change if they are grounded or not during their execution. This can be done by using `VariableAttack` instead of `AirborneAttack` or `StandingAttack`. Additionally, the flags `PFGrounded` and `PFAirborne` may be used to determine if we are grounded or not.
 
 ```
 # If we used airborne or standing attack, it would be cancelled automatically on landing/take off.
@@ -165,7 +173,7 @@ LPFGrounded:
 	BreakMomentumX(300)
 endif
 
-```
+``` -->
 
 
 
@@ -175,20 +183,20 @@ endif
 ## Special moves
 
 ### Throw
-Throws are a major part of fighting games, but can be quite complex to implement. `Base.casp` already has an helper for that that will take care of:
+Throws are a major part of fighting games, but can be quite complex to implement. Castagne already has an helper for that that will take care of:
 - Initializing the throw / airthrow parameters
 - Manage throw teching
 - Managed tech lockout
 - Manage the choice between front/back throw
 - Automatically make a back throw if you only have a front throw.
 
-These can be parametrized through the `Variables` block.
+These can be parametrized through the `Variables-Attacks-Throws` block.
 
-You need to create two moves, the first being the actual throw startup / throw whiff, which for Castagneur is `5AB`.
+You need to create two moves, the first being the actual throw startup / throw whiff state. Castagne has a 'Throw' input macro, so call your throw '5Throw'.
 
 ```
 # This will also initialize an attack, so you only need to put down a hitbox.
-Call(GroundedThrow)
+AttackRegister(Throw)
 
 # This is your total animation time when whiffing.
 AttackDuration(30)
@@ -199,72 +207,41 @@ F8-10:
 endif
 ```
 
-The second is the actual throw. It needs to be referenced by name in the file, the default being `ThrowF`. This works like any other attack.
+The second is the actual throw. It needs to be referenced by name in the file, the default being `ThrowF`. This works like any other attack, with the type ThrowFollowup.
 
 ```
-Call(StandingAttack)
+AttackRegister(ThrowFollowup)
+
+AttackDamage(1000)
+AttackDuration(30)
+AttackKnockdown(50,50)
+AttackFlag(ForceLanding)
 
 F8:
-	Attack(1000, 30)
-	AttackKnockdown(50,50)
-	AttackFlag(ForceLanding)
 	Hitbox(0, 20000, 0, 20000)
 endif
 ```
 
+You can also make ThrowB, but by default it will just use ThrowF but flipped.
+
 ### Projectiles
-Castagneur's *Staight Pitch* (5D) is a projectile. They can be tricky to manipulate, as it requires making a new entity.
+Baston's *Staight Pitch* (5S) is a projectile. They can be tricky to manipulate, as it requires making a new entity.
 
-> This is going to be improved in the future to be easier to use for simple projectiles!
+Let's start by creating the projectile proper. Click 'New Entity' in the navigation panel, and select the 'Projectile' template. Call it 'Ball'. This will create a sub entity in your CASP file, for which you can add new states by prefixing them with 'Ball--'
 
-You first need to create the projectile itself, as a state script. This needs to initialize the projectile and as such can be a separate state from the actual behavior, but for ease of use I tend to prefer adding a PInit branch to manage both from the same script.
+Now you're in the 'Init--Ball' state, which will initialize the projectile. You can use Custom Editors to change the values given to `Init-LightGraphicsInit`, which will create the model.
 
-```
-# The state is called "BallForward" here.
+Next, go to 'Ball--Action', the main state of the projectile. Once again, use custom editors to change it to your liking.
 
-PInit:
-	# Create the model itself
-	CreateModel(res://castagne/example/fighter/Ball.tscn)
-else
-	Attack(700)
-	AttackHitstunBlockstun(40, 20)
-	Hitbox(-3000, 3000, -3000, 3000)
-
-	# This references a variable we will get from the Castagneur
-	Move(BallSpeed, 0)
-
-	# When hitting someone, destroy this projectile as we don't want it to linger.
-	VAttackHasTouched:
-		DestroyEntity()
-	endif
-
-	# Add a failsafe if it didn't hit anyone.
-	F180:
-		DestroyEntity()
-	endif
-endif
-```
-
-Then, you need to initialize it from the move itself (5D in our case).
+Now let's make the actual state. In 'New State', select the 'Attack-Projectile' move and call it '5S'. Use the custom editor to replace the `ProjectileName` variable with `Ball`, and there you go!
 
 ```
-F15:
-	# Creates the new entity and selects it, needs the name of a state script
-	CreateEntity(BallForward)
-
-	# Copies the BallSpeed variable to the new entity for ease of use
-	CopyVariable(BallSpeed)
-
-	# Positions the entity relative to the main character
-	SetPositionRelativeToRef(5000, 10000)
-
-	# Copies the facing to ensure the ball goes in the correct direction
-	CopyRefFacing()
-
-	# Selects the initial entity, in order to not create bugs down the line.
-	SelectOriginalEntity()
-endif
+# For reference, this is how you create your projectile after that
+CreateEntity(ProjectileName)
+SetTargetPosition(ProjectileStartX, ProjectileStartY)
 ```
+
+You can make complex projectiles by expanding on this, or even puppets.
 
 ### Reversals / Counters / Attribute Invulnerability / Guard Points (Anti-air, Low crush...)
 <!--Castagneur's Castagneur's *Counter Bunt* -->
@@ -292,21 +269,24 @@ LGuarded:
 endif
 ```
 
-> Note that for full invulnerability, not adding an hitbox also works. Removing parts of the hitbox (like making an attack have an hurtbox only on the legs) may also work but lead to different interactions and gamefeel.
+> Note that for full invulnerability, not adding an hurtbox also works. Removing parts of the hurtbox (like making an attack have an hurtbox only on the legs) may also work but lead to different interactions and gamefeel. Since there is a helper for the standard hurtbox, use the flag 'NoHurtbox' to skip it.
 
 ### Autocombos / Rekkas / Unchain
 <!-- like Castagneur's *Jab and Swing* -->
 Some attacks, like Castagneur's autocombo, are composed of multiple parts, that might even branch out from one to the next. The easiest way to manage those is through the cancel system.
 
 <!-- TODO vérif les noms -->
-The functions you are looking for are the `AttackCancelOnX` family of functions, mainly `AttackCancelOnTouch`, `AttackCancelOnTouchAndWhiff`, and `AttackCancelOnHit`. They take an input in numpad notation and a move, and by using that you can override the regular use of the button. Add only one for rekkas / autocombos, or several for unchains. By default, this will be subject to the cancel system, meaning you can't use the same attack twice.
+The functions you are looking for are the `AttackCancel` function. It takes an input in numpad notation and a move, and by using that you can override the regular use of the button. Add only one for rekkas / autocombos, or several for unchains. By default, this will be subject to the cancel system, meaning you can't use the same attack twice. You can give a third parameter for the situation, using the `ATTACKCANCEL_ON_` family of constants.
+
 
 ```
 F9+:
 	# This tells the cancel system to do 5AA if we pressed 5A, allowing for a smooth easy chain, even on whiff.
-	AttackCancelOnTouchAndWhiff(5A, 5AA)
+	AttackCancel(5AA, 5A, ATTACKCANCEL_ON_TOUCH_AND_WHIFF)
 endif
 ```
+> The constants are not implemented propertly right now, so you need to use the actual value you can find in the docs for now. ATTACKCANCEL_ON_TOUCH_AND_WHIFF is 7.
+<!-- TODO -->
 
 ### Held Moves
 <!--Castagneur's *Batdown* (4D)-->
@@ -377,13 +357,15 @@ endif
 LHeldVersion:
 	# Held version
 	F30-34:
-		Attack(1500, 55)
+		AttackDamage(1500)
+		AttackDuration(55)
 		Hitbox(0, 16000, 0, 18000)
 	endif
 else
 	# Unheld version
 	F20-24:
-		Attack(1000, 45)
+		AttackDamage(1000)
+		AttackDuration(45)
 		Hitbox(0, 16000, 0, 18000)
 	endif
 endif

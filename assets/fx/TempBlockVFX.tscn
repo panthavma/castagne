@@ -1,0 +1,53 @@
+[gd_scene load_steps=5 format=2]
+
+[sub_resource type="Animation" id=1]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("MeshInstance:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector3( 1, 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=2]
+resource_name = "default"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("MeshInstance:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.1, 0.5 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Vector3( 0.4, 0.4, 0.4 ), Vector3( 1, 1, 1 ), Vector3( 0, 0, 0 ) ]
+}
+
+[sub_resource type="CylinderMesh" id=3]
+top_radius = 0.722
+bottom_radius = 0.782
+height = 0.088
+radial_segments = 8
+
+[sub_resource type="SpatialMaterial" id=4]
+flags_unshaded = true
+albedo_color = Color( 0.227451, 1, 0.945098, 1 )
+
+[node name="TempBlockVFX" type="Spatial"]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/RESET = SubResource( 1 )
+anims/default = SubResource( 2 )
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 0.222535, -0.974925, -4.26153e-08, 0, -4.37114e-08, 1, -0.974925, -0.222535, -9.72733e-09, 0.0341554, 0, -0.0658376 )
+mesh = SubResource( 3 )
+material/0 = SubResource( 4 )

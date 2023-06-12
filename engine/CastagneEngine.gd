@@ -54,11 +54,12 @@ func Init():
 		
 	# 3. Prepare the first frame
 	
+	Castagne.Parser.ResetErrors()
 	modules = configData.GetModules()
+	var sh = CreateStateHandle(_memory)
 	for module in modules:
 		module.engine = self
 		module.CopyVariablesGlobal(_memory)
-		var sh = CreateStateHandle(_memory)
 		module.BattleInit(sh, battleInitData)
 	
 	
@@ -87,7 +88,7 @@ func EngineTick(previousMemory, playerInputs):
 	
 	# 1. Frame and input setup
 	# 0. Memory Set
-	_currentStateHandle = 0
+	ResetStateHandles()
 	var memory = CreateMemory(previousMemory)
 	memory.GlobalSet("_TrueFrameID", memory.GlobalGet("_TrueFrameID")+1)
 	memory.GlobalSet("_SkipFrame", false)
@@ -198,6 +199,9 @@ func ExecuteCurrentFighterScript(gameStateHandle):
 	# 1. Get the fighter script / state from the entity (done outside maybe ?)
 	var fighterScript = GetCurrentFighterScriptOfEntity(gameStateHandle)
 	
+	if(fighterScript == null):
+		return
+	
 	# 2. Execute each action one by one
 	ExecuteFighterScript(fighterScript, gameStateHandle)
 
@@ -216,6 +220,12 @@ func GetFighterScript(fighterID, stateName):
 		return null
 	
 	return fighterScripts[fighterID][stateName]
+
+func GetFighterAllScripts(fighterID):
+	if(fighterID >= fighterScripts.size()):
+		Castagne.Error("GetFighterScript: Fighter ID " + str(fighterID) + " not found!")
+		return null
+	return fighterScripts[fighterID]
 
 func ExecuteFighterScript(fighterScript, gameStateHandle):
 	#var rEID = moduleCallbackData["RefEID"]
@@ -335,7 +345,7 @@ remotesync func OnlineEndMatch():
 
 # Parses a script file and adds it to the relevant lists. Returns the ID if okay, or -1 if not.
 func ParseFighterScript(characterPath):
-	var fighter = Castagne.Parser.CreateFullCharacter(characterPath, configData)
+	var fighter = Castagne.Parser.CreateFullCharacter(characterPath, configData, false)
 	
 	if(fighter == null):
 		Castagne.Error("Character "+characterPath+" isn't initialized properly.")
@@ -486,10 +496,20 @@ func _process(_delta):
 
 
 var _prefabMemory = preload("res://castagne/engine/CastagneMemory.gd")
+var _memories = []
+var MAX_MEMORIES_IN_MEMORY = 16
+var _nextMemoryID = 0
 func CreateMemory(copyFrom = null):
-	var memory = Node.new()
-	memory.set_script(_prefabMemory)
-	memory.InitMemory()
+	if(_memories.size() < MAX_MEMORIES_IN_MEMORY):
+		var newMemory = Node.new()
+		newMemory.set_script(_prefabMemory)
+		newMemory.InitMemory()
+		add_child(newMemory)
+		_memories.push_back(newMemory)
+	else:
+		pass
+	var memory = _memories[_nextMemoryID]
+	_nextMemoryID = (_nextMemoryID + 1) % MAX_MEMORIES_IN_MEMORY
 	if(copyFrom != null):
 		memory.CopyFrom(copyFrom)
 	return memory
@@ -502,12 +522,17 @@ func CreateStateHandle(memory, eid = -1):
 	if(_currentStateHandle >= _stateHandles.size()):
 		stateHandle = Node.new()
 		stateHandle.set_script(_prefabStateHandle)
+		_stateHandles.push_back(stateHandle)
+		add_child(stateHandle)
 	else:
 		stateHandle = _stateHandles[_currentStateHandle]
 	_currentStateHandle += 1
 	stateHandle.InitHandle(memory, self)
 	stateHandle.PointToEntity(eid)
 	return stateHandle
+
+func ResetStateHandles():
+	_currentStateHandle = 0
 
 var _errorScreen = null
 func AbortWithError(error, showParserErrors = false):

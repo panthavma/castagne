@@ -9,33 +9,40 @@ var hpRedTargetDelay = {"p1":10000, "p2":10000}
 
 var isTrainingMode = false
 
-func InitTool(_engine, battleInitData):
-	isTrainingMode = battleInitData["mode"] == "Training"
+func InitTool(battleInitData):
+	#isTrainingMode = battleInitData["mode"] == "Training"
+	isTrainingMode = true
 	
-	get_node("L/Rounds/1/Active").set_visible(battleInitData["p1Points"] > 0)
+	get_node("L/Rounds/1/Active").hide()
+	#get_node("L/Rounds/1/Active").set_visible(battleInitData["p1Points"] > 0)
 	get_node("L/Rounds/2/Active").hide()
-	get_node("R/Rounds/1/Active").set_visible(battleInitData["p2Points"] > 0)
+	get_node("R/Rounds/1/Active").hide()
+	#get_node("R/Rounds/1/Active").set_visible(battleInitData["p2Points"] > 0)
 	get_node("R/Rounds/2/Active").hide()
 
 
 
-func TODO_UpdateGraphics(state, _engine):
-	UpdatePlayer(state[state["Players"][0]["MainEntity"]], "p1", "L")
-	UpdatePlayer(state[state["Players"][1]["MainEntity"]], "p2", "R")
+func UpdateGraphics(stateHandle):
+	stateHandle.PointToPlayerMainEntity(0)
+	UpdatePlayer(stateHandle, "p1", "L")
+	stateHandle.PointToPlayerMainEntity(1)
+	UpdatePlayer(stateHandle, "p2", "R")
 	
 	var timerRoot = get_node("C/Timer")
 	if(isTrainingMode):
 		timerRoot.get_node("Label").set_text("Timer\nInfinite")
 	else:
-		var currentTimer = state["Timer"]/60
+		var currentTimer = stateHandle.GlobalGet("Timer")/60
 		currentTimer = int(clamp(currentTimer, 0, 99))
 		timerRoot.get_node("Label").set_text("Timer\n"+str(currentTimer))
 	
 	var middleText = get_node("C/Text")
 	middleText.hide()
 	
-	if(state["WhoHasWon"] != 0):
-		var whw = state["WhoHasWon"]
+	#var whw = state["WhoHasWon"]
+	var whw = 0
+	
+	if(whw != 0):
 		if(whw == 2):
 			middleText.get_node("Label").set_text("Draw")
 		else:
@@ -43,23 +50,23 @@ func TODO_UpdateGraphics(state, _engine):
 		
 		middleText.show()
 	
-	if(state.has("STARTFRAMES")):
-		if(state["STARTFRAMES"] > 0):
+	if(stateHandle.GlobalHas("STARTFRAMES")):
+		if(stateHandle.GlobalGet("STARTFRAMES") > 0):
 			middleText.get_node("Label").set_text("Ready?")
 			middleText.show()
-		elif(state["STARTFRAMES"] > -50):
+		elif(stateHandle.GlobalGet("STARTFRAMES") > -50):
 			middleText.get_node("Label").set_text("Fight!")
 			middleText.show()
 
-func UpdatePlayer(eState, playerID, uiSide):
-	if(!eState.has("HPMax")):
+func UpdatePlayer(stateHandle, playerID, uiSide):
+	if(!stateHandle.EntityHas("HPMax")):
 		return
-	var hpMax = eState["HPMax"]
-	var hp = eState["HP"]
+	var hpMax = stateHandle.EntityGet("HPMax")
+	var hp = stateHandle.EntityGet("HP")
 	var hpRatio = float(hp)/float(hpMax)
 	hpRatio = clamp(hpRatio, 0.0, 1.0)
 	
-	if(!HasFlag(eState, "Hitstun")):
+	if(!stateHandle.EntityHasFlag("Hitstun")):
 		hpRedTarget[playerID] = hpRedTargetDelay[playerID]
 		hpRedTargetDelay[playerID] = hp
 	

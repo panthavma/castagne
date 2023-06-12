@@ -6,25 +6,50 @@ func ModuleSetup():
 		})
 	#RegisterBaseCaspFile("res://castagne/modules/coreset/Base-Core.casp", -9000)
 	
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "players", [], {"Description":"List of player BIDs. The 0th one is the default, which the later ones may override."})
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "entities", [], {"Description":"List of entity BIDs to be spawned without players. The 0th one is the default, which the later ones may override."})
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "overrides", {}, {"Description":"Global variables to override at the begining of the match."})
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "triggers", [], {"Description":"Unsupported at the moment."})
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "map", 0, {"Description":"The stage to load."})
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "music", null, {"Description":"Unsupported"})
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "exitcallback", null, {"Description":"Unsupported"})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "players", [], {
+		"Description":"List of player BIDs. The 0th one is the default, which the later ones may override."
+		})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "entities", [], {
+		"Description":"List of entity BIDs to be spawned without players. The 0th one is the default, which the later ones may override."
+		})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "overrides", {}, {
+		"Description":"Global variables to override at the begining of the match."
+		})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "triggers", [], {
+		"Description":"Unsupported at the moment."
+		})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "map", 0, {
+		"Description":"The stage to load."
+		})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "music", null, {
+		"Description":"Unsupported"
+		})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "exitcallback", null, {
+		"Description":"Unsupported"
+		})
 	
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Player, "entities", [], {"Description":"List of entity BIDs to spawn by the player. The 0th one is the default, which the later ones may override."})
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Player, "overrides", {}, {"Description":"List of player variables to override at the beginning of the match."})
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Player, "inputdevice", null, {"Description":"The name of the input device to associate to this player."})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Player, "entities", [], {
+		"Description":"List of entity BIDs to spawn by the player. The 0th one is the default, which the later ones may override."
+		})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Player, "overrides", {}, {
+		"Description":"List of player variables to override at the beginning of the match."
+		})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Player, "inputdevice", null, {
+		"Description":"The name of the input device to associate to this player."
+		})
 	
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Entity, "overrides", {}, {"Description":"List of entity variables to override at the beginning of the match."})
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Entity, "scriptpath", 0, {"Description":"Path to the casp file of the character."})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Entity, "overrides", {}, {
+		"Description":"List of entity variables to override at the beginning of the match."
+		})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Entity, "scriptpath", 0, {
+		"Description":"Path to the casp file of the character."
+		})
 	
 	RegisterConfig("BID-Custom-Global", "", {"Description":"Additional fields for the global BID."})
 	RegisterConfig("BID-Custom-Player", "", {"Description":"Additional fields for the player BID."})
 	RegisterConfig("BID-Custom-Entity", "", {"Description":"Additional fields for the entity BID."})
 	
+	# _NbPlayers?
 
 func GetBaseBattleInitData(configData):
 	var modules = configData.GetModules()

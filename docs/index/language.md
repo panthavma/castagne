@@ -17,11 +17,11 @@ Castagne at its core works by treating characters as *state machines*, where eve
 Example syntax:
 ```
 # Comment
+## State Comment. These are shown on the navigation panel.
 
-Move(200)
+AttackDamage(200)
 
 F5-10:
-	Attack(500, 20)
 	Hitbox(-500, 20000, 5000, 10000)
 else
 	Move(-100)
