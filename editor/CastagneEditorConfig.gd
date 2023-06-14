@@ -6,9 +6,11 @@ extends Control
 # :TODO:Panthavma:20220417:Default value tooltip
 
 
+var editor
 var showAdvancedParams = false
 var paramsToSave = {}
 var saveReloadPower = 0
+var backLocked = false
 var SAVERELOAD_NONE = 0
 var SAVERELOAD_RELOAD = 1
 var SAVERELOAD_RESTART = 2
@@ -22,16 +24,17 @@ func EnterMenu(advancedMode = false):
 	$Save.set_disabled(true)
 	paramsToSave = {}
 	saveReloadPower = SAVERELOAD_NONE
+	backLocked = false
 	
 	var tabs = $Tabs
 	
-	$Title.set_text("Configuration Editor"+(" - Advanced" if showAdvancedParams else "")+"\n"+Castagne.configData["CastagneVersion"])
+	$Title.set_text("Configuration Editor"+(" - Advanced" if showAdvancedParams else "")+"\n"+editor.configData.Get("CastagneVersion"))
 	
 	for c in tabs.get_children():
 		c.queue_free()
 	
 	var tabID = tabs.get_child_count()
-	for module in Castagne.modules:
+	for module in editor.configData.GetModules():
 		var page = CreateStandardPage(module)
 		tabs.add_child(page)
 		tabs.set_tab_title(tabID, module.moduleName)
@@ -43,6 +46,8 @@ func CreateStandardPage(module):
 	var pageRoot = ScrollContainer.new()
 	var root = VBoxContainer.new()
 	pageRoot.add_child(root)
+	pageRoot.set_name(module.moduleName)
+	root.set_name("CategoryList")
 	root.set_h_size_flags(SIZE_EXPAND_FILL)
 	root.set_v_size_flags(SIZE_EXPAND_FILL)
 	
@@ -72,7 +77,7 @@ func CreateStandardPage(module):
 		var nbParams = 0
 		for config in category["Config"]:
 			if(config["Flags"].has("Hidden") or
-				(!showAdvancedParams and config["Flags"].has("Advanced"))):
+				(!showAdvancedParams and (config["Flags"].has("Advanced") or config["Flags"].has("Expert")))):
 				continue
 			
 			categoryRoot.add_child(CreateConfigOption(module, config))
@@ -92,8 +97,10 @@ func CreateStandardPage(module):
 func CreateStandardPagePanel(title):
 	var panel = Panel.new()
 	panel.set_anchors_preset(Control.PRESET_WIDE)
+	panel.set_name(title)
 	
 	var categoryRoot = VBoxContainer.new()
+	categoryRoot.set_name("ParamList")
 	panel.add_child(categoryRoot)
 	categoryRoot.set_h_size_flags(SIZE_EXPAND_FILL)
 	categoryRoot.set_v_size_flags(SIZE_EXPAND_FILL)
@@ -106,10 +113,32 @@ func CreateStandardPagePanel(title):
 	
 	return panel
 
+var _customConfigCalled
+func _ExecuteCustomConfig(config):
+	_customConfigCalled = config
+	editor.EnterSubmenu(config["SubmenuName"], funcref(self, "_ExecuteCustomConfigCallback"))
+func _ExecuteCustomConfigCallback(idx = null):
+	if(idx != null):
+		ConfigHasChangedCallback(_customConfigCalled)
+	editor.get_node(_customConfigCalled["SubmenuName"]).hide()
+	show()
+
 func CreateConfigOption(module, config):
 	var root = HBoxContainer.new()
+	root.set_name(str(config["Name"]))
+	
+	if(config["Flags"].has("Custom")):
+		var button = Button.new()
+		button.connect("pressed", self, "_ExecuteCustomConfig", [config])
+		button.set_text(str(config["Name"]))
+		button.set_name("Button")
+		button.set_custom_minimum_size(Vector2(200,32))
+		button.set_h_size_flags(SIZE_EXPAND_FILL)
+		root.add_child(button)
+		return root
 	
 	var title = Label.new()
+	title.set_name("Title")
 	title.set_text(str(config["Name"]))
 	root.add_child(title)
 	
@@ -117,10 +146,19 @@ func CreateConfigOption(module, config):
 	var paramSignalName = null
 	var paramKey = config["Key"]
 	var defaultValue = config["Default"]
-	var currentValue = Castagne.configData[paramKey]
+	var currentValue = editor.configData.Get(paramKey)
 	var paramValueChangeFunction = null
 	var type = typeof(defaultValue)
-	if(type == TYPE_STRING):
+	if(config.has("Options")):
+		param = OptionButton.new()
+		var options = config["Options"]
+		for oKey in options:
+			param.add_item(options[oKey])
+		var selectedOption = options.keys().find(currentValue)
+		if(selectedOption >= 0):
+			param.select(selectedOption)
+		param.connect("item_selected", self, "FieldChangedCallback", [config])
+	elif(type == TYPE_STRING):
 		param = LineEdit.new()
 		param.set_text(currentValue)
 		param.connect("text_changed", self, "FieldChangedCallback", [config])
@@ -143,10 +181,12 @@ func CreateConfigOption(module, config):
 		param.set_align(Label.ALIGN_CENTER)
 	param.set_custom_minimum_size(Vector2(200,16))
 	param.set_h_size_flags(SIZE_EXPAND_FILL)
+	param.set_name("Param")
 	root.add_child(param)
 	
 	var resetButton = Button.new()
 	resetButton.set_text("Reset")
+	resetButton.set_name("Reset")
 	resetButton.connect("pressed", self, "ResetFieldValue", [param, config, paramValueChangeFunction])
 	root.add_child(resetButton)
 	
@@ -158,7 +198,7 @@ func _on_BackButton_pressed():
 
 
 func _on_Docs_pressed():
-	$"..".OpenDocumentation("/Modules")
+	$"..".OpenDocumentation("/modules")
 
 
 func FitTabs():
@@ -187,17 +227,19 @@ func _on_Save_pressed():
 	$Save.set_disabled(true)
 	
 	for p in paramsToSave:
-		Castagne.configData[p] = paramsToSave[p]
-	Castagne.SaveConfigFile()
+		editor.configData.Set(p, paramsToSave[p])
+	editor.configData.SaveConfigFile()
 	
 	if(saveReloadPower == SAVERELOAD_RELOAD):
 		_on_BackButton_pressed()
 		$"..".call_deferred("_on_Config_pressed", showAdvancedParams)
 	elif(saveReloadPower == SAVERELOAD_RESTART):
 		get_tree().quit()
+	
+	backLocked = false
+	UpdateBackButton()
 
-func FieldChangedCallback(value, config):
-	var paramName = config["Key"]
+func ConfigHasChangedCallback(config):
 	$Save.set_disabled(false)
 	var reload = SAVERELOAD_NONE
 	var saveText = "Save"
@@ -211,11 +253,28 @@ func FieldChangedCallback(value, config):
 	$Save.set_text(saveText)
 	if(reload > saveReloadPower):
 		saveReloadPower = reload
+	
+	if(config["Flags"].has("LockBack")):
+		backLocked = true
+	UpdateBackButton()
+
+func UpdateBackButton():
+	var backText = "Back without saving"
+	if(backLocked):
+		backText = "Quit to cancel"
+	$BackButton.set_disabled(backLocked)
+	$BackButton.set_text(backText)
+
+func FieldChangedCallback(value, config):
+	var paramName = config["Key"]
+	if(config.has("Options")):
+		value = config["Options"].keys()[value]
+	ConfigHasChangedCallback(config)
 	paramsToSave[paramName] = value
 
 func ResetFieldValue(field, config, functionName = null):
 	if(functionName != null):
-		var defaultValue = config["Default"]
+		var defaultValue = editor.configData.GetBaseOrDefault(config["Name"])
 		var f = funcref(field, functionName)
 		f.call_func(defaultValue)
 		FieldChangedCallback(defaultValue, config)

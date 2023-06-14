@@ -1,0 +1,1516 @@
+:Character:
+## Base-Physics2D: This hold basic behavior for 2D games. (IN CONSTRUCTION UNTIL v0.56)
+##
+## Contains multiple default states to cover various standard types of movement.
+:Variables-Physics-System:
+## This block holds parameters to alter fine parts of the movement system, like if you can turnaround or not, or if you can cancel some states.
+## Since this is fairly fundamental, it is recommended to keep those the same for all characters through a skeleton.
+
+#--- Facing
+def PHYSICS_FaceTargetAutomatically bool() = 1
+def PHYSICS_FaceTargetAutomaticallyInAir bool() = 0
+def PHYSICS_FaceTargetAutomaticallyAtAttackStart bool() = 1
+def PHYSICS_FaceTargetAutomaticallyAtAirAttackStart bool() = 0
+def PHYSICS_AllowFacingChangeAtAirAttackStart bool() = 1
+def MOVE_TurnaroundStand_Time int() = 6
+def MOVE_TurnaroundCrouch_Time int() = 6
+def MOVE_TurnaroundAirTime int() = 6
+#def MOVE_CanTurnaroundInAir bool() = 0
+
+#--- Transitional states
+def MOVE_StandToCrouch_Time int() = 6
+def MOVE_CrouchToStand_Time int() = 6
+def MOVE_CanCancelStandToCrouch bool() = 1
+def MOVE_CanCancelCrouchToStand bool() = 1
+
+#--- Jumping
+def MOVE_Jump_CanJumpForward bool() = 1
+def MOVE_Jump_CanJumpBackward bool() = 1
+def MOVE_Landing_RecoverCrouching bool() = 1
+
+#--- Colliders
+def PHYSICS_StandardColbox_Use bool() = 1
+def PHYSICS_StandardColbox_Width int() = 4000
+def PHYSICS_StandardColbox_Bottom int() = 0
+def PHYSICS_StandardColbox_Top int() = 12000
+
+def PHYSICS_StandardHurtbox_Use bool() = 1
+def PHYSICS_StandardHurtbox_Width int() = 5000
+def PHYSICS_StandardHurtbox_Bottom int() = 0
+def PHYSICS_StandardHurtbox_Top int() = 20000
+def PHYSICS_StandardHurtbox_Crouching_Width int() = 5000
+def PHYSICS_StandardHurtbox_Crouching_Bottom int() = 0
+def PHYSICS_StandardHurtbox_Crouching_Top int() = 14000
+:Variables-Physics-Reactions-Techs:
+## Customize the techs you can do when exiting hitstun
+
+#--- Grounded - Neutral
+def ATTACK_Tech_Grounded_Neutral_Time int() = 10
+def ATTACK_Tech_Grounded_Neutral_MomentumX int() = -300
+def ATTACK_Tech_Grounded_Neutral_MomentumY int() = 1000
+
+#--- Grounded - Forward
+def ATTACKS_Tech_Grounded_CanTechForward bool() = 1
+def ATTACK_Tech_Grounded_Forward_Time int() = 10
+def ATTACK_Tech_Grounded_Forward_MomentumX int() = 600
+def ATTACK_Tech_Grounded_Forward_MomentumY int() = 800
+
+#--- Grounded - Backward
+def ATTACKS_Tech_Grounded_CanTechBackward bool() = 1
+def ATTACK_Tech_Grounded_Backward_Time int() = 10
+def ATTACK_Tech_Grounded_Backward_MomentumX int() = -800
+def ATTACK_Tech_Grounded_Backward_MomentumY int() = 800
+
+#--- Grounded - Up
+def ATTACKS_Tech_Grounded_CanTechUp bool() = 1
+def ATTACK_Tech_Grounded_Up_Time int() = 10
+def ATTACK_Tech_Grounded_Up_MomentumX int() = -400
+def ATTACK_Tech_Grounded_Up_MomentumY int() = 1800
+
+#--- Airborne - Neutral
+def ATTACK_Tech_Airborne_Neutral_Time int() = 10
+def ATTACK_Tech_Airborne_Neutral_MomentumX int() = -200
+def ATTACK_Tech_Airborne_Neutral_MomentumY int() = 800
+
+#--- Airborne - Forward
+def ATTACKS_Tech_Airborne_CanTechForward bool() = 1
+def ATTACK_Tech_Airborne_Forward_Time int() = 10
+def ATTACK_Tech_Airborne_Forward_MomentumX int() = 800
+def ATTACK_Tech_Airborne_Forward_MomentumY int() = 500
+
+#--- Airborne - Backward
+def ATTACKS_Tech_Airborne_CanTechBackward bool() = 1
+def ATTACK_Tech_Airborne_Backward_Time int() = 10
+def ATTACK_Tech_Airborne_Backward_MomentumX int() = -800
+def ATTACK_Tech_Airborne_Backward_MomentumY int() = 500
+
+#--- Airborne - Up
+def ATTACKS_Tech_Airborne_CanTechUp bool() = 1
+def ATTACK_Tech_Airborne_Up_Time int() = 10
+def ATTACK_Tech_Airborne_Up_MomentumX int() = 0
+def ATTACK_Tech_Airborne_Up_MomentumY int() = 1000
+
+#--- Airborne - Down
+def ATTACKS_Tech_Airborne_CanTechDown bool() = 1
+def ATTACK_Tech_Airborne_Down_Time int() = 10
+def ATTACK_Tech_Airborne_Down_MomentumX int() = 0
+def ATTACK_Tech_Airborne_Down_MomentumY int() = -500
+
+
+#--- Knockdown - Neutral
+def ATTACK_Tech_Knockdown_Neutral_Time int() = 30
+def ATTACK_Tech_Knockdown_Neutral_MomentumX int() = 0
+def ATTACK_Tech_Knockdown_Neutral_MomentumY int() = 0
+def ATTACK_Tech_Knockdown_Neutral_RecoverCrouching bool() = 1
+
+#--- Knockdown - Forward
+def ATTACKS_Tech_Knockdown_CanTechForward bool() = 1
+def ATTACK_Tech_Knockdown_Forward_Time int() = 30
+def ATTACK_Tech_Knockdown_Forward_MomentumX int() = 2000
+def ATTACK_Tech_Knockdown_Forward_MomentumY int() = 0
+def ATTACK_Tech_Knockdown_Forward_RecoverCrouching bool() = 1
+
+#--- Knockdown - Backward
+def ATTACKS_Tech_Knockdown_CanTechBackward bool() = 1
+def ATTACK_Tech_Knockdown_Backward_Time int() = 30
+def ATTACK_Tech_Knockdown_Backward_MomentumX int() = -2000
+def ATTACK_Tech_Knockdown_Backward_MomentumY int() = 0
+def ATTACK_Tech_Knockdown_Backward_RecoverCrouching bool() = 1
+
+#--- Knockdown - Up
+def ATTACKS_Tech_Knockdown_CanTechUp bool() = 1
+def ATTACK_Tech_Knockdown_Up_Time int() = 15
+def ATTACK_Tech_Knockdown_Up_MomentumX int() = 0
+def ATTACK_Tech_Knockdown_Up_MomentumY int() = 2000
+def ATTACK_Tech_Knockdown_Up_RecoverCrouching bool() = 0
+
+#--- All
+
+def MOVE_Tech_Friction_Ground int() = 20
+def MOVE_Tech_Friction_Air int() = 20
+def MOVE_Tech_Gravity int() = -50
+:Variables-Physics-Reactions:
+## Physics variables for reaction states, like hitstun and blockstun
+
+#--- Hitstun
+def MOVE_Hitstun_Friction_Ground int() = 100
+def MOVE_Hitstun_Friction_Air int() = 2
+def MOVE_Hitstun_Gravity int() = -200
+def ATTACKS_Hitstun_CanRecoverInAir bool() = 1
+
+#--- Blockstun
+def MOVE_Blockstun_Friction_Ground int() = 100
+def MOVE_Blockstun_Friction_Air int() = 2
+def MOVE_Blockstun_Gravity int() = -200
+
+#--- Throw
+def MOVE_Teching_Ground_MomentumX int() = -2000
+def MOVE_Teching_Ground_MomentumY int() = 0
+def MOVE_Teching_Ground_Time int() = 20
+def MOVE_Teched_Ground_MomentumX int() = -2000
+def MOVE_Teched_Ground_MomentumY int() = 0
+def MOVE_Teched_Ground_Time int() = 20
+def MOVE_Teching_Air_MomentumX int() = -1000
+def MOVE_Teching_Air_MomentumY int() = 1000
+def MOVE_Teching_Air_Time int() = 20
+def MOVE_Teched_Air_MomentumX int() = -1000
+def MOVE_Teched_Air_MomentumY int() = 1000
+def MOVE_Teched_Air_Time int() = 20
+:Variables-Physics-Base:
+## Movement data for the basic states. 
+
+#--- Physics
+def MOVE_Gravity int() = -200
+def MOVE_Friction_Ground int() = 100
+def MOVE_Friction_Air int() = 2
+
+
+#--- Basic Movement
+def MOVE_Walk_SpeedF int() = 1000
+def MOVE_Walk_SpeedB int() = -800
+def MOVE_Crawl_SpeedF int() = 0
+def MOVE_Crawl_SpeedB int() = 0
+## - Crawling is disabled when its speed is equal to zero
+
+#--- Jumping
+def MOVE_Jump_JumpsquatTime int() = 3
+def MOVE_Jump_JumpN_InitialMomentumX int() = 0
+def MOVE_Jump_JumpN_InitialMomentumY int() = 3000
+def MOVE_Jump_JumpB_InitialMomentumX int() = -1200
+def MOVE_Jump_JumpB_InitialMomentumY int() = 3000
+def MOVE_Jump_JumpF_InitialMomentumX int() = 1200
+def MOVE_Jump_JumpF_InitialMomentumY int() = 3000
+def MOVE_Landing_TimeEmpty int() = 6
+def MOVE_Landing_TimeAttack int() = 6
+:Variables-Internals-Physics:
+## This block contains internal variables for the physics system, used to program the behavior of the scripts.
+## This is advanced, and as such should be left alone in most cases.
+
+#--- Current physics window
+var CurrentFrictionGround int() = 10
+var CurrentFrictionAir int() = 2
+var CurrentGravity int() = -200
+var LandingTime = 6
+
+
+#
+internal _HitstunGravityFloat
+internal _GroundbounceTime
+internal _GroundbounceMomentum
+
+var ATTACK_Tech_Time int() = 0
+var ATTACK_Tech_MomentumX int() = 0
+var ATTACK_Tech_MomentumY int() = 0
+:Variables-Internals-Common-TransitionPriorities:
+def ATTACKS_Tech_Priority int() = 20000
+
+# We want it to be higher than attacks
+def PHYSICS_Landing_Priority int() = 12000
+def PHYSICS_Jumping_Priority int() = 12000
+:AirTech-Backward:
+## Airborne backward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Airborne_Backward_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Airborne_Backward_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Airborne_Backward_MomentumY)
+
+Call(AnimAirTechBackward)
+Call(TechCommon)
+:AirTech-Down:
+## Airborne downwards tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Airborne_Down_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Airborne_Down_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Airborne_Down_MomentumY)
+
+Call(AnimAirTechDown)
+Call(TechCommon)
+:AirTech-Forward:
+## Airborne forward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Airborne_Forward_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Airborne_Forward_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Airborne_Forward_MomentumY)
+
+Call(AnimAirTechForward)
+Call(TechCommon)
+:AirTech-Neutral:
+## Airborne neutral tech state. Can be altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Airborne_Neutral_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Airborne_Neutral_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Airborne_Neutral_MomentumY)
+
+Call(AnimAirTechNeutral)
+Call(TechCommon)
+:AirTech-Up:
+## Airborne upwards tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Airborne_Up_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Airborne_Up_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Airborne_Up_MomentumY)
+
+Call(AnimAirTechUp)
+Call(TechCommon)
+:Airborne:
+## Basic airborne neutral state. This happens when recovering from an airborne attack or other state, jumps have their own state.
+_Category(Movement/Basic/Air)
+
+Call(AirborneNeutralState)
+Call(AnimAirborne)
+:AirborneNeutralState:
+## Helper on top of Neutral, used for neutral states where you are airborne.
+## Will automatically cancel on landing.
+
+def SSTATE_CancelOnLanding bool() = 1
+
+Call(NeutralState)
+_StateFlag(Airborne)
+_BaseState()
+:AirborneState:
+## Helper on top of StandardState, used for states where you are airborne.
+## Will automatically cancel on landing.
+
+def SSTATE_CancelOnLanding bool() = 1
+
+Call(StandardState)
+_StateFlag(Airborne)
+_BaseState()
+:AirdashB:
+_Category(Movement/Dashes/Air)
+## CASTDO
+:AirdashF:
+_Category(Movement/Dashes/Air)
+## CASTDO
+:AnimAirTechBackward:
+## Animation for the airborne backward tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimAirTechDown:
+## Animation for the airborne down tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimAirTechForward:
+## Animation for the airborne forward tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimAirTechNeutral:
+## Animation for the airborne neutral tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimAirTechUp:
+## Animation for the airborne up tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimAirThrowHeld:
+## Animation for when you have been hit by an airborne throw and still have a chance to tech
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Throws)
+:AnimAirThrowHolding:
+## Animation for when your airborne throw hits and you're waiting for the confirmation
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Throws)
+:AnimAirThrowTeched:
+## Animation for when you hit a airborne throw but it has been broken
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Throws)
+:AnimAirThrowTeching:
+## Animation for when you have been hit by an airborne throw managed to tech it
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Throws)
+:AnimAirborne:
+## Animation for the Airborne state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimCrawlB:
+## Animation for the crawling backwards state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimCrawlF:
+## Animation for the crawling forwards state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimCrouchToStand:
+## Animation for the crouching to standing transitional state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimCrouching:
+## Animation for the Crouching state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimGroundTechBackward:
+## Animation for the grounded backward tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimGroundTechForward:
+## Animation for the grounded forward tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimGroundTechNeutral:
+## Animation for the grounded neutral tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimGroundTechUp:
+## Animation for the grounded up tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimGroundThrowHeld:
+## Animation for when you have been hit by a grounded throw and still have a chance to tech
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Throws)
+:AnimGroundThrowHolding:
+## Animation for when your grounded throw hits and you're waiting for the confirmation
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Throws)
+:AnimGroundThrowTeched:
+## Animation for when you hit a grounded throw but it has been broken
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Throws)
+:AnimGroundThrowTeching:
+## Animation for when you have been hit by a grounded throw managed to tech it
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Throws)
+:AnimJumpB:
+## Animation for jumping backwards
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimJumpF:
+## Animation for jumping forward
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimJumpN:
+## Animation for jumping up
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimJumpsquat:
+## Animation for the Jumpsquat state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimKnockdown:
+## Animation for the knockdown tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Hitstun)
+:AnimKnockdownTechBackward:
+## Animation for the knockdown backward tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimKnockdownTechForward:
+## Animation for the knockdown forward tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimKnockdownTechNeutral:
+## Animation for the knockdown neutral tech state (wakeup)
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimKnockdownTechUp:
+## Animation for the knockdown up tech state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Techs)
+:AnimLanding:
+## Animation for the Landing state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimStand:
+## Animation for the standing / idle state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimStandToCrouch:
+## Animation for the standing to crouching transition state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimTurnaround:
+## Animation for the standing turnaround state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimTurnaroundAirborne:
+## Animation for the airborne turnaround state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimTurnaroundCrouch:
+## Animation for the crouching turnaround state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimWalkB:
+## Animation for walking backwards
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:AnimWalkF:
+## Animation for the walking forwards
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Basic)
+:ApplyPhysics-Blockstun:
+## Sets physics variables (gravity, friction, etc) to their blockstun state. These can be overriden by the attacks recieved.
+_Category(Internals/Physics)
+_Helper()
+
+Set(CurrentFrictionGround, MOVE_Blockstun_Friction_Ground)
+Set(CurrentFrictionAir, MOVE_Blockstun_Friction_Air)
+Set(CurrentGravity, MOVE_Blockstun_Gravity)
+:ApplyPhysics-Hitstun:
+## Sets physics variables (gravity, friction, etc) to their hitstun state. These can be overriden by the attacks recieved.
+_Category(Internals/Physics)
+_Helper()
+
+Set(CurrentFrictionGround, MOVE_Hitstun_Friction_Ground)
+Set(CurrentFrictionAir, MOVE_Hitstun_Friction_Air)
+Set(CurrentGravity, MOVE_Hitstun_Gravity)
+:ApplyPhysics-Regular:
+## Resets physics variables (gravity, friction, etc) to their regular state. These can be overriden for single moves, and will reset when in a neutral state on the ground, or exiting hitstun/blockstun states.
+_Category(Internals/Physics)
+_Helper()
+
+Set(CurrentFrictionGround, MOVE_Friction_Ground)
+Set(CurrentFrictionAir, MOVE_Friction_Air)
+Set(CurrentGravity, MOVE_Gravity)
+Set(LandingTime, MOVE_Landing_TimeEmpty)
+:ApplyPhysics-Tech:
+## Resets physics variables (gravity, friction, etc) to their state during teching. Will go to regular when done.
+## TODO: For now it's the same as ApplyPhysics-Regular
+_Category(Internals/Physics)
+_Helper()
+
+Set(CurrentFrictionGround, MOVE_Tech_Friction_Ground)
+Set(CurrentFrictionAir, MOVE_Tech_Friction_Air)
+Set(CurrentGravity, MOVE_Tech_Gravity)
+#Set(LandingTime, MOVE_Landing_TimeEmpty)
+:AttackState:
+CallParent(AttackState)
+
+F1:
+	Set(LandingTime, MOVE_Landing_TimeAttack)
+
+	LPFAirborne:
+		VPHYSICS_FaceTargetAutomaticallyAtAirAttackStart:
+			Flag(FaceTarget)
+		else
+			VPHYSICS_AllowFacingChangeAtAirAttackStart:
+				IBack:
+					Flag(FaceTarget)
+				endif
+			endif
+		endif
+	else
+		VPHYSICS_FaceTargetAutomaticallyAtAttackStart:
+			Flag(FaceTarget)
+		endif
+	endif
+endif
+:Backdash:
+_Category(Movement/Dashes/Steps)
+## CASTDO
+:Common:
+CallParent(Common)
+
+LPFAirborne:
+	Flag(Airborne)
+endif
+
+LPFLanding:
+	Call(OnLanding)
+endif
+:CommonAfter:
+CallParent(CommonAfter)
+
+Call(CommonAfterPhysics)
+:CommonAfterPhysics:
+## Helper state to add some physics behavior for easier use of the engine. Will call upon other states whose name starts with 'PhysicsAfter-'
+_Category(Internals/Physics)
+_Helper()
+
+Call(PhysicsAfter-CollidersManagement)
+Call(PhysicsAfter-GravityManagement)
+Call(PhysicsAfter-FacingManagement)
+Call(PhysicsAfter-FrictionManagement)
+:CrawlB:
+## Crawling backwards state, which allows movement while crouching. Speed is given by MOVE_Crawl_SpeedB, if 0 or more this state is disabled.
+_Category(Movement/Basic/Crouching)
+_StateFlag(Grounded)
+
+Call(CrouchingNeutralState)
+Call(AnimCrawlB)
+
+Move(MOVE_Crawl_SpeedB)
+
+Call(Grounded_StartJumpHelper)
+
+IDown:
+	IForward:
+		Call(Crouching_CrawlFHelper)
+	else
+		INeutralH:
+			Transition(Crouching)
+		endif
+	endif
+else
+	Call(Crouching_ToStandHelper)
+endif
+:CrawlF:
+## Crawling forward state, which allows movement while crouching. Speed is given by MOVE_Crawl_SpeedF, if 0 or less this state is disabled.
+_Category(Movement/Basic/Crouching)
+_StateFlag(Grounded)
+
+Call(CrouchingNeutralState)
+Call(AnimCrawlF)
+
+Move(MOVE_Crawl_SpeedF)
+
+Call(Grounded_StartJumpHelper)
+
+IDown:
+	IBack:
+		Call(Crouching_TurnaroundHelper)
+	else
+		INeutralH:
+			Transition(Crouching)
+		endif
+	endif
+else
+	Call(Crouching_ToStandHelper)
+endif
+:CrouchToStand:
+## Transition time between the crouching and standing animation. You can disable it or restrict cancelling.
+##
+## Duration is given by MOVE_CrouchToStand_Time. If zero, this state will be skipped automatically.
+## If MOVE_CanCancelCrouchToStand is active (default), you can cancel this state into walking.
+_Category(Movement/Basic/Transitional)
+
+Call(StandingNeutralState)
+Call(AnimCrouchToStand)
+
+FMOVE_CrouchToStand_Time+:
+	Transition(Stand)
+endif
+
+VMOVE_CanCancelCrouchToStand:
+	IForward:
+		Transition(WalkF)
+	else
+		IBack:
+			Call(Stand_TurnaroundHelper)
+		endif
+	endif
+endif
+:Crouching:
+## Basic crouching neutral state. Can transition to crawling if enabled.
+_Category(Movement/Basic/Crouching)
+_StateFlag(Grounded)
+
+Call(CrouchingNeutralState)
+Call(AnimCrouching)
+
+Call(Grounded_StartJumpHelper)
+
+IDown:
+	IForward:
+		Call(Crouching_CrawlFHelper)
+	else
+		IBack:
+			Call(Crouching_TurnaroundHelper)
+		endif
+	endif
+else
+	Call(Crouching_ToStandHelper)
+endif
+:CrouchingNeutralState:
+## Helper on top of NeutralState, used for neutral states where you are crouching.
+
+def SSTATE_CrouchingState bool() = 1
+
+Call(NeutralState)
+_StateFlag(Grounded)
+_BaseState()
+:CrouchingState:
+## Helper on top of StandardState, used for states where you are crouching.
+
+def SSTATE_CrouchingState bool() = 1
+
+Call(StandardState)
+_BaseState()
+_StateFlag(Grounded)
+:Crouching_CrawlBHelper:
+## Helper to conditionally start crawling, if it is enabled
+
+_Helper()
+_Category(Movement/Basic/Helpers)
+
+VMOVE_Crawl_SpeedB<0:
+	Transition(CrawlB)
+endif
+:Crouching_CrawlFHelper:
+## Helper to conditionally start crawling, if it is enabled
+
+_Helper()
+_Category(Movement/Basic/Helpers)
+
+VMOVE_Crawl_SpeedF>0:
+	Transition(CrawlF)
+endif
+:Crouching_ToStandHelper:
+## Movement helper that handles going from crouching to standing
+
+_Helper()
+_Category(Movement/Basic/Helpers)
+
+VMOVE_CrouchToStand_Time>0:
+	Transition(CrouchToStand)
+else
+	Transition(Stand)
+endif
+:Crouching_TurnaroundHelper:
+## Movement helper that will choose between turning around (immediately or through the state) or crawling back.
+
+_Helper()
+_Category(Movement/Basic/Helpers)
+
+LFaceTarget:
+	Call(Crouching_CrawlBHelper)
+else
+	VMOVE_TurnaroundCrouch_Time>0:
+		Transition(TurnaroundCrouch)
+	else
+		FlipFacing()
+		Call(Crouching_CrawlFHelper)
+	endif
+endif
+:Custom-OnLanding:
+## Custom override point for the OnAttackBlock callback, which is called when your attack is blocked.
+## This happens at the beginning of the function.
+_Category(Custom/Physics)
+_Helper()
+:DoubleJumpN:
+_Category(Movement/Dashes/DoubleJump)
+## CASTDO
+:GroundTech-Backward:
+## Grounded backward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Grounded_Backward_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Grounded_Backward_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Grounded_Backward_MomentumY)
+
+Call(AnimGroundTechBackward)
+Call(TechCommon)
+:GroundTech-Forward:
+## Grounded forward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Grounded_Forward_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Grounded_Forward_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Grounded_Forward_MomentumY)
+
+Call(AnimGroundTechForward)
+Call(TechCommon)
+:GroundTech-Neutral:
+## Grounded neutral tech state. Can be altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Grounded_Neutral_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Grounded_Neutral_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Grounded_Neutral_MomentumY)
+
+Call(AnimGroundTechNeutral)
+Call(TechCommon)
+:GroundTech-Up:
+## Grounded upwards tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Grounded_Up_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Grounded_Up_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Grounded_Up_MomentumY)
+
+Call(AnimGroundTechUp)
+Call(TechCommon)
+:Groundbounce:
+## Special groundbounce state for hitstun
+_Category(States/Reacts/Knockdowns)
+Call(Common)
+
+F1:
+	SetMomentumY(_GroundbounceMomentum)
+endif
+
+F_GroundbounceTime+:
+	Call(HitstunEnd)
+endif
+:Grounded_StartJumpHelper:
+## Movement helper that handles starting jumps.
+
+_Helper()
+_Category(Movement/Basic/Helpers)
+
+IJump:
+	Transition(Jumpsquat, PHYSICS_Jumping_Priority)
+endif
+:HighjumpN:
+_Category(Movement/Dashes/Highjump)
+## CASTDO
+:Hover:
+_Category(Movement/Dashes/Air)
+## CASTDO
+:JumpB:
+## Basic backward jump state, when no direction is held. Can be disabled with MOVE_Jump_CanJumpBackward.
+##
+## Force is given by MOVE_Jump_JumpB_InitialMomentumX and MOVE_Jump_JumpB_InitialMomentumY.
+_Category(Movement/Basic/Air)
+
+Call(AirborneNeutralState)
+Call(AnimJumpB)
+
+F1:
+	AddMomentum(MOVE_Jump_JumpB_InitialMomentumX, MOVE_Jump_JumpB_InitialMomentumY)
+endif
+:JumpF:
+## Basic forward jump state, when no direction is held. Can be disabled with MOVE_Jump_CanJumpForward.
+##
+## Force is given by MOVE_Jump_JumpF_InitialMomentumX and MOVE_Jump_JumpF_InitialMomentumY.
+_Category(Movement/Basic/Air)
+
+Call(AirborneNeutralState)
+Call(AnimJumpF)
+
+F1:
+	AddMomentum(MOVE_Jump_JumpF_InitialMomentumX, MOVE_Jump_JumpF_InitialMomentumY)
+endif
+:JumpN:
+## Basic neutral jump state, when no direction is held.
+##
+## Force is given by MOVE_Jump_JumpN_InitialMomentumX and MOVE_Jump_JumpN_InitialMomentumY.
+_Category(Movement/Basic/Air)
+
+Call(AirborneNeutralState)
+Call(AnimJumpN)
+
+F1:
+	AddMomentum(MOVE_Jump_JumpN_InitialMomentumX, MOVE_Jump_JumpN_InitialMomentumY)
+endif
+:Jumpsquat:
+## State for preparing to jump. It has the particularity of counting as airborne, in order to avoid throws. Behavior can be customized through constants.
+##
+## Length of jumpsquat is determined by the VMOVE_Jump_JumpsquatTime variable.
+## You can disable forward and backward jumps through MOVE_Jump_CanJumpForward and MOVE_Jump_CanJumpBackwards
+
+_Category(Movement/Basic/Transitional)
+
+Call(CrouchingState)
+Call(AnimJumpsquat)
+Unflag(Grounded)
+Flag(Airborne)
+FlagNext(Airborne)
+
+Call(ApplyPhysics-Regular)
+
+VMOVE_Jump_JumpsquatTime<1:
+	Flag(_Jumpsquat_StartJump)
+endif
+
+FMOVE_Jump_JumpsquatTime:
+	Flag(_Jumpsquat_StartJump)
+endif
+
+VMOVE_Jump_CanJumpForward:
+	IForward:
+		Flag(_Jumpsquat_Forward)
+		Unflag(_Jumpsquat_Back)
+	endif
+endif
+
+VMOVE_Jump_CanJumpBackward:
+	IBack:
+		Flag(_Jumpsquat_Back)
+		Unflag(_Jumpsquat_Forward)
+	endif
+endif
+
+L_Jumpsquat_Forward:
+	FlagNext(_Jumpsquat_Forward)
+else
+	L_Jumpsquat_Back:
+		FlagNext(_Jumpsquat_Back)
+	endif
+endif
+
+L_Jumpsquat_StartJump:
+	L_Jumpsquat_Forward:
+		Transition(JumpF)
+	else
+		L_Jumpsquat_Back:
+			Transition(JumpB)
+		else
+			Transition(JumpN)
+		endif
+	endif
+endif
+:Knockdown:
+## Knockdown state, when using the AttackKnockdown function
+_Category(States/Reacts/Knockdowns)
+
+Call(Common)
+Flag(NoHurtbox)
+
+Call(AnimKnockdown)
+
+F_KnockdownTimeMin+:
+	ITech:
+		Flag(StartTech)
+	endif
+endif
+
+F_KnockdownTimeMax+:
+	Flag(StartTech)
+endif
+
+LStartTech:
+	Call(StartKnockdownTech)
+endif
+:KnockdownTech-Backward:
+## Grounded backward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Knockdown_Backward_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Knockdown_Backward_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Knockdown_Backward_MomentumY)
+
+VATTACK_Tech_Knockdown_Backward_RecoverCrouching:
+	Flag(Crouching)
+endif
+
+Call(AnimKnockdownTechBackward)
+Call(TechCommon)
+:KnockdownTech-Forward:
+## Knockdown forward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Knockdown_Forward_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Knockdown_Forward_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Knockdown_Forward_MomentumY)
+
+VATTACK_Tech_Knockdown_Forward_RecoverCrouching:
+	Flag(Crouching)
+endif
+
+Call(AnimKnockdownTechForward)
+Call(TechCommon)
+:KnockdownTech-Neutral:
+## Knockdown neutral tech state. Can be altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Knockdown_Neutral_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Knockdown_Neutral_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Knockdown_Neutral_MomentumY)
+
+VATTACK_Tech_Knockdown_Neutral_RecoverCrouching:
+	Flag(Crouching)
+endif
+
+Call(AnimKnockdownTechNeutral)
+Call(TechCommon)
+:KnockdownTech-Up:
+## Knockdown upwards tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
+_Category(States/Reacts/Techs)
+
+Set(ATTACK_Tech_Time, ATTACK_Tech_Knockdown_Up_Time)
+Set(ATTACK_Tech_MomentumX, ATTACK_Tech_Knockdown_Up_MomentumX)
+Set(ATTACK_Tech_MomentumY, ATTACK_Tech_Knockdown_Up_MomentumY)
+
+VATTACK_Tech_Knockdown_Up_RecoverCrouching:
+	Flag(Crouching)
+endif
+
+Call(AnimKnockdownTechUp)
+Call(TechCommon)
+:Landing:
+## Landing state, which happens when an airborne state is cancelled by touching the ground. Its duration is variable depending on the previous state.
+##
+## This behavior can be altered by setting the LandingTime variable, although in most cases this will be done for you by neutral states (MOVE_Landing_TimeEmpty) and attack states (MOVE_Landing_TimeAttack), through constants.
+## Minimal duration is one frame.
+
+_Category(Movement/Basic/Transitional)
+
+def SSTATE_CanBlock bool() = 1
+
+Call(CrouchingState)
+Unflag(Airborne)
+
+Call(AnimLanding)
+Call(ApplyPhysics-Regular)
+
+VLandingTime<1:
+	Flag(_FinishedLanding)
+endif
+
+FLandingTime+:
+	Flag(_FinishedLanding)
+endif
+
+L_FinishedLanding:
+	VMOVE_Landing_RecoverCrouching:
+		Transition(Crouching)
+	else
+		Transition(Stand)
+	endif
+endif
+:NeutralStateCommon:
+CallParent(NeutralStateCommon)
+
+Call(NeutralStateCommon-Physics)
+:NeutralStateCommon-Physics:
+## Helper function called from NeutralStateCommon. Handles resetting physics to standard.
+
+_Category(States/Neutral)
+_Helper()
+
+LPFGrounded:
+	Call(ApplyPhysics-Regular)
+endif
+:OnBlock:
+CallParent(OnBlock)
+
+SetMomentum(_AttackMomentumX, _AttackMomentumY)
+Call(ApplyPhysics-Blockstun)
+:OnHit:
+CallParent(OnHit)
+
+SetMomentum(_AttackMomentumX, _AttackMomentumY)
+Call(ApplyPhysics-Hitstun)
+
+LAFFloat:
+	Set(CurrentGravity, _HitstunGravityFloat)
+endif
+
+
+
+
+FaceTowardsTarget()
+:OnLanding:
+## Callback function that happens whenever the characters lands on the ground.
+_Category(Internals/Physics)
+_Helper()
+
+Call(Custom-OnLanding)
+:PhysicsAfter-CollidersManagement:
+## Physics helper to add colliders (hurtbox and colbox) automatically, so you don't get weird behavior or invincible moves by accident. Can be configured through constants.
+##
+## These can be disabled for one frame with the NoHurtbox and NoColbox flags, or in general with the PHYSICS_StandardHurtbox_Use and PHYSICS_StandardColbox_Use variables.
+## The shape of the colliders is given in StandardHurtbox and StandardColbox states.
+
+_Category(Internals/Physics)
+_Helper()
+
+VPHYSICS_StandardHurtbox_Use:
+	LNoHurtbox:
+	else
+		LNoHurtboxSet:
+			Call(StandardHurtbox)
+		endif
+	endif
+endif
+
+VPHYSICS_StandardColbox_Use:
+	LNoColbox:
+	else
+		LNoColboxSet:
+			Call(StandardColbox)
+		endif
+	endif
+endif
+:PhysicsAfter-FacingManagement:
+## Physics helper that helps you face the opponent when applicable.
+##
+## This is applied when the FaceTarget flag is active, which is going to be most cases if PHYSICS_FaceTargetAutomatically is set. By default, attacks won't have this flag.
+## Model facing will copy the physics facing is the LockModelFacing flag isn't set.
+_Category(Internals/Physics)
+_Helper()
+
+# This flag is set in StandardState
+LFaceTarget:
+	FaceTowardsTarget()
+endif
+
+LLockModelFacing:
+else
+	CopyFacingToOtherFacing(FACING_ATTACK)
+	CopyFacingToOtherFacing(FACING_BLOCK)
+	CopyFacingToOtherFacing(FACING_MODEL)
+endif
+:PhysicsAfter-FrictionManagement:
+## Physics helper that applies friction. Can be disabled with the IgnoreFriction flag.
+_Category(Internals/Physics)
+_Helper()
+
+LHaltMomentum:
+else
+	LIgnoreFriction:
+	else
+		LPFGrounded:
+			BreakMomentumX(CurrentFrictionGround)
+		else
+			BreakMomentumX(CurrentFrictionAir)
+		endif
+	endif
+endif
+:PhysicsAfter-GravityManagement:
+## Physics helper that applies gravity. Can be disabled with the IgnoreGravity flag.
+
+_Category(Internals/Physics)
+_Helper()
+
+LHaltMomentum:
+else
+	LIgnoreGravity:
+	else
+		AddMomentum(0, CurrentGravity)
+	endif
+endif
+:Run:
+_Category(Movement/Dashes/Run)
+## CASTDO
+:RunStart:
+_Category(Movement/Dashes/Run)
+## CASTDO
+:RunStop:
+_Category(Movement/Dashes/Run)
+## CASTDO
+:RunTurnaround:
+_Category(Movement/Dashes/Run)
+## CASTDO
+:Stand:
+## The standing idle state, and default state of the character. This is a neutral state, and behavior can be finetuned from the Variables blocks.
+_Category(Movement/Basic/Standing)
+_StateFlag(Grounded)
+
+Call(StandingNeutralState)
+Call(AnimStand)
+
+Call(Grounded_StartJumpHelper)
+
+IDown:
+	Call(Stand_ToCrouchHelper)
+else
+	IForward:
+		Transition(WalkF)
+	else
+	IBack:
+		Call(Stand_TurnaroundHelper)
+	endif
+	endif
+endif
+:StandToCrouch:
+## Transition time between the standing and crouching animation. You can disable it or restrict cancelling.
+##
+## Duration is given by MOVE_StandToCrouch_Time. If zero, this state will be skipped automatically.
+## If MOVE_CanCancelStandToCrouch is active (default), you can cancel this state into crawling.
+_Category(Movement/Basic/Transitional)
+
+Call(CrouchingNeutralState)
+Call(AnimStandToCrouch)
+
+FMOVE_StandToCrouch_Time+:
+	Transition(Crouching)
+endif
+
+VMOVE_CanCancelStandToCrouch:
+	IForward:
+		Call(Crouching_CrawlFHelper)
+	else
+		IBack:
+			Call(Crouching_TurnaroundHelper)
+		endif
+	endif
+endif
+:Stand_ToCrouchHelper:
+## Movement helper that handles going from standing to crouching
+
+_Helper()
+_Category(Movement/Basic/Helpers)
+
+VMOVE_StandToCrouch_Time>0:
+	Transition(StandToCrouch)
+else
+	Transition(Crouching)
+endif
+:Stand_TurnaroundHelper:
+## Movement helper that will choose between turning around (immediately or through the state) or walking back.
+
+_Helper()
+_Category(Movement/Basic/Helpers)
+
+LFaceTarget:
+	Transition(WalkB)
+else
+	VMOVE_TurnaroundStand_Time>0:
+		Transition(Turnaround)
+	else
+		FlipFacing()
+		Transition(WalkF)
+	endif
+endif
+:StandardColbox:
+## Helper function to add a colbox when no colbox has been added. Can be disabled.
+##
+## Control a basic colbox with PHYSICS_StandardColbox_Width, PHYSICS_StandardColbox_Bottom, and PHYSICS_StandardColbox_Top
+## Disable for one frame with the NoColbox flag, or disable entierly with PHYSICS_StandardColbox_Use
+_Category(Custom/Physics)
+_Helper()
+_Overridable(If you want to put your own colbox code here.)
+
+Colbox(PHYSICS_StandardColbox_Width, PHYSICS_StandardColbox_Bottom, PHYSICS_StandardColbox_Top)
+:StandardHurtbox:
+## Helper function to add a hurtbox when no hurtbox has been added. Can be disabled in general, or for one frame with the NoHurtbox flag (useful for reversals).
+##
+## Control a basic colbox with PHYSICS_StandardHurtbox_Width, PHYSICS_StandardHurtbox_Bottom, and PHYSICS_StandardHurtbox_Top
+## Disable for one frame with the NoHurtbox flag, or disable entierly with PHYSICS_StandardHurtbox_Use
+_Category(Custom/Physics)
+_Helper()
+_Overridable(If you want to put your own hurtbox code here.)
+
+LCrouching:
+	Hurtbox(PHYSICS_StandardHurtbox_Crouching_Width, PHYSICS_StandardHurtbox_Crouching_Bottom, PHYSICS_StandardHurtbox_Crouching_Top)
+else
+	Hurtbox(PHYSICS_StandardHurtbox_Width, PHYSICS_StandardHurtbox_Bottom, PHYSICS_StandardHurtbox_Top)
+endif
+:StandardState:
+CallParent(StandardState)
+
+
+#--- Flags
+
+def SSTATE_CrouchingState bool() = 0
+def SSTATE_CancelOnLanding bool() = 0
+def SSTATE_CanBlock bool() = 0
+
+VSSTATE_CanBlock:
+	Flag(CanBlock)
+endif
+
+VSSTATE_CrouchingState:
+	Flag(Crouching)
+endif
+
+LPFGrounded:
+	VPHYSICS_FaceTargetAutomatically:
+		Flag(FaceTarget)
+	endif
+else
+	VPHYSICS_FaceTargetAutomaticallyInAir:
+		Flag(FaceTarget)
+	endif
+endif
+
+VSSTATE_CancelOnLanding:
+	Flag(CancelOnLanding)
+endif
+
+
+LPFAirborne:
+	Flag(Airborne)
+else
+	Flag(Grounded)
+endif
+
+
+#--- Behaviors
+
+LPFLanding:
+	LCancelOnLanding:
+		Transition(Landing, PHYSICS_Landing_Priority)
+	endif
+endif
+:StandingNeutralState:
+## Helper on top of NeutralState, used for neutral states where you are standing.
+
+Call(NeutralState)
+_StateFlag(Grounded)
+_BaseState()
+:StandingState:
+## Helper on top of StandardState, used for states where you are standing.
+
+_StateFlag(Grounded)
+Call(StandardState)
+_BaseState()
+:StartAirTech:
+## Physics helper to start an air tech
+_Category(Internals/Physics)
+_Helper()
+
+IDown:
+	VATTACKS_Tech_Airborne_CanTechDown:
+		Transition(AirTech-Down, ATTACKS_Tech_Priority)
+	else
+		Transition(AirTech-Neutral, ATTACKS_Tech_Priority)
+	endif
+else
+	IUp:
+		VATTACKS_Tech_Airborne_CanTechUp:
+			Transition(AirTech-Up, ATTACKS_Tech_Priority)
+		else
+			Transition(AirTech-Neutral, ATTACKS_Tech_Priority)
+		endif
+	else
+		IForward:
+			VATTACKS_Tech_Airborne_CanTechForward:
+				Transition(AirTech-Forward, ATTACKS_Tech_Priority)
+			else
+				Transition(AirTech-Neutral, ATTACKS_Tech_Priority)
+			endif
+		else
+			IBack:
+				VATTACKS_Tech_Airborne_CanTechBackward:
+					Transition(AirTech-Backward, ATTACKS_Tech_Priority)
+				else
+					Transition(AirTech-Neutral, ATTACKS_Tech_Priority)
+				endif
+			else
+					Transition(AirTech-Neutral, ATTACKS_Tech_Priority)
+			endif
+		endif
+	endif
+endif
+:StartGroundTech:
+## Physics helper to start a ground tech
+_Category(Internals/Physics)
+_Helper()
+
+IUp:
+	VATTACKS_Tech_Grounded_CanTechUp:
+		Transition(GroundTech-Up, ATTACKS_Tech_Priority)
+	else
+		Transition(GroundTech-Neutral, ATTACKS_Tech_Priority)
+	endif
+else
+	IForward:
+		VATTACKS_Tech_Grounded_CanTechForward:
+			Transition(GroundTech-Forward, ATTACKS_Tech_Priority)
+		else
+			Transition(GroundTech-Neutral, ATTACKS_Tech_Priority)
+		endif
+	else
+		IBack:
+			VATTACKS_Tech_Grounded_CanTechBackward:
+				Transition(GroundTech-Backward, ATTACKS_Tech_Priority)
+			else
+				Transition(GroundTech-Neutral, ATTACKS_Tech_Priority)
+			endif
+		else
+				Transition(GroundTech-Neutral, ATTACKS_Tech_Priority)
+		endif
+	endif
+endif
+:StartKnockdownTech:
+## Physics helper to start a Knockdown tech (wakeup)
+_Category(Internals/Physics)
+_Helper()
+
+IUp:
+	VATTACKS_Tech_Knockdown_CanTechUp:
+		Transition(KnockdownTech-Up, ATTACKS_Tech_Priority)
+	else
+		Transition(KnockdownTech-Neutral, ATTACKS_Tech_Priority)
+	endif
+else
+	IForward:
+		VATTACKS_Tech_Knockdown_CanTechForward:
+			Transition(KnockdownTech-Forward, ATTACKS_Tech_Priority)
+		else
+			Transition(KnockdownTech-Neutral, ATTACKS_Tech_Priority)
+		endif
+	else
+		IBack:
+			VATTACKS_Tech_Knockdown_CanTechBackward:
+				Transition(KnockdownTech-Backward, ATTACKS_Tech_Priority)
+			else
+				Transition(KnockdownTech-Neutral, ATTACKS_Tech_Priority)
+			endif
+		else
+				Transition(KnockdownTech-Neutral, ATTACKS_Tech_Priority)
+		endif
+	endif
+endif
+:StepDash:
+_Category(Movement/Dashes/Steps)
+## CASTDO
+:TechCommon:
+## Base tech state, which others set up. This state is invincible during its action.
+
+_Category(States/Reacts/Techs)
+_BaseState()
+
+Call(Common)
+Unflag(FaceTarget)
+Flag(NoHurtbox)
+#Flag(IgnoreGravity)
+Call(ApplyPhysics-Tech)
+
+
+F1:
+	SetMomentum(ATTACK_Tech_MomentumX, ATTACK_Tech_MomentumY)
+endif
+
+FATTACK_Tech_Time+:
+	Call(ApplyPhysics-Regular)
+	Call(TransitionToNeutralState)
+endif
+:TransitionToNeutralState:
+## Helper that will go back to a neutral state depending on the current status
+_Category(Internals/Physics)
+_Helper()
+
+LPFAirborne:
+	Transition(Airborne)
+else
+	LCrouching:
+		Transition(Crouching)
+	else
+		Transition(Stand)
+	endif
+endif
+:Turnaround:
+## Turnaround state, which allows the character to change its facing. Mostly used when not targetting an opponent.
+##
+## Duration is given by MOVE_TurnaroundStand_Time, if 0 or less this state is skipped
+_Category(Movement/Basic/Standing)
+
+Call(StandingNeutralState)
+Call(AnimTurnaround)
+
+F1:
+	FlipFacing()
+endif
+
+Call(Grounded_StartJumpHelper)
+
+FMOVE_TurnaroundStand_Time+:
+	IForward:
+		Transition(WalkF)
+	else
+		Transition(Stand)
+	endif
+endif
+
+IDown:
+	Call(Stand_ToCrouchHelper)
+endif
+:TurnaroundAirborne:
+## CASTDO
+## Not integrated
+_Category(Movement/Basic/Air)
+
+Call(AirborneNeutralState)
+Call(AnimTurnaroundAirborne)
+:TurnaroundCrouch:
+## Turnaround state when crouching, which allows the character to change its facing. Mostly used when not targetting an opponent.
+##
+## Duration is given by MOVE_TurnaroundCrouch_Time, if 0 or less this state is skipped
+_Category(Movement/Basic/Crouching)
+
+Call(CrouchingNeutralState)
+Call(AnimTurnaroundCrouch)
+
+F1:
+	FlipFacing()
+endif
+
+Call(Grounded_StartJumpHelper)
+
+FMOVE_TurnaroundCrouch_Time+:
+	IForward:
+		Call(Crouching_CrawlFHelper)
+	endif
+	Transition(Crouching)
+endif
+
+IDown:
+else
+	Call(Crouch_ToStandHelper)
+endif
+:WalkB:
+## Walking backwards state, used when targetting an opponent. Speed is given by MOVE_Walk_SpeedB
+_Category(Movement/Basic/Standing)
+_StateFlag(Grounded)
+
+Call(StandingNeutralState)
+Call(AnimWalkB)
+
+Move(MOVE_Walk_SpeedB)
+
+Call(Grounded_StartJumpHelper)
+
+IDown:
+	Call(Stand_ToCrouchHelper)
+else
+	IForward:
+		Transition(WalkF)
+	else
+		INeutralH:
+			Transition(Stand)
+		else
+			Call(Stand_TurnaroundHelper)
+		endif
+	endif
+endif
+:WalkF:
+## Walking forwards state. Speed is given by MOVE_Walk_SpeedF
+_Category(Movement/Basic/Standing)
+_StateFlag(Grounded)
+
+Call(StandingNeutralState)
+Call(AnimWalkF)
+
+Move(MOVE_Walk_SpeedF)
+
+Call(Grounded_StartJumpHelper)
+
+IDown:
+	Call(Stand_ToCrouchHelper)
+else
+	IBack:
+		Call(Stand_TurnaroundHelper)
+	else
+		INeutralH:
+			Transition(Stand)
+		endif
+	endif
+endif

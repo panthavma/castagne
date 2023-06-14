@@ -48,7 +48,7 @@ func _on_TemplateList_item_activated(index):
 	CreateState()
 func CreateState():
 	var sname = $StateName.get_text().strip_edges()
-	if(sname.empty()):
+	if(!IsTextValid()):
 		return
 	
 	var stemplateCode = templates[templates.keys()[$TemplateList.get_selected_items()[0]]]
@@ -57,7 +57,7 @@ func CreateState():
 	var character = editor.character
 	
 	if(character[editor.curFile]["States"].has(sname)):
-		print("CECPopupNewState: Name collision")
+		print("CECPopupNewState: Name collision") # never reached i think
 	else:
 		character[editor.curFile]["Modified"] = true
 		character[editor.curFile]["States"][sname] = {}
@@ -71,9 +71,21 @@ func CreateState():
 
 func _on_StateName_text_changed(new_text):
 	var t = $StateName.get_text().strip_edges()
-	$Buttons/Create.set_disabled(t.empty())
+	$Buttons/Create.set_disabled(!IsTextValid())
 	
-
+func IsTextValid():
+	var sname = $StateName.get_text().strip_edges()
+	if(sname.empty()):
+		return false
+	
+	var editor = $"../../.."
+	var character = editor.character
+	
+	for i in range(editor.curFile, -1, -1):
+		if(character[i]["States"].has(sname)):
+			return false
+	
+	return true
 
 
 

@@ -2,8 +2,7 @@
 title: Getting Started
 order: 100
 
-template: docpage.hbt
-pathtoroot: ../../
+todo: 54
 ---
 
 This is the first guide you should read when beginning to use Castagne. Thanks for trying it out!

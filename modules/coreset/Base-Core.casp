@@ -1,0 +1,77 @@
+:Character:
+## Base-Core: This file holds the most basic of functionnality, and has some default implementations for parts that modules can expect.
+:Variables-Internals-Core:
+## Internal variables used for the Core module.
+
+def CORE_InitialState str() = Stand
+:Variables-Internals-Common-TransitionPriorities:
+## Holds all transition priority constants for ease of use.
+:Common:
+## The BaseState all states are supposed to call to. Serves as an important point to handle behavior at all times.
+## While it is possible to not use it, it is not recommended to do so.
+
+_Category(Internals)
+_BaseState()
+
+ExecuteAfter(CommonAfter)
+:CommonAfter:
+## This state is called after every script that links back to :Common:. It's purpose it to hold some helpers, like putting default hurtboxes on characters.
+
+_Helper()
+_Category(Internals)
+:Custom-NeutralStateCommon:
+## Custom override point for the NeutralStateCommon helper, which is called in all neutral states.
+## This happens at the beginning of the function.
+_Helper()
+_Category(Custom/Core)
+_Overridable(If you want to add behavior common to all neutral states)
+:Custom-OnReturnToNeutral:
+## Custom override point for the OnReturnToNeutralHelper, which is called when going from a non-neutral to a neutral state.
+## This behavior happens at the beginning.
+_Category(Custom/Core)
+_Helper()
+_Overridable(If you want to add custom behavior when returning to a neutral state)
+:Init-Main:
+## Initialization script for this file's main entity.
+
+_Category(Internals)
+
+Transition(CORE_InitialState)
+:NeutralState:
+## Base state for neutral states, meaning those where the character is considered free to act, like in the Stand state.
+## Being neutral allows for instance to refresh attack cancels, and so should be carefully given.
+## Castagne by default will consider the basic movement states to be neutral, but not the dashes.
+
+_Category(States/Neutral)
+Call(StandardState)
+Call(NeutralStateCommon)
+_BaseState()
+:NeutralStateCommon:
+## Common behavior for all neutral states. Will handle detection of returning to neutral, etc.
+
+_Category(States/Neutral)
+_StateFlag(Neutral)
+_Helper()
+
+Flag(NeutralState)
+FlagNext(NeutralStateLastFrame)
+LNeutralStateLastFrame:
+else
+	Call(OnReturnToNeutral)
+endif
+
+Call(Custom-NeutralStateCommon)
+:OnReturnToNeutral:
+## Callback function invoked when going from a non-neutral state to a neutral state. Used to reset possible attack cancels, among others.
+
+_Category(States/Neutral)
+_Helper()
+
+Call(Custom-OnReturnToNeutral)
+:StandardState:
+## Basic base state that almost all controllable states should point to. It uses some constants to alter behavior.
+
+_Category(States)
+_BaseState()
+
+Call(Common)

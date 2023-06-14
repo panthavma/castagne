@@ -1,0 +1,20 @@
+[gd_scene format=2]
+
+[node name="CECCodeWarning" type="PanelContainer"]
+self_modulate = Color( 0.929412, 0.8, 0.352941, 1 )
+margin_top = 296.0
+margin_right = 472.0
+margin_bottom = 324.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Text" type="Label" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 465.0
+margin_bottom = 21.0
+text = "Warning Text"
+__meta__ = {
+"_edit_use_anchors_": false
+}

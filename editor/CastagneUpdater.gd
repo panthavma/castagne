@@ -5,16 +5,17 @@ enum UPDATE_STATUS {
 }
 var updateStatus = UPDATE_STATUS.NotStarted
 onready var httpRequest = $HTTPRequest
-onready var editorMenuButton = $"../Items/Updater"
+onready var editorMenuButton = $"../Menu/Updater"
+#onready var editorMenuButton = $"../Core/Menu/Castagne/Updater"
 var currentBranch = "Main"
 var originalBranch = "Main"
 
 var nextVersionData = null
 
 func _ready():
-	originalBranch = Castagne.configData["Updater-Branch"]
+	originalBranch = Castagne.baseConfigData.Get("Updater-Branch")
 	currentBranch = originalBranch
-	if(Castagne.configData["Updater-CheckOnStartup"]):
+	if(Castagne.baseConfigData.Get("Updater-CheckOnStartup")):
 		CheckForUpdates()
 	UpdateDisplay()
 
@@ -30,7 +31,7 @@ func CheckForUpdates(forceRetry = false):
 	httpRequest.cancel_request()
 	
 	updateStatus = UPDATE_STATUS.Checking
-	var error = httpRequest.request(Castagne.configData["Updater-Source"] + "Castagne-"+currentBranch+"-Data.json")
+	var error = httpRequest.request(Castagne.baseConfigData.Get("Updater-Source") + "Castagne-"+currentBranch+"-Data.json")
 	if error != OK:
 		print("[Updater] An error occurred in the HTTP request.")
 		updateStatus = UPDATE_STATUS.NetworkIssue
@@ -53,7 +54,7 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, body):
 	var updateData = parse_json(text)
 	Castagne.FuseDataOverwrite(nextVersionData, updateData)
 	
-	if(nextVersionData["version"] != null and (Castagne.configData["Updater-LastUpdate"] == null or nextVersionData["version"] > Castagne.configData["Updater-LastUpdate"])):
+	if(nextVersionData["version"] != null and (Castagne.baseConfigData.Get("Updater-LastUpdate") == null or nextVersionData["version"] > Castagne.baseConfigData.Get("Updater-LastUpdate"))):
 		updateStatus = UPDATE_STATUS.CanUpdate
 	else:
 		updateStatus = UPDATE_STATUS.NoNewUpdate
@@ -72,7 +73,7 @@ func UpdateDisplay():
 	var otherBranch = ("Dev" if currentBranch == "Main" else "Main")
 	$Data/Branch/UpdaterChangeBranch.set_text("Switch to ["+otherBranch+"] branch")
 	
-	var curVersion = Castagne.configData["Updater-LastUpdate"]
+	var curVersion = Castagne.baseConfigData.Get("Updater-LastUpdate")
 	if(curVersion == null):
 		curVersion = "[Never updated]"
 	$Data/Versions/Current.set_text("Current Version: " + curVersion)

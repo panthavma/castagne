@@ -1,9 +1,7 @@
 ---
 title: Making a game [COMING SOON]
 order: 600
-
-template: docpage.hbt
-pathtoroot: ../../
+todo: 56
 ---
 
 # Making a game
@@ -14,4 +12,6 @@ This guide covers the aspects you need to go from a simple project with various 
 
 <!--
 customizing-menus.md  from-characters-to-game.md  online-setup.md  system-mechanics.md
+
+
 -->

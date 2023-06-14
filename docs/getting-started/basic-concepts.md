@@ -1,9 +1,7 @@
 ---
 title: Basic Concepts
 order: 2000
-
-template: docpage.hbt
-pathtoroot: ../../../
+todo: 54
 ---
 
 # Basic Concepts
@@ -24,5 +22,7 @@ If you want to learn more about those subparts, you may want to read these parts
 - For the fighter scripts, the full information is available in the [Castagne Script Specification](../../casp-spec).
 - The editor also has its own category called [Castagne Editor](../../editor).
 - The internal engine design is discussed in the [Advanced User Guide](../../advanced).
+
+<!-- TODO Choosing modules -->
 
 <!-- TODO Simple schema of the parts -->

@@ -1,0 +1,1255 @@
+:Character:
+## Base-Attacks: This file hold helper functions for the attack module.
+
+
+## CASTDO: Sort states better with Physics
+:Variables-Internals-Common-TransitionPriorities:
+def ATTACK_Throw_ConfirmPriority int() = 100100
+def ATTACK_Throw_TechingPriority int() = 100000
+
+def ATTACK_Throw_GoToHoldingPriority int() = 200000
+def ATK_HITSTUN_PRIORITY int() = 50000
+
+def ATK_BLOCKSTUN_PRIORITY int() = 40000
+:Variables-Internals-Attacks:
+## Internal variables for the attack module
+
+internal _AttackDuration
+internal _AttackMomentumX
+internal _AttackMomentumY
+internal _AttackHasTouched
+internal _AttackHasHit
+internal _AttackWasBlocked
+internal _AttackHasWhiffed
+
+
+var Meter int() = 100
+var ATTACK_CancelFlags int() = 11
+
+var SimpleAttack_ActiveEnd int() = 12
+var SimpleAttack_Duration int() = 22
+
+
+var Throw_Teching int() = 0
+var Throw_Lockout int() = 0
+
+def ATTACK_Throw_Ground_HoldingState str() = ThrowHolding
+def ATTACK_Throw_Ground_HeldState str() = ThrowHeld
+def ATTACK_Throw_Air_HoldingState str() = AirThrowHolding
+def ATTACK_Throw_Air_HeldState str() = AirThrowHeld
+def ATTACK_Throw_Ground_TechingState str() = ThrowTeching
+def ATTACK_Throw_Ground_TechedState str() = ThrowTeched
+def ATTACK_Throw_Air_TechingState str() = AirThrowTeching
+def ATTACK_Throw_Air_TechedState str() = AirThrowTeched
+
+var HPMax int() = 10000
+internal HP
+:Variables-Attacks-Types:
+## Variable block to fine-tune attack types, through proration for instance
+
+
+#--- EX
+def ATTACK_EXCost int() = 25
+
+#--- Supers
+def ATTACK_SuperCost int() = 50
+:Variables-Attacks-Throws:
+## Attack parameters related to throws
+
+#--- Ground Throw
+def ATTACK_Throw_CanGroundThrow bool() = 1
+def ATTACK_Throw_Ground_ThrowFState str() = ThrowF
+def ATTACK_Throw_Ground_ThrowBState str() = ThrowB
+def ATTACK_Throw_Ground_HoldPointX int() = 10000
+def ATTACK_Throw_Ground_HoldPointY int() = 0
+def ATTACK_Throw_Ground_TimeHold int() = 30
+def ATTACK_Throw_Ground_ThrowBAutoFlip bool() = 1
+
+#--- Air Throw
+def ATTACK_Throw_CanAirThrow bool() = 1
+def ATTACK_Throw_Air_ThrowFState str() = AirThrowF
+def ATTACK_Throw_Air_ThrowBState str() = AirThrowB
+def ATTACK_Throw_Air_HoldPointX int() = 10000
+def ATTACK_Throw_Air_HoldPointY int() = 0
+def ATTACK_Throw_Air_TimeHold int() = 30
+def ATTACK_Throw_Air_ThrowBAutoFlip bool() = 1
+
+
+#--- Teching
+
+# Time a tech input is active
+def ATTACK_Throw_Tech_ActiveTime int() = 20
+
+# Time you can't do another tech input after an attempt. Independant from active window
+def ATTACK_Throw_Tech_LockoutTime int() = 60
+:Variables-Attacks-Cancels:
+## Specifies cancel rules for normals and specials
+
+#--- Light / AirLight
+def ATTACK_Light_CanCancelIntoLights bool() = 1
+def ATTACK_Light_CanCancelIntoMediums bool() = 1
+def ATTACK_Light_CanCancelIntoHeavies bool() = 1
+def ATTACK_Light_CanCancelIntoSpecials bool() = 1
+
+#--- Medium / AirMedium
+def ATTACK_Medium_CanCancelIntoLights bool() = 0
+def ATTACK_Medium_CanCancelIntoMediums bool() = 1
+def ATTACK_Medium_CanCancelIntoHeavies bool() = 1
+def ATTACK_Medium_CanCancelIntoSpecials bool() = 1
+
+#--- Heavy / AirHeavy
+def ATTACK_Heavy_CanCancelIntoLights bool() = 0
+def ATTACK_Heavy_CanCancelIntoMediums bool() = 0
+def ATTACK_Heavy_CanCancelIntoHeavies bool() = 1
+def ATTACK_Heavy_CanCancelIntoSpecials bool() = 1
+
+#--- Special / AirSpecial
+def ATTACK_Special_CanCancelIntoEX bool() = 1
+def ATTACK_Special_CanCancelIntoSuper bool() = 1
+
+#--- EX / AirEX
+def ATTACK_EX_CanCancelIntoEX bool() = 0
+def ATTACK_EX_CanCancelIntoSuper bool() = 1
+
+#--- Super / AirSuper
+
+#--- Throw / AirThrow
+:AirThrowB:
+## Air Throw Backward attack, by default the same as throw forward but flipped
+_Category(Attacks/AirThrowFollowup)
+_Overridable(If you want another attack instead)
+
+Call(AirThrowF)
+## CASTDO Warinings
+:AirThrowF:
+## Air Throw Forward attack, to be overriden
+_Overridable(Put your own attack here instead)
+
+AttackRegister(AirThrowFollowup)
+
+AttackDamage(0)
+AttackDuration(10)
+AttackMomentum(600, 600)
+AttackKnockdown()
+
+F1:
+	Hitbox(0, 20000, -10000, 20000)
+endif
+:AirThrowHeld:
+## State where got hit with an air throw, and have a chance to tech it
+_Category(States/Reacts/Throws)
+Call(Common)
+Call(ThrowHeld-Common)
+
+Call(AnimAirThrowHeld)
+
+LThrowConfirmed
+else
+	LThrowTeching:
+		Transition(ATTACK_Throw_Air_TechingState, ATTACK_Throw_TechingPriority)
+	endif
+endif
+:AirThrowHolding:
+## State where you hit an air throw, and are waiting to confirm it
+_Category(States/Reacts/Throws)
+Call(Common)
+
+SetTargetPosition(ATTACK_Throw_Air_HoldPointX, ATTACK_Throw_Air_HoldPointY)
+
+FATTACK_Throw_Air_TimeHold+:
+	Flag(ThrowConfirmed)
+endif
+
+Call(ThrowHolding-Common)
+
+LThrowConfirmed:
+	LThrowBack:
+		VATTACK_Throw_Air_ThrowBAutoFlip:
+			FlipFacing()
+		endif
+		
+		Transition(ATTACK_Throw_Air_ThrowBState, ATTACK_Throw_ConfirmPriority)
+	else
+		Transition(ATTACK_Throw_Air_ThrowFState, ATTACK_Throw_ConfirmPriority)
+	endif
+else
+	LThrowTeching:
+		Transition(ATTACK_Throw_Air_TechedState, ATTACK_Throw_TechingPriority)
+	endif
+endif
+
+
+Call(AnimAirThrowHolding)
+:AirThrowTeched:
+## State for when you hit with a airborne throw and it has been teched
+_Category(States/Reacts/Throws)
+Call(Common)
+
+FMOVE_Teched_Air_Time+:
+	Call(TransitionToNeutralState)
+endif
+
+F1:
+	SetMomentum(MOVE_Teched_Air_MomentumX, MOVE_Teched_Air_MomentumY)
+endif
+
+Call(AnimAirThrowTeched)
+:AirThrowTeching:
+## State for when you got hit by a airborne throw and teched it
+_Category(States/Reacts/Throws)
+Call(Common)
+
+FMOVE_Teching_Air_Time+:
+	Call(TransitionToNeutralState)
+endif
+
+F1:
+	SetMomentum(MOVE_Teching_Air_MomentumX, MOVE_Teching_Air_MomentumY)
+endif
+
+Call(AnimAirThrowTeched)
+:AnimBlockstun:
+## Helper script to select the correct blockstun animation
+_Category(Animations/Reacts/Blockstun)
+_Overridable(If you want custom logic to select your blockstun animation)
+_Helper()
+
+LPFAirborne:
+	Call(AnimBlockstunAirborne)
+else
+	LCrouching:
+		Call(AnimBlockstunCrouching)
+	else
+		Call(AnimBlockstunStanding)
+	endif
+endif
+:AnimBlockstunAirborne:
+## Animation for the airborne blockstun state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Blockstun)
+:AnimBlockstunCrouching:
+## Animation for the crouching blockstun state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Blockstun)
+:AnimBlockstunStanding:
+## Animation for the standing blockstun state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Blockstun)
+:AnimHitstun:
+## Helper state to select which hitstun animation to play
+_Category(Animations/Reacts/Hitstun)
+_Helper()
+_Overridable(If you want custom logic for how hitstun's animation works)
+LPFAirborne:
+	Call(AnimHitstunAirborne)
+else
+	LCrouching:
+		Call(AnimHitstunCrouching)
+	else
+		Call(AnimHitstunStanding)
+	endif
+endif
+:AnimHitstunAirborne:
+## Animation for the airborne hitstun state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Hitstun)
+:AnimHitstunCrouching:
+## Animation for the crouching hitstun state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Hitstun)
+:AnimHitstunStanding:
+## Animation for the standing hitstun state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Reacts/Hitstun)
+:AttackCancels-All:
+## Helper function to quickly add all attack cancels to a move. Will also add throws unless NoThrowCancels flag is active.
+_Helper()
+_Category(Attacks/Helpers/Cancels)
+
+Call(AttackCancels-Normals-All)
+Call(AttackCancels-Specials-All)
+
+LNoThrowCancels:
+else
+	Call(AttackCancels-Throws)
+endif
+:AttackCancels-Normals-All:
+## Helper function to quickly add all normal cancels to a move. Flags given by the ATTACK_CancelFlags variable
+_Helper()
+_Category(Attacks/Helpers/Cancels)
+
+Call(AttackCancels-Normals-Lights)
+Call(AttackCancels-Normals-Mediums)
+Call(AttackCancels-Normals-Heavies)
+:AttackCancels-Normals-Heavies:
+## Helper function to quickly add all heavy normal cancels to a move.
+_Helper()
+_Category(Attacks/Helpers/Cancels)
+_Overridable(If you want to manually add or remove attacks)
+
+AttackAddRegisteredCancels(Heavy, ATTACK_CancelFlags)
+AttackAddRegisteredCancels(AirHeavy, ATTACK_CancelFlags)
+:AttackCancels-Normals-Lights:
+## Helper function to quickly add all light normal cancels to a move.
+_Helper()
+_Category(Attacks/Helpers/Cancels)
+_Overridable(If you want to manually add or remove attacks)
+
+AttackAddRegisteredCancels(Light, ATTACK_CancelFlags)
+AttackAddRegisteredCancels(AirLight, ATTACK_CancelFlags)
+:AttackCancels-Normals-Mediums:
+## Helper function to quickly add all medium normal cancels to a move.
+_Helper()
+_Category(Attacks/Helpers/Cancels)
+_Overridable(If you want to manually add or remove attacks)
+
+AttackAddRegisteredCancels(Medium, ATTACK_CancelFlags)
+AttackAddRegisteredCancels(AirMedium, ATTACK_CancelFlags)
+:AttackCancels-Specials-All:
+## Helper function to quickly add all special cancels to a move. Flags given by the ATTACK_CancelFlags variable
+_Helper()
+_Category(Attacks/Helpers/Cancels)
+
+Call(AttackCancels-Specials-Specials)
+Call(AttackCancels-Specials-EX)
+Call(AttackCancels-Specials-Supers)
+:AttackCancels-Specials-EX:
+## Helper function to quickly add all EX special cancels to a move.
+_Helper()
+_Category(Attacks/Helpers/Cancels)
+_Overridable(If you want to manually add or remove attacks)
+
+VMeter>ATTACK_EXCost:
+	AttackAddRegisteredCancels(EX, ATTACK_CancelFlags)
+	AttackAddRegisteredCancels(AirEX, ATTACK_CancelFlags)
+endif
+:AttackCancels-Specials-Specials:
+## Helper function to quickly add all regular special cancels to a move.
+_Helper()
+_Category(Attacks/Helpers/Cancels)
+_Overridable(If you want to manually add or remove attacks)
+
+AttackAddRegisteredCancels(Special, ATTACK_CancelFlags)
+AttackAddRegisteredCancels(AirSpecial, ATTACK_CancelFlags)
+:AttackCancels-Specials-Supers:
+## Helper function to quickly add all super cancels to a move.
+_Helper()
+_Category(Attacks/Helpers/Cancels)
+_Overridable(If you want to manually add or remove attacks)
+
+VMeter>ATTACK_SuperCost:
+	AttackAddRegisteredCancels(Super, ATTACK_CancelFlags)
+	AttackAddRegisteredCancels(AirSuper, ATTACK_CancelFlags)
+endif
+:AttackCancels-Throws:
+## Helper function to quickly add all throw cancels to a move (or more likely, in neutral). Flags given by the ATTACK_CancelFlags variable
+_Helper()
+_Category(Attacks/Helpers/Cancels)
+_Overridable(If you want to manually add or remove attacks)
+
+AttackAddRegisteredCancels(Throw, ATTACK_CancelFlags)
+AttackAddRegisteredCancels(AirThrow, ATTACK_CancelFlags)
+:AttackPrefixSetup:
+## Internal helper that handles switching between airborne and grounded attacks.
+_Category(Internals/Attacks)
+_Helper()
+
+LAirborne:
+	AttackCancelPrefix(j)
+else
+	AttackCancelPrefix()
+endif
+:AttackState:
+## Base behavior for attacks. You wont usually call it directly, it is instead called by the AttackType- states through AttackRegister
+## AttackDuration needs to be called before frame 180 by default, since there is a failsafe there.
+
+_Category(Internals/Attacks)
+_BaseState()
+
+Flag(Attacking)
+
+Call(StandardState)
+F1:
+	Set(_AttackDuration, 180)
+	AttackRearm()
+endif
+Unflag(FaceTarget)
+
+
+F_AttackDuration+:
+	LCrouching:
+		Transition(Crouching)
+	else
+		Transition(Stand)
+	endif
+endif
+
+## CASTDO Find a way to remove the warning
+:AttackType-AirEX:
+## Base behavior for airborne EX special attacks, which cost meter to use. Used by calling AttackRegister(AirEX)
+
+def SSTATE_CancelOnLanding bool() = 1
+_Category(Internals/Attacks/Types/Specials)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-AirEX)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-EX)
+endif
+:AttackType-AirHeavy:
+## Base behavior for airborne heavy normal attacks, which are usually your slowest and strongest normals. Used by calling AttackRegister(AirHeavy)
+
+def SSTATE_CancelOnLanding bool() = 1
+_Category(Internals/Attacks/Types/Normals)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-AirHeavy)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Heavy)
+endif
+:AttackType-AirLight:
+## Base behavior for airborne light normal attacks, which are usually your fastest options. Used by calling AttackRegister(AirLight)
+
+def SSTATE_CancelOnLanding bool() = 1
+_Category(Internals/Attacks/Types/Normals)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-AirLight)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Light)
+endif
+:AttackType-AirMedium:
+## Base behavior for airborne medium normal attacks, which are usually middleground, reliable options. Used by calling AttackRegister(AirMedium)
+
+def SSTATE_CancelOnLanding bool() = 1
+_Category(Internals/Attacks/Types/Normals)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-AirMedium)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Medium)
+endif
+:AttackType-AirSpecial:
+## Base behavior for airborne special attacks, which are unique to your character. Used by calling AttackRegister(AirSpecial)
+
+def SSTATE_CancelOnLanding bool() = 1
+_Category(Internals/Attacks/Types/Specials)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-AirSpecial)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Special)
+endif
+:AttackType-AirSuper:
+## Base behavior for airborne super attacks, which are usually costly, strong attacks. Used by calling AttackRegister(AirSuper)
+
+def SSTATE_CancelOnLanding bool() = 1
+_Category(Internals/Attacks/Types/Specials)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-AirSuper)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Super)
+endif
+:AttackType-AirThrow:
+## Base behavior for air throws attacks, which can beat airborne blocking opponents. Used by calling AttackRegister(AirThrow)
+
+def SSTATE_CancelOnLanding bool() = 1
+_Category(Internals/Attacks/Types/Throws)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-AirThrow)
+_Helper()
+
+AttackDamage(0)
+AttackFlag(Throw)
+AttackFlag(AirThrow)
+AttackFlag(AirUnblockable)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Throw)
+endif
+
+IBack:
+	FlagNext(ThrowBack)
+endif
+
+V_AttackHasHit:
+	Transition(ATTACK_Throw_Air_HoldingState, ATTACK_Throw_GoToHoldingPriority)
+endif
+:AttackType-AirThrowFollowup:
+## Attack type for attacks that followup confirmed grounded throws.
+_Category(Internals/Attacks/Types/Throws)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-AirThrowFollowup)
+
+F1:
+	SetTargetPosition(ATTACK_Throw_Air_HoldPointX, ATTACK_Throw_Air_HoldPointY)
+endif
+:AttackType-EX:
+## Base behavior for EX special attacks, which are specials that cost meter. Used by calling AttackRegister(EX)
+
+_Category(Internals/Attacks/Types/Specials)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-EX)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-EX)
+endif
+:AttackType-Heavy:
+## Base behavior for heavy normal attacks, which are usually your strongest normals. Used by calling AttackRegister(Heavy)
+
+_Category(Internals/Attacks/Types/Normals)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-Heavy)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Heavy)
+endif
+:AttackType-Light:
+## Base behavior for light normal attacks, which are usually your fastest options. Used by calling AttackRegister(Light)
+
+_Category(Internals/Attacks/Types/Normals)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-Light)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Light)
+endif
+:AttackType-Medium:
+## Base behavior for medium normal attacks, which are usually your middleground, reliable attacks. Used by calling AttackRegister(Medium)
+
+_Category(Internals/Attacks/Types/Normals)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-Medium)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Medium)
+endif
+:AttackType-Special:
+## Base behavior for special attacks, which are unique to your character. Used by calling AttackRegister(Special)
+
+_Category(Internals/Attacks/Types/Specials)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-Special)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Special)
+endif
+:AttackType-Super:
+## Base behavior for super attacks, which are costly, strong attacks. Used by calling AttackRegister(Super)
+
+_Category(Internals/Attacks/Types/Specials)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-Super)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Super)
+endif
+:AttackType-Throw:
+## Base behavior for throw, which can beat grounded opponents. Used by calling AttackRegister(Throw)
+
+_Category(Internals/Attacks/Types/Throws)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-Throw)
+_Helper()
+
+AttackDamage(0)
+AttackFlag(Throw)
+AttackFlag(GroundUnblockable)
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Throw)
+endif
+
+IBack:
+	FlagNext(ThrowBack)
+endif
+
+V_AttackHasHit:
+	Transition(ATTACK_Throw_Ground_HoldingState, ATTACK_Throw_GoToHoldingPriority)
+endif
+:AttackType-ThrowFollowup:
+## Attack type for attacks that followup confirmed grounded throws.
+_Category(Internals/Attacks/Types/Throws)
+Call(AttackState)
+_BaseState()
+_StateFlag(AttackType-ThrowFollowup)
+
+F1:
+	SetTargetPosition(ATTACK_Throw_Ground_HoldPointX, ATTACK_Throw_Ground_HoldPointY)
+endif
+:AttackTypeHelper-CancelRules-Common:
+## Attack helper that computes the possible cancel situations. Activate the AttackWhiffCancel flag to automatically allow attacks to cancel on whiff.
+_Category(Internals/Attacks/Types/Cancels)
+_Helper()
+
+## CASTDO constants
+
+Set(ATTACK_CancelFlags, 11)
+# ATTACKCANCEL_ON_TOUCH_NEUTRAL
+
+LAttackWhiffCancel:
+	Add(ATTACK_CancelFlags, 4)
+	# ATTACKCANCEL_ON_WHIFF
+endif
+:AttackTypeHelper-CancelRules-EX:
+## Defines default cancels for EX / AirEX attacks. Activate the NoDefaultCancels flag to disable.
+_Category(Internals/Attacks/Types/Cancels)
+_Helper()
+_Overridable(If you want to change the default cancel rules for EX specials)
+
+VATTACK_EX_CanCancelIntoEX:
+	Call(AttackCancels-Specials-EX)
+endif
+
+VATTACK_EX_CanCancelIntoSuper:
+	Call(AttackCancels-Specials-Supers)
+endif
+:AttackTypeHelper-CancelRules-Heavy:
+## Defines default cancels for Heavy / AirHeavy attacks. Activate the NoDefaultCancels flag to disable.
+_Category(Internals/Attacks/Types/Cancels)
+_Helper()
+_Overridable(If you want to change the default cancel rules for heavy attacks)
+
+VATTACK_Heavy_CanCancelIntoLights:
+	Call(AttackCancels-Normals-Lights)
+endif
+
+VATTACK_Heavy_CanCancelIntoMediums:
+	Call(AttackCancels-Normals-Mediums)
+endif
+
+VATTACK_Heavy_CanCancelIntoHeavies:
+	Call(AttackCancels-Normals-Heavies)
+endif
+
+VATTACK_Heavy_CanCancelIntoSpecials:
+	Call(AttackCancels-Specials-All)
+endif
+:AttackTypeHelper-CancelRules-Light:
+## Defines default cancels for Light / AirLight attacks. Activate the NoDefaultCancels flag to disable.
+_Category(Internals/Attacks/Types/Cancels)
+_Helper()
+_Overridable(If you want to change the default cancel rules for light attacks)
+
+VATTACK_Light_CanCancelIntoLights:
+	Call(AttackCancels-Normals-Lights)
+endif
+
+VATTACK_Light_CanCancelIntoMediums:
+	Call(AttackCancels-Normals-Mediums)
+endif
+
+VATTACK_Light_CanCancelIntoHeavies:
+	Call(AttackCancels-Normals-Heavies)
+endif
+
+VATTACK_Light_CanCancelIntoSpecials:
+	Call(AttackCancels-Specials-All)
+endif
+:AttackTypeHelper-CancelRules-Medium:
+## Defines default cancels for Medium / AirMedium attacks. Activate the NoDefaultCancels flag to disable.
+_Category(Internals/Attacks/Types/Cancels)
+_Helper()
+_Overridable(If you want to change the default cancel rules for medium attacks)
+
+VATTACK_Medium_CanCancelIntoLights:
+	Call(AttackCancels-Normals-Lights)
+endif
+
+VATTACK_Medium_CanCancelIntoMediums:
+	Call(AttackCancels-Normals-Mediums)
+endif
+
+VATTACK_Medium_CanCancelIntoHeavies:
+	Call(AttackCancels-Normals-Heavies)
+endif
+
+VATTACK_Medium_CanCancelIntoSpecials:
+	Call(AttackCancels-Specials-All)
+endif
+:AttackTypeHelper-CancelRules-Special:
+## Defines default cancels for Special / AirSpecial attacks. Activate the NoDefaultCancels flag to disable.
+_Category(Internals/Attacks/Types/Cancels)
+_Helper()
+_Overridable(If you want to change the default cancel rules for specials)
+
+VATTACK_Special_CanCancelIntoEX:
+	Call(AttackCancels-Specials-EX)
+endif
+
+VATTACK_Special_CanCancelIntoSuper:
+	Call(AttackCancels-Specials-Supers)
+endif
+:AttackTypeHelper-CancelRules-Super:
+## Defines default cancels for Super / AirSuper attacks. Activate the NoDefaultCancels flag to disable.
+_Category(Internals/Attacks/Types/Cancels)
+_Helper()
+_Overridable(If you want to change the default cancel rules for supers)
+:AttackTypeHelper-CancelRules-Throw:
+## Defines default cancels for Throw / AirThrow attacks. Activate the NoDefaultCancels flag to disable.
+_Category(Internals/Attacks/Types/Cancels)
+_Helper()
+_Overridable(If you want to change the default cancel rules for throws)
+:Attacks-ThrowTechingManagement:
+## Handles teching windows
+_Category(Internals/Attacks/Throws)
+_Helper()
+
+VThrow_Lockout<=0:
+	IThrowPress:
+		Set(Throw_Teching, ATTACK_Throw_Tech_ActiveTime)
+		Set(Throw_Lockout, ATTACK_Throw_Tech_LockoutTime)
+	endif
+else
+	Sub(Throw_Lockout, 1)
+endif
+
+
+VThrow_Teching>0:
+	Sub(Throw_Teching, 1)
+endif
+:Blockstun:
+## Blockstun state behavior, which happens when you block an attack.
+_Category(States/Reacts/Blockstun)
+_BaseState()
+Call(Common)
+
+Flag(CanBlock)
+Flag(Blockstun)
+
+LCrouching:
+	FlagNext(Crouching)
+endif
+
+F_BlockstunDuration+:
+	Call(TransitionToNeutralState)
+endif
+
+Call(AnimBlockstun)
+:Common:
+CallParent(Common)
+
+Call(Attacks-ThrowTechingManagement)
+:Custom-OnAttackBlock:
+## Custom override point for the OnAttackBlock callback, which is called when your attack is blocked.
+## This happens at the beginning of the function.
+_Helper()
+_Category(Custom/Attacks)
+_Overridable(If you want to add behavior when your attack is blocked)
+:Custom-OnAttackHit:
+## Custom override point for the OnAttackHit callback, which is called when your attack hits the opponent.
+## This happens at the beginning of the function.
+_Helper()
+_Category(Custom/Attacks)
+_Overridable(If you want to add behavior when your attack hits)
+:Custom-OnBlock:
+## Custom override point for the OnBlock callback, which is called when you block an attack.
+## This happens at the beginning of the function.
+_Helper()
+_Category(Custom/Attacks)
+_Overridable(If you want to add behavior when you block an attack)
+:Custom-OnHit:
+## Custom override point for the OnHit callback, which is called when you are hit.
+## This happens at the beginning of the function.
+_Helper()
+_Category(Custom/Attacks)
+_Overridable(If you want to add behavior when you are hit by an attack)
+:EntityTemplate-Projectile-Action:
+## Basic projectile template with some default behavior
+
+def ProjectileDamage int() = 1000
+def ProjectileHitstun int() = 60
+def ProjectileBlockstun int() = 60
+
+def ProjectileSpeed int() = 1000
+
+def HitboxWidth int() = 2000
+def HitboxHeight int() = 2000
+
+Call(ProjectileCore)
+
+Move(ProjectileSpeed)
+
+Hitbox(HitboxWidth, HitboxHeight)
+:EntityTemplate-Projectile-Init:
+## Simple projectile base. It uses light graphics init, so use the custom editor to quickly adjust the parameters
+
+Call(Init-LightGraphicsInit)
+:Hitstun:
+## Hitstun state, for when you have been hit by an attack. 
+
+_Category(States/Reacts/Hitstun)
+Call(Common)
+
+Flag(Hitstun)
+
+LAFForceLanding:
+	LPFGrounded:
+		Flag(PFLanding)
+	endif
+endif
+
+LPFLanding:
+	Call(HitstunLanding)
+else
+	F_HitstunDuration+:
+		Call(HitstunEnd)
+	endif
+endif
+
+LCrouching:
+	FlagNext(Crouching)
+endif
+
+Call(AnimHitstun)
+
+F1:
+	Flag(FaceTarget)
+endif
+:HitstunEnd:
+## Ends hitstun and goes back to a neutral state
+
+_Category(States/Reacts/Hitstun)
+_Helper()
+
+LPFAirborne:
+	VATTACKS_Hitstun_CanRecoverInAir:
+		Call(StartAirTech)
+	endif
+else
+	Call(ApplyPhysics-Regular)
+	Call(TransitionToNeutralState)
+endif
+:HitstunLanding:
+## Called when landing in hitstun, which will initiate a soft tech
+_Category(States/Reacts/Hitstun)
+_Helper()
+
+LAFGroundbounce:
+	Transition(Groundbounce)
+else
+	LAFKnockdown:
+		Transition(Knockdown)
+	else
+		Call(StartGroundTech)
+	endif
+endif
+:NeutralStateCommon:
+CallParent(NeutralStateCommon)
+
+Flag(CanBlock)
+
+Call(AttackCancels-All)
+:OnAttackBlock:
+## Internal callback for when your attack is blocked.
+
+_Category(Internals/Attacks/Callbacks)
+_Helper()
+
+Call(Custom-OnAttackBlock)
+:OnAttackHit:
+## Internal callback for when you successfuly hit an opponent.
+
+_Category(Internals/Attacks/Callbacks)
+_Helper()
+:OnBlock:
+## Internal callback that happens when you block an attack.
+
+_Category(Internals/Attacks/Callbacks)
+_Helper()
+
+LGuarded:
+
+else
+	Call(Custom-OnBlock)
+
+	LAFLow:
+		Flag(Crouching)
+	endif
+	LAFOverhead:
+		Unflag(Crouching)
+	endif
+
+	LAFForceCrouching:
+		Flag(Crouching)
+	endif
+	LAFForceStanding:
+		Unflag(Crouching)
+	endif
+
+	LCrouching:
+		FlagNext(Crouching)
+	endif
+
+	Call(AnimBlockstun)
+
+	Transition(Blockstun, ATK_BLOCKSTUN_PRIORITY, 1)
+endif
+:OnHit:
+## Internal callback that happens when you get hit.
+_Category(Internals/Attacks/Callbacks)
+_Helper()
+
+LAFThrow:
+	Call(OnThrow)
+else
+	Call(Custom-OnHit)
+
+	LAFForceLanding:
+		FlagNext(PFLanding)
+	endif
+
+	LCrouching:
+		FlagNext(Crouching)
+	endif
+	
+	Call(AnimHitstun)
+	
+	Transition(Hitstun, ATK_HITSTUN_PRIORITY, 1)
+endif
+:OnReturnToNeutral:
+CallParent(OnReturnToNeutral)
+_Helper()
+
+AttackResetDoneCancels()
+:OnThrow:
+## Custom callback for throws, called by OnHit
+_Category(Internals/Attacks/Callbacks)
+_Helper()
+
+LAirThrow:
+	Transition(ATTACK_Throw_Air_HeldState, ATTACK_Throw_GoToHoldingPriority)
+else
+	Transition(ATTACK_Throw_Ground_HeldState, ATTACK_Throw_GoToHoldingPriority)
+endif
+:ProjectileCore:
+## Common behavior for projectile entities
+#_Category(Attacks/Helpers)
+_BaseState()
+## CASTDO Warnings and category
+## CASTDO Variables like maxtime
+
+def ProjectileDamage int() = 1000
+def ProjectileHitstun int() = 60
+def ProjectileBlockstun int() = 60
+
+def DestroyOnGroundHit bool() = 1
+def DestroyOnWallHit bool() = 1
+
+F1:
+	AttackDamage(ProjectileDamage)
+	AttackHitstun(ProjectileHitstun)
+	AttackBlockstun(ProjectileBlockstun)
+endif
+
+Colbox(500, 500)
+SetColboxPhantom()
+SetColboxLayer(0)
+
+F300+:
+	Flag(DestroyProjectile)
+endif
+
+V_AttackHasTouched:
+	Flag(DestroyProjectile)
+endif
+
+LPFGrounded:
+	VDestroyOnGroundHit:
+		Flag(DestroyProjectile)
+	endif
+endif
+LPFWall:
+	VDestroyOnWallHit:
+		Flag(DestroyProjectile)
+	endif
+endif
+
+LDestroyProjectile:
+	DestroyEntity()
+endif
+:SimpleAttack-Standard:
+## Helper for the simple attack system, which allows edition of attacks through custom editors easily.
+## CASTDO
+_Category(Internals/Attacks/SimpleAttack)
+_Helper()
+
+# Variables
+
+def Attack_Damage int() = 1000
+
+def Attack_Startup int() = 10
+def Attack_ActiveFrames int() = 1
+def Attack_Recovery int() = 10
+
+def Attack_Hitstun int() = 30
+def Attack_FrameAdvantageBlock int() = 0
+
+def Animation_Name str() = 5B
+
+def Hitbox_Back int() = 0
+def Hitbox_Front int() = 16000
+def Hitbox_Bottom int() = 5000
+def Hitbox_Top int() = 15000
+
+def Properties_Low bool() = 0
+def Properties_Overhead bool() = 0
+
+# Computations
+Add(Attack_Startup, Attack_ActiveFrames, SimpleAttack_ActiveEnd)
+Sub(SimpleAttack_ActiveEnd, 1)
+Add(SimpleAttack_ActiveEnd, Attack_Recovery, SimpleAttack_Duration)
+
+
+# Attack params
+AttackDamage(Attack_Damage)
+AttackDuration(SimpleAttack_Duration)
+
+VProperties_Low:
+	AttackFlag(Low)
+endif
+VProperties_Overhead:
+	AttackFlag(Overhead)
+endif
+
+Anim(Animation_Name)
+
+# Active frames and hitboxes
+FAttack_Startup-SimpleAttack_ActiveEnd:
+	Hitbox(Hitbox_Back, Hitbox_Front, Hitbox_Bottom, Hitbox_Top)
+endif
+:StandardState:
+CallParent(StandardState)
+
+Call(AttackPrefixSetup)
+
+## CASTDO Temporary
+Set(HP, HPMax)
+:StateTemplate-Attack-Normal:
+# Simple medium attack template
+AttackRegister(Medium)
+
+# Adjust parameters here
+AttackDamage(1000)
+AttackDuration(60)
+# AttackFlag(Low)
+
+# Put your animation here
+#Anim(5B)
+
+# Active frames and hitboxes
+F10-12:
+	Hitbox(0, 15000, 5000, 15000)
+endif
+:StateTemplate-Attack-Projectile:
+# Projectile-throwing move template. Needs a separate entity you'll have to create!
+
+## TODO: Create the entity required using [New Entity]! Remove this comment once done.
+
+def ProjectileName str() = Projectile
+def ProjectileStartX int() = 0
+def ProjectileStartY int() = 10000
+def ProjectileStartup int() = 20
+def AttackDuration int() = 60
+
+AttackRegister(Special)
+
+AttackDuration(AttackDuration)
+
+FProjectileStartup:
+	CreateEntity(ProjectileName)
+	SetTargetPosition(ProjectileStartX, ProjectileStartY)
+endif
+:StateTemplate-Attack-Simple:
+# Template for attacks you can customize through custom editors.
+# /!\ This is still limited! Some improvements need to be made to achieve it fully, so you need a bit of manual editing still at times.
+AttackRegister(Medium)
+
+Call(SimpleAttack-Standard)
+:ThrowB:
+## Grounded Throw Backward attack, by default the same as throw forward but flipped
+_Category(Attacks/ThrowFollowup)
+_Overridable(If you want another attack instead)
+
+Call(ThrowF)
+## CASTDO Warinings
+:ThrowF:
+## Grounded Throw Forward attack, to be overriden
+_Overridable(Put your own attack here instead)
+
+AttackRegister(ThrowFollowup)
+
+AttackDamage(0)
+AttackDuration(10)
+AttackMomentum(600, 600)
+AttackKnockdown()
+
+F1:
+	Hitbox(0, 20000, -10000, 20000)
+endif
+:ThrowHeld:
+## State where got hit with a throw, and have a chance to tech it
+_Category(States/Reacts/Throws)
+Call(Common)
+Call(ThrowHeld-Common)
+
+Call(AnimGroundThrowHeld)
+
+LThrowConfirmed
+else
+	LThrowTeching:
+		Transition(ATTACK_Throw_Ground_TechingState, ATTACK_Throw_TechingPriority)
+	endif
+endif
+:ThrowHeld-Common:
+## Common behavior for the throw held states.
+## 
+## This works in collaboration with ThrowHolding states.
+## ThrowHeld states handle teching, and will send the ThrowTeching flag to the other
+## If the throw is confirmed, we add an hurtbox
+_Category(States/Reacts/Throws)
+_Helper()
+
+Flag(NoHurtbox)
+Flag(NoColbox)
+Flag(HaltMomentum)
+
+PReaction:
+	LThrowConfirmed:
+		FlagNext(ThrowConfirmed)
+	endif
+endif
+
+Flag(FaceTarget)
+
+LThrowConfirmed:
+	Hurtbox(-500, 500, -500, 500)
+	Unflag(ThrowTeching)
+else
+	VThrow_Teching>0:
+		Flag(ThrowTeching)
+		FlagInTarget(ThrowTeching)
+	endif
+endif
+:ThrowHolding:
+## State where you hit with a throw, and are waiting for it to confirm
+_Category(States/Reacts/Throws)
+Call(Common)
+
+SetTargetPosition(ATTACK_Throw_Ground_HoldPointX, ATTACK_Throw_Ground_HoldPointY)
+
+FATTACK_Throw_Ground_TimeHold+:
+	Flag(ThrowConfirmed)
+endif
+
+Call(ThrowHolding-Common)
+
+LThrowConfirmed:
+	LThrowBack:
+		VATTACK_Throw_Ground_ThrowBAutoFlip:
+			FlipFacing()
+		endif
+		
+		Transition(ATTACK_Throw_Ground_ThrowBState, ATTACK_Throw_ConfirmPriority)
+	else
+		Transition(ATTACK_Throw_Ground_ThrowFState, ATTACK_Throw_ConfirmPriority)
+	endif
+else
+	LThrowTeching:
+		Transition(ATTACK_Throw_Ground_TechedState, ATTACK_Throw_TechingPriority)
+	endif
+endif
+
+Call(AnimGroundThrowHolding)
+:ThrowHolding-Common:
+## Helper to handle back/forward management and teching.
+## 
+## This works in collaboration with ThrowHeld states.
+## This state handles confirmation of throws, and back/forward management.
+## A fair amount of the behavior is in the holding states themselves to be able to handle variables correctly
+_Category(States/Reacts/Throws)
+_Helper()
+
+Flag(NoHurtbox)
+Flag(NoColbox)
+Flag(HaltMomentum)
+
+IBack:
+	Flag(ThrowBack)
+endif
+
+IForward:
+	Unflag(ThrowBack)
+endif
+
+LThrowBack:
+	FlagNext(ThrowBack)
+endif
+
+LThrowConfirmed:
+	FlagInTarget(ThrowConfirmed)
+endif
+:ThrowTeched:
+## State for when you hit with a grounded throw and it has been teched
+_Category(States/Reacts/Throws)
+Call(Common)
+
+FMOVE_Teched_Ground_Time+:
+	Call(TransitionToNeutralState)
+endif
+
+F1:
+	SetMomentum(MOVE_Teched_Ground_MomentumX, MOVE_Teched_Ground_MomentumY)
+endif
+
+Call(AnimGroundThrowTeched)
+:ThrowTeching:
+## State for when you got hit by a grounded throw and teched it
+_Category(States/Reacts/Throws)
+Call(Common)
+
+FMOVE_Teching_Ground_Time+:
+	Call(TransitionToNeutralState)
+endif
+
+F1:
+	SetMomentum(MOVE_Teching_Ground_MomentumX, MOVE_Teching_Ground_MomentumY)
+endif
+
+Call(AnimGroundThrowTeching)

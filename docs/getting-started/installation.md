@@ -1,16 +1,13 @@
 ---
 title: Installation / First Start
 order: 1000
-
-template: docpage.hbt
-pathtoroot: ../../../
 ---
 
 # Installation / First Start
 
 Download your OS version from [the Castagne website](http://castagneengine.com), unarchive it, and click on the godot executable. You're good to go!
 
-Alternatively, download the dev branch version to get more features but less stability, or if you already have Godot on your machine you can download the generic version.
+Alternatively, download the dev branch version to get more features but less stability.
 
 ## Complete the setup
 
@@ -20,6 +17,8 @@ In order to be able to add new assets, you need to open Castagne in the Godot ed
 - Select "project.godot" in the root folder
 
 From then on, you can now access the editor and add new assets! Press F5 to play, which will bring you to the editor.
+
+> Some progress is being made to make those steps easier as time goes on!
 
 ## Upgrading Castagne
 
@@ -47,3 +46,5 @@ If you want to start from a blank state, these are the steps you need to take:
 - (Optional) Add `.castagne-local` to your SCM's ignore list. (Done automatically by Castagne if you use git).
 
 This is what has been done for the Castagne generic release.
+
+> Castagne is meant for Godot 3.

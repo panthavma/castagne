@@ -1,23 +1,40 @@
 extends Control
 
+var editor
+var functions
 var characterPath = null
-var characterID = null
 onready var codeWindow = $CodePanel/Code
 var documentationPath = null
-func EnterMenu(cID):
+var _initDone = false
+var safeMode = false
+var _baseBID = null
+
+func EnterMenu(bid):
 	show()
+	_initDone = true
 	
-	characterID = cID
-	characterPath = Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"])[cID]
+	# TEMP TODO kinda jank but hey, make it correct a bit later with v0.9 or something
+	var entityData = bid["players"][1]["entities"][0].duplicate(true)
+	Castagne.FuseDataOverwrite(entityData, bid["players"][1]["entities"][1].duplicate(true))
+	characterPath = entityData["scriptpath"]
+	
+	_baseBID = bid
+	
+	if(typeof(characterPath) == TYPE_INT):
+		characterPath = Castagne.SplitStringToArray(editor.configData.Get("CharacterPaths"))[characterPath]
+	#characterID = cID
+	#characterPath = Castagne.SplitStringToArray(editor.configData.Get("CharacterPaths"))[cID]
 	$TopBar/HBoxContainer/Label.set_text("Editing " + characterPath)
 	
 	$TopBar/HBoxContainer/Save.set_disabled(true)
 	
 	BigToolPanelSetVisible(false)
-	for t in Castagne.SplitStringToArray(Castagne.configData["Editor-Tools"]):
+	for t in Castagne.SplitStringToArray(editor.configData.Get("Editor-Tools")):
 		LoadTool(t)
 	ShowTool(0)
 	HideToolWindow()
+	
+	$TopBar/HBoxContainer/TutorialWindow.set_visible(editor.tutorialPath != null)
 	
 	ReloadCodePanel()
 	ReloadEngine()
@@ -28,6 +45,7 @@ func ExitMenu():
 	hide()
 	$"..".EnterMenu()
 	
+	UnloadTools()
 	if(engine != null):
 		engine.queue_free()
 	if(engineErrorScreen != null):
@@ -53,6 +71,7 @@ func _on_Back_pressed():
 # Engine
 
 var engine = null
+var editorModule = null
 var engineErrorScreen = null
 var inputProvider = null
 func ReloadEngine():
@@ -66,21 +85,27 @@ func ReloadEngine():
 	
 	HidePopups()
 	
-	var enginePrefab = load(Castagne.configData["Engine"])
-	Castagne.battleInitData["p1"] = characterID
-	Castagne.battleInitData["p1-palette"] = 0
-	Castagne.battleInitData["p2"] = characterID
-	Castagne.battleInitData["p2-palette"] = 1
+	if(safeMode):
+		return
 	
+	var bid = _baseBID.duplicate(true)
 	RestartOptionsBID()
 	
-	engine = enginePrefab.instance()
+	# TODO Get restart options back in
+	
+	
+	#engine = enginePrefab.instance()
+	engine = Castagne.InstanceCastagneEngine(bid, editor.configData)
 	engine.runAutomatically = false
 	engine.renderGraphics = false
 	inputProvider = null
+	editorModule = engine.configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.EDITOR)
+	
+	editorModule.connect("EngineTick_AIStartEntity", self, "EngineTick_AIStartEntity")
+	editorModule.connect("EngineTick_ActionStartEntity", self, "EngineTick_ActionStartEntity")
 	
 	for t in _tools:
-		t["Tool"].OnEngineRestarting(engine, Castagne.battleInitData)
+		t["Tool"].OnEngineRestarting(engine, bid)
 	
 	$EngineVP/EngineVPC/Viewport.add_child(engine)
 	
@@ -89,10 +114,12 @@ func ReloadEngine():
 			t["Tool"].OnEngineInitError(engine)
 		engineErrorScreen = engine._errorScreen
 		engine = null
+		editorModule = null
 		UnfocusGame()
 		return
 	
 	RestartOptions()
+	
 	
 	FocusGame()
 	
@@ -104,9 +131,10 @@ func _input(event):
 		if($ToolsWindow.is_visible() || $Popups.is_visible() || $"../Documentation".is_visible()):
 			UnfocusGame()
 		else:
-			var vpRect = $EngineVP.get_global_rect()
+			var vpRect = $EngineVP/FocusEngine.get_global_rect()
 			if(vpRect.has_point(event.position)):
-				FocusGame()
+				#FocusGame()
+				pass
 			else:
 				UnfocusGame()
 func FocusGame():
@@ -136,15 +164,23 @@ func SetAllUIModulate(color):
 		n.set_modulate(color)
 
 var lockInput = null
-func _process(_delta):
-	if(lockInput != null):
-		if(inputProvider == null):
-			if(engine != null and engine.instancedData != null and engine.instancedData.has("Players")):
-				inputProvider = engine.instancedData["Players"][0]["InputProvider"]
-		if(inputProvider != null):
-			inputProvider.lockInput = lockInput
-			lockInput = null
+func EngineTick_AIStartEntity(stateHandle):
+	if(lockInput):
+		var inputs = stateHandle.EntityGet("_Inputs")
+		for giName in inputs:
+			inputs[giName] = false
+		stateHandle.EntitySet("_Inputs", inputs)
 
+
+func EngineTick_ActionStartEntity(stateHandle):
+	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/Blocking").pressed):
+		stateHandle.EntitySetFlag("AutoBlocking")
+	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/BlockingLow").pressed):
+		stateHandle.EntitySetFlag("AutoBlockingLow")
+	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/BlockingOverhead").pressed):
+		stateHandle.EntitySetFlag("AutoBlockingOverhead")
+		
+		
 
 var _popupFunction = null
 func ShowPopup(popupName):
@@ -192,7 +228,7 @@ func ReloadCodePanel(resetStates = true):
 	if(character != null):
 		originalNBFiles = character["NbFiles"]
 	
-	character = Castagne.Parser.GetCharacterForEdition(characterPath)
+	character = Castagne.Parser.GetCharacterForEdition(characterPath, editor.configData)
 	if(character == null):
 		return
 	for i in range(character["NbFiles"]):
@@ -218,15 +254,17 @@ func _on_Code_text_changed():
 	$TopBar/HBoxContainer/Save.set_disabled(false)
 	character[curFile]["States"][curState]["Text"] = $CodePanel/Code.get_text()
 	character[curFile]["Modified"] = true
-	CompileGizmos()
 	UpdateGizmos()
 
 
-func ChangeCodePanelState(newState, newFile = -1, newLine = 1):
+func ChangeCodePanelState(newState = null, newFile = -1, newLine = 1):
+	var changedState = false
 	if(newFile >= 0):
 		curFile = newFile
+		changedState = true
 	if(newState != null): 
 		curState = newState
+		changedState = true
 	
 	if(character["NbFiles"] <= 0):
 		$CodePanel/Header/File.set_text("Invalid File")
@@ -242,18 +280,183 @@ func ChangeCodePanelState(newState, newFile = -1, newLine = 1):
 	if(!file["States"].has(curState)):
 		curState = "Character"
 	var state = file["States"][curState]
+	var isVariablesBlock = curState.begins_with("Variables")
+	var calledStatesList = BuildCalledStatesList(state)
 	
 	var filePath = file["Path"]
-	var locked = IsFileLocked(filePath)
+	var lockedFile = IsFileLocked(filePath)
+	var lockedCode = lockedFile
 	
-	$CodePanel/Header/File.set_text(filePath + (" [LOCKED]" if locked else ""))
+	if(editor.configData.Get("Editor-OnlyAllowCustomEditors")):
+		lockedCode = true
+	
+	var editorVariables = state["Variables"]
+	var editorInheritedVariables = []
+	var useCustomEditor = false
+	if($CodePanel/UseCustomEditor.is_pressed()):
+		if(isVariablesBlock):
+			for pfid in range(curFile-1, -1, -1):
+				if(character[pfid]["States"].has(curState)):
+					var fName = character[pfid]["Path"]
+					var sep = fName.find_last("/")
+					if(sep >= 0):
+						fName = fName.right(sep+1)
+					editorInheritedVariables += [{
+						"Name":fName, "Variables":character[pfid]["States"][curState]["Variables"].duplicate()
+					}]
+		else:
+			for csd in calledStatesList:
+				if(character[csd[1]]["States"].has(csd[0])):
+					var calledState = character[csd[1]]["States"][csd[0]]
+					if(!calledState["Variables"].empty()):
+						editorInheritedVariables += [{
+							"Name":csd[0], "Variables":calledState["Variables"].duplicate()
+						}]
+		
+		if(!editorVariables.empty()):
+			useCustomEditor = true
+		if(!editorInheritedVariables.empty()):
+			useCustomEditor = true
+	
+	if(!lockedFile and useCustomEditor):
+		lockedCode = true
+		var customEditorRoot = $CodePanel/CustomEditor/PanelContainer/List
+		for c in customEditorRoot.get_children():
+			c.queue_free()
+		
+		_CreateCustomEditorPanel(customEditorRoot, editorVariables, (curState if isVariablesBlock else "State Defines"))
+		
+		for eiv in editorInheritedVariables:
+			_CreateCustomEditorPanel(customEditorRoot, eiv["Variables"], eiv["Name"], editorVariables)
+	$CodePanel/CustomEditor.set_visible(useCustomEditor)
+	
+	
+	$CodePanel/Header/File.set_text(filePath + (" [LOCKED]" if lockedFile else ""))
 	$CodePanel/Header/State.set_text(curState)
-	$CodePanel/Header/CalledScripts.set_text(str(BuildCalledStatesList(state).size())+" Called Scripts")
+	$CodePanel/Header/CalledScripts.set_text(str(calledStatesList.size())+" Called Scripts")
 	var code = $CodePanel/Code
 	code.set_text(state["Text"])
 	code.cursor_set_line(newLine-1)
 	code.cursor_set_column(0)
-	code.set_readonly(locked)
+	code.set_readonly(lockedCode)
+	if(changedState):
+		code.clear_undo_history()
+	
+	$CodePanel/Warnings.set_pressed_no_signal(false)
+	$CodePanel/WarningsList.hide()
+	for w in $CodePanel/WarningsList/List.get_children():
+		w.queue_free()
+	if(state["Warnings"].empty()):
+		$CodePanel/Warnings.set_text("No code warnings")
+		$CodePanel/Warnings.set_disabled(true)
+	else:
+		for w in state["Warnings"]:
+			var wn = _prefabCodeWarning.instance()
+			wn.get_node("Text").set_text(str(w))
+			$CodePanel/WarningsList/List.add_child(wn)
+		$CodePanel/Warnings.set_text(str(state["Warnings"].size())+" code warnings")
+		$CodePanel/Warnings.set_disabled(false)
+var _prefabCodeWarning = preload("res://castagne/editor/CharacterEditor/CECCodeWarning.tscn")
+
+func _CreateCustomEditorPanel(customEditorRoot, variables, partName, stateVariables = null):
+	var isCurrentState = (stateVariables == null)
+	
+	# Create label heading
+	if(partName != null):
+		var l = Label.new()
+		l.set_align(Label.ALIGN_CENTER)
+		l.set_valign(Label.VALIGN_BOTTOM)
+		l.set_text(str(partName))
+		customEditorRoot.add_child(l)
+		customEditorRoot.add_child(HSeparator.new())
+		if(!isCurrentState):
+			l.set_custom_minimum_size(Vector2(64, 48))
+	
+	# Create main variables
+	for vName in variables:
+		if(stateVariables != null and vName in stateVariables):
+			continue
+		
+		var v = variables[vName]
+		var vType = v["Type"]
+		
+		var l = Label.new()
+		l.set_text(vName)
+		l.set_h_size_flags(SIZE_EXPAND_FILL)
+		l.set_custom_minimum_size(Vector2(64,32))
+		l.set_valign(Label.VALIGN_CENTER)
+		
+		var e
+		if(!isCurrentState):
+			e = Button.new()
+			e.set_text(str(v["Value"]) + " [Override]")
+			e.connect("pressed", self, "_CustomEditorOverride", [v])
+		elif(vType == Castagne.VARIABLE_TYPE.Int):
+			e = SpinBox.new()
+			e.set_allow_greater(true)
+			e.set_allow_lesser(true)
+			e.set_value(v["Value"])
+			e.connect("value_changed", self, "_CustomEditorSetValue", [vName])
+		elif(vType == Castagne.VARIABLE_TYPE.Str):
+			e = LineEdit.new()
+			e.set_text(v["Value"])
+			e.connect("text_changed", self, "_CustomEditorSetValue", [vName])
+		elif(vType == Castagne.VARIABLE_TYPE.Bool):
+			e = CheckBox.new()
+			e.set_pressed_no_signal(int(v["Value"]) > 0)
+			e.connect("toggled", self, "_CustomEditorSetValue", [vName])
+		else: # Not supported type
+			e = Label.new()
+			e.set_text("[Type Not Supported]")
+			e.set_align(Label.ALIGN_RIGHT)
+		
+		e.set_h_size_flags(SIZE_EXPAND_FILL)
+		var hbc = HBoxContainer.new()
+		hbc.add_child(l)
+		hbc.add_child(e)
+		customEditorRoot.add_child(hbc)
+
+func _CustomEditorSetValue(value, varName):
+	var file = character[curFile]
+	var state = file["States"][curState]
+	var v = state["Variables"][varName]
+	var type = v["Type"]
+	if(type == Castagne.VARIABLE_TYPE.Bool):
+		value = (1 if value else 0)
+	v["Value"] = value
+	
+	var lines = state["Text"].split("\n")
+	var text = ""
+	for l in lines:
+		var lStrip = l.strip_edges()
+		if(Castagne.Parser._IsLineVariable(lStrip)):
+			var lv = Castagne.Parser._ExtractVariable(lStrip)
+			if(lv["Name"] == v["Name"]):
+				var sep = l.find("=")
+				if(sep >= 0):
+					l = l.left(sep)
+				l += "= " + str(v["Value"]) + "\n"
+		text += l + "\n"
+	state["Text"] = text
+	file["Modified"] = true
+
+func _CustomEditorOverride(vData):
+	var file = character[curFile]
+	var state = file["States"][curState]
+	
+	var vLine = "def " + vData["Name"]
+	
+	for vt in Castagne.Parser.KnownVariableTypes:
+		if(vData["Type"] == Castagne.Parser.KnownVariableTypes[vt]):
+			vLine += " " + vt + "()"
+			break
+	
+	vLine += " = " + str(vData["Value"]) + "\n"
+	
+	state["Text"] = vLine + state["Text"]
+	file["Modified"] = true
+	SaveFile()
+	ReloadCodePanel(false)
 
 
 func _on_FuncdocButton_pressed():
@@ -279,17 +482,25 @@ func SaveFile():
 		
 		var statesToSave = fileData["States"].keys()
 		statesToSave.sort()
-		if(!statesToSave.has("Variables")):
-			fileData["States"]["Variables"] = {"Text":"\n\n"}
+		
 		if(!statesToSave.has("Character")):
 			fileData["States"]["Character"] = {"Text":"\n"}
 		statesToSave.erase("Character")
-		statesToSave.erase("Variables")
-		statesToSave.push_front("Variables")
+		
+		var variablesBlocksList = []
+		for sName in statesToSave:
+			if(sName.begins_with("Variables")):
+				variablesBlocksList += [sName]
+		for sName in variablesBlocksList:
+			statesToSave.erase(sName)
+			statesToSave.push_front(sName)
+		
 		statesToSave.push_front("Character")
 		
 		# Remove Trailing Whitespace
 		for s in statesToSave:
+			if(fileData["States"][s]["Text"] == null):
+				fileData["States"][s]["Text"] = ""
 			var stext = fileData["States"][s]["Text"].strip_edges()
 			fileData["States"][s]["Text"] = stext
 		
@@ -315,13 +526,19 @@ enum NAVPANEL_MODE {
 	ChooseState, ChooseFile, CalledStates
 }
 func IsFileLocked(fileName):
-	if(fileName.begins_with("res://castagne/") and Castagne.configData["Editor-LockCastagneFiles"]):
+	if(fileName.begins_with("res://castagne/") and editor.configData.Get("Editor-LockCastagneFiles")):
 		return true
-	if(fileName == Castagne.configData["Skeleton-default"] and Castagne.configData["Editor-LockBaseSkeleton"]):
+	var skeletons = Castagne.SplitStringToArray(editor.configData.Get("Skeletons"))
+	if(!skeletons.empty() and fileName in skeletons and editor.configData.Get("Editor-LockBaseSkeleton")):
 		return true
 	return false
 
 var navpanelMode = null
+onready var prefabNavPanelCategory = preload("res://castagne/editor/CharacterEditor/CECNavigationCategory.tscn")
+onready var prefabNavPanelState = preload("res://castagne/editor/CharacterEditor/CECNavigationState.tscn")
+var _navigationSelected = null
+var categoriesStatus = {}
+var categoriesStatusDefault = true
 func RefreshNavigationPanel(mode):
 	navpanelMode = mode
 	var modesRoot = $CodePanel/Navigation.get_children()
@@ -349,32 +566,236 @@ func RefreshNavigationPanel(mode):
 				stateName = filePath + " - " + stateName
 			list.add_item(stateName)
 	else:
-		var statesPerTag = {}
-		var states = character[curFile]["States"]
-		for stateName in states:
-			if(stateName in ["Character", "Variables"]):
-				continue
-			var state = states[stateName]
-			if(statesPerTag.has(state["Tag"])):
-				statesPerTag[state["Tag"]] += [state]
+		_navigationSelected = null
+		var stateListRoot = $CodePanel/Navigation/ChooseState/StateList/Scroll/List
+		for c in stateListRoot.get_children():
+			c.queue_free()
+		
+		var stateChar = prefabNavPanelState.instance()
+		stateChar.charEditor = self
+		stateChar.InitFromState(character[curFile]["States"]["Character"])
+		stateListRoot.add_child(stateChar)
+		
+		# Get Flags and clean panel
+		var flagsPanel = $CodePanel/Navigation/ChooseState/Menu/Flags
+		var activeFlags = []
+		for f in flagsPanel.get_children():
+			if(f.is_pressed()):
+				activeFlags += [f.get_tooltip()]
+			f.queue_free()
+		
+		# Gather all categories at first
+		var categoriesRaw = {}
+		var showAllStates = $CodePanel/Navigation/ChooseState/Menu/ToggleAllStates.is_pressed()
+		var showVariables = $CodePanel/Navigation/ChooseState/Menu/ToggleShowVariables.is_pressed()
+		var showOverridableStates = $CodePanel/Navigation/ChooseState/Menu/ToggleOverridableStates.is_pressed()
+		var checkFromPreviousFiles = (showAllStates or showVariables or showOverridableStates)
+		var statesFound = []
+		var flagsFound = []
+		
+		if($CodePanel/Navigation/ChooseState/Menu/ToggleShowAllFlags.is_pressed()):
+			flagsFound = editor.configData.GetModuleStateFlags()
+		var nbStatesTotal = 0
+		var nbStatesChosen = 0
+		for fileID in range(curFile, -1, -1):
+			var states = character[fileID]["States"]
+			for stateName in states:
+				if(stateName in ["Character"] or stateName in statesFound):
+					continue
+				var state = states[stateName]
+				
+				# Get all the flags in the files
+				for f in state["StateFlags"]:
+					if(!f in flagsFound):
+						flagsFound += [f]
+				
+				# Filter some states from previous files out
+				if(fileID != curFile and !checkFromPreviousFiles):
+					continue
+				if(fileID != curFile and !showAllStates):
+					var skip = true
+					if(showOverridableStates and "Overridable" in state["StateFlags"]):
+						skip = false
+					if(showVariables and stateName.begins_with("Variables")):
+						skip = false
+					if(skip):
+						continue;
+				
+				statesFound += [stateName]
+				nbStatesTotal += 1
+				
+				# Filter depending on flags
+				if(!activeFlags.empty()):
+					var skip = false
+					for f in activeFlags:
+						if(!(f in state["StateFlags"])):
+							skip = true
+					if(skip):
+						continue
+				
+				nbStatesChosen += 1
+				
+				var stateCategories = state["Categories"]
+				
+				if(stateCategories.empty()):
+					stateCategories = [null]
+				for stateCategory in stateCategories:
+					if(categoriesRaw.has(stateCategory)):
+						categoriesRaw[stateCategory]["States"] += [state]
+					else:
+						categoriesRaw[stateCategory] = {"States":[state], "CategoryNode":null}
+		
+		# Parse the categories to make a tree
+		var categoriesTree = {}
+		for category in categoriesRaw:
+			_NavigationParseCategoryTree(categoriesRaw, categoriesTree, category)
+		
+		# Sort and create the category tree
+		_NavigationCreateCategoryTree(categoriesTree, stateListRoot)
+		
+		# Recreate flags panel
+		flagsFound.sort()
+		for f in flagsFound:
+			var b = Button.new()
+			b.set_name(f)
+			b.set_tooltip(f)
+			var icon = Castagne.Loader.LoadCastagneAsset("icons/editor/stateflags/EF"+f+".png")
+			if(icon != null):
+				b.set_button_icon(icon)
+				b.set_expand_icon(true)
+			b.set_text(f)
+			b.set_clip_text(true)
+			b.set_custom_minimum_size(Vector2(36,36)) # 32x32 pixel icons +4px button margin
+			b.set_h_size_flags(SIZE_EXPAND_FILL)
+			b.set_toggle_mode(true)
+			if(f in activeFlags):
+				b.set_pressed_no_signal(true)
+			b.connect("pressed", self, "OnNavigationPanelParamsChanged")
+			flagsPanel.add_child(b)
+		
+		# Panel
+		$CodePanel/Navigation/ChooseState/Menu/CatFiler.set_text("--- Filtering ("+str(nbStatesChosen)+" / "+str(nbStatesTotal)+") ---")
+		$CodePanel/Navigation/ChooseState/StateInfo/StateName.set_text("")
+		$CodePanel/Navigation/ChooseState/StateInfo/StateDocs.set_text("")
+		$CodePanel/Navigation/ChooseState/Menu/OverrideState.set_disabled(true)
+		$CodePanel/Navigation/ChooseState/Menu/DeleteState.set_disabled(true)
+		$CodePanel/Navigation/ChooseState/Menu/RenameState.set_disabled(true)
+
+func _NavigationParseCategoryTree(categoriesRaw, categoriesTree, categoryNameFull):
+	# Create intermediary categories if they don't exist
+	if(!categoriesRaw.has(categoryNameFull)):
+		categoriesRaw[categoryNameFull] = {"States":[], "CategoryNode":null}
+	
+	# Check if we already processed it
+	var catRaw = categoriesRaw[categoryNameFull]
+	if(catRaw["CategoryNode"] != null):
+		return catRaw["CategoryNode"]
+	
+	# Check for parents based on category name
+	var catNodeName = categoryNameFull
+	var parentCategory = null
+	
+	if(categoryNameFull != null):
+		var separationIndex = categoryNameFull.find_last("/")
+		if(separationIndex > 0): # Ignore Slash on first character
+			catNodeName = categoryNameFull.right(separationIndex+1)
+			parentCategory = _NavigationParseCategoryTree(categoriesRaw, categoriesTree, categoryNameFull.left(separationIndex))
+	
+	# Create the category node
+	var catNode = {
+		"Name": catNodeName, "States":catRaw["States"], "Categories":{},
+		"FullName": categoryNameFull,
+	}
+	
+	# Add the node to the tree
+	categoriesRaw[categoryNameFull]["CategoryNode"] = catNode
+	if(parentCategory == null): # At the root
+		categoriesTree[catNodeName] = catNode
+	else: # Child of another category
+		parentCategory["Categories"][catNodeName] = catNode
+	return catNode
+
+func _NavigationCreateCategoryTree(parentCategory, stateListRoot = null):
+	var categories
+	var states = []
+	var isRootLevel = (stateListRoot != null)
+	var fullNameBase = ""
+	if(isRootLevel):
+		categories = parentCategory
+	else:
+		categories = parentCategory["Categories"]
+		states = parentCategory["States"]
+	
+	var categoriesNames = categories.keys()
+	categoriesNames.sort_custom(self, "_NavigationCreateCategoryTree_SortCategories")
+	
+	# Create the categories first
+	for cName in categoriesNames:
+		var cNode = categories[cName]
+		if(cName == null):
+			if(isRootLevel):
+				cNode["Name"] = "Uncategorized"
 			else:
-				statesPerTag[state["Tag"]] = [state]
+				continue
+		if(!categoriesStatus.has(cNode["FullName"])):
+			categoriesStatus[cNode["FullName"]] = categoriesStatusDefault
+		cNode["Open"] = categoriesStatus[cNode["FullName"]]
+		cNode["Editor"] = self
+		var category = prefabNavPanelCategory.instance()
+		category.InitFromCategory(cNode)
+		cNode["GodotNode"] = category
+		if(isRootLevel):
+			stateListRoot.add_child(category)
+		else:
+			parentCategory["GodotNode"].AddItem(category)
 		
-		list.add_item("Character")
-		list.add_item("Variables")
+		_NavigationCreateCategoryTree(cNode)
+	
+	# Create the states for this category
+	if(isRootLevel):
+		return
+	states.sort_custom(self, "_NavigationCreateCategoryTree_SortStates")
+	
+	var includeHelpers = $CodePanel/Navigation/ChooseState/Menu/ToggleHelpers.is_pressed()
+	
+	for state in states:
+		var s = prefabNavPanelState.instance()
+		s.charEditor = self
+		s.InitFromState(state)
+		parentCategory["GodotNode"].AddItem(s)
 		
-		var tagList = statesPerTag.keys()
-		tagList.erase(null)
-		tagList.sort()
-		if(statesPerTag.has(null)):
-			tagList.append(null)
-		
-		for tag in tagList:
-			var tagName = ("Untagged" if tag == null else tag)
-			list.add_item("  ", null, false)
-			list.add_item("--- "+tagName+" ---", null, false)
-			for state in statesPerTag[tag]:
-				list.add_item(state["Name"])
+		if(includeHelpers):
+			var calledStates = BuildCalledStatesList(state)
+			for csd in calledStates:
+				if(csd[0] == state["Name"]):
+					continue
+				#if(csd[1] != curFile):
+				#	continue
+				var cstate = character[csd[1]]["States"][csd[0]]
+				if(cstate["StateType"] != Castagne.STATE_TYPE.Helper):
+					continue
+				var cs = prefabNavPanelState.instance()
+				cs.charEditor = self
+				cs.padState = 1
+				cs.InitFromState(cstate)
+				parentCategory["GodotNode"].AddItem(cs)
+
+func _NavigationCreateCategoryTree_SortCategories(a, b):
+	var priority = [0, 0]
+	for i in range(2):
+		var c = [a, b][i]
+		if(c == null):
+			priority[i] = -9000
+		elif(c == "Variables"):
+			priority[i] = 1000
+	if(priority[0] != priority[1]):
+		return priority[0] > priority[1]
+	return a < b
+func _NavigationCreateCategoryTree_SortStates(a, b):
+	return a["Name"] < b["Name"]
+
+func OnNavigationPanelParamsChanged():
+	RefreshNavigationPanel(NAVPANEL_MODE.ChooseState)
 
 func BuildCalledStatesList(state):
 	var list = []
@@ -421,10 +842,41 @@ func _on_Navigation_MoveList_item_activated(index):
 
 
 
+func _on_OpenState_pressed():
+	Navigation_OpenState()
+
+func Navigation_OpenState():
+	if(_navigationSelected == null):
+		Castagne.Error("Editor: Navigation_OpenState with no selected state")
+		return
+	var state = _navigationSelected.GetStateData()
+	var fileID = _navigationSelected.GetFileID()
+	ChangeCodePanelState(state["Name"], fileID)
+	$CodePanel/Navigation.hide()
+
+func Navigation_SelectState(state):
+	if(_navigationSelected == state):
+		return
+	
+	if(_navigationSelected != null):
+		_navigationSelected.Deselect()
+	_navigationSelected = state
+	state.Select()
+	
+	var sd = state.GetStateData()
+	
+	$CodePanel/Navigation/ChooseState/StateInfo/StateName.set_text(sd["Name"])
+	$CodePanel/Navigation/ChooseState/StateInfo/StateDocs.set_text(sd["StateFullDoc"])
+	
+	var isFromCurrentFile = (state.GetFileID() == curFile)
+	$CodePanel/Navigation/ChooseState/Menu/OverrideState.set_disabled(isFromCurrentFile)
+	$CodePanel/Navigation/ChooseState/Menu/DeleteState.set_disabled(!isFromCurrentFile)
+	$CodePanel/Navigation/ChooseState/Menu/RenameState.set_disabled(!isFromCurrentFile)
 
 func _on_NewState_pressed():
 	ShowPopup("NewState")
 	return
+	# TODO Unreachable
 	var stateName = $CodePanel/Navigation/ChooseState/Bottom/NewStateName.get_text().strip_edges()
 	$CodePanel/Navigation/ChooseState/Bottom/NewStateName.set_text("")
 	if(stateName.empty()):
@@ -437,16 +889,41 @@ func _on_NewState_pressed():
 	$CodePanel/Navigation.hide()
 	ChangeCodePanelState(stateName)
 
+func _on_RenameState_pressed():
+	ShowPopup("RenameState")
+
+func _on_NewEntity_pressed():
+	ShowPopup("NewEntity")
+
+func _on_OverrideState_pressed():
+	if(_navigationSelected == null):
+		return
+	
+	var stateName = _navigationSelected.GetStateData()["Name"]
+	var fileID = curFile
+	
+	if(!character[fileID]["States"].has(stateName)):
+		var defaultText = "CallParent("+str(stateName)+")\n"
+		if(stateName.begins_with("Variables")):
+			defaultText = "# Overriden\n"
+		character[fileID]["States"][stateName] = {"Text":defaultText}
+		character[fileID]["Modified"] = true
+		SaveFile()
+		ReloadCodePanel()
+	
+	ChangeCodePanelState(stateName, fileID)
 
 func _on_DeleteState_pressed():
-	if(curState == "Character" or curState == "Variables"):
+	if(_navigationSelected == null or _navigationSelected.GetStateData()["Name"] == "Character"):
 		return
-	ShowConfirmPopup(funcref(self, "DeleteStateCallback"), "Delete state "+str(curState)+" ?")
+	
+	ShowConfirmPopup(funcref(self, "DeleteStateCallback"), "Delete state "+str(_navigationSelected.GetStateData()["Name"])+" ?")
 
 func DeleteStateCallback(confirmed = false):
-	if(confirmed):
-		character[curFile]["States"].erase(curState)
-		character[curFile]["Modified"] = true
+	if(_navigationSelected != null and confirmed):
+		var fileID = _navigationSelected.GetFileID()
+		character[fileID]["States"].erase(_navigationSelected.GetStateData()["Name"])
+		character[fileID]["Modified"] = true
 		var cf = curFile
 		SaveFile()
 		ReloadCodePanel()
@@ -467,12 +944,20 @@ func DeleteStateCallback(confirmed = false):
 # --------------------------------------------------------------------------------------------------
 # Gizmos
 func _on_Code_cursor_changed():
+	if(!_initDone):
+		return
 	UpdateGizmos()
 	UpdateDocumentation()
 
 func CompileGizmos():
+	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/HideGizmos").pressed):
+		engine.editorModule.currentGizmos = []
+		return
+	
 	# Temporary, but good enough for now
 	var currentGizmos = []
+	#return #TODO
+	var functions = editor.configData.GetModuleFunctions()
 	for i in range(codeWindow.get_line_count()):
 		var line = codeWindow.get_line(i).strip_edges()
 		if(line.empty() || line.begins_with("#") || !Castagne.Parser._IsLineFunction(line)):
@@ -480,9 +965,9 @@ func CompileGizmos():
 		var funcParsed = Castagne.Parser._ExtractFunction(line)
 		var funcName = funcParsed[0]
 		var funcArgs = funcParsed[1]
-		if(!Castagne.functions.has(funcName)):
+		if(!functions.has(funcName)):
 			continue
-		var f = Castagne.functions[funcName]
+		var f = functions[funcName]
 		var gizmoFunc = f["GizmoFunc"]
 		if(gizmoFunc == null):
 			continue
@@ -509,11 +994,12 @@ func UpdateDocumentation():
 		return
 	
 	var funcName = Castagne.Parser._ExtractFunction(line)[0]
+	var functions = editor.configData.GetModuleFunctions()
 	
-	if(!Castagne.functions.has(funcName)):
+	if(!functions.has(funcName)):
 		return
 	
-	var f = Castagne.functions[funcName]
+	var f = functions[funcName]
 	var fDoc = f["Documentation"]
 	
 	var fSignature = fDoc["Name"] + "("
@@ -601,36 +1087,38 @@ func RestartOptions():
 	engine.editorModule.runSlowmo = 0
 	engine.LocalStepNoInput()
 	engine.LocalStepNoInput()
-	var mainEID = engine._gameState["Players"][0]["MainEntity"]
 	
-	if(restartResetMode != RESTART_RESET.Normal):
-		var opponentEID = engine._gameState["Players"][1]["MainEntity"]
-		
-		if(restartResetMode == RESTART_RESET.Air):
-			engine._gameState[mainEID]["PositionY"] = 35000
-		if(restartResetMode == RESTART_RESET.Corner):
-			engine._gameState[mainEID]["PositionX"] = Castagne.configData["ArenaSize"] - 30000
-			engine._gameState[opponentEID]["PositionX"] = Castagne.configData["ArenaSize"]
-			engine._gameState["CameraX"] = Castagne.configData["ArenaSize"]
-		if(restartResetMode == RESTART_RESET.RCorner):
-			engine._gameState[mainEID]["PositionX"] = -Castagne.configData["ArenaSize"] 
-			engine._gameState[opponentEID]["PositionX"] = -Castagne.configData["ArenaSize"] + 30000
-			engine._gameState["CameraX"] = -Castagne.configData["ArenaSize"]
-	
-	if(restartState != null):
-		var fs = engine.GetCurrentFighterScriptOfEntity(mainEID, engine._gameState)
-		if(fs == null or restartState == "Character" or restartState == "Variables"):
-			restartState = null
-	
-	if(restartState != null):
-		engine._gameState[mainEID]["State"] = restartState
-		engine._gameState[mainEID]["StateStartFrame"] = engine._gameState["FrameID"]
-		for i in range(restartStateFrames-1):
-			if(restartResetMode == RESTART_RESET.Air):
-				engine._gameState[mainEID]["PositionY"] = 35000
-			engine.LocalStepNoInput()
-	else:
-		engine.LocalStepNoInput()
+	# TODO
+	#var mainEID = engine._gameState["Players"][0]["MainEntity"]
+	#
+	#if(restartResetMode != RESTART_RESET.Normal):
+	#	var opponentEID = engine._gameState["Players"][1]["MainEntity"]
+	#	
+	#	if(restartResetMode == RESTART_RESET.Air):
+	#		engine._gameState[mainEID]["PositionY"] = 35000
+	#	if(restartResetMode == RESTART_RESET.Corner):
+	#		engine._gameState[mainEID]["PositionX"] = editor.configData.Get("ArenaSize") - 30000
+	#		engine._gameState[opponentEID]["PositionX"] = editor.configData.Get("ArenaSize")
+	#		engine._gameState["CameraX"] = editor.configData.Get("ArenaSize")
+	#	if(restartResetMode == RESTART_RESET.RCorner):
+	#		engine._gameState[mainEID]["PositionX"] = -editor.configData.Get("ArenaSize") 
+	#		engine._gameState[opponentEID]["PositionX"] = -editor.configData.Get("ArenaSize") + 30000
+	#		engine._gameState["CameraX"] = -editor.configData.Get("ArenaSize")
+	#
+	#if(restartState != null):
+	#	var fs = engine.GetCurrentFighterScriptOfEntity(mainEID, engine._gameState)
+	#	if(fs == null or restartState == "Character" or restartState == "Variables"):
+	#		restartState = null
+	#
+	#if(restartState != null):
+	#	engine._gameState[mainEID]["State"] = restartState
+	#	engine._gameState[mainEID]["StateStartFrame"] = engine._gameState["FrameID"]
+	#	for i in range(restartStateFrames-1):
+	#		if(restartResetMode == RESTART_RESET.Air):
+	#			engine._gameState[mainEID]["PositionY"] = 35000
+	#		engine.LocalStepNoInput()
+	#else:
+	#	engine.LocalStepNoInput()
 	
 	engine.LocalStepNoInput()
 	engine.renderGraphics = true
@@ -840,3 +1328,46 @@ func _on_ToolList_item_activated(_index):
 
 
 
+
+
+func _on_CodePanel_WarningsToggled(button_pressed):
+	$CodePanel/WarningsList.set_visible(button_pressed)
+
+
+
+
+
+
+func _on_NavOpenCategories_pressed():
+	_Nav_OpenCloseCategories(true)
+func _on_NavCloseCategories_pressed():
+	_Nav_OpenCloseCategories(false)
+func _Nav_OpenCloseCategories(v):
+	for c in categoriesStatus:
+		categoriesStatus[c] = v
+	categoriesStatusDefault = v
+	RefreshNavigationPanel(NAVPANEL_MODE.ChooseState)
+
+
+
+
+func _on_HideGizmos_toggled(_button_pressed):
+	UpdateGizmos()
+
+
+
+func _on_TutorialContinue_pressed():
+	HidePopups()
+	get_node("../TutorialSystem").StopCoding()
+
+func _on_TutorialReset_pressed():
+	HidePopups()
+	get_node("../TutorialSystem").ResetCode()
+
+
+func _on_TutorialQuit_pressed():
+	get_node("../TutorialSystem").EndTutorial()
+
+
+func _on_TutorialWindow_pressed():
+	ShowPopup("Tutorial")

@@ -1,9 +1,7 @@
 ---
 title: Where to next ?
 order: 9000
-
-template: docpage.hbt
-pathtoroot: ../../../
+todo: 54
 ---
 
 # Where to next ?

@@ -12,9 +12,9 @@ func CUPLog(t):
 	l.set_text(lt)
 func _ready():
 	# Temp since I didn't figure out the process lol
-	Castagne.configData["Updater-Branch"] = branch
-	Castagne.configData["Updater-LastUpdate"] = nextVersionData["version"]
-	Castagne.SaveConfigFile()
+	Castagne.baseConfigData.Set("Updater-Branch", branch)
+	Castagne.baseConfigData.Set("Updater-LastUpdate", nextVersionData["version"])
+	Castagne.baseConfigData.SaveConfigFile()
 	return
 	
 	print("[Updater] Starting update process")

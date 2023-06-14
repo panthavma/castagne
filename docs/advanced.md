@@ -1,9 +1,7 @@
 ---
 title: Advanced Guide [COMING SOON]
 order: 900
-
-template: docpage.hbt
-pathtoroot: ../../
+todo: 60
 ---
 
 # Advanced Guide
@@ -12,9 +10,11 @@ pathtoroot: ../../
 
 This guide covers advanced topics most users won't need to even touch.
 
-This covers:
+The info covered here is only needed when you want to expand on what the engine does, for instance when you want to contribute, or when you want to make a game that's REALLY different.
+
+<!-- This covers:
 - How the internals work
 - How to make new modules
-- How to contribute
+- How to contribute -->
 
 <!-- how to contribute, module dev, parser, engine loop -->

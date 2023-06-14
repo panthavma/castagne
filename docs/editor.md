@@ -2,8 +2,7 @@
 title: Editor Manual
 order: 200
 
-template: docpage.hbt
-pathtoroot: ../../
+todo: 59
 ---
 
 # Editor Guide

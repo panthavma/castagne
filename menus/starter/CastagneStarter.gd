@@ -7,21 +7,20 @@ extends Control
 
 
 func MainMenu():
-	call_deferred("LoadLevel", Castagne.configData["MainMenu"])
+	call_deferred("LoadLevel", Castagne.baseConfigData.Get("PathMainMenu"))
 
 func LocalBattle():
 	Castagne.battleInitData["mode"] = "Battle"
-	call_deferred("LoadLevel", Castagne.configData["Engine"])
+	call_deferred("LoadLevel", Castagne.baseConfigData.Get("Engine"))
 
 func Training():
-	Castagne.battleInitData["mode"] = "Training"
-	call_deferred("LoadLevel", Castagne.configData["Engine"])
+	StartCastagneEngine(bid)
 
 func Editor():
-	call_deferred("LoadLevel", Castagne.configData["Editor"])
+	StartCastagneEditor()
 
 func DevTools():
-	call_deferred("LoadLevel", Castagne.configData["DevTools"])
+	call_deferred("LoadLevel", "res://castagne/devtools/DevTools.tscn")#Castagne.baseConfigData.Get("DevTools"))
 
 # --------------------------------------------------------------------------------------------------
 # Internals
@@ -34,9 +33,15 @@ func _ready():
 		$Hide.show()
 		MainMenu()
 	else:
-		$TitleLabel.set_text(Castagne.configData["GameTitle"]+" - "+Castagne.configData["GameVersion"]+"\n"+Castagne.configData["CastagneVersion"]+"\nPress any key to stop the timer")
+		if(Castagne.baseConfigData == null):
+			$TitleLabel.set_text("Castagne Config had errors.")
+			$Buttons.hide()
+			$Characters.hide()
+			return
 		
-		timer = float(Castagne.configData["Starter-Timer"])/1000.0
+		$TitleLabel.set_text(Castagne.baseConfigData.Get("GameTitle")+" - "+Castagne.baseConfigData.Get("GameVersion")+"\n"+Castagne.baseConfigData.Get("CastagneVersion")+"\nPress any key to stop the timer")
+		
+		timer = float(Castagne.baseConfigData.Get("Starter-Timer"))/1000.0
 		
 		# Init Options
 		var optionID = 0
@@ -49,7 +54,7 @@ func _ready():
 			else:
 				Castagne.Error("[Starter]: " +str(n)+" button not associated to a function!")
 			optionID += 1
-		selectedItem = Castagne.configData["Starter-Option"]
+		selectedItem = Castagne.baseConfigData.Get("Starter-Option")
 		if(selectedItem >= optionID):
 			selectedItem = 0
 		UpdateButtonText()
@@ -58,10 +63,10 @@ func _ready():
 		var listID = 0
 		for list in $Characters.get_children():
 			list.clear()
-			for c in Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"]):
+			for c in Castagne.SplitStringToArray(Castagne.baseConfigData.Get("CharacterPaths")):
 				list.add_item(c)
-			var charToSelect = Castagne.configData["Starter-P"+str(listID+1)]
-			if(charToSelect >= Castagne.SplitStringToArray(Castagne.configData["CharacterPaths"]).size()):
+			var charToSelect = Castagne.baseConfigData.Get("Starter-P"+str(listID+1))
+			if(charToSelect >= Castagne.SplitStringToArray(Castagne.baseConfigData.Get("CharacterPaths")).size()):
 				charToSelect = 0
 			list.select(charToSelect)
 			listID += 1
@@ -92,7 +97,7 @@ func ActivateOption(optionID):
 	ApplyAndSaveSettings(optionID)
 	
 	if(has_method(n)):
-		funcref(self, n).call_func()
+		call_deferred(n)
 	else:
 		Castagne.Error("[Starter]: " +str(n)+" button not associated to a function!")
 
@@ -110,22 +115,28 @@ func UpdateButtonText():
 		
 		button.set_text(n)
 
+var bid = {}
 func ApplyAndSaveSettings(optionID):
-	Castagne.battleInitData["p1-control-type"] = "local"
-	Castagne.battleInitData["p1-control-param"] = "k1"
-	Castagne.battleInitData["p2-control-type"] = "local"
-	Castagne.battleInitData["p2-control-param"] = "c1"
+	bid = {}
+	bid["online"] = false
 	
-	Castagne.battleInitData["p1"] = $"Characters/0".get_selected_items()[0]
-	Castagne.battleInitData["p2"] = $"Characters/1".get_selected_items()[0]
-	Castagne.battleInitData["p1-palette"] = 0
-	Castagne.battleInitData["p2-palette"] = (1 if Castagne.battleInitData["p1"] == Castagne.battleInitData["p2"] else 0)
+	bid["p1-control-type"] = "local"
+	bid["p1-control-param"] = "k1"
+	bid["p2-control-type"] = "local"
+	bid["p2-control-param"] = "c1"
 	
-	Castagne.configData["Starter-Option"] = optionID
-	Castagne.configData["Starter-P1"] = Castagne.battleInitData["p1"]
-	Castagne.configData["Starter-P2"] = Castagne.battleInitData["p2"]
+	bid["map"] = 0
 	
-	Castagne.SaveConfigFile()
+	bid["p1"] = $"Characters/0".get_selected_items()[0]
+	bid["p2"] = $"Characters/1".get_selected_items()[0]
+	bid["p1-palette"] = 0
+	bid["p2-palette"] = (1 if bid["p1"] == bid["p2"] else 0)
+	
+	Castagne.baseConfigData.Set("Starter-Option", optionID)
+	Castagne.baseConfigData.Get("Starter-P1", bid["p1"])
+	Castagne.baseConfigData.Get("Starter-P2", bid["p2"])
+	
+	Castagne.baseConfigData.SaveConfigFile()
 
 
 func RollbackTest():
@@ -135,6 +146,22 @@ func RollbackTest():
 	Castagne.battleInitData["p2-control-param"] = "k1"
 	call_deferred("LoadLevel", "res://dev/rollback-test/RollbackOnlineTest.tscn")
 	#call_deferred("LoadLevel", "res://dev/rollback-demo/Main.tscn")
+
+func StartCastagneEngine(battleInitData = null, configData = null):
+	var engine = Castagne.InstanceCastagneEngine(battleInitData, configData)
+	get_tree().get_root().add_child(engine)
+	queue_free()
+	return engine
+
+func StartCastagneEditor(configDataPath = null, addToTree = true):
+	var configData = null
+	if(configDataPath != null):
+		configData = Castagne.LoadModulesAndConfig(configDataPath)
+	var editor = Castagne.InstanceCastagneEditor(configData)
+	if(addToTree):
+		get_tree().get_root().add_child(editor)
+	queue_free()
+	return editor
 
 func LoadLevel(path):
 	var ps = load(path)

@@ -1,9 +1,7 @@
 ---
 title: Character Editor
 order: 2000
-
-template: docpage.hbt
-pathtoroot: ../../../
+todo: 53
 ---
 
 # Character Editor
