@@ -93,7 +93,6 @@ func EngineTick(previousMemory, playerInputs):
 	memory.GlobalSet("_TrueFrameID", memory.GlobalGet("_TrueFrameID")+1)
 	memory.GlobalSet("_SkipFrame", false)
 	
-	var previousGameStateHandle = CreateStateHandle(previousMemory)
 	var gameStateHandle = CreateStateHandle(memory)
 	
 	gameStateHandle.GlobalSet("_InputsRaw", playerInputs)
@@ -114,6 +113,8 @@ func EngineTick(previousMemory, playerInputs):
 		var activeEIDs = gameStateHandle.GlobalGet("_ActiveEntities")
 		for module in modules:
 			module.ResetVariables(gameStateHandle, activeEIDs)
+		#var inputPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.INPUT), "InputPhase")
+		#ExecuteInternalPhase("Input", activeEIDs, gameStateHandle, inputPhaseFunction)
 		ExecuteScriptPhase("Freeze", activeEIDs, gameStateHandle)
 		return memory
 	
@@ -144,7 +145,7 @@ func EngineTick(previousMemory, playerInputs):
 	
 	# 3. Input Internal Phase
 	var inputPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.INPUT), "InputPhase")
-	ExecuteInternalPhase("Input", activeEIDs, gameStateHandle, previousGameStateHandle, inputPhaseFunction)
+	ExecuteInternalPhase("Input", activeEIDs, gameStateHandle, inputPhaseFunction)
 	
 	# 4. Action Script Phase
 	for module in modules:
@@ -153,7 +154,7 @@ func EngineTick(previousMemory, playerInputs):
 	
 	# 5. Physics Internal Phase
 	var physicsPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.PHYSICS), "PhysicsPhase")
-	ExecuteInternalPhase("Physics", activeEIDs, gameStateHandle, previousGameStateHandle, physicsPhaseFunction)
+	ExecuteInternalPhase("Physics", activeEIDs, gameStateHandle, physicsPhaseFunction)
 	
 	
 	# 6. Resolution Script Phase
@@ -180,14 +181,14 @@ func ExecuteScriptPhase(phaseName, eids, gameStateHandle):
 			funcref(m, phaseName+"PhaseEndEntity").call_func(gameStateHandle)
 		funcref(m, phaseName+"PhaseEnd").call_func(gameStateHandle)
 
-func ExecuteInternalPhase(phaseName, activeEIDs, gameStateHandle, previousGameStateHandle, phaseFunction):
+func ExecuteInternalPhase(phaseName, activeEIDs, gameStateHandle, phaseFunction):
 	# :TODO:Panthavma:20220126:Optimize this by making the funcrefs beforehand
 	for m in modules:
 		funcref(m, phaseName+"PhaseStart").call_func(gameStateHandle)
 		for eid in activeEIDs:
 			gameStateHandle.PointToEntity(eid)
 			funcref(m, phaseName+"PhaseStartEntity").call_func(gameStateHandle)
-	phaseFunction.call_func(gameStateHandle, previousGameStateHandle, activeEIDs)
+	phaseFunction.call_func(gameStateHandle, activeEIDs)
 	for m in modules:
 		for eid in activeEIDs:
 			gameStateHandle.PointToEntity(eid)
@@ -500,6 +501,16 @@ var _memories = []
 var MAX_MEMORIES_IN_MEMORY = 16
 var _nextMemoryID = 0
 func CreateMemory(copyFrom = null):
+	if(_memories.empty()):
+		var newMemory = Node.new()
+		newMemory.set_script(_prefabMemory)
+		newMemory.InitMemory()
+		add_child(newMemory)
+		_memories.push_back(newMemory)
+	return _memories[0]
+	
+	
+	# :TODO:Panthavma:20230617:Put back actual memory management back in when we go faster for rollback
 	if(_memories.size() < MAX_MEMORIES_IN_MEMORY):
 		var newMemory = Node.new()
 		newMemory.set_script(_prefabMemory)

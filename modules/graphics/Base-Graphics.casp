@@ -367,38 +367,6 @@ VANIMS_UseStandardAnims:
 	Anim(ANIM_Movement_Basic_WalkF)
 	AnimLoop(ANIM_Movement_Basic_WalkF_Loop)
 endif
-:BlockVFX:
-## Temporary block vfx function
-## CASTDO
-
-def VFXPath str() = res://castagne/assets/fx/TempBlockVFX.tscn
-def VFXPosX int() = 3000
-def VFXPosY int() = 10000
-def VFXScale int() = 1000
-def VFXTime int() = 10
-def VFXAnimation str() = default
-def VFXAnimPlayer str() = AnimationPlayer
-
-VFXPrepare(VFXPath, VFXTime, VFXPosX, VFXPosY)
-VFXScale(VFXScale)
-VFXAnimation(VFXAnimation, VFXAnimPlayer)
-VFXCreate()
-:HitVFX:
-## Temporary hit vfx function
-## CASTDO
-
-def VFXPath str() = res://castagne/assets/fx/TempHitVFX.tscn
-def VFXPosX int() = 5000
-def VFXPosY int() = 10000
-def VFXScale int() = 600
-def VFXTime int() = 10
-def VFXAnimation str() = default
-def VFXAnimPlayer str() = AnimationPlayer
-
-VFXPrepare(VFXPath, VFXTime, VFXPosX, VFXPosY)
-VFXScale(VFXScale)
-VFXAnimation(VFXAnimation, VFXAnimPlayer)
-VFXCreate()
 :Init-LightGraphicsInit:
 ## Simple helper to create a model or sprite quickly for subentities
 _Helper()
@@ -469,8 +437,40 @@ RegisterSpritesheet(GRAPHICS_Spritesheet_DefaultName, GRAPHICS_Spritesheet_Path,
 :OnBlock:
 CallParent(OnBlock)
 
-Call(BlockVFX)
+Call(VFXBlock)
 :OnHit:
 CallParent(OnHit)
 
-Call(HitVFX)
+Call(VFXHit)
+:VFXBlock:
+## Temporary block vfx function
+## CASTDO
+
+def VFXPath str() = res://castagne/assets/fx/TempBlockVFX.tscn
+def VFXPosX int() = 3000
+def VFXPosY int() = 10000
+def VFXScale int() = 1000
+def VFXTime int() = 10
+def VFXAnimation str() = default
+def VFXAnimPlayer str() = AnimationPlayer
+
+VFXPrepare(VFXPath, VFXTime, VFXPosX, VFXPosY)
+VFXScale(VFXScale)
+VFXAnimation(VFXAnimation, VFXAnimPlayer)
+VFXCreate()
+:VFXHit:
+## Temporary hit vfx function
+## CASTDO
+
+def VFXPath str() = res://castagne/assets/fx/TempHitVFX.tscn
+def VFXPosX int() = 5000
+def VFXPosY int() = 10000
+def VFXScale int() = 600
+def VFXTime int() = 10
+def VFXAnimation str() = default
+def VFXAnimPlayer str() = AnimationPlayer
+
+VFXPrepare(VFXPath, VFXTime, VFXPosX, VFXPosY)
+VFXScale(VFXScale)
+VFXAnimation(VFXAnimation, VFXAnimPlayer)
+VFXCreate()

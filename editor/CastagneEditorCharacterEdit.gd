@@ -951,7 +951,8 @@ func _on_Code_cursor_changed():
 
 func CompileGizmos():
 	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/HideGizmos").pressed):
-		engine.editorModule.currentGizmos = []
+		if(engine != null):
+			engine.editorModule.currentGizmos = []
 		return
 	
 	# Temporary, but good enough for now

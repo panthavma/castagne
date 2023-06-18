@@ -377,17 +377,13 @@ Flag(Attacking)
 Call(StandardState)
 F1:
 	Set(_AttackDuration, 180)
-	AttackRearm()
+	AttackRearm(1)
 endif
 Unflag(FaceTarget)
 
 
 F_AttackDuration+:
-	LCrouching:
-		Transition(Crouching)
-	else
-		Transition(Stand)
-	endif
+	Call(TransitionToNeutralState)
 endif
 
 ## CASTDO Find a way to remove the warning

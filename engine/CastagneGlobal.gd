@@ -357,9 +357,11 @@ func AreDictionariesEqual(a, b):
 			return false
 		
 		if(typeA == TYPE_DICTIONARY):
-			var r = AreDictionariesEqual(a[k], b[k])
+			if(!AreDictionariesEqual(a[k], b[k])):
+				return false
 		elif(typeA == TYPE_ARRAY):
-			var r = AreArraysEqual(a[k], b[k])
+			if(!AreArraysEqual(a[k], b[k])):
+				return false
 		else:
 			return false
 	return true
@@ -378,9 +380,11 @@ func AreArraysEqual(a, b):
 			return false
 		
 		if(typeA == TYPE_DICTIONARY):
-			var r = AreDictionariesEqual(a[i], b[i])
+			if(!AreDictionariesEqual(a[i], b[i])):
+				return false
 		elif(typeA == TYPE_ARRAY):
-			var r = AreArraysEqual(a[i], b[i])
+			if(!AreArraysEqual(a[i], b[i])):
+				return false
 		else:
 			return false
 	return true

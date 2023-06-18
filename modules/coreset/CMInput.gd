@@ -31,7 +31,7 @@ func ModuleSetup():
 		{"Name":"TrainingButton2", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[]]], "ControllerInputs":[[[JOY_R3]]]},
 	], {"Flags":["Hidden"], "Description":"The complete InputLayout to use."})
 
-	RegisterCustomConfig("Define Input Layout", "InputConfig", {"Flags":["LockBack"]})
+	RegisterCustomConfig("Define Input Layout", "InputConfig", {"Flags":["ReloadFull", "LockBack"]})
 
 	RegisterConfig("NumberOfKeyboardPlayers", 2, {"Description":"Number of keyboard devices to setup."})
 	RegisterConfig("NumberOfKeyboardLayouts", 2, {"Description":"Number of keyboard default bindings to make available."})
@@ -103,6 +103,7 @@ func FrameStart(stateHandle):
 	var inputsProcessed = []
 	var inputsRaw = stateHandle.GlobalGet("_InputsRaw")
 	var castagneInput = stateHandle.Input()
+	var frozenFrame = stateHandle.GlobalGet("_FrozenFrame")
 
 	for pid in range(stateHandle.GlobalGet("_NbPlayers")):
 		var raw = null
@@ -113,12 +114,15 @@ func FrameStart(stateHandle):
 
 		var inputData = castagneInput.CreateInputDataFromRawInput(raw)
 		inputsProcessed.push_back(inputData)
-
+	
+	
+	
 	# :TODO:Panthavma:20230228:This is kind of a shortcut, can be improved in v0.7 with a second buffer. Good enough for now
 	var previousProcessed = stateHandle.GlobalGet("_InputsProcessedPrevious")
 	if(previousProcessed.size() >= stateHandle.ConfigData().Get("InputBufferSizePress")):
 		previousProcessed.pop_back()
-	previousProcessed.push_front(stateHandle.GlobalGet("_InputsProcessed"))
+	if(!frozenFrame):
+		previousProcessed.push_front(stateHandle.GlobalGet("_InputsProcessed"))
 	stateHandle.GlobalSet("_InputsProcessedPrevious", previousProcessed)
 
 	stateHandle.GlobalSet("_InputsProcessed", inputsProcessed)
@@ -144,10 +148,11 @@ func InitPhaseEndEntity(stateHandle):
 	stateHandle.EntitySet("_Inputs", inputData)
 
 
-func InputPhase(stateHandle, _previousStateHandle, activeEIDs):
+func InputPhase(stateHandle, activeEIDs):
 	var castagneInput = stateHandle.Input()
 	var inputSchema = castagneInput.GetInputSchema()
-
+	
+	
 	for eid in activeEIDs:
 		stateHandle.PointToEntity(eid)
 
@@ -160,13 +165,6 @@ func InputPhase(stateHandle, _previousStateHandle, activeEIDs):
 			var derivedInput = inputSchema[derivedInputName]
 			var diType = derivedInput["DerivedType"]
 			var diValue = false
-
-			if(derivedInputName == "ForwardPress"):
-				pass
-			if(derivedInputName == "ForwardRelease"):
-				pass
-			if(derivedInputName == "APress"):
-				pass
 
 			if(diType == Castagne.GAMEINPUT_DERIVED_TYPES.BUTTON_PRESS):
 				var diTarget = derivedInput["Target"]

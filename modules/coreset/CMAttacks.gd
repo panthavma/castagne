@@ -32,10 +32,11 @@ func ModuleSetup():
 		"Flags":["Basic"],
 		"Types":["int",],
 	})
-	RegisterFunction("AttackRearm", [0], null, {
+	RegisterFunction("AttackRearm", [0, 1], null, {
 		"Description":"Sets the variables to be able to hit with another attack, and should be used between multihits. Resets the hit detection.",
 		"Flags":["Intermediate"],
-		"Types":[],
+		"Arguments":["(Optional) Treat as a new attack instead of a multihit (reapplies proration and resets hit/block/clash flags) (Default: False)"],
+		"Types":["bool"],
 	})
 	RegisterFunction("AttackParam", [2], null, {
 		"Description":"Sets a generic attack parameter directly. This is an advanced function and should be used either when you need some really specific adjustment, or when you want to add functionality without a module.",
@@ -86,13 +87,13 @@ func ModuleSetup():
 		"Types":["int","int"],
 	})
 	RegisterFunction("AttackFrameAdvantageHit", [1], null, {
-		"Description":"Sets an attack's frame advantage automatically on hit. This is based on the total duration of the attack and the last use of the multihit flag. Same functionality as AttackSetHitstunBlockstun, but in an easier way.",
+		"Description":"Sets an attack's frame advantage automatically on hit. This is based on the total duration of the attack and the last use of the AttackRearm function. Same functionality as AttackSetHitstunBlockstun, but in an easier way.",
 		"Arguments":["Frame advantage on hit"],
 		"Flags":["Basic"],
 		"Types":["int",],
 	})
 	RegisterFunction("AttackFrameAdvantageBlock", [1], null, {
-		"Description":"Sets an attack's frame advantage automatically on block. This is based on the total duration of the attack and the last use of the multihit flag. Same functionality as AttackSetHitstunBlockstun, but in an easier way.",
+		"Description":"Sets an attack's frame advantage automatically on block. This is based on the total duration of the attack and the last use of the AttackRearm function. Same functionality as AttackSetHitstunBlockstun, but in an easier way.",
 		"Arguments":["Frame advantage on block"],
 		"Flags":["Basic"],
 		"Types":["int",],
@@ -165,6 +166,28 @@ func ModuleSetup():
 		"Flags":["Intermediate"],
 		"Types":["int","int","int","int"],
 	})
+	RegisterFunction("AttackInheritMomentum", [0, 1, 2, 4], null, {
+		"Description":"Makes an attack inherit the momentum of the attacker, in permil. Happens on hit and block.",
+		"Arguments":["Ratio of Ground X Momentum conserved in permil", "Ratio of Ground Y Momentum conserved in permil",
+			"Ratio of Air X Momentum conserved in permil", "Ratio of Air Y Momentum conserved in permil"],
+		"Flags":["Intermediate"],
+		"Types":["int", "int", "int", "int"],
+	})
+	RegisterFunction("AttackInheritMomentumHit", [0, 1, 2, 4], null, {
+		"Description":"Makes an attack inherit the momentum of the attacker, in permil. Happens on hit.",
+		"Arguments":["Ratio of Ground X Momentum conserved in permil", "Ratio of Ground Y Momentum conserved in permil",
+			"Ratio of Air X Momentum conserved in permil", "Ratio of Air Y Momentum conserved in permil"],
+		"Flags":["Intermediate"],
+		"Types":["int", "int", "int", "int"],
+	})
+	RegisterFunction("AttackInheritMomentumBlock", [0, 1, 2, 4], null, {
+		"Description":"Makes an attack inherit the momentum of the attacker, in permil. Happens on block.",
+		"Arguments":["Ratio of Ground X Momentum conserved in permil", "Ratio of Ground Y Momentum conserved in permil",
+			"Ratio of Air X Momentum conserved in permil", "Ratio of Air Y Momentum conserved in permil"],
+		"Flags":["Intermediate"],
+		"Types":["int", "int", "int", "int"],
+	})
+	
 	RegisterFunction("AttackFloat", [1], null, {
 		"Description":"Sets the opponent's gravity on hit to the specified value until the next attack.",
 		"Arguments":["New Gravity"],
@@ -214,10 +237,10 @@ func ModuleSetup():
 	RegisterVariableEntity("_AttackMomentumX", 0)
 	RegisterVariableEntity("_AttackMomentumY", 0)
 	
-	#RegisterFlag("Multihit", {"Description":"Allow an attack to hit again."})
 	RegisterFlag("AFLow", {"Description":"Makes an attack unblockable while standing up."})
 	RegisterFlag("AFOverhead", {"Description":"Makes an attack unblockable while crouching."})
-	RegisterFlag("AFInheritMomentum", {"Description":"Makes it so that the attack inherits the attacker's momentum."})
+	RegisterFlag("AFInheritMomentumHit", {"Description":"Makes it so that the attack inherits the attacker's momentum on hit, ratio determined by attack data."})
+	RegisterFlag("AFInheritMomentumBlock", {"Description":"Makes it so that the attack inherits the attacker's momentum on block, ratio determined by attack data."})
 	RegisterFlag("AFFloat", {"Description":"Set by the AttackFloat function. Tells the opponent to override the usual gravity for the next hit."})
 	
 	RegisterFlag("Invul-All", {"Description":"Can't by hit by any attacks, they will count as whiffed."})
@@ -366,6 +389,15 @@ func ModuleSetup():
 	RegisterConfig("AttackDefault-MaxGroundbounces", 3)
 	
 	RegisterConfig("AttackDefault-FloatGravity", 0)
+	
+	RegisterConfig("AttackDefault-InheritMomentumHitGroundX", 1000)
+	RegisterConfig("AttackDefault-InheritMomentumHitGroundY", 1000)
+	RegisterConfig("AttackDefault-InheritMomentumHitAirX", 1000)
+	RegisterConfig("AttackDefault-InheritMomentumHitAirY", 1000)
+	RegisterConfig("AttackDefault-InheritMomentumBlockGroundX", 1000)
+	RegisterConfig("AttackDefault-InheritMomentumBlockGroundY", 1000)
+	RegisterConfig("AttackDefault-InheritMomentumBlockAirX", 1000)
+	RegisterConfig("AttackDefault-InheritMomentumBlockAirY", 1000)
 
 var _defaultAttackData = {}
 var _knockdownDefaultTimeDiff = 0
@@ -406,10 +438,6 @@ func ActionPhaseStartEntity(stateHandle):
 		stateHandle.EntitySetFlag("AF"+af)
 	var attackData = _defaultAttackData.duplicate(true)
 	stateHandle.EntitySet("_AttackData", attackData)
-
-func ActionPhaseEndEntity(stateHandle):
-	if(stateHandle.EntityHasFlag("Multihit")):
-		AttackRearm(null, stateHandle)
 
 func PhysicsPhaseEndEntity(stateHandle):
 	# :TODO:Panthavma:20220314:Optim: Maybe replace the string check by a int
@@ -572,6 +600,10 @@ func ApplyAttackToDefender(hitconfirm, attackData, attackerHandle, hitbox, defen
 	var physicsModule = attackerHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.PHYSICS)
 	var attackerFacing = physicsModule.GetFacingHV(attackerHandle)
 	var defenderFacing = physicsModule.GetFacingHV(defenderHandle)
+	var defenderGrounded = defenderHandle.EntityHasFlag("PFGrounded")
+	var defenderGroundAir = ("Ground" if defenderGrounded else "Air")
+	var defenderNoGroundAir = ("" if defenderGrounded else "Air")
+	
 	
 	# :TODO:Panthavma:20230513:Momentum here is physics dependant, should move it there I think
 	
@@ -594,16 +626,16 @@ func ApplyAttackToDefender(hitconfirm, attackData, attackerHandle, hitbox, defen
 		defenderHandle.EntityAdd("HP", -attackData["ChipDamage"])
 		defenderHandle.EntitySet("_BlockstunDuration", max(1,attackData["Blockstun"]))
 	
-	if(defenderHandle.EntityHasFlag("PFGrounded")):
-		defenderHandle.EntitySet("_AttackMomentumX", attackerFacing[0] * defenderFacing[0] * attackData[hitBlock+"MomentumX"])
-		defenderHandle.EntitySet("_AttackMomentumY", attackData[hitBlock+"MomentumY"])
-	else:
-		defenderHandle.EntitySet("_AttackMomentumX", attackerFacing[0] * defenderFacing[0] * attackData[hitBlock+"MomentumAirX"])
-		defenderHandle.EntitySet("_AttackMomentumY", attackData[hitBlock+"MomentumAirY"])
+	defenderHandle.EntitySet("_AttackMomentumX", attackerFacing[0] * defenderFacing[0] * attackData[hitBlock+"Momentum"+defenderNoGroundAir+"X"])
+	defenderHandle.EntitySet("_AttackMomentumY", attackData[hitBlock+"Momentum"+defenderNoGroundAir+"Y"])
 	
-	if(HasFlag(attackData, "InheritMomentum")):
-		defenderHandle.EntityAdd("AttackMomentumX", attackerHandle.EntityGet("_MomentumX"))
-		defenderHandle.EntityAdd("AttackMomentumY", attackerHandle.EntityGet("_MomentumY"))
+	var inheritMomentum = (hit and HasFlag(attackData, "InheritMomentumHit")) or (!hit and HasFlag(attackData, "InheritMomentumBlock"))
+	if(inheritMomentum):
+		var inheritMomentumX = attackData["InheritMomentum"+hitBlock+defenderGroundAir+"X"]
+		var inheritMomentumY = attackData["InheritMomentum"+hitBlock+defenderGroundAir+"Y"]
+		
+		defenderHandle.EntityAdd("_AttackMomentumX", defenderFacing[0] * attackerHandle.EntityGet("_MomentumX") * inheritMomentumX / 1000)
+		defenderHandle.EntityAdd("_AttackMomentumY", attackerHandle.EntityGet("_MomentumY") * inheritMomentumY / 1000)
 	
 	if(HasFlag(attackData, "Float")):
 		defenderHandle.EntitySet("_HitstunGravityFloat", attackData["FloatGravity"])
@@ -695,20 +727,23 @@ func AttackDuration(args, stateHandle):
 	if(stateHandle.EntityGet("_AttackData")["Blockstun"] <= 0):
 		AttackFrameAdvantageBlock([0], stateHandle)
 
-func AttackRearm(_args, stateHandle):
-	stateHandle.EntitySet("_AttackHitconfirm_State", null)
+func AttackRearm(args, stateHandle):
+	var newAttack = ArgBool(args, stateHandle, 0, false)
+	# :TODO:Panthavma:20230617:Manage Proration
 	stateHandle.EntitySet("_AttackInitialFrame", -1)
 	stateHandle.EntitySet("_AttackHitEntities", [])
-	stateHandle.EntitySet("_AttackHasHit", false)
-	stateHandle.EntitySet("_AttackWasBlocked", false)
-	stateHandle.EntitySet("_AttackHasWhiffed", false)
-	stateHandle.EntitySet("_AttackHasTouched", false)
+	if(newAttack):
+		stateHandle.EntitySet("_AttackHitconfirm_State", null)
+		stateHandle.EntitySet("_AttackHasHit", false)
+		stateHandle.EntitySet("_AttackWasBlocked", false)
+		stateHandle.EntitySet("_AttackHasWhiffed", false)
+		stateHandle.EntitySet("_AttackHasTouched", false)
 
 func AttackParam(args, stateHandle):
 	var paramName = ArgStr(args, stateHandle, 0)
 	var value = ArgInt(args, stateHandle, 1)
 	
-	stateHandle.EntityGet("_AttackData")[paramName] = value
+	_SetInPrepareAttackData(stateHandle, paramName, value)
 
 
 
@@ -732,7 +767,7 @@ func AttackRecievedUnflag(args, stateHandle):
 		stateHandle.EntitySetFlag("AF"+flagName, false)
 
 func AttackAttribute(args, stateHandle):
-	stateHandle.EntityGet("_AttackData")["Attribute"] = ArgStr(args, stateHandle, 0, "Auto")
+	_SetInPrepareAttackData(stateHandle, "Attribute", ArgStr(args, stateHandle, 0, "Auto"))
 
 
 func AttackFrameAdvantage(args, stateHandle):
@@ -749,28 +784,28 @@ func AttackFrameAdvantageBlock(args, stateHandle):
 	_AttackFrameAdvantage(ArgInt(args, stateHandle, 0), stateHandle, "Blockstun")
 func _AttackFrameAdvantage(FA, stateHandle, stunType):
 	var neutralFA = stateHandle.EntityGet("_AttackDuration") - stateHandle.EntityGet("_AttackInitialFrame")
-	stateHandle.EntityGet("_AttackData")[stunType] = max(neutralFA + FA, 1)
+	_SetInPrepareAttackData(stateHandle, stunType, max(neutralFA + FA, 1))
 func AttackHitstunBlockstun(args, stateHandle):
-	stateHandle.EntityGet("_AttackData")["Hitstun"] = max(ArgInt(args, stateHandle, 0),1)
-	stateHandle.EntityGet("_AttackData")["Blockstun"] = max(ArgInt(args, stateHandle, 1),1)
+	_SetInPrepareAttackData(stateHandle, "Hitstun", max(ArgInt(args, stateHandle, 0),1))
+	_SetInPrepareAttackData(stateHandle, "Blockstun", max(ArgInt(args, stateHandle, 1),1))
 func AttackHitstun(args, stateHandle):
-	stateHandle.EntityGet("_AttackData")["Hitstun"] = max(ArgInt(args, stateHandle, 0),1)
+	_SetInPrepareAttackData(stateHandle, "Hitstun", max(ArgInt(args, stateHandle, 0),1))
 func AttackBlockstun(args, stateHandle):
-	stateHandle.EntityGet("_AttackData")["Blockstun"] = max(ArgInt(args, stateHandle, 0),1)
+	_SetInPrepareAttackData(stateHandle, "Blockstun", max(ArgInt(args, stateHandle, 0),1))
 
 
 func AttackProrationHitstun(args, stateHandle):
-	stateHandle.EntityGet("_AttackData")["StarterProrationHitstun"] = ArgInt(args, stateHandle, 0)
-	stateHandle.EntityGet("_AttackData")["ProrationHitstun"] = ArgInt(args, stateHandle, 1)
+	_SetInPrepareAttackData(stateHandle, "StarterProrationHitstun", ArgInt(args, stateHandle, 0))
+	_SetInPrepareAttackData(stateHandle, "ProrationHitstun", ArgInt(args, stateHandle, 1))
 func AttackProrationDamage(args, stateHandle):
-	stateHandle.EntityGet("_AttackData")["StarterProrationDamage"] = ArgInt(args, stateHandle, 0)
-	stateHandle.EntityGet("_AttackData")["ProrationDamage"] = ArgInt(args, stateHandle, 1)
+	_SetInPrepareAttackData(stateHandle, "StarterProrationDamage", ArgInt(args, stateHandle, 0))
+	_SetInPrepareAttackData(stateHandle, "ProrationDamage",  ArgInt(args, stateHandle, 1))
 
 
 func AttackChipDamage(args, stateHandle):
-	stateHandle.EntityGet("_AttackData")["ChipDamage"] = ArgInt(args, stateHandle, 0)
+	_SetInPrepareAttackData(stateHandle, "ChipDamage",  ArgInt(args, stateHandle, 0))
 func AttackMinDamage(args, stateHandle):
-	stateHandle.EntityGet("_AttackData")["MinDamage"] = ArgInt(args, stateHandle, 0)
+	_SetInPrepareAttackData(stateHandle, "MinDamage",  ArgInt(args, stateHandle, 0))
 
 
 
@@ -780,19 +815,36 @@ func AttackMomentum(args, stateHandle):
 func AttackMomentumHit(args, stateHandle):
 	var mh = ArgInt(args, stateHandle, 0)
 	var mv = ArgInt(args, stateHandle, 1, 0)
-	stateHandle.EntityGet("_AttackData")["HitMomentumX"] = mh
-	stateHandle.EntityGet("_AttackData")["HitMomentumY"] = mv
-	stateHandle.EntityGet("_AttackData")["HitMomentumAirX"] = ArgInt(args, stateHandle, 2, mh)
-	stateHandle.EntityGet("_AttackData")["HitMomentumAirY"] = ArgInt(args, stateHandle, 3, mv)
+	_SetInPrepareAttackData(stateHandle, "HitMomentumX",  mh)
+	_SetInPrepareAttackData(stateHandle, "HitMomentumY",  mv)
+	_SetInPrepareAttackData(stateHandle, "HitMomentumAirX",  ArgInt(args, stateHandle, 2, mh))
+	_SetInPrepareAttackData(stateHandle, "HitMomentumAirY",  ArgInt(args, stateHandle, 3, mv))
 func AttackMomentumBlock(args, stateHandle):
 	var mh = ArgInt(args, stateHandle, 0)
 	var mv = ArgInt(args, stateHandle, 1, 0)
-	stateHandle.EntityGet("_AttackData")["BlockMomentumX"] = mh
-	stateHandle.EntityGet("_AttackData")["BlockMomentumY"] = mv
-	stateHandle.EntityGet("_AttackData")["BlockMomentumAirX"] = ArgInt(args, stateHandle, 2, mh)
-	stateHandle.EntityGet("_AttackData")["BlockMomentumAirY"] = ArgInt(args, stateHandle, 3, mv)
+	_SetInPrepareAttackData(stateHandle, "BlockMomentumX",  mh)
+	_SetInPrepareAttackData(stateHandle, "BlockMomentumY",  mv)
+	_SetInPrepareAttackData(stateHandle, "BlockMomentumAirX",  ArgInt(args, stateHandle, 2, mh))
+	_SetInPrepareAttackData(stateHandle, "BlockMomentumAirY",  ArgInt(args, stateHandle, 3, mv))
+func AttackInheritMomentum(args, stateHandle):
+	AttackInheritMomentumHit(args, stateHandle)
+	AttackInheritMomentumBlock(args, stateHandle)
+func AttackInheritMomentumHit(args, stateHandle, situation = "Hit"):
+	AttackFlag(["InheritMomentum"+situation], stateHandle)
+	if(args.size() > 0):
+		var imGroundX = ArgInt(args, stateHandle, 0)
+		var imGroundY = ArgInt(args, stateHandle, 1, imGroundX)
+		var imAirX = ArgInt(args, stateHandle, 2, imGroundX)
+		var imAirY = ArgInt(args, stateHandle, 3, imGroundY)
+		
+		_SetInPrepareAttackData(stateHandle, "InheritMomentum"+situation+"GroundX", imGroundX)
+		_SetInPrepareAttackData(stateHandle, "InheritMomentum"+situation+"GroundY", imGroundY)
+		_SetInPrepareAttackData(stateHandle, "InheritMomentum"+situation+"AirX", imAirX)
+		_SetInPrepareAttackData(stateHandle, "InheritMomentum"+situation+"AirY", imAirY)
+func AttackInheritMomentumBlock(args, stateHandle):
+	AttackInheritMomentumHit(args, stateHandle, "Block")
 func AttackFloat(args, stateHandle):
-	stateHandle.EntityGet("_AttackData")["FloatGravity"] = -ArgInt(args, stateHandle, 0)
+	_SetInPrepareAttackData(stateHandle, "FloatGravity",  -ArgInt(args, stateHandle, 0))
 	AttackFlag(["Float"], stateHandle)
 
 func AttackKnockdown(args, stateHandle):
@@ -804,14 +856,14 @@ func AttackKnockdown(args, stateHandle):
 		kdMin = max(1, ArgInt(args, stateHandle, 0, kdMin))
 		kdMax = max(kdMin, ArgInt(args, stateHandle, 1, kdMin+_knockdownDefaultTimeDiff))
 	
-	stateHandle.EntityGet("_AttackData")["KnockdownTimeMin"] = kdMin
-	stateHandle.EntityGet("_AttackData")["KnockdownTimeMax"] = kdMax
+	_SetInPrepareAttackData(stateHandle, "KnockdownTimeMin", kdMin)
+	_SetInPrepareAttackData(stateHandle, "KnockdownTimeMax", kdMax)
 
 func AttackGroundbounce(args, stateHandle):
 	AttackFlag(["Groundbounce"], stateHandle)
-	stateHandle.EntityGet("_AttackData")["GroundbounceTime"] = ArgInt(args, stateHandle, 0, stateHandle.ConfigData().Get("AttackDefault-GroundbounceTime"))
-	stateHandle.EntityGet("_AttackData")["GroundbounceMomentum"] = ArgInt(args, stateHandle, 1, stateHandle.ConfigData().Get("AttackDefault-GroundbounceMomentum"))
-	stateHandle.EntityGet("_AttackData")["MaxGroundbounces"] = ArgInt(args, stateHandle, 2, stateHandle.ConfigData().Get("AttackDefault-MaxGroundbounces"))
+	_SetInPrepareAttackData(stateHandle, "GroundbounceTime", ArgInt(args, stateHandle, 0, stateHandle.ConfigData().Get("AttackDefault-GroundbounceTime")))
+	_SetInPrepareAttackData(stateHandle, "GroundbounceMomentum", ArgInt(args, stateHandle, 1, stateHandle.ConfigData().Get("AttackDefault-GroundbounceMomentum")))
+	_SetInPrepareAttackData(stateHandle, "MaxGroundbounces", ArgInt(args, stateHandle, 2, stateHandle.ConfigData().Get("AttackDefault-MaxGroundbounces")))
 	
 
 
@@ -895,3 +947,10 @@ func _AttackAllCancelRegister(args, stateHandle, lists):
 		for i in range(1, 10):
 			var notation = prefix+str(i)+button
 			stateHandle.EntityGet("_AttackPossibleCancels"+l)[notation] = notation
+
+
+# ----
+# Helpers
+
+func _SetInPrepareAttackData(stateHandle, fieldName, value):
+	stateHandle.EntityGet("_AttackData")[fieldName] = value

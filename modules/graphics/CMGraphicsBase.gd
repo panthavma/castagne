@@ -230,6 +230,12 @@ func UpdateGraphics(stateHandle):
 		if(sprite != null):
 			_UpdateSprite(sprite, stateHandle)
 
+func InitPhaseStartEntity(stateHandle):
+	var spriteData = {
+		"Null": _CreateSpriteData()
+	}
+	stateHandle.IDEntitySet("SpriteData", spriteData)
+
 func InitPhaseEndEntity(stateHandle):
 	SetPalette(stateHandle, stateHandle.GetPlayer())
 
@@ -320,14 +326,10 @@ func CreateSprite(args, stateHandle):
 	stateHandle.EntitySet("_SpriteUseSpritesheets", (1 if spriteFramesPath == null else 0))
 	var sprite = _CreateSprite_Instance(spriteFramesPath)
 	
-	var spriteData = {
-		"Null": _CreateSpriteData()
-	}
 	
 	_EnsureRootIsSet(stateHandle)
 	stateHandle.IDEntityGet("Root").add_child(sprite)
 	stateHandle.IDEntitySet("Sprite", sprite)
-	stateHandle.IDEntitySet("SpriteData", spriteData)
 
 func _CreateSpriteData():
 	return {

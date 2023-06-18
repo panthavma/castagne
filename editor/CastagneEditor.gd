@@ -230,6 +230,13 @@ func GetCurrentlySelectedBattleInitData():
 	else:
 		return configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.FLOW).EditorGetCurrentBattleInitData(self, $MainMenu/FlowPanel/Custom/VBox)
 
+func StartBattle(battleInitData = null):
+	if(battleInitData == null):
+		battleInitData = GetCurrentlySelectedBattleInitData()
+	queue_free()
+	var ce = Castagne.InstanceCastagneEngine(battleInitData, configData)
+	get_tree().get_root().add_child(ce)
+
 
 func _on_CharacterEditNew_pressed():
 	EnterSubmenu("CharacterSet", null, "CharAdd")
@@ -253,6 +260,10 @@ func _on_Characters_item_activated(_index):
 # Just copied from the started, a bit of a code smell lol
 func _on_StartGame_pressed():
 	call_deferred("LoadLevel", configData.Get("PathMainMenu"))
+func _on_StartGameMatch_pressed():
+	pass # Replace with function body.
+func _on_StartGameTraining_pressed():
+	StartBattle()
 func LoadLevel(path):
 	var ps = load(path)
 	var s = ps.instance()
@@ -281,3 +292,7 @@ func FlowCreateAdvancedWindow(flowRoot):
 
 func _on_FlowNewBID_pressed():
 	EnterSubmenu("FlowSetup")
+
+
+
+

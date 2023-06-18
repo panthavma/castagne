@@ -80,15 +80,23 @@ func _UpdateCamera(_stateHandle, camera, cameraPos):
 	
 	camera.set_position(cameraPos)
 
-func _ModelApplyTransform(stateHandle, modelRoot, modelPosition, modelRotation, modelScale):
+func _ModelApplyTransformDirect(modelRoot, modelPosition, modelRotation, modelScale, facingH):
+	modelPosition = IngameToGodotPos(modelPosition)
+	modelRotation *= 0.1
+	modelScale /= 1000.0
+	
 	if(pixelArtMode):
 		modelPosition = modelPosition.round()
 	
+	if(!modelRoot.has_method("set_position")):
+		ModuleError("Graphics2D: Trying to set the position of a 3D asset!")
+		return
+	
 	modelRoot.set_position(modelPosition)
 	modelRoot.set_rotation_degrees(modelRotation)
-	var spriteData = _GetCurrentSpriteData(stateHandle)
+	#var spriteData = _GetCurrentSpriteData(stateHandle)
 	#modelScale *= spriteData["PixelSize"]
-	modelRoot.set_scale(Vector2(stateHandle.EntityGet("_FacingHModel") * modelScale, modelScale))
+	modelRoot.set_scale(Vector2(facingH * modelScale, modelScale))
 
 func _CreateRootNode():
 	return Node2D.new()

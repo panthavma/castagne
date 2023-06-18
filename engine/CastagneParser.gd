@@ -90,25 +90,25 @@ func _StartParsing(filePath, configData, resetErrors = true):
 	_files = []
 	_filePaths = []
 	_curFile = 0
-	
+
 	_metadata = {}
 	_variables = {}
 	_states = {}
-	
+
 	_aborting = false
 	_invalidFile = false
 	if(resetErrors):
 		ResetErrors()
-	
+
 	# Helpers
 	_moduleVariables = {}
 	for m in _configData.GetModules():
 		m.CopyVariablesEntityParsing(_moduleVariables)
-	
+
 	_branchFunctions = {}
 	for l in _letters:
 		_branchFunctions[l] = funcref(self, "Instruction"+l)
-	
+
 	_OpenFile(filePath)
 
 func _AbortParsing():
@@ -121,10 +121,10 @@ func _AbortParsing():
 func _EndParsing(_sendDataEvenIfError = false):
 	if(_aborting or _invalidFile):
 		return null
-	
+
 	for f in _files:
 		f.close()
-	
+
 	return {
 		"Character":_metadata,
 		"Variables":_variables,
@@ -133,13 +133,13 @@ func _EndParsing(_sendDataEvenIfError = false):
 
 func _OpenFile(filePath):
 	_Log("Opening file " + filePath)
-	
+
 	var file = File.new()
 	_lineIDs.append(0)
 	_filePaths.append(filePath)
 	_currentLines.append("")
 	_files.append(file)
-	
+
 	if(!file.file_exists(filePath)):
 		_FatalError("File " + filePath + " does not exist.")
 	else:
@@ -148,8 +148,8 @@ func _OpenFile(filePath):
 func _ParseFullFile():
 	if(_aborting):
 		return
-	
-	
+
+
 	# 1. Get the metadata and character skeletons
 	var profiling = [OS.get_ticks_usec()]
 	_Log(">>> Starting to parse the full file.")
@@ -159,12 +159,12 @@ func _ParseFullFile():
 		fileID += 1
 		if(_aborting):
 			return
-		
+
 		if(md.has("Skeleton")):
 			_OpenFile(md["Skeleton"])
 		if(_aborting):
 			return
-	
+
 	# 2. Parse the variables
 	profiling.push_back(OS.get_ticks_usec())
 	_Log(">>> Parsing the variables...")
@@ -174,7 +174,7 @@ func _ParseFullFile():
 		fileID -= 1
 		if(_aborting):
 			return
-	
+
 	# Pass the variables from the metadata block to the variables block
 	var characterVariables = {}
 	for mName in _metadata:
@@ -190,7 +190,7 @@ func _ParseFullFile():
 		characterVariables[mName] = v
 	for entityName in _variables:
 		Castagne.FuseDataNoOverwrite(_variables[entityName], characterVariables)
-	
+
 	# 3. Parse the states
 	profiling.push_back(OS.get_ticks_usec())
 	_Log(">>> Parsing the states...")
@@ -200,7 +200,7 @@ func _ParseFullFile():
 		fileID -= 1
 		if(_aborting):
 			return
-	
+
 	# 4-5. Optimize the code
 	profiling.push_back(OS.get_ticks_usec())
 	_Log(">>> Optimizing...")
@@ -213,13 +213,13 @@ func _ParseFullFile():
 	variablesList_OptimPhase2 = {}
 	for sName in _states:
 		_OptimizeActionListPhase2(sName)
-	
+
 	# 6. Tag states correctly
 	profiling.push_back(OS.get_ticks_usec())
 	_Log(">>> State Tagging")
 	for sName in _states:
 		_RuntimeStateTagging(sName)
-	
+
 	# 7. Adjusting the variables
 	profiling.push_back(OS.get_ticks_usec())
 	var variables = {}
@@ -231,7 +231,7 @@ func _ParseFullFile():
 				continue
 			variables[entity][vName] = v["Value"]
 	_variables = variables
-	
+
 	profiling.push_back(OS.get_ticks_usec())
 	_PrintProfilingData("["+str(_filePaths[0])+"] GameParse", profiling)
 
@@ -249,18 +249,18 @@ func _OptimizeActionList(stateName):
 		return
 	_optimizedStates += [stateName]
 	var state = _states[stateName]
-	
+
 	var parentLevel = 0
 	var subName = stateName
 	while(subName.begins_with("Parent:")):
 		parentLevel += 1
 		subName = subName.right(7)
 	var entity = _GetEntityNameFromStateName(subName)
-	
+
 	for p in PHASES:
 		var actionList = _OptimizeActionList_Sublist(state[p], parentLevel, p, state)
 		state[p] = actionList
-		
+
 		# TODO Set function not on defines ?
 	_states[stateName] = state
 
@@ -268,9 +268,9 @@ var _optimizeActionList_parentWarnings = []
 func _OptimizeActionList_Sublist(actionList, baseParentLevel, p, state):
 	var callFuncref = _configData.GetModuleFunctions()["Call"]["ActionFunc"]
 	var callParentFuncref = _configData.GetModuleFunctions()["CallParent"]["ActionFunc"]
-	
+
 	var branchFuncrefs = _branchFunctions.values()
-	
+
 	var loopAgain = true
 	while(loopAgain):
 		loopAgain = false
@@ -292,31 +292,31 @@ func _OptimizeActionList_Sublist(actionList, baseParentLevel, p, state):
 					actionList.remove(i)
 					loopAgain = true
 					break
-				
+
 			elif(a[0] in branchFuncrefs):
 				a[1][0] = _OptimizeActionList_Sublist(a[1][0], parentLevel, p, state)
 				a[1][1] = _OptimizeActionList_Sublist(a[1][1], parentLevel, p, state)
-				
+
 				if(a[1][0].empty() and a[1][1].empty()):
 					actionList.remove(i)
 					loopAgain = true
 					break
-			
+
 			if(calledState != null and calledState in _states):
 				if(calledState == state["Name"]):
 					_Warning("CastagneParser: State " + calledState + " is calling itself. Recursion has a fair chance of not going well.")
 					continue
-				
+
 				_OptimizeActionList(calledState)
 				var calledActionList = _states[calledState][p]
 				actionList.remove(i)
 				for j in range(calledActionList.size()):
 					actionList.insert(i+j, calledActionList[j].duplicate(true))
 				loopAgain = true
-				
+
 				# Variables
 				Castagne.FuseDataNoOverwrite(state["Variables"], _states[calledState]["Variables"].duplicate(true))
-				
+
 				break
 	return actionList
 
@@ -326,14 +326,14 @@ func _OptimizeActionListPhase2(stateName):
 		return
 	_optimizedStates += [stateName]
 	var state = _states[stateName]
-	
+
 	var _parentLevel = 0
 	var subName = stateName
 	while(subName.begins_with("Parent:")):
 		_parentLevel += 1
 		subName = subName.right(7)
 	var entity = _GetEntityNameFromStateName(subName)
-	
+
 	#if(!variablesList_OptimPhase2.has(entity)):
 	#var variablesList = state["Variables"].duplicate()
 	if(!_variables.has(entity)):
@@ -341,18 +341,18 @@ func _OptimizeActionListPhase2(stateName):
 	#Castagne.FuseDataNoOverwrite(variablesList, _variables[entity].duplicate(true))
 	#variablesList_OptimPhase2[entity] = newVariablesList
 	#var variablesList = variablesList_OptimPhase2[entity]
-	
+
 	for p in PHASES:
 		var actionList = state[p]
-		
+
 		actionList = _OptimizeActionList_Defines(actionList, state["Variables"], _variables[entity])
-		
+
 		state[p] = actionList
 	_states[stateName] = state
 
 func _OptimizeActionList_Defines(actionList, variablesList, entityVariablesList):
 	var branchFuncrefs = _branchFunctions.values()
-	
+
 	for i in range(actionList.size()):
 		var a = actionList[i]
 		var arguments = a[1]
@@ -360,7 +360,7 @@ func _OptimizeActionList_Defines(actionList, variablesList, entityVariablesList)
 			a[1][0] = _OptimizeActionList_Defines(a[1][0], variablesList, entityVariablesList)
 			a[1][1] = _OptimizeActionList_Defines(a[1][1], variablesList, entityVariablesList)
 			a[1][2] = _OptimizeActionList_Defines_BranchArgs(a[0], a[1][2], variablesList, entityVariablesList)
-		
+
 		for j in range(arguments.size()):
 			arguments[j] = _OptimizeActionList_Defines_ReplaceSymbol(arguments[j], variablesList, entityVariablesList)
 	return actionList
@@ -371,7 +371,7 @@ func _OptimizeActionList_Defines_ReplaceSymbol(symbol, variablesList, entityVari
 		v = variablesList[symbol]
 	elif(symbol in entityVariablesList):
 		v = entityVariablesList[symbol]
-	
+
 	if(v != null):
 		if(v["Mutability"] == Castagne.VARIABLE_MUTABILITY.Define):
 			return v["Value"]
@@ -379,7 +379,7 @@ func _OptimizeActionList_Defines_ReplaceSymbol(symbol, variablesList, entityVari
 
 func _OptimizeActionList_Defines_BranchArgs(branchFuncref, letterArgs, variablesList, entityVariablesList):
 	letterArgs = str(letterArgs)
-	
+
 	if(branchFuncref == _branchFunctions["F"]):
 		var frameRange = _Instruction_GetRange(letterArgs)
 		frameRange[0] = _OptimizeActionList_Defines_ReplaceSymbol(frameRange[0], variablesList, entityVariablesList)
@@ -398,7 +398,7 @@ func _OptimizeActionList_Defines_BranchArgs(branchFuncref, letterArgs, variables
 		letterArgs = str(parsedCondition[0]) + comparaisonSymbols[parsedCondition[1]] + str(parsedCondition[2])
 	else:
 		letterArgs = _OptimizeActionList_Defines_ReplaceSymbol(letterArgs, variablesList, entityVariablesList)
-	
+
 	if(letterArgs.is_valid_integer()):
 		letterArgs = int(letterArgs)
 	return letterArgs
@@ -411,21 +411,21 @@ func _RuntimeStateTagging(stateName):
 		parentLevel += 1
 		subName = subName.right(7)
 	var entity = _GetEntityNameFromStateName(subName)
-	
+
 	var metadata = {
 		"ParentLevel":parentLevel, "Entity":entity,
 		"NameShort":subName,
 		"AttackNotations":[], "AttackType":null,
 	}
 	var flags = []
-	
+
 	for p in PHASES:
 		var actionList = state[p]
 		var newFlags = _ExtractFlagsFromActionList(actionList, metadata)
 		for f in newFlags:
 			if(!flags.has(f)):
 				flags.push_back(f)
-	
+
 	metadata["Flags"] = flags
 	state["Metadata"] = metadata
 
@@ -437,7 +437,7 @@ func _ExtractFlagsFromActionList(actionList, metadata, level = 0):
 		_configData.GetModuleFunctions()["AttackRegisterNoNotation"]["ActionFunc"],
 		_configData.GetModuleFunctions()["AttackAddNotation"]["ActionFunc"],
 		]
-	
+
 	for i in range(actionList.size()):
 		var a = actionList[i]
 		var arguments = a[1]
@@ -448,11 +448,11 @@ func _ExtractFlagsFromActionList(actionList, metadata, level = 0):
 			var nff = _ExtractFlagsFromActionList(arguments[1], metadata, level+1)
 			for flag in nff:
 				f.push_back(flag)
-		
+
 		elif(a[0] in attackRegisterFuncrefs and level == 0):
 			var atkType = null
 			var atkNotation = null
-			
+
 			if(a[0] == attackRegisterFuncrefs[0]):
 				atkType = arguments[0]
 				atkNotation = metadata["NameShort"]
@@ -462,17 +462,17 @@ func _ExtractFlagsFromActionList(actionList, metadata, level = 0):
 				atkType = arguments[0]
 			else:
 				atkNotation = arguments[0]
-			
+
 			if(atkType != null):
 				f.push_back("Attack")
 				f.push_back("AttackType-"+arguments[0])
 				if(!(metadata["AttackNotations"].empty()) and metadata["AttackType"] != atkType):
 					_Error("Found several AttackRegister calls in one state ! "+metadata["NameShort"] + "(Parent level "+str(metadata["ParentLevel"])+", entity "+metadata["Entity"]+")")
 				metadata["AttackType"] = atkType
-			
+
 			if(atkNotation != null):
 				metadata["AttackNotations"] += [atkNotation]
-	
+
 	return f
 
 func _ParseMetadata(fileID):
@@ -483,21 +483,21 @@ func _ParseMetadata(fileID):
 	if(_GetNextBlock(fileID) != ":Character:"):
 		_FatalError("Expected a :Character: block.")
 		return md
-	
+
 	md = _ParseBlockData(fileID)
 	md["Filepath"] = filepath
-	
+
 	for mdVarName in md:
 		if(mdVarName in _moduleVariables):
 			_Error("Character define " + mdVarName + " shares its name with an internal variable. Please use another one.")
-	
+
 	Castagne.FuseDataNoOverwrite(_metadata, md)
-	
+
 	var baseFilesList = _configData.GetBaseCaspFilePaths()
 	var skeletonsList = Castagne.SplitStringToArray(_configData.Get("Skeletons"))
 	var idInBaseFiles = baseFilesList.find(filepath)
 	var idInSkeletons = skeletonsList.find(filepath)
-	
+
 	# Skeleton management
 	# Default behaviour:
 	#	If a base file, default to base (will be managed later)
@@ -510,7 +510,7 @@ func _ParseMetadata(fileID):
 			md["Skeleton"] = skeletonsList[0]
 		else:
 			md["Skeleton"] = "base"
-	
+
 	while(md.has("Skeleton") and !md["Skeleton"].ends_with(".casp")):
 		var skeletonName = str(md["Skeleton"]).strip_edges()
 		if(skeletonName == "none"):
@@ -537,33 +537,33 @@ func _ParseMetadata(fileID):
 			md.erase("Skeleton")
 		#else:
 		#	md["Skeleton"] = _configData.Get("Skeleton-"+skeletonName)
-	
+
 	if(md.has("Skeleton") and md["Skeleton"] in _filePaths):
 		_Error("Skeleton "+md["Skeleton"] + " has already been loaded. Do you have a cyclical dependancy?")
 		md.erase("Skeleton")
-	
+
 	_LogD("Found " + str(md.size()) + " entries. " + ("Has a skeleton : " + md["Skeleton"] if md.has("Skeleton") else "No Skeleton"))
 	return md
 
 func _ParseVariables(fileID):
 	_curFile = fileID
 	_LogD("Parsing Variables of " + _filePaths[fileID])
-	
+
 	var nbBlocks = 0
 	var nbVariables = 0
-	
+
 	var line = _GetNextBlock(fileID)
-	
+
 	var variablesFound = {}
-	
+
 	while(line != null and line.begins_with(":Variables")):
 		line = line.left(line.length()-1).right(1)
 		nbBlocks += 1
-		
+
 		var entity = _GetEntityNameFromStateName(line)
 		if(!variablesFound.has(entity)):
 			variablesFound[entity] = []
-		
+
 		line = _GetNextLine(fileID)
 		while(line != null and !_IsLineBlock(line)):
 			if(!_IsLineVariable(line)):
@@ -572,26 +572,26 @@ func _ParseVariables(fileID):
 			var variableData = _ExtractVariable(line)
 			if(variableData == null):
 				return null
-			
+
 			if(!_variables.has(entity)):
 				_variables[entity] = {}
-			
+
 			var variableName = variableData["Name"]
-			
+
 			if(variableName in variablesFound[entity]):
 				_Error("Variable " + str(variableName) + " is defined twice in the same file and entity.")
 			else:
 				variablesFound[entity] += [variableName]
-			
+
 			_variables[entity][variableName] = variableData
 			nbVariables += 1
-			
+
 			line = _GetNextLine(fileID)
-	
+
 	if(nbBlocks == 0):
 		_LogD("Didn't find variables.")
 		return null
-	
+
 	_LogD("Found " + str(nbVariables) + " variables over "+str(nbBlocks)+" blocks.")
 	return nbVariables
 
@@ -605,7 +605,7 @@ func _ParseStates(fileID):
 		if(s == null or _aborting):
 			return null
 		states[s["Name"]] = s
-	
+
 	_ParseStates_OverwriteStates(states)
 	_LogD("Found " + str(states.size()) + " states.")
 	return states
@@ -626,10 +626,10 @@ func _ParseStates_OverwriteStates_MoveToParentIfExists(stateName):
 func _ParseForEdition():
 	var result = {}
 	result["NbFiles"] = 0
-	
+
 	if(_aborting):
 		return result
-	
+
 	_parseForEditionPostProcessed = []
 	# 1. Parse the character skeleton
 	var profiling = [OS.get_ticks_usec()]
@@ -640,7 +640,7 @@ func _ParseForEdition():
 		var md = _ParseMetadata(fileID)
 		result["NbFiles"] = _files.size()
 		var cName = _filePaths[fileID].right(_filePaths[fileID].find_last("/"))
-		
+
 		var defaultStateData = {
 			"Text":"",
 			"LineStart":0,
@@ -650,7 +650,7 @@ func _ParseForEdition():
 			"TagLocal": false,
 			"Variables":{},
 			"FileID": -1,
-			
+
 			"Categories": [],
 			"StateFlags":[],
 			"StateDoc":"",
@@ -661,24 +661,24 @@ func _ParseForEdition():
 			"BaseStateDistance":-1,
 			"StateType":Castagne.STATE_TYPE.Normal,
 			"CalledStates": [],
-			
+
 			"Warnings": [],
 			"ParseFlags": [],
 		}
-		
+
 		var fileData = {
 			"States":{"Character":defaultStateData.duplicate(true)},
 			"Name": cName,
 			"Path": _filePaths[fileID],
 		}
-		
+
 		for i in range(fileID-1, -1, -1):
 			result[i+1] = result[i]
 		result[0] = fileData
-		
+
 		if(_aborting):
 			return result
-		
+
 		# Parse states of the file
 		var fileStates = {}
 		_files[fileID].seek(0)
@@ -707,7 +707,7 @@ func _ParseForEdition():
 				fscs["LineEnd"] = lineID
 				# Tag extraction
 				line = line.strip_edges()
-				
+
 				if(line.begins_with("##")):
 					var doccontents = line.right(2).strip_edges()
 					fscs["StateFullDoc"] += doccontents + "\n"
@@ -745,9 +745,9 @@ func _ParseForEdition():
 					#	fscs["StateDoc"] = f[1][0].strip_edges()
 					if(f[0] == "_StateFlag" and f[1].size() > 0):
 						fscs["StateFlags"] += [f[1][0].strip_edges()]
-					
+
 					# Bonus state flags, should get a better way in v0.7
-					if(f[0] == "AttackRegister"):
+					if(f[0] == "AttackRegister" or f[0] == "AttackRegisterNoNotation"):
 						fscs["StateFlags"] += ["Attack"]
 						if(f[1].size() >= 1):
 							fscs["StateFlags"] += ["AttackType-"+str(f[1][0])]
@@ -768,24 +768,24 @@ func _ParseForEdition():
 								fscs["Variables"][v["Name"]] = v
 						elif(!curState.begins_with("Variables")):
 							fscs["Warnings"] += ["Trying to declare a variable inside a state! You can either use a constant (with def), or declare your variable in a 'Variables' block."]
-					
-					
+
+
 		#if(curState != null):
 		#	fileStates[curState]["LineEnd"] = _lineIDs[fileID]
-		
+
 		result[0]["States"] = fileStates
-		
+
 		fileID += 1
 		if(md.has("Skeleton")):
 			_OpenFile(md["Skeleton"])
 		if(_aborting):
 			return result
-	
+
 	profiling.push_back(OS.get_ticks_usec())
 	for i in range(_files.size()):
 		for stateName in result[i]["States"]:
 			ParseForEditionPostProcess(i, stateName, result)
-	
+
 	profiling.push_back(OS.get_ticks_usec())
 	_PrintProfilingData("["+str(_filePaths[0])+"] EditParse", profiling)
 	return result
@@ -799,14 +799,14 @@ func ParseForEditionPostProcess(fileID, stateName, result):
 	_parseForEditionPostProcessed[fileID] += [stateName]
 	var state = result[fileID]["States"][stateName]
 	state["FileID"] = fileID
-	
+
 	var UNHERITED_FLAGS = ["Overridable", "Overriding", "TODO", "CASTTODO", "Warning", "Error", "Attack"]
-	
+
 	var calledStates = state["CalledStates"]
 	var forceInheritParentTag = true
 	var inheritFromCalledStates = !(stateName in ["Character"])
 	var inheritDocFromParent = !(stateName in ["Character"])
-	
+
 	# Check if overriding a state
 	var _pFID = fileID - 1
 	var parentState = null
@@ -817,14 +817,14 @@ func ParseForEditionPostProcess(fileID, stateName, result):
 			state["StateFlags"] += ["Overriding"]
 			if(state["StateType"] == Castagne.STATE_TYPE.Normal and parentState["StateType"] == Castagne.STATE_TYPE.Helper):
 				state["StateType"] = parentState["StateType"]
-			
+
 			if(forceInheritParentTag):
 				# :TODO:Panthavma:20220514:Add option to not inherit states automatically
 				calledStates += [[stateName, _pFID]]
 			break
 		_pFID -= 1
-	
-	
+
+
 	# Inherit data from called states
 	var baseStateRef = null
 	if(inheritFromCalledStates):
@@ -845,15 +845,15 @@ func ParseForEditionPostProcess(fileID, stateName, result):
 					for f in inheritedFlags:
 						if(f.begins_with("AttackType-")):
 							inheritedFlags.erase(f)
-					
+
 					state["StateFlags"].append_array(inheritedFlags)
-					
-					if(calledState["StateType"] == Castagne.STATE_TYPE.BaseState and 
+
+					if(calledState["StateType"] == Castagne.STATE_TYPE.BaseState and
 						(state["BaseStateDistance"] == -1 or state["BaseStateDistance"] > calledState["BaseStateDistance"]+1)):
 						state["BaseStateDistance"] = calledState["BaseStateDistance"]
 						state["BaseState"] = calledState["BaseState"]
 						baseStateRef = calledState
-	
+
 	# Additional checks and inheritance
 	if(state["Categories"].empty()):
 		var attackType = null
@@ -868,56 +868,56 @@ func ParseForEditionPostProcess(fileID, stateName, result):
 				state["Categories"] = parentState["Categories"]
 		elif(baseStateRef != null):
 			state["Categories"] = baseStateRef["Categories"]
-	
+
 	if(parentState != null and inheritDocFromParent):
 		if(state["StateFullDoc"] == ""):
 			state["StateFullDoc"] = parentState["StateFullDoc"]
 		if(state["StateDoc"] == ""):
 			state["StateDoc"] = parentState["StateDoc"]
-	
+
 	var entityName = _GetEntityNameFromStateName(stateName)
 	if(entityName != "Main" and state["Categories"].empty()):
 		state["Categories"] = ["Entities/"+entityName]
-	
+
 	if(stateName == "Character"):
 		state["StateType"] = Castagne.STATE_TYPE.Special
 		state["StateFlags"].erase("Overriding")
-	
+
 	if(stateName.begins_with("Variables")):
 		state["StateType"] = Castagne.STATE_TYPE.Special
 		if(state["Categories"].empty()):
 			state["Categories"] = ["Variables"]
 	if(stateName.begins_with("Init-")):
 		state["StateType"] = Castagne.STATE_TYPE.Special
-		
-	
+
+
 	if(state["StateType"] == Castagne.STATE_TYPE.BaseState):
 		state["BaseStateDistance"] = 0
 		state["BaseState"] = state["Name"]
-	
+
 	if(stateName.begins_with("StateTemplate-")):
 		state["Categories"] = ["Templates/State Templates"]
 	if(stateName.begins_with("EntityTemplate-")):
 		state["Categories"] = ["Templates/Entity Templates"]
 		if(stateName.ends_with("-Init") or stateName.ends_with("-Variables")):
 			state["StateType"] = Castagne.STATE_TYPE.Special
-	
+
 	state["StateDoc"] = state["StateFullDoc"]
 	var fdFirstLine = state["StateFullDoc"].find("\n")
 	if(fdFirstLine >= 0):
 		state["StateDoc"] = state["StateFullDoc"].left(fdFirstLine)
-	
+
 	if(!state["Variables"].empty() or stateName.begins_with("Variables")):
 		state["StateFlags"] += ["CustomEditor"]
-	
+
 	# Code Quality Checks
 	if(state["StateType"] == Castagne.STATE_TYPE.Normal and state["BaseStateDistance"] == -1 and !state["StateFlags"].has("Attack")):
 		state["Warnings"] += ["State doesn't lead back to a base state, and isn't itself a base state, helper, or registered attack."]
-	
+
 	if(!state["Warnings"].empty()):
 		state["StateFlags"] += ["Warning"]
-	
-	
+
+
 	# Remove double flags
 	state["StateFlags"].sort()
 	var flags = []
@@ -925,7 +925,7 @@ func ParseForEditionPostProcess(fileID, stateName, result):
 		if(flags.empty() or flags.back() != f):
 			flags += [f]
 	state["StateFlags"] = flags
-	
+
 	return true
 
 # ------------------------------------------------------------------------------
@@ -936,16 +936,16 @@ func ParseForEditionPostProcess(fileID, stateName, result):
 func _GetNextLine(fileID):
 	if(_aborting):
 		return null
-	
+
 	while(true):
 		if(_files[fileID].eof_reached()):
 			_currentLines[fileID] = null
 			return null
-		
+
 		var l = _files[fileID].get_line()
 		l = l.strip_edges()
 		_lineIDs[fileID] += 1
-		
+
 		if(_IsValidLine(l)):
 			_currentLines[fileID] = l
 			return l
@@ -994,7 +994,7 @@ func _IsLineBlock(line):
 func _IsLineInstruction(line):
 	return (!line.begins_with(":")) and line.ends_with(":")
 func _IsLineFunction(line):
-	return (line.find("(") > 0) and line.ends_with(")") 
+	return (line.find("(") > 0) and line.ends_with(")")
 func _IsLineVariable(line):
 	return (line.begins_with("var ") or line.begins_with("def ") or line.begins_with("internal "))
 
@@ -1023,15 +1023,15 @@ var _currentState = {}
 func _ParseBlockState(fileID):
 	var stateName = _GetCurrentLine(fileID)
 	stateName = stateName.left(stateName.length()-1).right(1)
-	
+
 	if(stateName.begins_with("Variables")):
 		_Error("Found a variables block after variables are handled.")
 		return null
-	
+
 	var entity = _GetEntityNameFromStateName(stateName)
 	if(!_variables.has(entity)):
 		_variables[entity] = {}
-	
+
 	_currentState = {
 		"Name": stateName,
 		"Type": null,
@@ -1039,10 +1039,10 @@ func _ParseBlockState(fileID):
 		"Entity":entity,
 		"Variables":{},
 	}
-	
-	
+
+
 	var line = _GetNextLine(fileID)
-	
+
 	var stateActions = {}
 	for p in PHASES:
 		stateActions[p] = []
@@ -1080,7 +1080,7 @@ func _ParseBlockState(fileID):
 							action = StandardParseFunction(f[0], f[1])
 						else:
 							action = fData["ParseFunc"].call_func(self, f[1], parseData)
-						
+
 						if(action != null):
 							var d = [action["Func"], action["Args"]]
 							for p in PHASES:
@@ -1110,30 +1110,30 @@ func _ParseBlockState(fileID):
 		else:
 			var letter = line.left(1)
 			var letterArgs = line.left(line.length()-1).right(1)
-			
+
 			if(line == "endif"):
 				var branch = currentSubblock
 				if(currentSubblock == null):
 					_Error("Endif found without a branch!")
 					line = _GetNextLine(fileID)
 					continue
-				
+
 				if(branch["Letter"] == "S"):
 					pass
-				
+
 				currentSubblock = reserveSubblocks.pop_back()
 				currentSubblockList = reserveSubblocksList.pop_back()
 				for p in PHASES:
 					var phaseToGet = p
 					if(branch["Letter"] == "P"):
 						phaseToGet = "Manual"
-					
+
 					var args = [branch["True"][phaseToGet], branch["False"][phaseToGet], branch["LetterArgs"]]
 					var d = [branch["Func"], args]
-					
+
 					if(args[0].empty() and args[1].empty()):
 						continue
-					
+
 					if(currentSubblock == null):
 						stateActions[p] += [d]
 					else:
@@ -1152,7 +1152,7 @@ func _ParseBlockState(fileID):
 				reserveSubblocks.push_back(currentSubblock)
 				reserveSubblocksList.push_back(currentSubblockList)
 				currentSubblockList = "True"
-				
+
 				currentSubblock = {
 					"Func": _branchFunctions[letter],
 					"FuncName":"Instruction " + letter,
@@ -1164,12 +1164,12 @@ func _ParseBlockState(fileID):
 				for p in PHASES:
 					currentSubblock["True"][p] = []
 					currentSubblock["False"][p] = []
-				
+
 			else:
 				_Error("Branch type not recognized: " + letter)
-		
+
 		line = _GetNextLine(fileID)
-		
+
 		if(_aborting):
 			return null
 	for p in PHASES:
@@ -1180,14 +1180,14 @@ func _ExtractFunction(line):
 	var splitID = line.find("(")
 	var functionName = line.left(splitID)
 	var splitVars = line.left(line.length()-1).right(splitID+1).split(",")
-	
+
 	var args = []
 	for v in splitVars:
 		args += [v.strip_edges()]
-	
+
 	if(args.size() == 1 and args[0] == ""):
 		args = []
-	
+
 	return [functionName, args]
 
 func _GetEntityNameFromStateName(stateName):
@@ -1212,7 +1212,7 @@ func _ExtractVariable(line):
 	var variableName = null
 	var variableType = null
 	var variableSubtype = null
-	
+
 	if(line.begins_with("var ")):
 		line = line.right(4)
 		variableMutability = Castagne.VARIABLE_MUTABILITY.Variable
@@ -1225,7 +1225,7 @@ func _ExtractVariable(line):
 	else:
 		_Error("Couldn't find variable mutability.")
 		return null
-	
+
 	line = line.strip_edges()
 	var sep = line.find("=")
 	if(variableMutability == Castagne.VARIABLE_MUTABILITY.Internal):
@@ -1238,15 +1238,15 @@ func _ExtractVariable(line):
 		if(variableValue.empty()):
 			_Error("Variable declaration has an '=' sign but no assignation.")
 			return null
-	
-	
+
+
 	var splits = line.split(" ", false)
 	var nbSplits = splits.size()
 	if(nbSplits != 1 and nbSplits != 2):
 		_Error("Too many words in variable declaration. Please keep your variable names as one word.")
 		return null
 	variableName = splits[0]
-	
+
 	# Internal var check
 	var hasInternalName = (variableName in _moduleVariables)
 	if(hasInternalName and variableMutability != Castagne.VARIABLE_MUTABILITY.Internal):
@@ -1259,8 +1259,8 @@ func _ExtractVariable(line):
 		else:
 			_Error("Variable " + str(variableName) + " is marked as internal but no internal variable of the name exists.")
 			return null
-	
-	
+
+
 	# Type check
 	if(variableMutability == Castagne.VARIABLE_MUTABILITY.Internal):
 		if(nbSplits == 2):
@@ -1275,34 +1275,34 @@ func _ExtractVariable(line):
 		variableSubtype = lineType.left(lineType.length()-1).right(sep+1)
 		lineType = lineType.left(sep)
 		# TODO parse / use the subtype
-		
-		
+
+
 		if(!lineType in KnownVariableTypes):
 			_Error("Unknown variable type: "+lineType+".")
 			return null
 		variableType = KnownVariableTypes[lineType]
-	
-	
+
+
 	# Default behaviors
 	if(variableType == null):
 		if(variableValue != null and !variableValue.is_valid_integer()):
 			variableType = Castagne.VARIABLE_TYPE.Str
 		else:
 			variableType = Castagne.VARIABLE_TYPE.Int
-	
+
 	if(variableValue == null):
 		if(variableType == Castagne.VARIABLE_TYPE.Int):
 			variableValue = "0"
 		else:
 			variableValue = ""
-	
+
 	if(variableType == Castagne.VARIABLE_TYPE.Int):
 		if(variableValue.is_valid_integer()):
 			variableValue = variableValue.to_int()
 		else:
 			variableValue = 0
 			_Error("Int variable but the value isn't a valid integer.")
-	
+
 	return {
 		"Name": variableName,
 		"Mutability": variableMutability,
@@ -1327,21 +1327,21 @@ func StandardParseFunction(functionName, args):
 func InstructionI(args, stateHandle):
 	var inputName = ArgStr(args, stateHandle, 2)
 	var inputs = stateHandle.EntityGet("_Inputs")
-	
+
 	if(!inputName in inputs):
 		Castagne.Error("I"+inputName+" : Input not found !")
 		return
-	
+
 	InstructionBranch(args, stateHandle, inputs[inputName])
 
 func InstructionF(args, stateHandle):
 	var letterArgs = str(args[2])
-	
+
 	var frameID = stateHandle.GlobalGet("_FrameID") - stateHandle.EntityGet("_StateStartFrame")
 	var validFrames = []
-	
+
 	var frameRange = _Instruction_GetRange(letterArgs)
-	
+
 	if(frameRange.size() == 1):
 		validFrames += [ArgInt([frameRange[0]], stateHandle, 0)]
 	elif(frameRange[1] == "+"):
@@ -1353,7 +1353,7 @@ func InstructionF(args, stateHandle):
 		var end = ArgInt([frameRange[1]], stateHandle, 0)
 		for i in range(start, end+1):
 			validFrames += [i]
-	
+
 	letterArgs = validFrames
 	InstructionBranch(args, stateHandle, frameID in validFrames)
 func InstructionS(args, stateHandle):
@@ -1388,28 +1388,28 @@ func InstructionP(args, stateHandle):
 func InstructionBranch(args, stateHandle, condition):
 	var actionListTrue = args[0]
 	var actionListFalse = args[1]
-	
+
 	var actionList = actionListFalse
 	if(condition):
 		actionList = actionListTrue
-	
+
 	var phase = stateHandle.GetPhase()
-	
+
 	stateHandle.Engine().ExecuteFighterScript({"Name":"Branch", phase:actionList}, stateHandle)
-	
+
 
 func _Instruction_ParseCondition(s):
 	var firstPart = s
 	var secondPart = 0
 	var condition = 2
-	
+
 	var inferiorPos = s.find("<")
 	var superiorPos = s.find(">")
 	var equalPos = s.find("=")
 	var splitPos = max(inferiorPos, superiorPos)
 	if(splitPos < 0):
 		splitPos = equalPos
-	
+
 	if(inferiorPos >= 0 and superiorPos >= 0):
 		condition = null
 	elif(splitPos >= 0):
@@ -1418,25 +1418,25 @@ func _Instruction_ParseCondition(s):
 		condition = 0
 		condition += (2 if superiorPos>=0 else 0)
 		condition -= (2 if inferiorPos>=0 else 0)
-		
+
 		if(secondPart.begins_with("=")):
 			secondPart = secondPart.right(1)
 			condition -= sign(condition)
-	
+
 	return [firstPart, condition, secondPart]
 
 func _Instruction_ComputeCondition(letterArgs, stateHandle):
 	var parsedCondition = _Instruction_ParseCondition(letterArgs)
-	
+
 	if(parsedCondition[1] == null):
 		ModuleError("_Instruction_ComputeCondition: Found both < and > in the same condition", stateHandle)
 		return false
-	
+
 	var firstPart = ArgInt([parsedCondition[0]], stateHandle, 0, 0)
 	var condition = parsedCondition[1]
 	var secondPart = ArgInt([parsedCondition[2]], stateHandle, 0, 0)
 	var diff = firstPart - secondPart
-	
+
 	if(diff == 0):
 		return (abs(condition) <= 1)
 	return (sign(condition) == sign(diff))

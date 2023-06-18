@@ -89,6 +89,8 @@ func ModuleSetup():
 	
 	RegisterVariableEntity("_PositionX", 0)
 	RegisterVariableEntity("_PositionY", 0)
+	RegisterVariableEntity("_PrevPositionX", 0)
+	RegisterVariableEntity("_PrevPositionY", 0)
 	RegisterVariableEntity("_MovementX", 0, ["ResetEachFrame"])
 	RegisterVariableEntity("_MovementY", 0, ["ResetEachFrame"])
 	
@@ -399,6 +401,8 @@ func ActionPhaseEndEntity(stateHandle):
 func PhysicsPhaseStart(_stateHandle):
 	pass
 func PhysicsPhaseStartEntity(stateHandle):
+	stateHandle.EntitySet("_PrevPositionX", stateHandle.EntityGet("_PositionX"))
+	stateHandle.EntitySet("_PrevPositionY", stateHandle.EntityGet("_PositionY"))
 	for pf in _physicsFlagList:
 		if(stateHandle.EntityHasFlag(pf)):
 			stateHandle.EntityAdd("_PhysicsFlagBuffer", [pf])
@@ -932,20 +936,20 @@ func GetTargetPositionRelativeToSelf(args, stateHandle):
 # --------------------------------------------------------------------------------------------------
 # Physics code
 
-func PhysicsPhase(stateHandle, prevStateHandle, activeEIDs):
+func PhysicsPhase(stateHandle, activeEIDs):
 	# 1. Colbox and Environment Collisions
-	PhysicsPhaseEnvironment(stateHandle, prevStateHandle, activeEIDs)
+	PhysicsPhaseEnvironment(stateHandle, activeEIDs)
 	
 	# 2. Attack collisions
 	PhysicsPhaseAttack(stateHandle, activeEIDs)
 
-func PhysicsPhaseEnvironment(stateHandle, prevStateHandle, activeEIDs):
+func PhysicsPhaseEnvironment(stateHandle, activeEIDs):
 	# Checks environment collisions for each entity separately
 	
 	var nbBuckets = stateHandle.ConfigData().Get("PhysicsNbBuckets")
 	
 	# Gather colboxes and env constraints
-	var envConstraints = GetEnvironmentConstraints(stateHandle, prevStateHandle)
+	var envConstraints = GetEnvironmentConstraints(stateHandle)
 	var colboxes = []
 	for eid in activeEIDs:
 		stateHandle.PointToEntity(eid)
@@ -1010,7 +1014,7 @@ func PhysicsPhaseEnvironment(stateHandle, prevStateHandle, activeEIDs):
 		for colboxCol in validColboxCollisions:
 			var colboxA = colboxes[colboxCol[0]]
 			var colboxB = colboxes[colboxCol[1]]
-			PhysicsEnv_ColboxColbox(stateHandle, prevStateHandle, colboxA, colboxB)
+			PhysicsEnv_ColboxColbox(stateHandle, colboxA, colboxB)
 		
 		# Do environment constraints
 		for envCol in validEnvironmentCollisions:
@@ -1072,18 +1076,14 @@ func PhysicsEnv_ApplyEnvConstraint(stateHandle, colbox, envc):
 	else:
 		ModuleError("PhysicsEnv: Env Constraint of unknown type: "+ str(envcType))
 
-func PhysicsEnv_ColboxColbox(stateHandle, prevStateHandle, colboxA, colboxB):
+func PhysicsEnv_ColboxColbox(stateHandle, colboxA, colboxB):
 	stateHandle.PointToEntity(colboxA["Owner"])
 	var colposA = GetBoxPosition(stateHandle, colboxA)
-	var prevXA = stateHandle.EntityGet("_PositionX")
-	if(prevStateHandle.PointToEntity(colboxA["Owner"])):
-		prevXA = prevStateHandle.EntityGet("_PositionX")
+	var prevXA = stateHandle.EntityGet("_PrevPositionX")
 	
 	stateHandle.PointToEntity(colboxB["Owner"])
 	var colposB = GetBoxPosition(stateHandle, colboxB)
-	var prevXB = stateHandle.EntityGet("_PositionX")
-	if(prevStateHandle.PointToEntity(colboxB["Owner"])):
-		prevXB = prevStateHandle.EntityGet("_PositionX")
+	var prevXB = stateHandle.EntityGet("_PrevPositionX")
 	
 	# Check collision
 	if(!AreBoxesOverlapping(colposA, colposB)):
@@ -1244,12 +1244,12 @@ func PhysicsAtk_HandleAttackDefend(stateHandle, attackerEID, defenderEID, attack
 					return true
 	return false
 
-func GetEnvironmentConstraints(stateHandle, prevStateHandle):
+func GetEnvironmentConstraints(stateHandle):
 	if(stateHandle.ConfigData().Get("UseFightingArena")):
-		return CreateFightingArena(stateHandle, prevStateHandle)
+		return CreateFightingArena(stateHandle)
 	return []
 
-func CreateFightingArena(stateHandle, prevStateHandle):
+func CreateFightingArena(stateHandle):
 	# Ground
 	# If two player: special walls and camera
 	# If other count: normal walls
@@ -1267,11 +1267,13 @@ func CreateFightingArena(stateHandle, prevStateHandle):
 		var eid1 = stateHandle.PlayerGet("MainEntity")
 		stateHandle.PointToEntity(eid1)
 		var p1Pos = stateHandle.EntityGet("_PositionX")
+		var p1OldPos = stateHandle.EntityGet("_PrevPositionX")
 		
 		stateHandle.PointToPlayer(1)
 		var eid2 = stateHandle.PlayerGet("MainEntity")
 		stateHandle.PointToEntity(eid2)
 		var p2Pos = stateHandle.EntityGet("_PositionX")
+		var p2OldPos = stateHandle.EntityGet("_PrevPositionX")
 		
 		var centerPos = (p1Pos+p2Pos)/2
 		var p1Left = (p1Pos <= p2Pos)
@@ -1280,13 +1282,6 @@ func CreateFightingArena(stateHandle, prevStateHandle):
 		# Just giving priority to the player below would be janky too
 		
 		if(p1Pos == p2Pos):
-			var p1OldPos = p1Pos
-			var p2OldPos = p2Pos
-			
-			if(prevStateHandle.PointToEntity(eid1)):
-				p1OldPos = prevStateHandle.EntityGet("_PositionX")
-			if(prevStateHandle.PointToEntity(eid2)):
-				p2OldPos = prevStateHandle.EntityGet("_PositionX")
 			p1Left = (p1OldPos <= p2OldPos)
 		
 		envConstraints.push_back({"Type":ENVC_TYPES.AAPlane, "Dir":ENVC_AAPLANE_DIR.Right,
