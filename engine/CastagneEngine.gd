@@ -86,6 +86,7 @@ func EngineTick(previousMemory, playerInputs):
 	if(initError):
 		return
 	
+	_castProfilingTickStart = OS.get_ticks_usec()
 	# 1. Frame and input setup
 	# 0. Memory Set
 	ResetStateHandles()
@@ -116,6 +117,10 @@ func EngineTick(previousMemory, playerInputs):
 		#var inputPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.INPUT), "InputPhase")
 		#ExecuteInternalPhase("Input", activeEIDs, gameStateHandle, inputPhaseFunction)
 		ExecuteScriptPhase("Freeze", activeEIDs, gameStateHandle)
+		
+		
+		for m in modules:
+			m.FrameEnd(gameStateHandle)
 		return memory
 	
 	gameStateHandle.GlobalSet("_FrameID", gameStateHandle.GlobalGet("_FrameID")+1)
@@ -161,6 +166,9 @@ func EngineTick(previousMemory, playerInputs):
 	ExecuteScriptPhase("Reaction", activeEIDs, gameStateHandle)
 	
 	# End the frame
+	for m in modules:
+		m.FrameEnd(gameStateHandle)
+	
 	return memory
 	
 
@@ -169,30 +177,34 @@ func ExecuteScriptPhase(phaseName, eids, gameStateHandle):
 	gameStateHandle.SetPhase(phaseName)
 	for m in modules:
 		funcref(m, phaseName+"PhaseStart").call_func(gameStateHandle)
+		var frEntity = funcref(m, phaseName+"PhaseStartEntity")
 		for eid in eids:
 			gameStateHandle.PointToEntity(eid)
-			funcref(m, phaseName+"PhaseStartEntity").call_func(gameStateHandle)
+			frEntity.call_func(gameStateHandle)
 	for eid in eids:
 		gameStateHandle.PointToEntity(eid)
 		ExecuteCurrentFighterScript(gameStateHandle)
 	for m in modules:
+		var frEntity = funcref(m, phaseName+"PhaseEndEntity")
 		for eid in eids:
 			gameStateHandle.PointToEntity(eid)
-			funcref(m, phaseName+"PhaseEndEntity").call_func(gameStateHandle)
+			frEntity.call_func(gameStateHandle)
 		funcref(m, phaseName+"PhaseEnd").call_func(gameStateHandle)
 
 func ExecuteInternalPhase(phaseName, activeEIDs, gameStateHandle, phaseFunction):
 	# :TODO:Panthavma:20220126:Optimize this by making the funcrefs beforehand
 	for m in modules:
 		funcref(m, phaseName+"PhaseStart").call_func(gameStateHandle)
+		var frEntity = funcref(m, phaseName+"PhaseStartEntity")
 		for eid in activeEIDs:
 			gameStateHandle.PointToEntity(eid)
-			funcref(m, phaseName+"PhaseStartEntity").call_func(gameStateHandle)
+			frEntity.call_func(gameStateHandle)
 	phaseFunction.call_func(gameStateHandle, activeEIDs)
 	for m in modules:
+		var frEntity = funcref(m, phaseName+"PhaseEndEntity")
 		for eid in activeEIDs:
 			gameStateHandle.PointToEntity(eid)
-			funcref(m, phaseName+"PhaseEndEntity").call_func(gameStateHandle)
+			frEntity.call_func(gameStateHandle)
 		funcref(m, phaseName+"PhaseEnd").call_func(gameStateHandle)
 
 
@@ -229,25 +241,11 @@ func GetFighterAllScripts(fighterID):
 	return fighterScripts[fighterID]
 
 func ExecuteFighterScript(fighterScript, gameStateHandle):
-	#var rEID = moduleCallbackData["RefEID"]
 	var phaseName = gameStateHandle.GetPhase()
-	#if(moduleCallbackData["OriginalEID"] == -1):
-	#	moduleCallbackData["OriginalEID"] = eid
-	#	moduleCallbackData["SelectedEID"] = eid
-	#	moduleCallbackData["RefEID"] = eid
-	
 	var actionList = fighterScript[phaseName]
 	
 	for action in actionList:
-		#if(moduleCallbackData["SelectedEID"] != eid):
-		#	eid = moduleCallbackData["SelectedEID"]
-		#	entityState = state[eid]
-		#if(moduleCallbackData["RefEID"] != rEID):
-		#	rEID = moduleCallbackData["RefEID"]
-		#	moduleCallbackData["rState"] = state[rEID]
-		
 		action[0].call_func(action[1], gameStateHandle)
-		#ExecuteAction(action, phaseName, entityState, moduleCallbackData)
 
 func ExecuteAction(action, phaseName, entityState, moduleCallbackData):
 	# :TODO:Panthavma:20221120:Seems unneeded now
@@ -257,9 +255,11 @@ func ExecuteAction(action, phaseName, entityState, moduleCallbackData):
 
 
 func UpdateGraphics(memory):
+	_castProfilingGraphicsStart = OS.get_ticks_usec()
 	var gameStateHandle = CreateStateHandle(memory)
 	for m in modules:
 		m.UpdateGraphics(gameStateHandle)
+	_castProfilingGraphicsEnd = OS.get_ticks_usec()
 
 
 
@@ -462,6 +462,10 @@ func SetInputDevice(pid, deviceName):
 
 # --------------------------------------------------------------------------------------------------
 # System
+
+var _castProfilingTickStart = -1
+var _castProfilingGraphicsStart = -1
+var _castProfilingGraphicsEnd = -1
 
 func _ready():
 	#useOnline = battleInitData["online"]

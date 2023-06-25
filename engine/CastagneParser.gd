@@ -266,6 +266,8 @@ func _OptimizeActionList(stateName):
 
 var _optimizeActionList_parentWarnings = []
 func _OptimizeActionList_Sublist(actionList, baseParentLevel, p, state):
+	# Call / CallParent
+	# Empty branch out
 	var callFuncref = _configData.GetModuleFunctions()["Call"]["ActionFunc"]
 	var callParentFuncref = _configData.GetModuleFunctions()["CallParent"]["ActionFunc"]
 
@@ -322,6 +324,8 @@ func _OptimizeActionList_Sublist(actionList, baseParentLevel, p, state):
 
 var variablesList_OptimPhase2 = {}
 func _OptimizeActionListPhase2(stateName):
+	# Defines replace
+	# V branch compile time conditions
 	if(stateName in _optimizedStates):
 		return
 	_optimizedStates += [stateName]
@@ -344,9 +348,10 @@ func _OptimizeActionListPhase2(stateName):
 
 	for p in PHASES:
 		var actionList = state[p]
-
+		
 		actionList = _OptimizeActionList_Defines(actionList, state["Variables"], _variables[entity])
-
+		actionList = _OptimizeActionList_StaticBranches(actionList)
+		
 		state[p] = actionList
 	_states[stateName] = state
 
@@ -402,6 +407,29 @@ func _OptimizeActionList_Defines_BranchArgs(branchFuncref, letterArgs, variables
 	if(letterArgs.is_valid_integer()):
 		letterArgs = int(letterArgs)
 	return letterArgs
+
+func _OptimizeActionList_StaticBranches(actionListToParse):
+	var vbranch = _branchFunctions["V"]
+	var branchFuncrefs = _branchFunctions.values()
+	var newActionList = []
+	
+	for a in actionListToParse:
+		if(a[0] == vbranch):
+			var parsedCondition = _Instruction_ParseCondition(a[1][2])
+			if(parsedCondition[0].is_valid_integer() and parsedCondition[2].is_valid_integer()):
+				var result = _Instruction_ComputeCondition_Internal(int(parsedCondition[0]), parsedCondition[1], int(parsedCondition[2]))
+				var chosenBranch = (a[1][0] if result else a[1][1])
+				newActionList.append_array(_OptimizeActionList_StaticBranches(chosenBranch))
+			else:
+				newActionList.push_back(a)
+		elif a[0] in branchFuncrefs:
+			a[1][0] = _OptimizeActionList_StaticBranches(a[1][0])
+			a[1][1] = _OptimizeActionList_StaticBranches(a[1][1])
+			newActionList.push_back(a)
+		else:
+			newActionList.push_back(a)
+	
+	return newActionList
 
 func _RuntimeStateTagging(stateName):
 	var state = _states[stateName]
@@ -712,7 +740,12 @@ func _ParseForEdition():
 					var doccontents = line.right(2).strip_edges()
 					fscs["StateFullDoc"] += doccontents + "\n"
 					if(doccontents.find("TODO") >= 0):
-						fscs["StateFlags"] += ["TODO"]
+						var todoFlags = ["DESIGN", "MOMENTUM", "FRAMEDATA", "ANIM", "VFX", "SOUND", "BUG"]
+						var todoFlag = "TODO"
+						for tf in todoFlags:
+							if(doccontents.find("TODO"+tf) >= 0):
+								todoFlag = "TODO"+tf
+						fscs["StateFlags"] += [todoFlag]
 					if(doccontents.find("CASTDO") >= 0):
 						fscs["StateFlags"] += ["CASTTODO"]
 				elif(line.begins_with("#")):
@@ -1205,7 +1238,7 @@ func _GetEntityNameFromStateName(stateName):
 	return entity
 
 onready var KnownVariableTypes = {"int":Castagne.VARIABLE_TYPE.Int, "str":Castagne.VARIABLE_TYPE.Str, "bool":Castagne.VARIABLE_TYPE.Bool}
-func _ExtractVariable(line):
+func _ExtractVariable(line, returnIncompleteType = false):
 	# Structure: var NAME int() = 5
 	var variableMutability = null
 	var variableValue = null
@@ -1433,10 +1466,11 @@ func _Instruction_ComputeCondition(letterArgs, stateHandle):
 		return false
 
 	var firstPart = ArgInt([parsedCondition[0]], stateHandle, 0, 0)
-	var condition = parsedCondition[1]
 	var secondPart = ArgInt([parsedCondition[2]], stateHandle, 0, 0)
-	var diff = firstPart - secondPart
+	return _Instruction_ComputeCondition_Internal(firstPart, parsedCondition[1], secondPart)
 
+func _Instruction_ComputeCondition_Internal(firstPart, condition, secondPart):
+	var diff = firstPart - secondPart
 	if(diff == 0):
 		return (abs(condition) <= 1)
 	return (sign(condition) == sign(diff))
