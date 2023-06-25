@@ -3,6 +3,9 @@ extends "../CastagneModule.gd"
 var gizmoDisplayScript = preload("res://castagne/modules/castagne/CMEditor-GizmoDisplay.gd")
 var gizmoDisplay = null
 
+signal EngineTick_FramePreStart
+signal EngineTick_FrameStart
+signal EngineTick_FrameEnd
 signal EngineTick_AIStart
 signal EngineTick_AIStartEntity
 signal EngineTick_AIEndEntity
@@ -36,7 +39,7 @@ func ModuleSetup():
 	RegisterCategory("Castagne Editor")
 	RegisterConfig("Editor-SelectedCharacter", 0, {"Flags":["Hidden"]})
 	RegisterConfig("Editor-DocumentationFolders", "res://castagne/docs", {"Flags":["Advanced"]})
-	RegisterConfig("Editor-Tools", "res://castagne/editor/tools/CETool-Compile.tscn, res://castagne/editor/tools/CETool-Inputs.tscn", {"Flags":["Advanced"]})
+	RegisterConfig("Editor-Tools", "res://castagne/editor/tools/CETool-Compile.tscn, res://castagne/editor/tools/CETool-Inputs.tscn, res://castagne/editor/tools/CETool-Perf.tscn", {"Flags":["Advanced"]})
 	RegisterConfig("Editor-LockCastagneFiles", true, {"Flags":["Advanced"]})
 	RegisterConfig("Editor-LockBaseSkeleton", false, {"Flags":["Advanced"]})
 	RegisterConfig("Editor-OnlyAllowCustomEditors", false)
@@ -57,16 +60,23 @@ func ModuleSetup():
 	RegisterConfig("EditorCharacterOrder", [], {"Flags":["Hidden"]})
 	
 	RegisterCategory("Editor")
-	RegisterFunction("_Category", [1])
-	RegisterFunction("_Overridable", [0,1])
-	RegisterFunction("_BaseState", [0])
-	RegisterFunction("_StateFlag", [1])
-	RegisterFunction("_Helper", [0])
-	RegisterFunction("_Overriding", [0])
+	RegisterFunction("_Category", [1], ["EditorOnly"])
+	RegisterFunction("_Overridable", [0,1], ["EditorOnly"])
+	RegisterFunction("_BaseState", [0], ["EditorOnly"])
+	RegisterFunction("_StateFlag", [1], ["EditorOnly"])
+	RegisterFunction("_Helper", [0], ["EditorOnly"])
+	RegisterFunction("_Overriding", [0], ["EditorOnly"])
 	
 	RegisterStateFlag("Warning")
 	RegisterStateFlag("Error")
 	RegisterStateFlag("TODO")
+	RegisterStateFlag("TODOVFX")
+	RegisterStateFlag("TODOSOUND")
+	RegisterStateFlag("TODOANIM")
+	RegisterStateFlag("TODOBUG")
+	RegisterStateFlag("TODOFRAMEDATA")
+	RegisterStateFlag("TODOMOMENTUM")
+	RegisterStateFlag("TODODESIGN")
 	RegisterStateFlag("CASTTODO")
 	RegisterStateFlag("Overridable")
 	RegisterStateFlag("Overriding")
@@ -95,12 +105,18 @@ func BattleInit(stateHandle, _battleInitData):
 var runStop = false
 var runSlowmo = 0
 func FramePreStart(stateHandle):
+	emit_signal("EngineTick_FramePreStart", stateHandle)
 	UpdateGizmos(stateHandle)
 	
 	if(runStop):
 		stateHandle.GlobalSet("_SkipFrame", true)
 	elif(runSlowmo > 1):
 		stateHandle.GlobalSet("_SkipFrame", stateHandle.GlobalGet("_TrueFrameID") % runSlowmo > 0)
+
+func FrameStart(stateHandle):
+	emit_signal("EngineTick_FrameStart", stateHandle)
+func FrameEnd(stateHandle):
+	emit_signal("EngineTick_FrameEnd", stateHandle)
 
 func AIPhaseStart(stateHandle):
 	emit_signal("EngineTick_AIStart", stateHandle)
@@ -150,22 +166,6 @@ func FreezePhaseEndEntity(stateHandle):
 	emit_signal("EngineTick_FreezeEndEntity", stateHandle)
 func FreezePhaseEnd(stateHandle):
 	emit_signal("EngineTick_FreezeEnd", stateHandle)
-
-
-func _Category(_args, _stateHandle):
-	pass
-func _Overridable(_args, _stateHandle):
-	pass
-func _BaseState(_args, _stateHandle):
-	pass
-func _StateDoc(_args, _stateHandle):
-	pass
-func _StateFlag(_args, _stateHandle):
-	pass
-func _Helper(_args, _stateHandle):
-	pass
-func _Overriding(_args, _stateHandle):
-	pass
 
 
 var currentGizmos = []

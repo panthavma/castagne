@@ -14,25 +14,25 @@ func ModuleSetup():
 	RegisterCategory("Variables", {
 		"Description": "These functions are focused on basic variable and flag manipulation."})
 	
-	RegisterFunction("Flag", [1], ["AllPhases"], {
+	RegisterFunction("Flag", [1], null, {
 		"Description": "Raises a flag. Flags are reset at the beginning of each frame and allow you to communicate easily between modules. Flags are tested with L branches.",
 		"Arguments": ["Flag name"],
 		"Flags":["Basic"],
 		"Types": ["str"],
 		})
-	RegisterFunction("Unflag", [1], ["AllPhases"], {
+	RegisterFunction("Unflag", [1], null, {
 		"Description": "Unsets a flag, if it was set earlier.",
 		"Arguments": ["Flag name"],
 		"Flags":["Basic"],
 		"Types": ["str"],
 		})
-	RegisterFunction("FlagNext", [1], ["AllPhases"], {
+	RegisterFunction("FlagNext", [1], null, {
 		"Description": "Raises a flag at the beginning of the next frame.",
 		"Arguments": ["Flag name"],
 		"Flags":["Basic"],
 		"Types": ["str"],
 		})
-	RegisterFunction("UnflagNext", [1], ["AllPhases"], {
+	RegisterFunction("UnflagNext", [1], null, {
 		"Description": "Unsets a flag for the next frame, if it was set earlier with FlagNext.",
 		"Arguments": ["Flag name"],
 		"Flags":["Basic"],
@@ -189,13 +189,13 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		"Description":"Sets a variable in the target entity. This will be applied at the end of the phase, or at initialization for new entities.",
 		"Arguments":["Variable name on target entity", "Variable Value"],
 		"Flags":["Intermediate"],
-		"Types": ["var", "int"],
+		"Types": ["str", "int"],
 	})
 	RegisterFunction("SetStrInTarget", [2], null, {
 		"Description":"Sets a variable in the target entity. This will be applied at the end of the phase, or at initialization for new entities.",
 		"Arguments":["Variable name on target entity", "Variable Value"],
 		"Flags":["Intermediate"],
-		"Types": ["var", "str"],
+		"Types": ["str", "str"],
 	})
 	RegisterFunction("FlagInTarget", [1], null, {
 		"Description":"Sets a flag in the target. This will be applied at the end of the phase, but doesn't carry over to the next frame, meaning you'll most likely only access it in Reaction phase.",

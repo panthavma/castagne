@@ -72,24 +72,23 @@ func ModuleSetup():
 	RegisterVariableEntity("_InputTransitionList", [], ["ResetEachFrame"], {"Description":"List of the input transitions to watch for."})
 	RegisterConfig("InputTransitionDefaultPriority", 1000, {"Description":"The default Transition priority for InputTransition."})
 
-	RegisterModule("Motion Inputs", null, {"Description":"Module handling motion inputs, allowing them to used as part of the input and attack cancel systems."})
-
-
 	RegisterCategory("Motion Inputs", {"Description":"System for detecting when motion input has been performed by a player."})
 
-	RegisterConfig("DirectionalInputBuffer", 60, {"Description":"Number of frames the module retains the directional inputs from. This value should be greater than the longest motion input times the individual input interval for that motion."})
-	RegisterConfig("ShortMotionInterval", 12, {"Description":"Maximum number of frames between inputs for a motion to remain valid. This value is for motions with three directions or less."})
-	RegisterConfig("LongMotionInterval", 8, {"Description":"Maximum number of frames between inputs for a motion to remain valid. This value is for motions with more than three directions."})
-	RegisterConfig("ButtonInterval", 8, {"Description":"Maximum number of frames between motion input and pressing the button for a motion to remain valid."})
-	RegisterConfig("MinChargeTime", 30, {"Description":"Minimum number of frames for a direction to be held for a valid charge input."})
+	RegisterConfig("EnableMotionInputs", true, {"Description":"Toggle to disable motion inputs engine-wide.", "Flags":["Basic"]})
+	
+	RegisterConfig("DirectionalInputBuffer", 60, {"Description":"Number of frames the module retains the directional inputs from. This value should be greater than the longest motion input times the individual input interval for that motion.", "Flags":["Advanced"]})
+	RegisterConfig("ShortMotionInterval", 12, {"Description":"Maximum number of frames between inputs for a motion to remain valid. This value is for motions with three directions or less.", "Flags":["Advanced"]})
+	RegisterConfig("LongMotionInterval", 8, {"Description":"Maximum number of frames between inputs for a motion to remain valid. This value is for motions with more than three directions.", "Flags":["Advanced"]})
+	RegisterConfig("ButtonInterval", 8, {"Description":"Maximum number of frames between motion input and pressing the button for a motion to remain valid.", "Flags":["Advanced"]})
+	RegisterConfig("MinChargeTime", 30, {"Description":"Minimum number of frames for a direction to be held for a valid charge input.", "Flags":["Advanced"]})
 	#the above three values determine the number of frames between inputs in a motion. By default, shorter motions have more leniency.
 	
 	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, 22, [4]6, [2]8",{"Description":"Motion inputs in numpad notation that the system will check for."})
 
-	RegisterVariableEntity("_DirectionalInputLog", [], {"Description":"Array containing just the raw directional inputs for a player on each frame. Inputs are held for a number of frames equal to the buffer config variable."})
-	RegisterVariableEntity("_ChargeInputLog", [], {"Description":"Array containing the inputs that have been held long enough to charge on each frame. Diagonal inputs also add the cardinal direction inputs. Inputs are held for a number of frames equal to the buffer config variable."})
-	RegisterVariableEntity("_ChargeTime", {"Up":0,"Down":0,"Forward":0,"Back":0},{"Description":"Dict containing the number of frames each direction has been held."})
-	RegisterVariableEntity("_PerformedMotions", [], {"Description":"Array containing the motions that have been performed by the player."})
+	RegisterVariableEntity("_DirectionalInputLog", [], null, {"Description":"Array containing just the raw directional inputs for a player on each frame. Inputs are held for a number of frames equal to the buffer config variable."})
+	RegisterVariableEntity("_ChargeInputLog", [], null, {"Description":"Array containing the inputs that have been held long enough to charge on each frame. Diagonal inputs also add the cardinal direction inputs. Inputs are held for a number of frames equal to the buffer config variable."})
+	RegisterVariableEntity("_ChargeTime", {"Up":0,"Down":0,"Forward":0,"Back":0}, null, {"Description":"Dict containing the number of frames each direction has been held."})
+	RegisterVariableEntity("_PerformedMotions", [], ["ResetEachFrame"], {"Description":"Array containing the motions that have been performed by the player."})
 	
 var _castagneInputScript = load("res://castagne/engine/CastagneInput.gd")
 func OnModuleRegistration(configData):
@@ -193,15 +192,16 @@ func InputPhase(stateHandle, activeEIDs):
 		stateHandle.EntitySet("_Inputs", inputs)
 
 func InputPhaseEndEntity(stateHandle):
-	LogDirectionalInputs(stateHandle)
+	if(stateHandle.ConfigData().Get("EnableMotionInputs")):
+		LogDirectionalInputs(stateHandle)
 
-	var validMotions = Castagne.SplitStringToArray(stateHandle.ConfigData().Get("ValidMotionInputs"))
-	var motions = []
+		var validMotions = Castagne.SplitStringToArray(stateHandle.ConfigData().Get("ValidMotionInputs"))
+		var motions = []
 
-	for m in validMotions:
-		if MotionInputCheck(stateHandle, m):
-			motions += [m]
-	stateHandle.EntitySet("_PerformedMotions", motions)
+		for m in validMotions:
+			if MotionInputCheck(stateHandle, m):
+				motions += [m]
+		stateHandle.EntitySet("_PerformedMotions", motions)
 
 func ReactionPhaseStartEntity(stateHandle):
 	var inputTransition = FindCorrectInputTransition(stateHandle)

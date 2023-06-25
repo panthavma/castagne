@@ -534,7 +534,7 @@ def ProjectileSpeed int() = 2000
 def HitboxWidth int() = 2000
 def HitboxHeight int() = 2000
 
-Call(ProjectileCore)
+Call(ProjectileBasic)
 
 AttackDamage(ProjectileDamage)
 AttackHitstunBlockstun(ProjectileHitstun, ProjectileBlockstun)

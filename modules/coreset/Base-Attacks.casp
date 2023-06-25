@@ -798,7 +798,7 @@ def ProjectileSpeed int() = 1000
 def HitboxWidth int() = 2000
 def HitboxHeight int() = 2000
 
-Call(ProjectileCore)
+Call(ProjectileBasic)
 
 Move(ProjectileSpeed)
 
@@ -954,8 +954,8 @@ LAirThrow:
 else
 	Transition(ATTACK_Throw_Ground_HeldState, ATTACK_Throw_GoToHoldingPriority)
 endif
-:ProjectileCore:
-## Common behavior for projectile entities
+:ProjectileBasic:
+## Simple basic projectile
 #_Category(Attacks/Helpers)
 _BaseState()
 ## CASTDO Warnings and category
@@ -965,8 +965,6 @@ def ProjectileDamage int() = 1000
 def ProjectileHitstun int() = 60
 def ProjectileBlockstun int() = 60
 
-def DestroyOnGroundHit bool() = 1
-def DestroyOnWallHit bool() = 1
 
 F1:
 	AttackDamage(ProjectileDamage)
@@ -974,11 +972,22 @@ F1:
 	AttackBlockstun(ProjectileBlockstun)
 endif
 
+Call(ProjectileCore)
+:ProjectileCore:
+## Common behavior for projectile entities
+#_Category(Attacks/Helpers)
+_BaseState()
+## CASTDO Warnings and category
+
+def DestroyOnGroundHit bool() = 1
+def DestroyOnWallHit bool() = 1
+def DestroyAfterTime int() = 300
+
 Colbox(500, 500)
 SetColboxPhantom()
 SetColboxLayer(0)
 
-F300+:
+FDestroyAfterTime+:
 	Flag(DestroyProjectile)
 endif
 

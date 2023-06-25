@@ -166,10 +166,12 @@ func ParseFighterScript(script, linePrefix = ""):
 		
 		if(fref.get_function() in branchFunctionsFuncrefsNames):
 			fname = fref.get_function().right(11) # InstructionX
-			t += fname + str(a[1][2]) + ":\n"
+			t += linePrefix+fname + str(a[1][2]) + ":\n"
 			t += ParseFighterScript(a[1][0], linePrefix + "    ")
-			t += linePrefix+"else\n"
-			t += ParseFighterScript(a[1][1], linePrefix + "    ")
+			var elseT = ParseFighterScript(a[1][1], linePrefix + "    ")
+			if(!(elseT.strip_edges().empty())):
+				t += linePrefix+"else\n"
+				t += elseT
 			t += linePrefix+"endif\n"
 		else:
 			t += linePrefix + fname + "("

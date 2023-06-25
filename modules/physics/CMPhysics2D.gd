@@ -372,7 +372,7 @@ func ModuleSetup():
 	RegisterConfig("ArenaSize", 180000)
 	RegisterConfig("ArenaMaxPlayerDistance", 75000)
 	
-	RegisterConfig("PhysicsNbBuckets", 4)
+	RegisterConfig("PhysicsNbBuckets", 1)
 
 func BattleInit(stateHandle, _battleInitData):
 	engine.physicsModule = self
@@ -936,12 +936,37 @@ func GetTargetPositionRelativeToSelf(args, stateHandle):
 # --------------------------------------------------------------------------------------------------
 # Physics code
 
+var _castProfiling_PhysicsStart = -1
+var _castProfiling_PhysicsSetupDone = -1
+var _castProfiling_Env_SetupDone = -1
+var _castProfiling_EnvColEnd = -1
+var _castProfiling_Atk_SetupDone = -1
+var _castProfiling_PhysicsEnd = -1
+
 func PhysicsPhase(stateHandle, activeEIDs):
-	# 1. Colbox and Environment Collisions
-	PhysicsPhaseEnvironment(stateHandle, activeEIDs)
+	_castProfiling_PhysicsStart = OS.get_ticks_usec()
 	
-	# 2. Attack collisions
+	# 1. Setup data needed
+	PhysicsPhaseSetup(stateHandle, activeEIDs)
+	_castProfiling_PhysicsSetupDone = OS.get_ticks_usec()
+	
+	# 2. Colbox and Environment Collisions
+	PhysicsPhaseEnvironment(stateHandle, activeEIDs)
+	_castProfiling_EnvColEnd = OS.get_ticks_usec()
+	
+	# 3. Attack collisions
 	PhysicsPhaseAttack(stateHandle, activeEIDs)
+	_castProfiling_PhysicsEnd = OS.get_ticks_usec()
+
+var ppAttackModule
+var ppStateHandlesByEID
+func PhysicsPhaseSetup(stateHandle, activeEIDs):
+	ppAttackModule = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.ATTACKS)
+	ppStateHandlesByEID = {}
+	for eid in activeEIDs:
+		stateHandle.PointToEntity(eid)
+		var entityStateHandle = stateHandle.CloneStateHandle()
+		ppStateHandlesByEID[eid] = entityStateHandle
 
 func PhysicsPhaseEnvironment(stateHandle, activeEIDs):
 	# Checks environment collisions for each entity separately
@@ -952,14 +977,14 @@ func PhysicsPhaseEnvironment(stateHandle, activeEIDs):
 	var envConstraints = GetEnvironmentConstraints(stateHandle)
 	var colboxes = []
 	for eid in activeEIDs:
-		stateHandle.PointToEntity(eid)
-		var c = stateHandle.EntityGet("_Colbox")
+		var entityStateHandle = ppStateHandlesByEID[eid]
+		var c = entityStateHandle.EntityGet("_Colbox")
 		if(c == null):
 			continue
 		c = c.duplicate()
-		c["Phantom"] = stateHandle.EntityGet("_ColboxPhantom")
-		c["Mode"] = stateHandle.EntityGet("_ColboxMode")
-		c["Layer"] = stateHandle.EntityGet("_ColboxLayer")
+		c["Phantom"] = entityStateHandle.EntityGet("_ColboxPhantom")
+		c["Mode"] = entityStateHandle.EntityGet("_ColboxMode")
+		c["Layer"] = entityStateHandle.EntityGet("_ColboxLayer")
 		colboxes.push_back(c)
 	
 	var nbColboxes = colboxes.size()
@@ -990,9 +1015,9 @@ func PhysicsPhaseEnvironment(stateHandle, activeEIDs):
 	#var positions = {} 
 	
 	for eid in activeEIDs:
-		stateHandle.PointToEntity(eid)
+		var entityStateHandle = ppStateHandlesByEID[eid]
 		#positions[eid] = [stateHandle.EntityGet("_PositionX"), stateHandle.EntityGet("_PositionY")]
-		var movement = [stateHandle.EntityGet("_MovementX"), stateHandle.EntityGet("_MovementY")]
+		var movement = [entityStateHandle.EntityGet("_MovementX"), entityStateHandle.EntityGet("_MovementY")]
 		var bucketMovement = [movement[0]/nbBuckets, movement[1]/nbBuckets]
 		var buckets = []
 		for i in range(nbBuckets):
@@ -1001,33 +1026,35 @@ func PhysicsPhaseEnvironment(stateHandle, activeEIDs):
 		buckets[0][1] += movement[1]%nbBuckets
 		movementBuckets[eid] = buckets
 	
+	_castProfiling_Env_SetupDone = OS.get_ticks_usec()
+	
 	# Main Loop
 	for loopID in nbBuckets:
 		# Apply movement
 		for eid in activeEIDs:
 			var movement = movementBuckets[eid][loopID]
-			stateHandle.PointToEntity(eid)
-			stateHandle.EntityAdd("_PositionX", movement[0])
-			stateHandle.EntityAdd("_PositionY", movement[1])
+			var entityStateHandle = ppStateHandlesByEID[eid]
+			entityStateHandle.EntityAdd("_PositionX", movement[0])
+			entityStateHandle.EntityAdd("_PositionY", movement[1])
 		
 		# Do colbox interactions
 		for colboxCol in validColboxCollisions:
 			var colboxA = colboxes[colboxCol[0]]
 			var colboxB = colboxes[colboxCol[1]]
-			PhysicsEnv_ColboxColbox(stateHandle, colboxA, colboxB)
+			PhysicsEnv_ColboxColbox(colboxA, colboxB)
 		
 		# Do environment constraints
 		for envCol in validEnvironmentCollisions:
 			var colbox = colboxes[envCol[0]]
 			var envConstraint = envConstraints[envCol[1]]
-			var movement = PhysicsEnv_ApplyEnvConstraint(stateHandle, colbox, envConstraint)
+			var movement = PhysicsEnv_ApplyEnvConstraint(colbox, envConstraint)
 
-func PhysicsEnv_ApplyEnvConstraint(stateHandle, colbox, envc):
+func PhysicsEnv_ApplyEnvConstraint(colbox, envc):
 	var movement = [0,0]
 	var envcType = envc["Type"]
 	
-	stateHandle.PointToEntity(colbox["Owner"])
-	var colpos = GetBoxPosition(stateHandle, colbox)
+	var entityStateHandle = ppStateHandlesByEID[colbox["Owner"]]
+	var colpos = GetBoxPosition(entityStateHandle, colbox)
 	
 	if(envcType == ENVC_TYPES.AAPlane):
 		var envcDir = envc["Dir"]
@@ -1041,20 +1068,20 @@ func PhysicsEnv_ApplyEnvConstraint(stateHandle, colbox, envc):
 		var flag = null
 		
 		if(envcDir == ENVC_AAPLANE_DIR.Right):
-			colboxPos = colpos["Left"]
+			colboxPos = colpos[0]
 			moveXMult = -1
 			flag = "PFWall"
 		elif(envcDir == ENVC_AAPLANE_DIR.Up):
-			colboxPos = colpos["Down"]
+			colboxPos = colpos[2]
 			moveYMult = -1
 			flag = "PFGrounded"
 		elif(envcDir == ENVC_AAPLANE_DIR.Left):
-			colboxPos = colpos["Right"]
+			colboxPos = colpos[1]
 			moveXMult = 1
 			invertAxis = -1
 			flag = "PFWall"
 		elif(envcDir == ENVC_AAPLANE_DIR.Down):
-			colboxPos = colpos["Up"]
+			colboxPos = colpos[3]
 			moveYMult = 1
 			invertAxis = -1
 			flag = "PFCeiling"
@@ -1065,50 +1092,48 @@ func PhysicsEnv_ApplyEnvConstraint(stateHandle, colbox, envc):
 		var diff = (colboxPos - envcPos) * invertAxis
 		var margin = 10 # TODO CAST 54 Config
 		if(diff <= margin):
-			EntitySetFlag(stateHandle, flag)
+			EntitySetFlag(entityStateHandle, flag)
 		
 		if(diff < 0):
-			stateHandle.EntityAdd("_PositionX", diff * moveXMult)
-			stateHandle.EntityAdd("_PositionY", diff * moveYMult)
+			entityStateHandle.EntityAdd("_PositionX", diff * moveXMult)
+			entityStateHandle.EntityAdd("_PositionY", diff * moveYMult)
 			if(envcStopMomentum):
 				if(moveYMult != 0):
-					stateHandle.EntitySet("_MomentumY", max(stateHandle.EntityGet("_MomentumY")*invertAxis, 0)*invertAxis)
+					entityStateHandle.EntitySet("_MomentumY", max(entityStateHandle.EntityGet("_MomentumY")*invertAxis, 0)*invertAxis)
 	else:
 		ModuleError("PhysicsEnv: Env Constraint of unknown type: "+ str(envcType))
 
-func PhysicsEnv_ColboxColbox(stateHandle, colboxA, colboxB):
-	stateHandle.PointToEntity(colboxA["Owner"])
-	var colposA = GetBoxPosition(stateHandle, colboxA)
-	var prevXA = stateHandle.EntityGet("_PrevPositionX")
+func PhysicsEnv_ColboxColbox(colboxA, colboxB):
+	var entityStateHandleA = ppStateHandlesByEID[colboxA["Owner"]]
+	var colposA = GetBoxPosition(entityStateHandleA, colboxA)
+	var prevXA = entityStateHandleA.EntityGet("_PrevPositionX")
 	
-	stateHandle.PointToEntity(colboxB["Owner"])
-	var colposB = GetBoxPosition(stateHandle, colboxB)
-	var prevXB = stateHandle.EntityGet("_PrevPositionX")
+	var entityStateHandleB = ppStateHandlesByEID[colboxB["Owner"]]
+	var colposB = GetBoxPosition(entityStateHandleB, colboxB)
+	var prevXB = entityStateHandleB.EntityGet("_PrevPositionX")
 	
 	# Check collision
 	if(!AreBoxesOverlapping(colposA, colposB)):
 		return
 	
 	var overlap = 0
-	if(colposA["Left"] < colposB["Left"]):
-		overlap = colposA["Right"] - colposB["Left"]
+	if(colposA[0] < colposB[0]):
+		overlap = colposA[1] - colposB[0]
 	else:
-		overlap = colposB["Right"] - colposA["Left"]
+		overlap = colposB[1] - colposA[0]
 	
-	var centerHA = (colposA["Right"] + colposA["Left"])/2
-	var centerVA = (colposA["Up"] + colposA["Down"])/2
-	var centerHB = (colposB["Right"] + colposB["Left"])/2
-	var centerVB = (colposB["Up"] + colposB["Down"])/2
+	var centerHA = (colposA[1] + colposA[0])/2
+	var centerVA = (colposA[3] + colposA[2])/2
+	var centerHB = (colposB[1] + colposB[0])/2
+	var centerVB = (colposB[3] + colposB[2])/2
 	
 	var pushbackDirA = (-1 if prevXB > prevXA else 1)
 	if(prevXA == prevXB):
 		pushbackDirA = (-1 if centerHB > centerHA else 1)
 	# TODO Take facing into account and other heuristics
 	
-	stateHandle.PointToEntity(colboxA["Owner"])
-	stateHandle.EntityAdd("_PositionX", pushbackDirA*overlap/2)
-	stateHandle.PointToEntity(colboxB["Owner"])
-	stateHandle.EntityAdd("_PositionX", -pushbackDirA*overlap/2)
+	entityStateHandleA.EntityAdd("_PositionX", pushbackDirA*overlap/2)
+	entityStateHandleB.EntityAdd("_PositionX", -pushbackDirA*overlap/2)
 	
 	# TODO Control of pushback
 	# TODO Check for wall ?
@@ -1142,23 +1167,24 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 	var aaBoxes = {} # [hurtbox, hitbox, friendlyfire], if null ignore collision
 	
 	# Build EID List
+	var posKeys = ["Left", "Right", "Down", "Up"]
 	for eid in activeEIDs:
-		stateHandle.PointToEntity(eid)
+		var entityStateHandle = ppStateHandlesByEID[eid]
 		
 		var hurt = []
 		var hurtboxAA = null
-		var entityHurtboxList = stateHandle.EntityGet("_Hurtboxes")
+		var entityHurtboxList = entityStateHandle.EntityGet("_Hurtboxes")
 		for hurtboxOriginal in entityHurtboxList:
 			var h = hurtboxOriginal.duplicate()
-			var pos = GetBoxPosition(stateHandle, hurtboxOriginal)
+			var pos = GetBoxPosition(entityStateHandle, hurtboxOriginal)
 			
 			if(hurtboxAA == null):
 				hurtboxAA = pos
 			else:
 				ExpandAABox(hurtboxAA, pos)
 			
-			for k in pos:
-				h[k] = pos[k]
+			for i in range(4):
+				h[i] = pos[i]
 			h["Hitbox"] = false
 			hurt.push_back(h)
 			
@@ -1167,18 +1193,18 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 		var ffHit = []
 		var hitboxAA = null
 		var ffHitboxAA = null
-		var entityHitboxList = stateHandle.EntityGet("_Hitboxes")
+		var entityHitboxList = entityStateHandle.EntityGet("_Hitboxes")
 		for hitboxOriginal in entityHitboxList:
 			var h = hitboxOriginal.duplicate()
-			var pos = GetBoxPosition(stateHandle, hitboxOriginal)
+			var pos = GetBoxPosition(entityStateHandle, hitboxOriginal)
 			
 			if(hitboxAA == null):
 				hitboxAA = pos
 			else:
 				ExpandAABox(hitboxAA, pos)
 			
-			for k in pos:
-				h[k] = pos[k]
+			for i in range(4):
+				h[i] = pos[i]
 			h["Hitbox"] = true
 			
 			var hitboxFriendlyFire = h["AttackData"]["Flags"].has("FriendlyFire")
@@ -1212,6 +1238,8 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 		hitboxes[eid] = hit
 		friendlyFireHitboxes[eid] = ffHit
 	
+	_castProfiling_Atk_SetupDone = OS.get_ticks_usec()
+	
 	# Gather potential character collisions
 	for eidAID in range(activeEIDs.size()-1):
 		var eidA = activeEIDs[eidAID]
@@ -1219,10 +1247,8 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 			var eidB = activeEIDs[eidBID]
 			var aaBoxesA = aaBoxes[eidA]
 			var aaBoxesB = aaBoxes[eidB]
-			stateHandle.PointToEntity(eidA)
-			var pidA = stateHandle.EntityGet("_Player")
-			stateHandle.PointToEntity(eidB)
-			var pidB = stateHandle.EntityGet("_Player")
+			var pidA = ppStateHandlesByEID[eidA].EntityGet("_Player")
+			var pidB = ppStateHandlesByEID[eidB].EntityGet("_Player")
 			var sameTeam = (pidA == pidB)
 			var aaHitboxID = (2 if sameTeam else 1)
 			
@@ -1236,11 +1262,10 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 				PhysicsAtk_HandleAttackDefend(stateHandle, eidB, eidA, atkH, hurtboxes[eidA])
 
 func PhysicsAtk_HandleAttackDefend(stateHandle, attackerEID, defenderEID, attackerHitboxes, defenderHurtboxes):
-	var attackModule = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.ATTACKS)
 	for hitbox in attackerHitboxes:
 		for hurtbox in defenderHurtboxes:
 			if(AreBoxesOverlapping(hitbox, hurtbox)):
-				if(attackModule.HandleHit(stateHandle, attackerEID, hitbox, defenderEID, hurtbox)):
+				if(ppAttackModule.HandleHit(stateHandle, attackerEID, hitbox, defenderEID, hurtbox)):
 					return true
 	return false
 
@@ -1320,21 +1345,23 @@ func GetBoxPosition(stateHandle, box):
 	var cornerBR = TransformPosEntityToWorld([box["Right"], box["Down"],0], stateHandle)
 	var facingHV = GetFacingHV(stateHandle)
 	if(facingHV[0] >= 0):
-		return {"Left":cornerTL[0], "Right":cornerBR[0],"Down":cornerBR[1],"Up":cornerTL[1]}
+		return [cornerTL[0],cornerBR[0],cornerBR[1],cornerTL[1]]
+		#return {"Left":cornerTL[0], "Right":cornerBR[0],"Down":cornerBR[1],"Up":cornerTL[1]}
 	else:
-		return {"Left":cornerBR[0], "Right":cornerTL[0],"Down":cornerBR[1],"Up":cornerTL[1]}
+		return [cornerBR[0],cornerTL[0],cornerBR[1],cornerTL[1]]
+		#return {"Left":cornerBR[0], "Right":cornerTL[0],"Down":cornerBR[1],"Up":cornerTL[1]}
 
 func AreBoxesOverlapping(boxA, boxB):
-	return (boxA["Right"] > boxB["Left"]
-		and boxA["Left"] < boxB["Right"]
-		and boxA["Up"] > boxB["Down"]
-		and boxA["Down"] < boxB["Up"])
+	return (boxA[1] > boxB[0]
+		and boxA[0] < boxB[1]
+		and boxA[3] > boxB[2]
+		and boxA[2] < boxB[3])
 
 func ExpandAABox(aabox, newBox):
-	aabox["Left"] = min(aabox["Left"], newBox["Left"])
-	aabox["Right"] = max(aabox["Right"], newBox["Right"])
-	aabox["Down"] = min(aabox["Down"], newBox["Down"])
-	aabox["Up"] = max(aabox["Up"], newBox["Up"])
+	aabox[0] = min(aabox[0], newBox[0])
+	aabox[1] = max(aabox[1], newBox[1])
+	aabox[2] = min(aabox[2], newBox[2])
+	aabox[3] = max(aabox[3], newBox[3])
 
 func GetFacingHV(stateHandle, facingType = FACING_TYPE.Physics):
 	var facings = ["Physics", "Attack", "Block", "Model"]

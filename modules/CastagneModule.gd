@@ -29,6 +29,9 @@ func FramePreStart(_stateHandle):
 # Called at the beginning of each frame
 func FrameStart(_stateHandle):
 	pass
+# Called at the end of each frame
+func FrameEnd(_stateHandle):
+	pass
 
 
 # AI Phase: Helpful to execute the AI logic for an entity and create fake button presses
@@ -217,6 +220,9 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	if(flags.has("Transition")):
 		print("CHANGE TO REACTION: "+functionName)
 	
+	if(flags.has("EditorOnly")):
+		flags += ["NoFunc"]
+	
 	if(flags.has("AllPhases")):
 		flags += ["Init", "Action", "Reaction"]
 	
@@ -233,6 +239,9 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	
 	if(has_method("Gizmo"+functionName)):
 		gizmoFunc = funcref(self, "Gizmo"+functionName)
+	
+	if(parseFunc == null and flags.has("NoFunc")):
+		parseFunc = funcref(self, "ParseFunc_NoFunc")
 	
 	if(parseFunc == null and actionFunc == null):
 		Castagne.Error(functionName+" : Parse function or Action func couldn't be found.")
@@ -268,6 +277,9 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	
 	moduleDocumentationCategories[currentCategory]["Functions"].append(funcData)
 	_moduleFunctions[functionName] = funcData
+
+func ParseFunc_NoFunc(_parser, _args, _parseData):
+	return null
 
 # Registers a flag for the documentation
 func RegisterFlag(flagName, documentation = null):
