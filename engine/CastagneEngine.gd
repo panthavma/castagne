@@ -112,12 +112,14 @@ func EngineTick(previousMemory, playerInputs):
 	
 	if(gameStateHandle.GlobalGet("_FrozenFrame")):
 		var activeEIDs = gameStateHandle.GlobalGet("_ActiveEntities")
-		for module in modules:
-			module.ResetVariables(gameStateHandle, activeEIDs)
-		#var inputPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.INPUT), "InputPhase")
-		#ExecuteInternalPhase("Input", activeEIDs, gameStateHandle, inputPhaseFunction)
+		
+		var inputPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.INPUT), "InputPhase")
+		ExecuteInternalPhase("Input", activeEIDs, gameStateHandle, inputPhaseFunction)
+		
 		ExecuteScriptPhase("Freeze", activeEIDs, gameStateHandle)
 		
+		for module in modules:
+			module.ResetVariables(gameStateHandle, activeEIDs)
 		
 		for m in modules:
 			m.FrameEnd(gameStateHandle)
