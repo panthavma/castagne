@@ -212,7 +212,9 @@ func InputPhaseEndEntity(stateHandle):
 		stateHandle.EntitySet("_SelectedInputTransition",inputTransition)
 
 func FreezePhaseStartEntity(stateHandle):
-	var inputTransitionList = stateHandle.EntityGet("_InputTransitionList")
+	var inputTransitionList = []
+	if stateHandle.EntityHasFlag("Attacking"):
+		inputTransitionList = stateHandle.EntityGet("_InputTransitionList")
 	if !inputTransitionList.empty():
 		stateHandle.EntitySet("_FrozenInputTransitionList",inputTransitionList)
 
