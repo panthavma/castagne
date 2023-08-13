@@ -70,6 +70,8 @@ func ModuleSetup():
 		"Types":["str", "str", "int"],
 		})
 	RegisterVariableEntity("_InputTransitionList", [], ["ResetEachFrame"], {"Description":"List of the input transitions to watch for."})
+	RegisterVariableEntity("_FrozenInputTransitionList", [], {"Description":"List of the input transitions to watch for while in a freeze frame state, prevserved from the last frame before the freeze."})
+	RegisterVariableEntity("_SelectedInputTransition", null, {"Description":"Holds the current state determined from inputs to transition to during the reaction phase."})
 	RegisterConfig("InputTransitionDefaultPriority", 1000, {"Description":"The default Transition priority for InputTransition."})
 
 	RegisterCategory("Motion Inputs", {"Description":"System for detecting when motion input has been performed by a player."})
@@ -88,7 +90,7 @@ func ModuleSetup():
 	RegisterVariableEntity("_DirectionalInputLog", [], null, {"Description":"Array containing just the raw directional inputs for a player on each frame. Inputs are held for a number of frames equal to the buffer config variable."})
 	RegisterVariableEntity("_ChargeInputLog", [], null, {"Description":"Array containing the inputs that have been held long enough to charge on each frame. Diagonal inputs also add the cardinal direction inputs. Inputs are held for a number of frames equal to the buffer config variable."})
 	RegisterVariableEntity("_ChargeTime", {"Up":0,"Down":0,"Forward":0,"Back":0}, null, {"Description":"Dict containing the number of frames each direction has been held."})
-	RegisterVariableEntity("_PerformedMotions", [], ["ResetEachFrame"], {"Description":"Array containing the motions that have been performed by the player."})
+	RegisterVariableEntity("_PerformedMotions", [], {"Description":"Array containing the motions that have been performed by the player."})
 	
 var _castagneInputScript = load("res://castagne/engine/CastagneInput.gd")
 func OnModuleRegistration(configData):
@@ -146,7 +148,6 @@ func InitPhaseEndEntity(stateHandle):
 	var inputData = inputsProcessed[stateHandle.EntityGet("_Player")].duplicate()
 	stateHandle.EntitySet("_Inputs", inputData)
 
-
 func InputPhase(stateHandle, activeEIDs):
 	var castagneInput = stateHandle.Input()
 	var inputSchema = castagneInput.GetInputSchema()
@@ -202,12 +203,28 @@ func InputPhaseEndEntity(stateHandle):
 			if MotionInputCheck(stateHandle, m):
 				motions += [m]
 		stateHandle.EntitySet("_PerformedMotions", motions)
+	
+	var frozenITL = stateHandle.EntityGet("_FrozenInputTransitionList")
+	if !frozenITL.empty():
+		stateHandle.EntitySet("_InputTransitionList",frozenITL)
+	var inputTransition = FindCorrectInputTransition(stateHandle)
+	if(inputTransition != null):
+		stateHandle.EntitySet("_SelectedInputTransition",inputTransition)
+
+func FreezePhaseStartEntity(stateHandle):
+	var inputTransitionList = []
+	if stateHandle.EntityHasFlag("Attacking"):
+		inputTransitionList = stateHandle.EntityGet("_InputTransitionList")
+	if !inputTransitionList.empty():
+		stateHandle.EntitySet("_FrozenInputTransitionList",inputTransitionList)
 
 func ReactionPhaseStartEntity(stateHandle):
-	var inputTransition = FindCorrectInputTransition(stateHandle)
+	var inputTransition = stateHandle.EntityGet("_SelectedInputTransition")
 	if(inputTransition != null):
 		var coreModule = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.CORE)
 		coreModule.Transition([inputTransition["TargetState"], inputTransition["Priority"]], stateHandle)
+	stateHandle.EntitySet("_SelectedInputTransition",null)
+	stateHandle.EntitySet("_FrozenInputTransitionList",[])
 
 func FindCorrectInputTransition(stateHandle):
 	var inputTransitionList = stateHandle.EntityGet("_InputTransitionList")
