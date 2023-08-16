@@ -95,6 +95,22 @@ def ANIM_Movement_Basic_AirIdle str() = AirIdle
 def ANIM_Movement_Basic_JumpN str() = AirIdle
 def ANIM_Movement_Basic_JumpF str() = AirIdle
 def ANIM_Movement_Basic_JumpB str() = AirIdle
+
+def ANIM_Movement_Dashes_TurnaroundRun str() = TurnaroundRun
+def ANIM_Movement_Dashes_RunStart str() = RunStart
+def ANIM_Movement_Dashes_Run str() = Run
+def ANIM_Movement_Dashes_Run_Loop int() = 15
+def ANIM_Movement_Dashes_RunStop str() = RunStop
+def ANIM_Movement_Dashes_StepDash str() = StepDash
+def ANIM_Movement_Dashes_Backdash str() = Backdash
+def ANIM_Movement_Dashes_HighjumpN str() = AirIdle
+def ANIM_Movement_Dashes_HighjumpF str() = AirIdle
+def ANIM_Movement_Dashes_HighjumpB str() = AirIdle
+def ANIM_Movement_Dashes_AirjumpN str() = AirIdle
+def ANIM_Movement_Dashes_AirjumpF str() = AirIdle
+def ANIM_Movement_Dashes_AirjumpB str() = AirIdle
+def ANIM_Movement_Dashes_AirdashF str() = AirdashF
+def ANIM_Movement_Dashes_AirdashB str() = AirdashB
 :Variables-Graphics:
 def GRAPHICS_ModelPath str() = res://castagne/assets/fighters/castagneur/CastagneurModel.tscn
 

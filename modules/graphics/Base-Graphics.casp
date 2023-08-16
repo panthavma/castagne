@@ -69,8 +69,20 @@ def ANIM_Movement_Basic_JumpF str() = ANIM_Movement_Basic_JumpF
 def ANIM_Movement_Basic_JumpB str() = ANIM_Movement_Basic_JumpB
 
 def ANIM_Movement_Dashes_TurnaroundRun str() = TurnaroundRun
-
-# AirdashF AirdashB Backdash Run RunStart RunEnd StepDash
+def ANIM_Movement_Dashes_RunStart str() = ANIM_Movement_Dashes_RunStart
+def ANIM_Movement_Dashes_Run str() = ANIM_Movement_Dashes_Run
+def ANIM_Movement_Dashes_Run_Loop int() = 60
+def ANIM_Movement_Dashes_RunStop str() = ANIM_Movement_Dashes_RunStop
+def ANIM_Movement_Dashes_StepDash str() = ANIM_Movement_Dashes_StepDash
+def ANIM_Movement_Dashes_Backdash str() = ANIM_Movement_Dashes_Backdash
+def ANIM_Movement_Dashes_HighjumpN str() = ANIM_Movement_Dashes_HighjumpN
+def ANIM_Movement_Dashes_HighjumpF str() = ANIM_Movement_Dashes_HighjumpF
+def ANIM_Movement_Dashes_HighjumpB str() = ANIM_Movement_Dashes_HighjumpB
+def ANIM_Movement_Dashes_AirjumpN str() = ANIM_Movement_Dashes_AirjumpN
+def ANIM_Movement_Dashes_AirjumpF str() = ANIM_Movement_Dashes_AirjumpF
+def ANIM_Movement_Dashes_AirjumpB str() = ANIM_Movement_Dashes_AirjumpB
+def ANIM_Movement_Dashes_AirdashF str() = ANIM_Movement_Dashes_AirdashF
+def ANIM_Movement_Dashes_AirdashB str() = ANIM_Movement_Dashes_AirdashB
 :Variables-Graphics:
 ## Basic graphics setup variables
 
@@ -150,6 +162,42 @@ _Overridable(If you wish to use a custom animation instead of the standard syste
 
 VANIMS_UseStandardAnims:
 	Anim(ANIM_Movement_Basic_AirIdle)
+endif
+:AnimAirdashB:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_AirdashB)
+endif
+:AnimAirdashF:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_AirdashF)
+endif
+:AnimAirjumpB:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_AirjumpB)
+endif
+:AnimAirjumpF:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_AirjumpF)
+endif
+:AnimAirjumpN:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_AirjumpN)
+endif
+:AnimBackdash:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_Backdash)
 endif
 :AnimBlockstunAirborne:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
@@ -244,6 +292,24 @@ _Overridable(If you wish to use a custom animation instead of the standard syste
 VANIMS_UseStandardAnims:
 	AnimFrame(ANIM_Reacts_Throw_Ground_Teching)
 endif
+:AnimHighjumpB:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_HighjumpB)
+endif
+:AnimHighjumpF:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_HighjumpF)
+endif
+:AnimHighjumpN:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_HighjumpN)
+endif
 :AnimHitstunAirborne:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
@@ -322,6 +388,25 @@ _Overridable(If you wish to use a custom animation instead of the standard syste
 VANIMS_UseStandardAnims:
 	Anim(ANIM_Movement_Basic_Landing)
 endif
+:AnimRun:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_Run)
+	AnimLoop(ANIM_Movement_Dashes_Run_Loop)
+endif
+:AnimRunStart:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_RunStart)
+endif
+:AnimRunStop:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_RunStop)
+endif
 :AnimStand:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
@@ -334,6 +419,12 @@ _Overridable(If you wish to use a custom animation instead of the standard syste
 
 VANIMS_UseStandardAnims:
 	Anim(ANIM_Movement_Basic_StandToCrouch)
+endif
+:AnimStepDash:
+_Overridable(If you wish to use a custom animation instead of the standard system.)
+
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Movement_Dashes_StepDash)
 endif
 :AnimTurnaround:
 _Overridable(If you wish to use a custom animation instead of the standard system.)

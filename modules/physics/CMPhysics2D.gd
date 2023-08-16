@@ -64,6 +64,10 @@ func ModuleSetup():
 		"Description": "Sets the target entity's position based on this entity, independant of its physics facing.",
 		"Arguments": ["Horizontal position", "Vertical position"],
 	})
+	RegisterFunction("TargetGetRelativePosition", [2], null, {
+		"Description": "Gets the position of the target in this entity's referential.",
+		"Arguments": ["Variable name to store the X position", "Variable name to store the Y position"],
+	})
 	
 	
 	RegisterFunction("SetWorldPosition", [2], null, {
@@ -496,24 +500,16 @@ func MoveAbsolute(args, stateHandle):
 	stateHandle.EntityAdd("_MovementX", ArgInt(args, stateHandle, 0))
 	stateHandle.EntityAdd("_MovementY", ArgInt(args, stateHandle, 1, 0))
 
-func SetPositionRelativeToRef(args, stateHandle):
-	SetPositionRelativeToRefAbsolute([stateHandle.EntityGet("_FacingHPhysics")*ArgInt(args, stateHandle, 0), args[1]], stateHandle)
-func SetPositionRelativeToRefAbsolute(args, stateHandle):
-	stateHandle.EntitySet("_PositionX", stateHandle.EntityGet("_PositionX") + ArgInt(args, stateHandle, 0))
-	stateHandle.EntitySet("_PositionY", stateHandle.EntityGet("_PositionY") + ArgInt(args, stateHandle, 1))
-
 func SetPositionRelativeToTarget(args, stateHandle, useAbsolute=false):
 	var pos = [ArgInt(args, stateHandle, 0), ArgInt(args, stateHandle, 1)]
-	var eid = stateHandle.GetEntityID()
-	var targetEID = stateHandle.GetTargetEntity()
-	stateHandle.PointToEntity(targetEID)
+	var selfEID = stateHandle.PointToCurrentTargetEntity()
 	if(useAbsolute):
-		pos = TransformWorldPosToEntityAbsolute(pos, stateHandle)
+		pos = TransformPosEntityAbsoluteToWorld(pos, stateHandle)
 	else:
-		pos = TransformWorldPosToEntity(pos, stateHandle)
-	stateHandle.PointToEntity(eid)
-	SetVariableInTarget(stateHandle, "_PositionX", pos[0])
-	SetVariableInTarget(stateHandle, "_PositionY", pos[1])
+		pos = TransformPosEntityToWorld(pos, stateHandle)
+	stateHandle.PointToEntity(selfEID)
+	stateHandle.EntitySet("_PositionX", pos[0])
+	stateHandle.EntitySet("_PositionY", pos[1])
 func SetPositionRelativeToTargetAbsolute(args, stateHandle):
 	SetPositionRelativeToTarget(args, stateHandle, true)
 func SetTargetPosition(args, stateHandle, useAbsolute=false):
@@ -526,6 +522,14 @@ func SetTargetPosition(args, stateHandle, useAbsolute=false):
 	SetVariableInTarget(stateHandle, "_PositionY", pos[1])
 func SetTargetPositionAbsolute(args, stateHandle):
 	SetTargetPosition(args, stateHandle, true)
+
+func TargetGetRelativePosition(args, stateHandle):
+	var selfEID = stateHandle.PointToCurrentTargetEntity()
+	var pos = [stateHandle.EntityGet("_PositionX"), stateHandle.EntityGet("_PositionY")]
+	stateHandle.PointToEntity(selfEID)
+	pos = TransformWorldPosToEntity(pos, stateHandle)
+	stateHandle.EntitySet(ArgVar(args, stateHandle, 0), pos[0])
+	stateHandle.EntitySet(ArgVar(args, stateHandle, 1), pos[1])
 
 func SetWorldPosition(args, stateHandle):
 	SetWorldPositionAbsolute([stateHandle.EntityGet("_FacingHPhysics")*ArgInt(args, stateHandle, 0), args[1]], stateHandle)

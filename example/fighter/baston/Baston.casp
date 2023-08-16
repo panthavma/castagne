@@ -9,6 +9,22 @@ EditorName: Baston Labatte (Example Fighter)
 
 
 Skeleton: res://castagne/example/fighter/baston/BastonModel.casp
+:Variables-Physics-Dashes:
+def MOVE_Run_StartTime int() = 6
+def MOVE_Run_StopTime int() = 8
+def MOVE_Run_SpeedStart int() = 2500
+def MOVE_Run_Speed int() = 2100
+def MOVE_Run_SpeedStop int() = 1200
+
+def MOVE_Airjump_AirjumpN_InitialMomentumY int() = 2600
+def MOVE_Airjump_AirjumpB_InitialMomentumX int() = -1200
+def MOVE_Airjump_AirjumpB_InitialMomentumY int() = 2600
+def MOVE_Airjump_AirjumpF_InitialMomentumX int() = 1200
+def MOVE_Airjump_AirjumpF_InitialMomentumY int() = 2600
+def MOVE_Airdash_AirdashF_SpeedX int() = 2100
+def MOVE_Airdash_AirdashF_Time int() = 15
+def MOVE_Airdash_AirdashB_SpeedX int() = -2100
+def MOVE_Airdash_AirdashB_Time int() = 15
 :Variables:
 ## Variables block hold additional data that may be read during gameplay. Here you can alter data specific to the character, or override other variable blocks to see what you can adjust.
 

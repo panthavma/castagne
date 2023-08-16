@@ -406,7 +406,10 @@ func ArgInt(args, stateHandle, argID, default = null):
 		return default
 	if(stateHandle.EntityHas(value)):
 		var v = stateHandle.EntityGet(value)
-		return int(v)
+		if(v == null):
+			Castagne.Error("ArgInt ("+str(argID)+"): Variable " + value + " is null")
+		else:
+			return int(v)
 	# :TODO:Panthavma:20220126:Make the message more precise
 	Castagne.Error("ArgInt ("+str(argID)+"): Couldn't find variable " + value)
 	if(default == null):

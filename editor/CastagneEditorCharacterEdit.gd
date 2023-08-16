@@ -539,6 +539,7 @@ onready var prefabNavPanelState = preload("res://castagne/editor/CharacterEditor
 var _navigationSelected = null
 var categoriesStatus = {}
 var categoriesStatusDefault = true
+onready var nav_FilterByName_Name = $CodePanel/Navigation/ChooseState/Menu/FilterByName/Name
 func RefreshNavigationPanel(mode):
 	navpanelMode = mode
 	var modesRoot = $CodePanel/Navigation.get_children()
@@ -632,6 +633,11 @@ func RefreshNavigationPanel(mode):
 							skip = true
 					if(skip):
 						continue
+				
+				# Filter depending on name
+				var filterName = nav_FilterByName_Name.get_text()
+				if(!filterName.empty() and stateName.find(filterName) < 0):
+					continue
 				
 				nbStatesChosen += 1
 				
@@ -1372,3 +1378,14 @@ func _on_TutorialQuit_pressed():
 
 func _on_TutorialWindow_pressed():
 	ShowPopup("Tutorial")
+
+
+
+func _on_FilterByName_Name_text_entered(_new_text):
+	RefreshNavigationPanel(NAVPANEL_MODE.ChooseState)
+func _on_FilterByName_Search_pressed():
+	RefreshNavigationPanel(NAVPANEL_MODE.ChooseState)
+func _on_FilterByName_Erase_pressed():
+	nav_FilterByName_Name.set_text("")
+	RefreshNavigationPanel(NAVPANEL_MODE.ChooseState)
+

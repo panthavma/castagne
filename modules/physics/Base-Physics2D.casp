@@ -28,6 +28,17 @@ def MOVE_Jump_CanJumpForward bool() = 1
 def MOVE_Jump_CanJumpBackward bool() = 1
 def MOVE_Landing_RecoverCrouching bool() = 1
 
+#--- Dashes
+def MOVE_Dashes_DoubleTapTime int() = 12
+def MOVE_Dashes_HighjumpInputTime int() = 12
+def MOVE_Dashes_CanRun bool() = 1
+def MOVE_Dashes_CanStepDash bool() = 1
+def MOVE_Dashes_CanBackdash bool() = 1
+def MOVE_Dashes_CanHighjump bool() = 1
+def MOVE_Dashes_CanAirjump bool() = 1
+def MOVE_Dashes_CanAirdashF bool() = 1
+def MOVE_Dashes_CanAirdashB bool() = 1
+
 #--- Colliders
 def PHYSICS_StandardColbox_Use bool() = 1
 def PHYSICS_StandardColbox_Width int() = 4000
@@ -156,6 +167,51 @@ def MOVE_Teching_Air_Time int() = 20
 def MOVE_Teched_Air_MomentumX int() = -1000
 def MOVE_Teched_Air_MomentumY int() = 1000
 def MOVE_Teched_Air_Time int() = 20
+:Variables-Physics-Dashes:
+## Movement data for dashes
+
+#--- Run
+def MOVE_Run_StartTime int() = 15
+def MOVE_Run_StopTime int() = 15
+def MOVE_Run_SpeedStart int() = 1900
+def MOVE_Run_Speed int() = 1500
+def MOVE_Run_SpeedStop int() = 500
+
+#--- StepDash
+def MOVE_StepDash_Time int() = 20
+def MOVE_StepDash_Speed int() = 2000
+
+#--- Backdash
+def MOVE_Backdash_Time int() = 18
+def MOVE_Backdash_Speed int() = -1600
+
+#--- Highjump
+def MOVE_Highjump_JumpsquatTime int() = 3
+def MOVE_Highjump_HighjumpN_InitialMomentumX int() = 0
+def MOVE_Highjump_HighjumpN_InitialMomentumY int() = 5000
+def MOVE_Highjump_HighjumpB_InitialMomentumX int() = -1200
+def MOVE_Highjump_HighjumpB_InitialMomentumY int() = 5000
+def MOVE_Highjump_HighjumpF_InitialMomentumX int() = 1200
+def MOVE_Highjump_HighjumpF_InitialMomentumY int() = 5000
+
+#--- Airjump
+def MOVE_Airjump_AirjumpN_InitialMomentumX int() = 0
+def MOVE_Airjump_AirjumpN_InitialMomentumY int() = 2000
+def MOVE_Airjump_AirjumpB_InitialMomentumX int() = -1200
+def MOVE_Airjump_AirjumpB_InitialMomentumY int() = 2000
+def MOVE_Airjump_AirjumpF_InitialMomentumX int() = 1200
+def MOVE_Airjump_AirjumpF_InitialMomentumY int() = 2000
+
+#--- Airdash
+def MOVE_Airdash_AirdashF_SpeedX int() = 2500
+def MOVE_Airdash_AirdashF_SpeedY int() = 0
+def MOVE_Airdash_AirdashF_Time int() = 30
+def MOVE_Airdash_AirdashB_SpeedX int() = -2500
+def MOVE_Airdash_AirdashB_SpeedY int() = 0
+def MOVE_Airdash_AirdashB_Time int() = 30
+
+#--- Air Actions
+def MOVE_AirActionsMax int() = 1
 :Variables-Physics-Base:
 ## Movement data for the basic states. 
 
@@ -201,6 +257,12 @@ internal _GroundbounceMomentum
 var ATTACK_Tech_Time int() = 0
 var ATTACK_Tech_MomentumX int() = 0
 var ATTACK_Tech_MomentumY int() = 0
+
+#--- Dashes
+var MOVE_Dashes_FramesSinceInputF int() = 120
+var MOVE_Dashes_FramesSinceInputB int() = 120
+var MOVE_Dashes_FramesSinceInputD int() = 120
+var MOVE_AirActionsRemaining int() = 0
 :Variables-Internals-Common-TransitionPriorities:
 def ATTACKS_Tech_Priority int() = 20000
 
@@ -263,6 +325,9 @@ _Category(Movement/Basic/Air)
 
 Call(AirborneNeutralState)
 Call(AnimAirborne)
+
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
 :AirborneNeutralState:
 ## Helper on top of Neutral, used for neutral states where you are airborne.
 ## Will automatically cancel on landing.
@@ -281,12 +346,140 @@ def SSTATE_CancelOnLanding bool() = 1
 Call(StandardState)
 _StateFlag(Airborne)
 _BaseState()
+:Airborne_AirjumpHelper:
+## Helper to start air jumps
+_Category(Movement/Dashes/Helper)
+_Helper()
+
+F6+:
+	VMOVE_AirActionsRemaining>0:
+		IJumpPress:
+			IForward:
+				Transition(AirjumpF, PHYSICS_Jumping_Priority, 1)
+			else
+				IBack:
+					Transition(AirjumpB, PHYSICS_Jumping_Priority, 1)
+				else
+					Transition(AirjumpN, PHYSICS_Jumping_Priority, 1)
+				endif
+			endif
+		endif
+	endif
+endif
+:Airborne_StartDashHelper:
+## Helper to start dashes / backdashes on the ground
+_Category(Movement/Dashes/Helper)
+_Helper()
+
+VMOVE_AirActionsRemaining>0:
+	IForwardPress:
+		VMOVE_Dashes_CanAirdashF:
+			VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:	
+				Transition(AirdashF)
+			endif
+		endif
+	else
+		IBackPress:
+			VMOVE_Dashes_CanAirdashB:
+				VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:	
+					Transition(AirdashB)
+				endif
+			endif
+		endif
+	endif
+endif
 :AirdashB:
+## Movement state for backward airdashes.
 _Category(Movement/Dashes/Air)
-## CASTDO
+Call(AirborneState)
+
+Call(UseAirActionAtStart)
+Call(AnimAirdashB)
+Call(AirdashB-Movement)
+
+FMOVE_Airdash_AirdashB_Time+:
+	Call(TransitionToNeutralState)
+endif
+:AirdashB-Movement:
+## Helper state for AirdashB
+_Category(Movement/Dashes/Air)
+_Helper()
+
+Flag(IgnoreGravity)
+SetMomentum(MOVE_Airdash_AirdashB_SpeedX, MOVE_Airdash_AirdashB_SpeedY)
 :AirdashF:
+## Movement state for forward airdashes.
 _Category(Movement/Dashes/Air)
-## CASTDO
+Call(AirborneState)
+
+Call(UseAirActionAtStart)
+Call(AnimAirdashF)
+Call(AirdashF-Movement)
+
+FMOVE_Airdash_AirdashF_Time+:
+	Call(TransitionToNeutralState)
+endif
+:AirdashF-Movement:
+## Helper state for AirdashF
+_Category(Movement/Dashes/Air)
+_Helper()
+
+Flag(IgnoreGravity)
+SetMomentum(MOVE_Airdash_AirdashF_SpeedX, MOVE_Airdash_AirdashF_SpeedY)
+:AirjumpB:
+## Movement state for backward air jumps.
+_Category(Movement/Dashes/Airjump)
+Call(AirborneState)
+
+Call(UseAirActionAtStart)
+Call(AnimAirjumpB)
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
+Call(AirjumpB-Movement)
+:AirjumpB-Movement:
+## Helper for AirjumpB
+_Category(Movement/Dashes/Airjump)
+_Helper()
+
+F1:
+	SetMomentum(MOVE_Airjump_AirjumpB_InitialMomentumX, MOVE_Airjump_AirjumpB_InitialMomentumY)
+endif
+:AirjumpF:
+## Movement state for forward air jumps.
+_Category(Movement/Dashes/Airjump)
+Call(AirborneState)
+
+Call(UseAirActionAtStart)
+Call(AnimAirjumpF)
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
+Call(AirjumpF-Movement)
+:AirjumpF-Movement:
+## Helper for AirjumpF
+_Category(Movement/Dashes/Airjump)
+_Helper()
+
+F1:
+	SetMomentum(MOVE_Airjump_AirjumpF_InitialMomentumX, MOVE_Airjump_AirjumpF_InitialMomentumY)
+endif
+:AirjumpN:
+## Movement state for neutral air jumps.
+_Category(Movement/Dashes/Airjump)
+Call(AirborneState)
+
+Call(UseAirActionAtStart)
+Call(AnimAirjumpN)
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
+Call(AirjumpN-Movement)
+:AirjumpN-Movement:
+## Helper for AirjumpN
+_Category(Movement/Dashes/Airjump)
+_Helper()
+
+F1:
+	SetMomentum(MOVE_Airjump_AirjumpN_InitialMomentumX, MOVE_Airjump_AirjumpN_InitialMomentumY)
+endif
 :AnimAirTechBackward:
 ## Animation for the airborne backward tech state
 _Overridable(If you want to put your own animation logic instead)
@@ -337,6 +530,36 @@ _Category(Animations/Reacts/Throws)
 _Overridable(If you want to put your own animation logic instead)
 _Helper()
 _Category(Animations/Movement/Basic)
+:AnimAirdashB:
+## Animation for the AirdashB state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
+:AnimAirdashF:
+## Animation for the AirdashF state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
+:AnimAirjumpB:
+## Animation for the DoublejumpB state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
+:AnimAirjumpF:
+## Animation for the DoublejumpF state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
+:AnimAirjumpN:
+## Animation for the DoublejumpN state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
+:AnimBackdash:
+## Animation for the Backdash state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
 :AnimCrawlB:
 ## Animation for the crawling backwards state
 _Overridable(If you want to put your own animation logic instead)
@@ -397,6 +620,21 @@ _Category(Animations/Reacts/Throws)
 _Overridable(If you want to put your own animation logic instead)
 _Helper()
 _Category(Animations/Reacts/Throws)
+:AnimHighjumpB:
+## Animation for the HighjumpB state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
+:AnimHighjumpF:
+## Animation for the HighjumpF state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
+:AnimHighjumpN:
+## Animation for the HighjumpN state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
 :AnimJumpB:
 ## Animation for jumping backwards
 _Overridable(If you want to put your own animation logic instead)
@@ -447,6 +685,21 @@ _Category(Animations/Reacts/Techs)
 _Overridable(If you want to put your own animation logic instead)
 _Helper()
 _Category(Animations/Movement/Basic)
+:AnimRun:
+## Animation for the Run state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
+:AnimRunStart:
+## Animation for the RunStart state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
+:AnimRunStop:
+## Animation for the RunStop state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
 :AnimStand:
 ## Animation for the standing / idle state
 _Overridable(If you want to put your own animation logic instead)
@@ -457,6 +710,11 @@ _Category(Animations/Movement/Basic)
 _Overridable(If you want to put your own animation logic instead)
 _Helper()
 _Category(Animations/Movement/Basic)
+:AnimStepDash:
+## Animation for the StepDash state
+_Overridable(If you want to put your own animation logic instead)
+_Helper()
+_Category(Animations/Movement/Dashes)
 :AnimTurnaround:
 ## Animation for the standing turnaround state
 _Overridable(If you want to put your own animation logic instead)
@@ -540,8 +798,22 @@ F1:
 	endif
 endif
 :Backdash:
+## Movement state for step dashes.
 _Category(Movement/Dashes/Steps)
-## CASTDO
+Call(StandingState)
+
+Call(AnimBackdash)
+Call(Backdash-Movement)
+
+FMOVE_Backdash_Time+:
+	Call(TransitionToNeutralState)
+endif
+:Backdash-Movement:
+## Movement state for backdashes
+_Category(Movement/Dashes/Steps)
+_Helper()
+
+Move(MOVE_Backdash_Speed)
 :Common:
 CallParent(Common)
 
@@ -552,6 +824,8 @@ endif
 LPFLanding:
 	Call(OnLanding)
 endif
+
+Call(DashInputHelper)
 :CommonAfter:
 CallParent(CommonAfter)
 
@@ -573,9 +847,10 @@ _StateFlag(Grounded)
 Call(CrouchingNeutralState)
 Call(AnimCrawlB)
 
-Move(MOVE_Crawl_SpeedB)
+Call(CrawlB-Movement)
 
 Call(Grounded_StartJumpHelper)
+Call(Grounded_StartDashHelper)
 
 IDown:
 	IForward:
@@ -588,6 +863,12 @@ IDown:
 else
 	Call(Crouching_ToStandHelper)
 endif
+:CrawlB-Movement:
+## Helper for the CrawlB state. Speed is given by MOVE_Crawl_SpeedB.
+_Category(Movement/Basic/Crouching)
+_Helper()
+
+Move(MOVE_Crawl_SpeedB)
 :CrawlF:
 ## Crawling forward state, which allows movement while crouching. Speed is given by MOVE_Crawl_SpeedF, if 0 or less this state is disabled.
 _Category(Movement/Basic/Crouching)
@@ -596,9 +877,10 @@ _StateFlag(Grounded)
 Call(CrouchingNeutralState)
 Call(AnimCrawlF)
 
-Move(MOVE_Crawl_SpeedF)
+Call(CrawlF-Movement)
 
 Call(Grounded_StartJumpHelper)
+Call(Grounded_StartDashHelper)
 
 IDown:
 	IBack:
@@ -611,6 +893,12 @@ IDown:
 else
 	Call(Crouching_ToStandHelper)
 endif
+:CrawlF-Movement:
+## Helper state for CrawlF. Speed is given by MOVE_Crawl_SpeedF.
+_Category(Movement/Basic/Crouching)
+_Helper()
+
+Move(MOVE_Crawl_SpeedF)
 :CrouchToStand:
 ## Transition time between the crouching and standing animation. You can disable it or restrict cancelling.
 ##
@@ -643,6 +931,7 @@ Call(CrouchingNeutralState)
 Call(AnimCrouching)
 
 Call(Grounded_StartJumpHelper)
+Call(Grounded_StartDashHelper)
 
 IDown:
 	IForward:
@@ -721,9 +1010,30 @@ endif
 ## This happens at the beginning of the function.
 _Category(Custom/Physics)
 _Helper()
-:DoubleJumpN:
-_Category(Movement/Dashes/DoubleJump)
-## CASTDO
+:DashInputHelper:
+## Helper state to register dash inputs.
+_Category(Movement/Dashes/Helper)
+_Helper()
+
+VMOVE_Dashes_FramesSinceInputF<120:
+	Add(MOVE_Dashes_FramesSinceInputF, 1)
+endif
+VMOVE_Dashes_FramesSinceInputB<120:
+	Add(MOVE_Dashes_FramesSinceInputB, 1)
+endif
+VMOVE_Dashes_FramesSinceInputD<120:
+	Add(MOVE_Dashes_FramesSinceInputD, 1)
+endif
+
+IForwardRelease:
+	Set(MOVE_Dashes_FramesSinceInputF, 0)
+endif
+IBackRelease:
+	Set(MOVE_Dashes_FramesSinceInputB, 0)
+endif
+IDownRelease:
+	Set(MOVE_Dashes_FramesSinceInputD, 0)
+endif
 :GroundTech-Backward:
 ## Grounded backward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
 _Category(States/Reacts/Techs)
@@ -776,6 +1086,30 @@ endif
 F_GroundbounceTime+:
 	Call(HitstunEnd)
 endif
+:Grounded_StartDashHelper:
+## Helper to start dashes / backdashes on the ground
+_Category(Movement/Dashes/Helper)
+_Helper()
+
+IForwardPress:
+	VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:	
+		VMOVE_Dashes_CanRun:
+			Transition(RunStart)
+		else
+			VMOVE_Dashes_CanStepDash:
+				Transition(StepDash)
+			endif
+		endif
+	endif
+else
+	IBackPress:
+		VMOVE_Dashes_CanBackdash:
+			VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:	
+				Transition(Backdash)
+			endif
+		endif
+	endif
+endif
 :Grounded_StartJumpHelper:
 ## Movement helper that handles starting jumps.
 
@@ -783,14 +1117,122 @@ _Helper()
 _Category(Movement/Basic/Helpers)
 
 IJump:
-	Transition(Jumpsquat, PHYSICS_Jumping_Priority)
+	VMOVE_Dashes_CanHighjump:
+		VMOVE_Dashes_FramesSinceInputD<=MOVE_Dashes_HighjumpInputTime:
+			Flag(Highjumping)
+		endif
+	endif
+	LHighjumping:
+		Transition(HighJumpsquat, PHYSICS_Jumping_Priority)
+	else
+		Transition(Jumpsquat, PHYSICS_Jumping_Priority)
+	endif
+endif
+:HighJumpsquat:
+## State for preparing to high jump.
+
+_Category(Movement/Dashes/Highjump)
+
+Call(CrouchingState)
+Call(AnimJumpsquat)
+Unflag(Grounded)
+Flag(Airborne)
+FlagNext(Airborne)
+
+Call(ApplyPhysics-Regular)
+
+VMOVE_Highjump_JumpsquatTime<1:
+	Flag(_Jumpsquat_StartJump)
+endif
+
+FMOVE_Highjump_JumpsquatTime:
+	Flag(_Jumpsquat_StartJump)
+endif
+
+VMOVE_Jump_CanJumpForward:
+	IForward:
+		Flag(_Jumpsquat_Forward)
+		Unflag(_Jumpsquat_Back)
+	endif
+endif
+
+VMOVE_Jump_CanJumpBackward:
+	IBack:
+		Flag(_Jumpsquat_Back)
+		Unflag(_Jumpsquat_Forward)
+	endif
+endif
+
+L_Jumpsquat_Forward:
+	FlagNext(_Jumpsquat_Forward)
+else
+	L_Jumpsquat_Back:
+		FlagNext(_Jumpsquat_Back)
+	endif
+endif
+
+L_Jumpsquat_StartJump:
+	L_Jumpsquat_Forward:
+		Transition(HighjumpF)
+	else
+		L_Jumpsquat_Back:
+			Transition(HighjumpB)
+		else
+			Transition(HighjumpN)
+		endif
+	endif
+endif
+:HighjumpB:
+## Movement state for backward highjumps.
+_Category(Movement/Dashes/Highjump)
+Call(AirborneState)
+
+Call(AnimHighjumpB)
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
+Call(HighjumpB-Movement)
+:HighjumpB-Movement:
+## Helper for HighjumpB
+_Category(Movement/Dashes/Highjump)
+_Helper()
+
+F1:
+	SetMomentum(MOVE_Highjump_HighjumpB_InitialMomentumX, MOVE_Highjump_HighjumpB_InitialMomentumY)
+endif
+:HighjumpF:
+## Movement state for forward highjumps.
+_Category(Movement/Dashes/Highjump)
+Call(AirborneState)
+
+Call(AnimHighjumpF)
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
+Call(HighjumpF-Movement)
+:HighjumpF-Movement:
+## Helper for HighjumpF
+_Category(Movement/Dashes/Highjump)
+_Helper()
+
+F1:
+	SetMomentum(MOVE_Highjump_HighjumpF_InitialMomentumX, MOVE_Highjump_HighjumpF_InitialMomentumY)
 endif
 :HighjumpN:
+## Movement state for neutral highjumps.
 _Category(Movement/Dashes/Highjump)
-## CASTDO
-:Hover:
-_Category(Movement/Dashes/Air)
-## CASTDO
+Call(AirborneState)
+
+Call(AnimHighjumpN)
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
+Call(HighjumpN-Movement)
+:HighjumpN-Movement:
+## Helper for HighjumpN
+_Category(Movement/Dashes/Highjump)
+_Helper()
+
+F1:
+	SetMomentum(MOVE_Highjump_HighjumpN_InitialMomentumX, MOVE_Highjump_HighjumpN_InitialMomentumY)
+endif
 :JumpB:
 ## Basic backward jump state, when no direction is held. Can be disabled with MOVE_Jump_CanJumpBackward.
 ##
@@ -799,6 +1241,14 @@ _Category(Movement/Basic/Air)
 
 Call(AirborneNeutralState)
 Call(AnimJumpB)
+
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
+Call(JumpB-Movement)
+:JumpB-Movement:
+## Helper for the JumpB state.
+_Category(Movement/Basic/Air)
+_Helper()
 
 F1:
 	AddMomentum(MOVE_Jump_JumpB_InitialMomentumX, MOVE_Jump_JumpB_InitialMomentumY)
@@ -812,6 +1262,14 @@ _Category(Movement/Basic/Air)
 Call(AirborneNeutralState)
 Call(AnimJumpF)
 
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
+Call(JumpF-Movement)
+:JumpF-Movement:
+## Helper for the JumpF state.
+_Category(Movement/Basic/Air)
+_Helper()
+
 F1:
 	AddMomentum(MOVE_Jump_JumpF_InitialMomentumX, MOVE_Jump_JumpF_InitialMomentumY)
 endif
@@ -823,6 +1281,14 @@ _Category(Movement/Basic/Air)
 
 Call(AirborneNeutralState)
 Call(AnimJumpN)
+
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
+Call(JumpN-Movement)
+:JumpN-Movement:
+## Helper for the JumpN state
+_Category(Movement/Basic/Air)
+_Helper()
 
 F1:
 	AddMomentum(MOVE_Jump_JumpN_InitialMomentumX, MOVE_Jump_JumpN_InitialMomentumY)
@@ -1006,6 +1472,8 @@ _Helper()
 LPFGrounded:
 	Call(ApplyPhysics-Regular)
 endif
+
+Set(MOVE_AirActionsRemaining, MOVE_AirActionsMax)
 :OnBlock:
 CallParent(OnBlock)
 
@@ -1106,17 +1574,59 @@ else
 	endif
 endif
 :Run:
+## Movement state for running.
 _Category(Movement/Dashes/Run)
-## CASTDO
+Call(StandingState)
+
+Call(AnimRun)
+Call(Run-Movement)
+Call(Grounded_StartJumpHelper)
+
+IForward:
+else
+	Transition(RunStop)
+endif
+:Run-Movement:
+## Helper state for the Run state.
+_Category(Movement/Dashes/Run)
+_Helper()
+SetMomentum(MOVE_Run_Speed, 0)
 :RunStart:
+## Movement state for the start of a run.
 _Category(Movement/Dashes/Run)
-## CASTDO
+Call(StandingState)
+
+Call(AnimRunStart)
+Call(RunStart-Movement)
+Call(Grounded_StartJumpHelper)
+
+FMOVE_Run_StartTime+:
+	Transition(Run)
+endif
+:RunStart-Movement:
+## Helper state for the RunStart state.
+_Category(Movement/Dashes/Run)
+_Helper()
+SetMomentum(MOVE_Run_SpeedStart, 0)
 :RunStop:
+## Movement state for stopping a run.
 _Category(Movement/Dashes/Run)
-## CASTDO
-:RunTurnaround:
+Call(StandingState)
+
+Call(AnimRunStop)
+Call(RunStop-Movement)
+Call(Grounded_StartJumpHelper)
+
+FMOVE_Run_StopTime+:
+	Call(TransitionToNeutralState)
+endif
+:RunStop-Movement:
+## Helper state for the RunStop state.
 _Category(Movement/Dashes/Run)
-## CASTDO
+_Helper()
+F1:
+SetMomentum(MOVE_Run_Speed, 0)
+endif
 :Stand:
 ## The standing idle state, and default state of the character. This is a neutral state, and behavior can be finetuned from the Variables blocks.
 _Category(Movement/Basic/Standing)
@@ -1126,6 +1636,7 @@ Call(StandingNeutralState)
 Call(AnimStand)
 
 Call(Grounded_StartJumpHelper)
+Call(Grounded_StartDashHelper)
 
 IDown:
 	Call(Stand_ToCrouchHelper)
@@ -1370,8 +1881,22 @@ else
 	endif
 endif
 :StepDash:
+## Movement step for step dashes.
 _Category(Movement/Dashes/Steps)
-## CASTDO
+Call(StandingState)
+
+Call(AnimStepDash)
+Call(StepDash-Movement)
+
+FMOVE_StepDash_Time+:
+	Call(TransitionToNeutralState)
+endif
+:StepDash-Movement:
+## Helper for the StepDash state
+_Category(Movement/Dashes/Steps)
+_Helper()
+
+Move(MOVE_StepDash_Speed)
 :TechCommon:
 ## Base tech state, which others set up. This state is invincible during its action.
 
@@ -1421,6 +1946,7 @@ F1:
 endif
 
 Call(Grounded_StartJumpHelper)
+Call(Grounded_StartDashHelper)
 
 FMOVE_TurnaroundStand_Time+:
 	IForward:
@@ -1440,6 +1966,9 @@ _Category(Movement/Basic/Air)
 
 Call(AirborneNeutralState)
 Call(AnimTurnaroundAirborne)
+
+Call(Airborne_StartDashHelper)
+Call(Airborne_AirjumpHelper)
 :TurnaroundCrouch:
 ## Turnaround state when crouching, which allows the character to change its facing. Mostly used when not targetting an opponent.
 ##
@@ -1466,6 +1995,21 @@ IDown:
 else
 	Call(Crouch_ToStandHelper)
 endif
+:UseAirAction:
+## Uses an air action
+_Category(Movement/Dashes/Helper)
+_Helper()
+
+Sub(MOVE_AirActionsRemaining, 1)
+Max(MOVE_AirActionsRemaining, 0)
+:UseAirActionAtStart:
+## Uses an air action on frame 1
+_Category(Movement/Dashes/Helper)
+_Helper()
+
+F1:
+	Call(UseAirAction)
+endif
 :WalkB:
 ## Walking backwards state, used when targetting an opponent. Speed is given by MOVE_Walk_SpeedB
 _Category(Movement/Basic/Standing)
@@ -1474,9 +2018,10 @@ _StateFlag(Grounded)
 Call(StandingNeutralState)
 Call(AnimWalkB)
 
-Move(MOVE_Walk_SpeedB)
+Call(WalkB-Movement)
 
 Call(Grounded_StartJumpHelper)
+Call(Grounded_StartDashHelper)
 
 IDown:
 	Call(Stand_ToCrouchHelper)
@@ -1491,6 +2036,12 @@ else
 		endif
 	endif
 endif
+:WalkB-Movement:
+## Helper state for WalkB. Speed is given by MOVE_Walk_SpeedB
+_Category(Movement/Basic/Standing)
+_Helper()
+
+Move(MOVE_Walk_SpeedB)
 :WalkF:
 ## Walking forwards state. Speed is given by MOVE_Walk_SpeedF
 _Category(Movement/Basic/Standing)
@@ -1499,9 +2050,10 @@ _StateFlag(Grounded)
 Call(StandingNeutralState)
 Call(AnimWalkF)
 
-Move(MOVE_Walk_SpeedF)
+Call(WalkF-Movement)
 
 Call(Grounded_StartJumpHelper)
+Call(Grounded_StartDashHelper)
 
 IDown:
 	Call(Stand_ToCrouchHelper)
@@ -1514,3 +2066,9 @@ else
 		endif
 	endif
 endif
+:WalkF-Movement:
+## Helper function to handle the movement for WalkF. Speed is given by MOVE_Walk_SpeedF
+_Category(Movement/Basic/Standing)
+_Helper()
+
+Move(MOVE_Walk_SpeedF)

@@ -143,7 +143,7 @@ Call(ThrowHeld-Common)
 
 Call(AnimAirThrowHeld)
 
-LThrowConfirmed
+LThrowConfirmed:
 else
 	LThrowTeching:
 		Transition(ATTACK_Throw_Air_TechingState, ATTACK_Throw_TechingPriority)
@@ -780,6 +780,12 @@ _Overridable(If you want to add behavior when your attack hits)
 _Helper()
 _Category(Custom/Attacks)
 _Overridable(If you want to add behavior when you block an attack)
+:Custom-OnFirstHit:
+## Custom override point for the OnFirstHit callback, which is called on the first hit of a combo.
+## This happens at the beginning of the function.
+_Helper()
+_Category(Custom/Attacks)
+_Overridable(If you want to add behavior when you are hit by the first attack of a combo)
 :Custom-OnHit:
 ## Custom override point for the OnHit callback, which is called when you are hit.
 ## This happens at the beginning of the function.
@@ -811,9 +817,9 @@ Call(Init-LightGraphicsInit)
 ## Hitstun state, for when you have been hit by an attack. 
 
 _Category(States/Reacts/Hitstun)
+Flag(Hitstun)
 Call(Common)
 
-Flag(Hitstun)
 
 LAFForceLanding:
 	LPFGrounded:
@@ -917,10 +923,21 @@ else
 
 	Transition(Blockstun, ATK_BLOCKSTUN_PRIORITY, 1)
 endif
+:OnFirstHit:
+## Helper callback called on the first hit of a combo
+_Category(Internals/Attacks/Callbacks)
+_Helper()
+
+Call(Custom-OnFirstHit)
 :OnHit:
 ## Internal callback that happens when you get hit.
 _Category(Internals/Attacks/Callbacks)
 _Helper()
+
+LHitstun:
+else
+	Call(OnFirstHit)
+endif
 
 LAFThrow:
 	Call(OnThrow)
@@ -1136,7 +1153,7 @@ Call(ThrowHeld-Common)
 
 Call(AnimGroundThrowHeld)
 
-LThrowConfirmed
+LThrowConfirmed:
 else
 	LThrowTeching:
 		Transition(ATTACK_Throw_Ground_TechingState, ATTACK_Throw_TechingPriority)
