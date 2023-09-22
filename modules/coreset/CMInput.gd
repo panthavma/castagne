@@ -85,12 +85,12 @@ func ModuleSetup():
 	RegisterConfig("MinChargeTime", 30, {"Description":"Minimum number of frames for a direction to be held for a valid charge input.", "Flags":["Advanced"]})
 	#the above three values determine the number of frames between inputs in a motion. By default, shorter motions have more leniency.
 
-	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, 22, 44, 66, [4]6, [2]8",{"Description":"Motion inputs in numpad notation that the system will check for."})
+	#RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, 22, 44, 66, [4]6, [2]8",{"Description":"Motion inputs in numpad notation that the system will check for."})
 
 	RegisterVariableEntity("_DirectionalInputLog", [], null, {"Description":"Array containing just the raw directional inputs for a player on each frame. Inputs are held for a number of frames equal to the buffer config variable."})
 	RegisterVariableEntity("_ChargeInputLog", [], null, {"Description":"Array containing the inputs that have been held long enough to charge on each frame. Diagonal inputs also add the cardinal direction inputs. Inputs are held for a number of frames equal to the buffer config variable."})
 	RegisterVariableEntity("_ChargeTime", {"Up":0,"Down":0,"Forward":0,"Back":0}, null, {"Description":"Dict containing the number of frames each direction has been held."})
-	RegisterVariableEntity("_PerformedMotions", [], {"Description":"Array containing the motions that have been performed by the player."})
+	#RegisterVariableEntity("_PerformedMotions", [], {"Description":"Array containing the motions that have been performed by the player."})
 
 var _castagneInputScript = load("res://castagne/engine/CastagneInput.gd")
 func OnModuleRegistration(configData):
@@ -195,15 +195,7 @@ func InputPhase(stateHandle, activeEIDs):
 func InputPhaseEndEntity(stateHandle):
 	if(stateHandle.ConfigData().Get("EnableMotionInputs")):
 		LogDirectionalInputs(stateHandle)
-
-		var validMotions = Castagne.SplitStringToArray(stateHandle.ConfigData().Get("ValidMotionInputs"))
-		var motions = []
-
-		for m in validMotions:
-			if MotionInputCheck(stateHandle, m):
-				motions += [m]
-		stateHandle.EntitySet("_PerformedMotions", motions)
-
+		
 	var frozenITL = stateHandle.EntityGet("_FrozenInputTransitionList")
 	if !frozenITL.empty():
 		stateHandle.EntitySet("_InputTransitionList",frozenITL)
@@ -230,6 +222,8 @@ func FindCorrectInputTransition(stateHandle):
 	var inputTransitionList = stateHandle.EntityGet("_InputTransitionList")
 	var inputs = stateHandle.EntityGet("_Inputs")
 	var inputLayout = stateHandle.ConfigData().Get("InputLayout")
+	
+	var testMotions = GetMotionsFromInputList(inputTransitionList)
 
 	if(inputs.empty() or inputTransitionList.empty()):
 		return null
@@ -264,8 +258,13 @@ func FindCorrectInputTransition(stateHandle):
 		directions += [["5", 10]]
 
 	#add motion inputs to the list of "directions"
+	var performedMotions = []
+	if(stateHandle.ConfigData().Get("EnableMotionInputs")):
+		var validMotions = GetMotionsFromInputList(inputTransitionList)
+		performedMotions = GetMotionInputs(stateHandle, validMotions)
+		
 	var motionPriority = 100
-	for motion in stateHandle.EntityGet("_PerformedMotions"):
+	for motion in performedMotions:
 		directions += [[motion, motionPriority]]
 		motionPriority += 10
 
@@ -282,7 +281,7 @@ func FindCorrectInputTransition(stateHandle):
 			inputLayoutCombinations.push_back(il)
 	inputLayoutButtons.append_array(inputLayoutCombinations)
 
-	var buttonPriority = 0
+	var buttonPriority = 10
 	for il in inputLayoutButtons:
 		var buttonName = il["Name"]
 		var pressName = buttonName + "Press"
@@ -547,3 +546,24 @@ func MotionInputCheck(stateHandle, motion):
 			if !frame in range(inputFrames[i],inputFrames[i]+intervals[i]):
 				return
 	return motion
+
+func GetMotionsFromInputList(itl):
+	var validChars = ["0","1","2","3","4","5","6","7","8","9","[","]"]
+	var motionList = []
+	for i in range(0, len(itl)):
+		var motion = ""
+		var input = itl[i]["InputNotation"]
+		for c in range(0, len(input)):
+			if validChars.has(input[c]):
+				motion += input[c]
+		if len(motion) > 1 and !motionList.has(motion):
+			motionList += [motion]
+	return motionList
+
+func GetMotionInputs(stateHandle, validMotions):
+	var motions = []
+
+	for m in validMotions:
+		if MotionInputCheck(stateHandle, m):
+			motions += [m]
+	return motions
