@@ -1,10 +1,13 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 extends "../CastagneModule.gd"
 
 func ModuleSetup():
 	RegisterModule("Flow", Castagne.MODULE_SLOTS_BASE.FLOW, {
 		"Description":"Generic flow module, handles match entry and exit, as well as mid-match events."
 		})
-	#RegisterBaseCaspFile("res://castagne/modules/coreset/Base-Core.casp", -9000)
 	
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "players", [], {
 		"Description":"List of player BIDs. The 0th one is the default, which the later ones may override."
@@ -21,8 +24,8 @@ func ModuleSetup():
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "map", 0, {
 		"Description":"The stage to load."
 		})
-	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "music", null, {
-		"Description":"Unsupported"
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "music", 0, {
+		"Description":"The music track to play in the background."
 		})
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "exitcallback", null, {
 		"Description":"Unsupported"
@@ -77,12 +80,16 @@ func GetBaseBattleInitData(configData):
 	return battleInitData
 
 func BattleInit(stateHandle, battleInitData):
+	_createEntities_parsedFighterScripts = {}
+	
 	_BattleInit_CreateEntities(stateHandle, battleInitData["entities"], -1)
 	
 	var pBase = battleInitData["players"][0]
 	for pid in range(battleInitData["players"].size()-1):
 		var p = pBase.duplicate(true)
+		var pBaseOver = pBase["overrides"]
 		Castagne.FuseDataOverwrite(p, battleInitData["players"][pid+1].duplicate(true))
+		Castagne.FuseDataNoOverwrite(p["overrides"], pBaseOver)
 		
 		var pState = {
 			"PID": pid,
@@ -98,7 +105,8 @@ func BattleInit(stateHandle, battleInitData):
 		for key in pState:
 			stateHandle.Memory().PlayerSet(pid, key, pState[key], true)
 		
-		# :TODO:20230217:Panthavma: Maybe make a special AddPlayer callback ? 
+		for m in stateHandle.ConfigData().GetModules():
+			m.CopyVariablesPlayer(stateHandle.Memory(), pid)
 		
 		var engine = stateHandle.Engine()
 		engine.instancedData["Players"].append(pData)
@@ -107,11 +115,15 @@ func BattleInit(stateHandle, battleInitData):
 		
 		_BattleInit_CreateEntities(stateHandle, p["entities"], pid)
 
+var _createEntities_parsedFighterScripts # small optim to not compile all files twice
 func _BattleInit_CreateEntities(stateHandle, entities, playerID):
 	var eBase = entities[0]
+	
 	for eid in range(entities.size()-1):
 		var e = eBase.duplicate(true)
+		var eBaseOver = eBase["overrides"]
 		Castagne.FuseDataOverwrite(e, entities[eid+1])
+		Castagne.FuseDataNoOverwrite(e["overrides"], eBaseOver)
 		
 		var characterPath = e["scriptpath"]
 		
@@ -122,10 +134,16 @@ func _BattleInit_CreateEntities(stateHandle, entities, playerID):
 		if(!characterPath.ends_with(".casp")):
 			ModuleError("Entity init: Player "+str(playerID)+" Entity "+str(eid)+" doesn't have a valid script path: " +characterPath)
 		
-		var fighterID = stateHandle.Engine().ParseFighterScript(characterPath)
-		if(fighterID < 0):
-			ModuleError("Fighter parsing failed for " + str(characterPath) + " !")
-			return
+		
+		var fighterID = -1
+		if(characterPath in _createEntities_parsedFighterScripts):
+			fighterID = _createEntities_parsedFighterScripts[characterPath]
+		else:
+			fighterID = stateHandle.Engine().ParseFighterScript(characterPath)
+			if(fighterID < 0):
+				ModuleError("Fighter parsing failed for " + str(characterPath) + " !")
+				return
+			_createEntities_parsedFighterScripts[characterPath] = fighterID
 		
 		var newEID = stateHandle.Engine().AddNewEntity(stateHandle, playerID, fighterID)
 		for key in e["overrides"]:

@@ -1,161 +1,67 @@
 :Character:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+
 ## Base-Graphics: Holds some basic behavior for graphics, independant of 2D or 3D. (IN PROGRESS UNTIL v0.55)
 ##
 ## Its main purpose here is to provide model or sprite initialization, as well as help with standard animations.
-:Variables-Graphics-Anims-Reacts:
-## Variables block for specifying animations of reaction states: Hitstun, Blockstun, Throws, and Teching
-
-def ANIM_Reacts_Hitstun_Standing str() = ANIM_Reacts_Hitstun_Standing
-def ANIM_Reacts_Hitstun_Crouching str() = ANIM_Reacts_Hitstun_Crouching
-def ANIM_Reacts_Hitstun_Airborne str() = ANIM_Reacts_Hitstun_Airborne
-
-def ANIM_Reacts_Knockdown str() = ANIM_Reacts_Knockdown
-
-def ANIM_Reacts_Blockstun_Standing str() = ANIM_Reacts_Blockstun_Standing
-def ANIM_Reacts_Blockstun_Crouching str() = ANIM_Reacts_Blockstun_Crouching
-def ANIM_Reacts_Blockstun_Airborne str() = ANIM_Reacts_Blockstun_Airborne
-
-def ANIM_Reacts_Throw_Ground_Held str() = ANIM_Reacts_Throw_Ground_Held
-def ANIM_Reacts_Throw_Ground_Holding str() = ANIM_Reacts_Throw_Ground_Holding
-def ANIM_Reacts_Throw_Ground_Teched str() = ANIM_Reacts_Throw_Ground_Teched
-def ANIM_Reacts_Throw_Ground_Teching str() = ANIM_Reacts_Throw_Ground_Teching
-def ANIM_Reacts_Throw_Air_Held str() = ANIM_Reacts_Throw_Air_Held
-def ANIM_Reacts_Throw_Air_Holding str() = ANIM_Reacts_Throw_Air_Holding
-def ANIM_Reacts_Throw_Air_Teched str() = ANIM_Reacts_Throw_Air_Teched
-def ANIM_Reacts_Throw_Air_Teching str() = ANIM_Reacts_Throw_Air_Teching
-
-def ANIM_Reacts_Tech_Grounded_Neutral str() = ANIM_Reacts_Tech_Grounded_Neutral
-def ANIM_Reacts_Tech_Grounded_Backward str() = ANIM_Reacts_Tech_Grounded_Backward
-def ANIM_Reacts_Tech_Grounded_Forward str() = ANIM_Reacts_Tech_Grounded_Forward
-def ANIM_Reacts_Tech_Grounded_Up str() = ANIM_Reacts_Tech_Grounded_Up
-def ANIM_Reacts_Tech_Airborne_Neutral str() = ANIM_Reacts_Tech_Airborne_Neutral
-def ANIM_Reacts_Tech_Airborne_Backward str() = ANIM_Reacts_Tech_Airborne_Backward
-def ANIM_Reacts_Tech_Airborne_Forward str() = ANIM_Reacts_Tech_Airborne_Forward
-def ANIM_Reacts_Tech_Airborne_Up str() = ANIM_Reacts_Tech_Airborne_Up
-def ANIM_Reacts_Tech_Airborne_Down str() = ANIM_Reacts_Tech_Airborne_Down
-def ANIM_Reacts_Tech_Knockdown_Neutral str() = ANIM_Reacts_Tech_Knockdown_Neutral
-def ANIM_Reacts_Tech_Knockdown_Backward str() = ANIM_Reacts_Tech_Knockdown_Backward
-def ANIM_Reacts_Tech_Knockdown_Forward str() = ANIM_Reacts_Tech_Knockdown_Forward
-def ANIM_Reacts_Tech_Knockdown_Up str() = ANIM_Reacts_Tech_Knockdown_Up
-:Variables-Graphics-Anims-Movement:
-## Specified the animations to play with the standard animation system.
-
-def ANIM_Movement_Basic_Stand str() = ANIM_Movement_Basic_Stand
-def ANIM_Movement_Basic_Stand_Loop int() = 60
-def ANIM_Movement_Basic_WalkF str() = ANIM_Movement_Basic_WalkF
-def ANIM_Movement_Basic_WalkF_Loop int() = 60
-def ANIM_Movement_Basic_WalkB str() = ANIM_Movement_Basic_WalkB
-def ANIM_Movement_Basic_WalkB_Loop int() = 60
-
-def ANIM_Movement_Basic_Crouching str() = ANIM_Movement_Basic_Crouching
-def ANIM_Movement_Basic_Crouching_Loop int() = 60
-def ANIM_Movement_Basic_CrawlF str() = ANIM_Movement_Basic_CrawlF
-def ANIM_Movement_Basic_CrawlF_Loop int() = 60
-def ANIM_Movement_Basic_CrawlB str() = ANIM_Movement_Basic_CrawlB
-def ANIM_Movement_Basic_CrawlB_Loop int() = 60
-
-def ANIM_Movement_Basic_Turnaround str() = ANIM_Movement_Basic_Turnaround
-def ANIM_Movement_Basic_TurnaroundCrouch str() = ANIM_Movement_Basic_TurnaroundCrouch
-def ANIM_Movement_Basic_TurnaroundAirborne str() = ANIM_Movement_Basic_TurnaroundAirborne
-def ANIM_Movement_Basic_StandToCrouch str() = ANIM_Movement_Basic_StandToCrouch
-def ANIM_Movement_Basic_CrouchToStand str() = ANIM_Movement_Basic_CrouchToStand
-
-def ANIM_Movement_Basic_Landing str() = ANIM_Movement_Basic_Landing
-def ANIM_Movement_Basic_Jumpsquat str() = ANIM_Movement_Basic_Jumpsquat
-
-def ANIM_Movement_Basic_AirIdle str() = ANIM_Movement_Basic_AirIdle
-def ANIM_Movement_Basic_JumpN str() = ANIM_Movement_Basic_JumpN
-def ANIM_Movement_Basic_JumpF str() = ANIM_Movement_Basic_JumpF
-def ANIM_Movement_Basic_JumpB str() = ANIM_Movement_Basic_JumpB
-
-def ANIM_Movement_Dashes_TurnaroundRun str() = TurnaroundRun
-def ANIM_Movement_Dashes_RunStart str() = ANIM_Movement_Dashes_RunStart
-def ANIM_Movement_Dashes_Run str() = ANIM_Movement_Dashes_Run
-def ANIM_Movement_Dashes_Run_Loop int() = 60
-def ANIM_Movement_Dashes_RunStop str() = ANIM_Movement_Dashes_RunStop
-def ANIM_Movement_Dashes_StepDash str() = ANIM_Movement_Dashes_StepDash
-def ANIM_Movement_Dashes_Backdash str() = ANIM_Movement_Dashes_Backdash
-def ANIM_Movement_Dashes_HighjumpN str() = ANIM_Movement_Dashes_HighjumpN
-def ANIM_Movement_Dashes_HighjumpF str() = ANIM_Movement_Dashes_HighjumpF
-def ANIM_Movement_Dashes_HighjumpB str() = ANIM_Movement_Dashes_HighjumpB
-def ANIM_Movement_Dashes_AirjumpN str() = ANIM_Movement_Dashes_AirjumpN
-def ANIM_Movement_Dashes_AirjumpF str() = ANIM_Movement_Dashes_AirjumpF
-def ANIM_Movement_Dashes_AirjumpB str() = ANIM_Movement_Dashes_AirjumpB
-def ANIM_Movement_Dashes_AirdashF str() = ANIM_Movement_Dashes_AirdashF
-def ANIM_Movement_Dashes_AirdashB str() = ANIM_Movement_Dashes_AirdashB
-:Variables-Graphics:
-## Basic graphics setup variables
-
-#--- General
-def GRAPHICS_Scale int() = 1000
-
-#--- Models
-def GRAPHICS_ModelPath str() = res://castagne/assets/fighters/castagneur/CastagneurModel.tscn
-def GRAPHICS_ModelPath_AnimPlayer str() = AnimationPlayer
-var ANIMS_UseStandardAnims bool() = 1
-
-#--- Sprites
-def GRAPHICS_UseSprites bool() = 0
-def GRAPHICS_Spritesheet_Path str() = res://castagne/example/fighter/sprites/StickmanSpriteSheet.png
-def GRAPHICS_Spritesheet_DefaultName str() = Default
-def GRAPHICS_Spritesheet_NbX int() = 1
-def GRAPHICS_Spritesheet_NbY int() = 1
-def GRAPHICS_Spritesheet_OriginX int() = 0
-def GRAPHICS_Spritesheet_OriginY int() = 0
-def GRAPHICS_Spritesheet_3DPixelsize int() = 100000
+:Specs-Sprites:
+# Automatic creation
 :AnimAirTechBackward:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Airborne_Backward)
+	Anim(ANIM_Reacts_Tech_Airborne_Backward)
 endif
 :AnimAirTechDown:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Airborne_Down)
+	Anim(ANIM_Reacts_Tech_Airborne_Down)
 endif
 :AnimAirTechForward:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Airborne_Forward)
+	Anim(ANIM_Reacts_Tech_Airborne_Forward)
 endif
 :AnimAirTechNeutral:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Airborne_Neutral)
+	Anim(ANIM_Reacts_Tech_Airborne_Neutral)
 endif
 :AnimAirTechUp:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Airborne_Up)
+	Anim(ANIM_Reacts_Tech_Airborne_Up)
 endif
 :AnimAirThrowHeld:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Throw_Air_Held)
+	Anim(ANIM_Reacts_Throw_Air_Held)
 endif
 :AnimAirThrowHolding:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Throw_Air_Holding)
+	Anim(ANIM_Reacts_Throw_Air_Holding)
 endif
 :AnimAirThrowTeched:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Throw_Air_Teched)
+	Anim(ANIM_Reacts_Throw_Air_Teched)
 endif
 :AnimAirThrowTeching:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Throw_Air_Teching)
+	Anim(ANIM_Reacts_Throw_Air_Teching)
 endif
 :AnimAirborne:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
@@ -203,19 +109,31 @@ endif
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Blockstun_Airborne)
+	Anim(ANIM_Reacts_Blockstun_Airborne)
+	
+	PFreeze:
+		AnimFrame(ANIM_Reacts_Blockstun_Airborne, 0)
+	endif
 endif
 :AnimBlockstunCrouching:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Blockstun_Crouching)
+	Anim(ANIM_Reacts_Blockstun_Crouching)
+	
+	PFreeze:
+		AnimFrame(ANIM_Reacts_Blockstun_Crouching, 0)
+	endif
 endif
 :AnimBlockstunStanding:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Blockstun_Standing)
+	Anim(ANIM_Reacts_Blockstun_Standing)
+	
+	PFreeze:
+		AnimFrame(ANIM_Reacts_Blockstun_Standing, 0)
+	endif
 endif
 :AnimCrawlB:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
@@ -248,49 +166,49 @@ endif
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Grounded_Backward)
+	Anim(ANIM_Reacts_Tech_Grounded_Backward)
 endif
 :AnimGroundTechForward:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Grounded_Forward)
+	Anim(ANIM_Reacts_Tech_Grounded_Forward)
 endif
 :AnimGroundTechNeutral:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Grounded_Neutral)
+	Anim(ANIM_Reacts_Tech_Grounded_Neutral)
 endif
 :AnimGroundTechUp:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Grounded_Up)
+	Anim(ANIM_Reacts_Tech_Grounded_Up)
 endif
 :AnimGroundThrowHeld:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Throw_Ground_Held)
+	Anim(ANIM_Reacts_Throw_Ground_Held)
 endif
 :AnimGroundThrowHolding:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Throw_Ground_Holding)
+	Anim(ANIM_Reacts_Throw_Ground_Holding)
 endif
 :AnimGroundThrowTeched:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Throw_Ground_Teched)
+	Anim(ANIM_Reacts_Throw_Ground_Teched)
 endif
 :AnimGroundThrowTeching:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Throw_Ground_Teching)
+	Anim(ANIM_Reacts_Throw_Ground_Teching)
 endif
 :AnimHighjumpB:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
@@ -314,19 +232,31 @@ endif
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Hitstun_Airborne)
+	Anim(ANIM_Reacts_Hitstun_Airborne)
+	
+	PFreeze:
+		AnimFrame(ANIM_Reacts_Hitstun_Airborne, 0)
+	endif
 endif
 :AnimHitstunCrouching:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Hitstun_Crouching)
+	Anim(ANIM_Reacts_Hitstun_Crouching)
+	
+	PFreeze:
+		AnimFrame(ANIM_Reacts_Hitstun_Crouching, 0)
+	endif
 endif
 :AnimHitstunStanding:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Hitstun_Standing)
+	Anim(ANIM_Reacts_Hitstun_Standing)
+	
+	PFreeze:
+		AnimFrame(ANIM_Reacts_Hitstun_Standing, 0)
+	endif
 endif
 :AnimJumpB:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
@@ -356,31 +286,31 @@ endif
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Knockdown)
+	Anim(ANIM_Reacts_Knockdown)
 endif
 :AnimKnockdownTechBackward:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Knockdown_Backward)
+	Anim(ANIM_Reacts_Tech_Knockdown_Backward)
 endif
 :AnimKnockdownTechForward:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Knockdown_Forward)
+	Anim(ANIM_Reacts_Tech_Knockdown_Forward)
 endif
 :AnimKnockdownTechNeutral:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Knockdown_Neutral)
+	Anim(ANIM_Reacts_Tech_Knockdown_Neutral)
 endif
 :AnimKnockdownTechUp:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
 VANIMS_UseStandardAnims:
-	AnimFrame(ANIM_Reacts_Tech_Knockdown_Up)
+	Anim(ANIM_Reacts_Tech_Knockdown_Up)
 endif
 :AnimLanding:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
@@ -458,6 +388,37 @@ VANIMS_UseStandardAnims:
 	Anim(ANIM_Movement_Basic_WalkF)
 	AnimLoop(ANIM_Movement_Basic_WalkF_Loop)
 endif
+:Init:
+CallParent()
+Call(Init-Graphics)
+:Init-Graphics:
+## Helper that creates the model or sprites on entity instanciation.
+_Category(Graphics)
+
+VGRAPHICS_UseSprites:
+	Call(Init-Graphics-Sprites)
+else
+	VGRAPHICS_UseModel:
+		Call(Init-Graphics-Model)
+	endif
+endif
+
+ModelScale(GRAPHICS_Scale)
+:Init-Graphics-Model:
+## Graphics helper to initialize a model
+_Category(Graphics)
+
+ModelCreate(GRAPHICS_ModelPath, GRAPHICS_ModelPath_AnimPlayer)
+:Init-Graphics-Sprites:
+## Helper for sprite initialization
+_Category(Graphics)
+
+SpriteCreate()
+Call(Init-Graphics-Spritesheets)
+:Init-Graphics-Spritesheets:
+## Helper that initializes the spritesheets of the character
+_Category(Graphics)
+_Overridable(If you want to setup your spritesheets manually)
 :Init-LightGraphicsInit:
 ## Simple helper to create a model or sprite quickly for subentities
 _Helper()
@@ -482,57 +443,35 @@ def Sprites_3DPixelsize int() = 1000
 
 # -----------------------------------
 VSprites_Use:
-	CreateSprite()
-	RegisterSpritesheet(Default, Sprites_SpritesheetPath, Sprites_NbX, Sprites_NbY, Sprites_OriginX, Sprites_OriginY, Sprites_3DPixelsize)
+	SpriteCreate()
+	SpritesheetRegister(Default, Sprites_SpritesheetPath, Sprites_NbX, Sprites_NbY, Sprites_OriginX, Sprites_OriginY, Sprites_3DPixelsize)
 	Sprite(0)
 else
 	VModel_UseAnims:
-		CreateModel(Model_Path, Model_AnimPath)
+		ModelCreate(Model_Path, Model_AnimPath)
 	else
-		CreateModel(Model_Path)
+		ModelCreate(Model_Path)
 	endif
 endif
 
 ModelScale(Model_Scale)
-:Init-Main:
-CallParent(Init-Main)
-Call(Init-Main-Graphics)
-:Init-Main-Graphics:
-## Helper that creates the model or sprites on entity instanciation.
-_Category(Graphics)
-
-VGRAPHICS_UseSprites:
-	Call(Init-Main-Graphics-Sprites)
-else
-	Call(Init-Main-Graphics-Model)
-endif
-
-ModelScale(GRAPHICS_Scale)
-:Init-Main-Graphics-Model:
-## Graphics helper to initialize a model
-_Category(Graphics)
-
-CreateModel(GRAPHICS_ModelPath, GRAPHICS_ModelPath_AnimPlayer)
-:Init-Main-Graphics-Sprites:
-## Helper for sprite initialization
-_Category(Graphics)
-
-CreateSprite()
-Call(Init-Main-Graphics-Spritesheets)
-:Init-Main-Graphics-Spritesheets:
-## Helper that initializes the spritesheets of the character
-_Category(Graphics)
-_Overridable(If you want to setup your spritesheets manually)
-
-RegisterSpritesheet(GRAPHICS_Spritesheet_DefaultName, GRAPHICS_Spritesheet_Path, GRAPHICS_Spritesheet_NbX, GRAPHICS_Spritesheet_NbY, GRAPHICS_Spritesheet_OriginX, GRAPHICS_Spritesheet_OriginY, GRAPHICS_Spritesheet_3DPixelsize)
 :OnBlock:
-CallParent(OnBlock)
+CallParent()
 
 Call(VFXBlock)
-:OnHit:
-CallParent(OnHit)
+:OnHit-Graphics:
+## Handles graphics on hit
+_Category(Internals/Attacks/React/3_Defender/Hit)
+_Helper()
 
+Call(AnimHitstun)
+## TODO: Update anim system since it won't need frame zero anymore with the transition. Plus new freeze system
+
+## TODO: VFX
 Call(VFXHit)
+:OnHit-Hook:
+CallParent()
+Call(OnHit-Graphics)
 :VFXBlock:
 ## Temporary block vfx function
 ## CASTDO
@@ -545,10 +484,10 @@ def VFXTime int() = 10
 def VFXAnimation str() = default
 def VFXAnimPlayer str() = AnimationPlayer
 
-VFXPrepare(VFXPath, VFXTime, VFXPosX, VFXPosY)
-VFXScale(VFXScale)
-VFXAnimation(VFXAnimation, VFXAnimPlayer)
-VFXCreate()
+#VFXPrepare(VFXPath, VFXTime, VFXPosX, VFXPosY)
+#VFXScale(VFXScale)
+#VFXAnimation(VFXAnimation, VFXAnimPlayer)
+#VFXCreate()
 :VFXHit:
 ## Temporary hit vfx function
 ## CASTDO
@@ -561,7 +500,7 @@ def VFXTime int() = 10
 def VFXAnimation str() = default
 def VFXAnimPlayer str() = AnimationPlayer
 
-VFXPrepare(VFXPath, VFXTime, VFXPosX, VFXPosY)
-VFXScale(VFXScale)
-VFXAnimation(VFXAnimation, VFXAnimPlayer)
-VFXCreate()
+#VFXPrepare(VFXPath, VFXTime, VFXPosX, VFXPosY)
+#VFXScale(VFXScale)
+#VFXAnimation(VFXAnimation, VFXAnimPlayer)
+#VFXCreate()

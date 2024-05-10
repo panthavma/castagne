@@ -1,0 +1,119 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://addons/godot-rollback-netcode/log_inspector/FrameViewerSettingsDialog.gd" type="Script" id=1]
+
+[node name="FrameViewerSettingsDialog" type="WindowDialog"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -300.0
+margin_top = -200.0
+margin_right = 300.0
+margin_bottom = 200.0
+window_title = "Settings"
+resizable = true
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+custom_constants/margin_right = 10
+custom_constants/margin_top = 10
+custom_constants/margin_left = 10
+custom_constants/margin_bottom = 10
+
+[node name="GridContainer" type="GridContainer" parent="MarginContainer"]
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 590.0
+margin_bottom = 390.0
+columns = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ShowNetworkArrowsLabel" type="Label" parent="MarginContainer/GridContainer"]
+margin_top = 5.0
+margin_right = 288.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Show network arrows"
+
+[node name="ShowNetworkArrows" type="CheckBox" parent="MarginContainer/GridContainer"]
+margin_left = 292.0
+margin_right = 580.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "On"
+
+[node name="NetworkArrowsPeer1Label" type="Label" parent="MarginContainer/GridContainer"]
+margin_top = 31.0
+margin_right = 288.0
+margin_bottom = 45.0
+text = "Network arrows - Peer 1"
+
+[node name="NetworkArrowsPeer1" type="OptionButton" parent="MarginContainer/GridContainer"]
+margin_left = 292.0
+margin_top = 28.0
+margin_right = 580.0
+margin_bottom = 48.0
+
+[node name="NetworkArrowsPeer2Label" type="Label" parent="MarginContainer/GridContainer"]
+margin_top = 55.0
+margin_right = 288.0
+margin_bottom = 69.0
+text = "Network arrows - Peer 2"
+
+[node name="NetworkArrowsPeer2" type="OptionButton" parent="MarginContainer/GridContainer"]
+margin_left = 292.0
+margin_top = 52.0
+margin_right = 580.0
+margin_bottom = 72.0
+
+[node name="ShowRollbackTicksLabel" type="Label" parent="MarginContainer/GridContainer"]
+margin_top = 81.0
+margin_right = 288.0
+margin_bottom = 95.0
+text = "Show rollback ticks"
+
+[node name="ShowRollbackTicks" type="CheckBox" parent="MarginContainer/GridContainer"]
+margin_left = 292.0
+margin_top = 76.0
+margin_right = 580.0
+margin_bottom = 100.0
+size_flags_horizontal = 3
+text = "On"
+
+[node name="MaxRollbackTicksLabel" type="Label" parent="MarginContainer/GridContainer"]
+margin_top = 109.0
+margin_right = 288.0
+margin_bottom = 123.0
+text = "Max rollback ticks"
+
+[node name="MaxRollbackTicks" type="LineEdit" parent="MarginContainer/GridContainer"]
+margin_left = 292.0
+margin_top = 104.0
+margin_right = 580.0
+margin_bottom = 128.0
+
+[node name="TimeOffsetLabel" type="Label" parent="MarginContainer/GridContainer"]
+margin_top = 132.0
+margin_right = 288.0
+margin_bottom = 146.0
+text = "Time offsets"
+
+[node name="TimeOffsetContainer" type="VBoxContainer" parent="MarginContainer/GridContainer"]
+margin_left = 292.0
+margin_top = 132.0
+margin_right = 580.0
+margin_bottom = 146.0
+
+[connection signal="toggled" from="MarginContainer/GridContainer/ShowNetworkArrows" to="." method="_on_ShowNetworkArrows_toggled"]
+[connection signal="item_selected" from="MarginContainer/GridContainer/NetworkArrowsPeer1" to="." method="_on_NetworkArrowsPeer1_item_selected"]
+[connection signal="item_selected" from="MarginContainer/GridContainer/NetworkArrowsPeer2" to="." method="_on_NetworkArrowsPeer2_item_selected"]
+[connection signal="pressed" from="MarginContainer/GridContainer/ShowRollbackTicks" to="." method="_on_ShowRollbackTicks_pressed"]
+[connection signal="text_changed" from="MarginContainer/GridContainer/MaxRollbackTicks" to="." method="_on_MaxRollbackTicks_text_changed"]

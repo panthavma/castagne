@@ -1,0 +1,237 @@
+:Character:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+## Base-Core: This file holds the most basic of functionnality, and has some default implementations for parts that modules can expect.
+:Variables-Internals-Core:
+## Internal variables used for the Core module.
+
+def CORE_InitialState str() = Stand
+
+
+# Temporary variables, until we get local variables
+var CAST_REG_A int() = 0
+var CAST_REG_B int() = 0
+var CAST_REG_C int() = 0
+var CAST_REG_D int() = 0
+var CAST_REG_A_STR str() = A
+var CAST_REG_B_STR str() = B
+:Common:
+## The BaseState all states are supposed to call to. Serves as an important point to handle behavior at all times.
+## While it is possible to not use it, it is not recommended to do so.
+
+_Category(Internals)
+_BaseState()
+
+CallAfter(CommonAfter)
+:CommonAfter:
+## This state is called after every script that links back to :Common:. It's purpose it to hold some helpers, like putting default hurtboxes on characters.
+
+_Helper()
+_Category(Internals)
+#Log(CommonAFTER)
+:Custom-NeutralStateCommon:
+## Custom override point for the NeutralStateCommon helper, which is called in all neutral states.
+## This happens at the beginning of the function.
+_Helper()
+_Category(Custom/Core)
+_Overridable(If you want to add behavior common to all neutral states)
+:Custom-OnReturnToNeutral:
+## Custom override point for the OnReturnToNeutralHelper, which is called when going from a non-neutral to a neutral state.
+## This behavior happens at the beginning.
+_Category(Custom/Core)
+_Helper()
+_Overridable(If you want to add custom behavior when returning to a neutral state)
+:Init:
+## Initialization script for this file's main entity.
+
+_Category(Internals)
+
+Transition(CORE_InitialState)
+:NeutralState:
+## Base state for neutral states, meaning those where the character is considered free to act, like in the Stand state.
+## Being neutral allows for instance to refresh attack cancels, and so should be carefully given.
+## Castagne by default will consider the basic movement states to be neutral, but not the dashes.
+
+_Category(States/Neutral)
+Call(StandardState)
+Call(NeutralStateCommon)
+_BaseState()
+:NeutralStateCommon:
+## Common behavior for all neutral states. Will handle detection of returning to neutral, etc.
+
+_Category(States/Neutral)
+_StateFlag(Neutral)
+_Helper()
+
+Flag(NeutralState)
+FlagNext(NeutralStateLastFrame)
+LNeutralStateLastFrame:
+else
+	Call(OnReturnToNeutral)
+endif
+
+Call(Custom-NeutralStateCommon)
+:OnReturnToNeutral:
+## Callback function invoked when going from a non-neutral state to a neutral state. Used to reset possible attack cancels, among others.
+
+_Category(States/Neutral)
+_Helper()
+
+Call(Custom-OnReturnToNeutral)
+:StandardState:
+## Basic base state that almost all controllable states should point to. It uses some constants to alter behavior.
+
+_Category(States)
+_BaseState()
+
+Call(Common)
+:Base---Subentity:
+## Base entity that holds some basic systems for use by children entities.
+## This is what you inherit from when you want to do a complex subtentity, otherwise you can use a more specialized base like 'Projectile'
+Skeleton: none
+:Base---Specs-Subentity:
+# Automatic creation
+:Base---Variables:
+var SUBENTITY_TimeRemainingToLive int() = 0
+
+
+var CAST_REG_A int() = 0
+var CAST_REG_B int() = 0
+var CAST_REG_C int() = 0
+var CAST_REG_D int() = 0
+var CAST_REG_A_STR str() = A
+var CAST_REG_B_STR str() = A
+:Base---Action:
+## Standard subentity main state
+Call(Action-Base)
+:Base---Action-Base:
+## Base behavior of Action
+_BaseState()
+Call(SECommon)
+Call(Action-Base-Colbox)
+Call(Action-Base-Graphics)
+Call(Action-Base-Movement)
+Call(Action-Base-Attack)
+:Base---Action-Base-Attack:
+## Sets basic attack parameters for subentities
+_Helper()
+
+AttackDamage(SUBENTITY_Attack_Damage)
+AttackHitstunBlockstun(SUBENTITY_Attack_Hitstun, SUBENTITY_Attack_Blockstun)
+:Base---Action-Base-Colbox:
+## Handles basic colbox settings for subentities
+_Helper()
+
+VSUBENTITY_Colbox_Use:
+	Colbox(SUBENTITY_Colbox_Width, SUBENTITY_Colbox_Bottom, SUBENTITY_Colbox_Top)
+endif
+
+VSUBENTITY_Colbox_Phantom:
+	SetColboxPhantom()
+endif
+:Base---Action-Base-Graphics:
+## Basic animation player for subentities
+_Helper()
+
+VSUBENTITY_Anim_Use:
+	Anim(SUBENTITY_Anim_Name)
+endif
+:Base---Action-Base-Hitbox:
+## Basic hitbox for subentities
+_Helper()
+
+VSUBENTITY_Hitbox_Use:
+	Hitbox(SUBENTITY_Hitbox_Back, SUBENTITY_Hitbox_Front, SUBENTITY_Hitbox_Bottom, SUBENTITY_Hitbox_Top)
+endif
+:Base---Action-Base-Hurtbox:
+## Basic hurtbox for subentities
+_Helper()
+
+VSUBENTITY_Hurtbox_Use:
+	Hitbox(SUBENTITY_Hurtbox_Back, SUBENTITY_Hurtbox_Front, SUBENTITY_Hurtbox_Bottom, SUBENTITY_Hurtbox_Top)
+endif
+:Base---Action-Base-Movement:
+## Basic movement for subentities
+_Helper()
+
+Move(SUBENTITY_Move_X, SUBENTITY_Move_Y)
+:Base---Init:
+## Basic Init for Subentities
+_BaseState()
+
+Call(Init-Graphics)
+
+Set(SUBENTITY_TimeRemainingToLive, SUBENTITY_TimeToLive)
+
+Transition(Action)
+:Base---Init-Graphics:
+## Graphics init for subentities
+_Helper()
+
+VGRAPHICS_UseSprites:
+	Call(Init-Graphics-Sprites)
+else
+	VGRAPHICS_UseModel:
+		Call(Init-Graphics-Model)
+	endif
+endif
+
+ModelScale(GRAPHICS_Scale)
+:Base---Init-Graphics-Model:
+## Basic graphics init for models for subentities
+_Helper()
+
+ModelCreate(GRAPHICS_ModelPath, GRAPHICS_ModelPath_AnimPlayer)
+:Base---Init-Graphics-Sprites:
+## Sprite graphics init for subentities
+_Helper()
+
+SpriteCreate()
+:Base---SECommon:
+## Common base state for subentities
+_BaseState()
+
+CallAfter(SECommon-After)
+
+VSUBENTITY_TimeToLive>0:
+	Sub(SUBENTITY_TimeRemainingToLive, 1)
+	VSUBENTITY_TimeRemainingToLive<=0:
+		Flag(Destroy)
+	endif
+endif
+
+VSUBENTITY_DestroyOnWallCollision:
+	LPF_Wall:
+		Flag(Destroy)
+	endif
+endif
+
+VSUBENTITY_DestroyOnGroundCollision:
+	LPF_Grounded:
+		Flag(Destroy)
+	endif
+endif
+:Base---SECommon-After:
+## Helper for execute-after in subentities
+_Helper()
+
+Call(Action-Base-Hitbox)
+Call(Action-Base-Hurtbox)
+
+LDestroy:
+	DestroyEntity()
+endif
+:Projectile---Subentity:
+## Base for projectiles. Contains additional helpers and behavior for how to use said projectiles.
+:Projectile---Specs-Subentity:
+def SUBENTITY_Colbox_Use bool() = 1
+def SUBENTITY_Hitbox_Use bool() = 1
+def SUBENTITY_DestroyOnGroundCollision bool() = 1
+def SUBENTITY_DestroyOnWallCollision bool() = 1
+def SUBENTITY_TimeToLive int() = 600
+def SUBENTITY_Move_X int() = 2000
+def SUBENTITY_Move_Y int() = 0
+:Projectile---Action:
+CallParent()

@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 extends "CMGraphicsBase.gd"
 
 var prefabVPC = preload("res://castagne/modules/graphics/Graphics2DRoot.tscn")
@@ -32,25 +36,6 @@ func CreateModel(args, stateHandle):
 
 
 
-func _UpdateSprite(sprite, stateHandle):
-	._UpdateSprite(sprite, stateHandle)
-	var spriteOrder = stateHandle.EntityGet("_SpriteOrder") + stateHandle.EntityGet("_SpriteOrderOffset")
-	sprite.set_z_index(spriteOrder)
-	
-	var spriteData = _GetCurrentSpriteData(stateHandle)
-	var spriteSizeY = 0
-	if(stateHandle.EntityGet("_SpriteUseSpritesheets")):
-		var texture = sprite.get_texture()
-		if(texture != null):
-			spriteSizeY = texture.get_size().y / sprite.get_vframes()
-	else:
-		var spriteFrames = sprite.get_sprite_frames()
-		if(spriteFrames != null):
-			var curFrame = spriteFrames.get_frame(stateHandle.EntityGet("SpriteAnim"), stateHandle.EntityGet("SpriteFrame"))
-			if(curFrame != null):
-				spriteSizeY = curFrame.get_size().y
-	sprite.set_offset(Vector2(-spriteData["OriginX"], spriteData["OriginY"] - spriteSizeY))
-
 
 
 
@@ -60,18 +45,15 @@ func _UpdateSprite(sprite, stateHandle):
 
 func _InitCamera(_stateHandle, _battleInitData):
 	var cam = Camera2D.new()
-	#cam.set_zoom(Vector2(0.5, 0.5))
 	cam.make_current()
 	return cam
 
-func _CreateSprite_Instance(spriteframesPath):
-	if(spriteframesPath == null):
-		return Sprite.new()
-	else:
-		var s = AnimatedSprite.new()
-		s.set_sprite_frames(Castagne.Loader.Load(spriteframesPath))
-		return s
-
+func _CreateSprite_Instance():
+	var s2D = Sprite.new()
+	s2D.set_script(Castagne.Loader.Load("res://castagne/modules/graphics/CMGraphics_Sprite.gd"))
+	s2D.is2D = true
+	s2D.graphicsModule = self
+	return s2D
 
 func _UpdateCamera(_stateHandle, camera, cameraPos):
 	# TODO Camera size isn't really consistent, needs design
@@ -94,8 +76,6 @@ func _ModelApplyTransformDirect(modelRoot, modelPosition, modelRotation, modelSc
 	
 	modelRoot.set_position(modelPosition)
 	modelRoot.set_rotation_degrees(modelRotation)
-	#var spriteData = _GetCurrentSpriteData(stateHandle)
-	#modelScale *= spriteData["PixelSize"]
 	modelRoot.set_scale(Vector2(facingH * modelScale, modelScale))
 
 func _CreateRootNode():

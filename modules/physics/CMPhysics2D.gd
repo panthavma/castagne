@@ -1,6 +1,8 @@
-extends "../CastagneModule.gd"
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-# :TODO:Panthavma:20220124:Allow different physics.
+extends "../CastagneModule.gd"
 
 enum COLBOX_MODES {
 	Default, OwnLayer, OtherLayers
@@ -23,18 +25,16 @@ enum FACING_TYPE {
 }
 
 var _physicsFlagList = []
+var PHYSICS_FLAG_PREFIX = "PF_"
 
 func ModuleSetup():
-	# :TODO:Panthavma:20211230:Document the module
-	# :TODO:Panthavma:20211230:Document the variables
-	
-	# :TODO:Panthavma:20211230:Gravity as a standard implementation
-	# :TODO:Panthavma:20211230:More physics functions for flexible movement
-	
 	RegisterModule("Physics 2D", Castagne.MODULE_SLOTS_BASE.PHYSICS, {
 		"Description":"Physics module optimized for 2D fighting games."
 	})
 	RegisterBaseCaspFile("res://castagne/modules/physics/Base-Physics2D.casp")
+	RegisterSpecblock("PhysicsMovement", "res://castagne/modules/physics/CMPhysicsSBMovement.gd")
+	RegisterSpecblock("PhysicsTeching", "res://castagne/modules/physics/CMPhysicsSBTeching.gd")
+	RegisterSpecblock("PhysicsSystem", "res://castagne/modules/physics/CMPhysicsSBSystem.gd")
 	
 	RegisterCategory("Position and Movement", {"Description":"These functions allow basic movement and positioning for entities."})
 	RegisterFunction("Move", [1,2], null, {
@@ -187,6 +187,7 @@ func ModuleSetup():
 	
 	RegisterVariableEntity("_MomentumX", 0)
 	RegisterVariableEntity("_MomentumY", 0)
+	RegisterVariableEntity("_MomentumZ", 0)
 	RegisterFlag("HaltMomentum")
 	
 	
@@ -232,6 +233,129 @@ func ModuleSetup():
 	RegisterFunction("CopyFacingToOtherFacing", [1,2,3], null, {
 		"Description": "Copy one facing type to another facing type.",
 		"Arguments": ["Target facing type", "(Optional) Source facing type (default: physics)", "(Optional) Also adjust vertical facing (default: true)"],
+	})
+	
+	RegisterFunction("TransformLocalXToWorld", [1, 2], null, {
+		"Description": "Transforms a local X postion to a world position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformLocalYToWorld", [1, 2], null, {
+		"Description": "Transforms a local Y postion to a world position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformLocalZToWorld", [1, 2], null, {
+		"Description": "Transforms a local Z postion to a world position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformLocalXYToWorld", [2, 4], null, {
+		"Description": "Transforms a local X and Y postion to a world position.",
+		"Arguments": ["X position", "Y Position", "(Optional) X Destination variable", "(Optional) Y Destination variable"],
+	})
+	RegisterFunction("TransformLocalToWorld", [3, 6], null, {
+		"Description": "Transforms a local XYZ postion to a world position.",
+		"Arguments": ["X position", "Y Position", "Z Position", "(Optional) X Destination variable", "(Optional) Y Destination variable", "(Optional) Z Destination Variable"],
+	})
+	RegisterFunction("TransformWorldXToLocal", [1, 2], null, {
+		"Description": "Transforms a world X postion to a local position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformWorldYToLocal", [1, 2], null, {
+		"Description": "Transforms a world Y postion to a local position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformWorldYToLocal", [1, 2], null, {
+		"Description": "Transforms a world Z postion to a local position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformWorldXYToLocal", [2, 4], null, {
+		"Description": "Transforms a world X and Y postion to a local position.",
+		"Arguments": ["X position", "Y Position", "(Optional) X Destination variable", "(Optional) Y Destination variable"],
+	})
+	RegisterFunction("TransformWorldToLocal", [3, 6], null, {
+		"Description": "Transforms a world XYZ postion to a local position.",
+		"Arguments": ["X position", "Y Position", "Z Position", "(Optional) X Destination variable", "(Optional) Y Destination variable", "(Optional) Z Destination Variable"],
+	})
+	
+	RegisterFunction("TransformLocalXToAbsolute", [1, 2], null, {
+		"Description": "Transforms a local X postion to an absolute position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformLocalYToAbsolute", [1, 2], null, {
+		"Description": "Transforms a local Y postion to an absolute position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformLocalZToAbsolute", [1, 2], null, {
+		"Description": "Transforms a local Z postion to an absolute position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformLocalXYToAbsolute", [2, 4], null, {
+		"Description": "Transforms a local X and Y postion to a absolute position.",
+		"Arguments": ["X position", "Y Position", "(Optional) X Destination variable", "(Optional) Y Destination variable"],
+	})
+	RegisterFunction("TransformLocalToAbsolute", [3, 6], null, {
+		"Description": "Transforms a local XYZ postion to a absolute position.",
+		"Arguments": ["X position", "Y Position", "Z Position", "(Optional) X Destination variable", "(Optional) Y Destination variable", "(Optional) Z Destination Variable"],
+	})
+	RegisterFunction("TransformAbsoluteXToLocal", [1, 2], null, {
+		"Description": "Transforms a absolute X postion to a local position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformAbsoluteYToLocal", [1, 2], null, {
+		"Description": "Transforms a absolute Y postion to a local position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformAbsoluteZToLocal", [1, 2], null, {
+		"Description": "Transforms a absolute Z postion to a local position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformAbsoluteXYToLocal", [2, 4], null, {
+		"Description": "Transforms a absolute X and Y postion to a local position.",
+		"Arguments": ["X position", "Y Position", "(Optional) X Destination variable", "(Optional) Y Destination variable"],
+	})
+	RegisterFunction("TransformAbsoluteToLocal", [3, 6], null, {
+		"Description": "Transforms a absolute XYZ postion to a local position.",
+		"Arguments": ["X position", "Y Position", "Z Position", "(Optional) X Destination variable", "(Optional) Y Destination variable", "(Optional) Z Destination Variable"],
+	})
+	
+	RegisterFunction("TransformAbsoluteXToWorld", [1, 2], null, {
+		"Description": "Transforms an absolute X postion to a world position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformAbsoluteYToWorld", [1, 2], null, {
+		"Description": "Transforms an absolute Y postion to a world position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformAbsoluteZToWorld", [1, 2], null, {
+		"Description": "Transforms an absolute Z postion to a world position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformAbsoluteXYToWorld", [2, 4], null, {
+		"Description": "Transforms a absolute X and Y postion to a world position.",
+		"Arguments": ["X position", "Y Position", "(Optional) X Destination variable", "(Optional) Y Destination variable"],
+	})
+	RegisterFunction("TransformAbsoluteToWorld", [3, 6], null, {
+		"Description": "Transforms a absolute XYZ postion to a world position.",
+		"Arguments": ["X position", "Y Position", "Z Position", "(Optional) X Destination variable", "(Optional) Y Destination variable", "(Optional) Z Destination Variable"],
+	})
+	RegisterFunction("TransformWorldXToAbsolute", [1, 2], null, {
+		"Description": "Transforms a world X postion to an absolute position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformWorldYToAbsolute", [1, 2], null, {
+		"Description": "Transforms a world Y postion to an absolute position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformWorldZToAbsolute", [1, 2], null, {
+		"Description": "Transforms a world Z postion to an absolute position.",
+		"Arguments": ["Position to change", "(Optional) Destination variable if different"],
+	})
+	RegisterFunction("TransformWorldXYToAbsolute", [2, 4], null, {
+		"Description": "Transforms a world X and Y postion to a absolute position.",
+		"Arguments": ["X position", "Y Position", "(Optional) X Destination variable", "(Optional) Y Destination variable"],
+	})
+	RegisterFunction("TransformWorldToAbsolute", [3, 6], null, {
+		"Description": "Transforms a world XYZ postion to a absolute position.",
+		"Arguments": ["X position", "Y Position", "Z Position", "(Optional) X Destination variable", "(Optional) Y Destination variable", "(Optional) Z Destination Variable"],
 	})
 	
 	RegisterConstant("FACING_PHYSICS", FACING_TYPE.Physics, {
@@ -287,6 +411,27 @@ func ModuleSetup():
 		"Description": "Adds a hitbox, that can hit hurtboxes. You need to set attack data beforehand, though the Attack function. This function does not reset the attack data, so you can add several hitboxes for the same attack data by calling Hitbox several times.",
 		"Arguments": ["Back bound (Optional)", "Front bound", "Down bound (Optional if only two parameters)", "Up bound"],
 		})
+		
+	RegisterFunction("HurtboxRequires", [0, 1], null, {
+		"Description": "The next hurtboxes can't be hit unless the opposing attack has a specific flag. Call with no arguments to reset.",
+		"Arguments": ["The attack flag"],
+	})
+	RegisterFunction("HurtboxAvoids", [0, 1], null, {
+		"Description": "The next hurtboxes can't be hit if the opposing attack has a specific flag. Call with no arguments to reset.",
+		"Arguments": ["The attack flag"],
+	})
+	RegisterFunction("HitboxRequires", [0, 1], null, {
+		"Description": "The next hitboxes can't hit unless the opponent has a specific flag. Call with no arguments to reset.",
+		"Arguments": ["The entity flag"],
+	})
+	RegisterFunction("HitboxAvoids", [0, 1], null, {
+		"Description": "The next hitboxes can't hit if the opponent has a specific flag. Call with no arguments to reset.",
+		"Arguments": ["The entity flag"],
+	})
+	RegisterVariableEntity("_HurtboxMustHaves", [], ["ResetEachFrame"])
+	RegisterVariableEntity("_HurtboxMustNotHaves", [], ["ResetEachFrame"])
+	RegisterVariableEntity("_HitboxMustHaves", [], ["ResetEachFrame"])
+	RegisterVariableEntity("_HitboxMustNotHaves", [], ["ResetEachFrame"])
 	
 	
 	RegisterFunction("ResetColbox", [0], null, {
@@ -321,14 +466,24 @@ func ModuleSetup():
 		}
 	})
 	
+	RegisterFunction("InflictAttack", [0], null, {
+		"Description": "Bypasses collisions and the like to register the hit directly on the target. If redoing one for the same target, replaces it.",
+	})
+	RegisterVariableEntity("_InflictedAttacks", {}, ["ResetEachFrame"])
+	
 	
 	RegisterVariableEntity("_PhysicsFlagBuffer", [], ["ResetEachFrame"])
-	RegisterFlag("PFAirborne")
-	RegisterFlag("PFGrounded")
-	RegisterFlag("PFWall")
-	RegisterFlag("PFCeiling")
-	RegisterFlag("PFLanding")
-	_physicsFlagList = ["PFAirborne", "PFGrounded", "PFWall", "PFCeiling", "PFLanding"]
+	RegisterFlag(PHYSICS_FLAG_PREFIX + "Airborne")
+	RegisterFlag(PHYSICS_FLAG_PREFIX + "Grounded")
+	RegisterFlag(PHYSICS_FLAG_PREFIX + "Wall")
+	RegisterFlag(PHYSICS_FLAG_PREFIX + "Ceiling")
+	RegisterFlag(PHYSICS_FLAG_PREFIX + "Landing")
+	_physicsFlagList = [
+		PHYSICS_FLAG_PREFIX + "Airborne",
+		PHYSICS_FLAG_PREFIX + "Grounded",
+		PHYSICS_FLAG_PREFIX + "Wall",
+		PHYSICS_FLAG_PREFIX + "Ceiling",
+		PHYSICS_FLAG_PREFIX + "Landing"]
 	
 	
 	
@@ -364,6 +519,9 @@ func ModuleSetup():
 	
 	
 	
+	RegisterConfig("AttacksCanHitOnLandingHitstunFrame", false, {
+		"Description":"Allows attacks to hit on a landing frame. If active, must be handled manually to avoid weird behavior."
+		})
 	
 	
 	
@@ -378,9 +536,6 @@ func ModuleSetup():
 	
 	RegisterConfig("PhysicsNbBuckets", 1)
 
-func BattleInit(stateHandle, _battleInitData):
-	engine.physicsModule = self
-
 func ActionPhaseStartEntity(stateHandle):
 	stateHandle.EntitySet("_ColboxLayer", stateHandle.EntityGet("_Player")+1)
 	stateHandle.EntitySetFlag("NoHurtboxSet")
@@ -389,17 +544,8 @@ func ActionPhaseStartEntity(stateHandle):
 	
 func ActionPhaseEndEntity(stateHandle):
 	if(!stateHandle.EntityHasFlag("HaltMomentum")):
-		#var airborne = stateHandle.EntityHasFlag("PFAirborne")
-		#if(!stateHandle.EntityHasFlag("IgnoreGravity") and airborne):
-		#	var grav = int(stateHandle.EntityGet("_Gravity"))
-		#	var diffToTerminal = min(0, int(stateHandle.EntityGet("_TerminalVelocity")) - stateHandle.EntityGet("_MomentumY"))
-		#	stateHandle.EntityAdd("_MomentumY", max(grav, diffToTerminal))
-		#if(!stateHandle.EntityHasFlag("IgnoreFriction")):
-		#	BreakMomentumX([stateHandle.EntityGet(("_FrictionAir" if airborne else "_FrictionGround"))], stateHandle)
 		stateHandle.EntityAdd("_MovementX", stateHandle.EntityGet("_MomentumX"))
 		stateHandle.EntityAdd("_MovementY", stateHandle.EntityGet("_MomentumY"))
-	#if(stateHandle.EntityHasFlag("ApplyFacing")):
-	#	stateHandle.EntitySet("_Facing", stateHandle.EntityGet("_FacingTrue"))
 
 
 func PhysicsPhaseStart(_stateHandle):
@@ -413,10 +559,10 @@ func PhysicsPhaseStartEntity(stateHandle):
 			stateHandle.EntitySetFlag(pf, false)
 func PhysicsPhaseEndEntity(stateHandle):
 	var prevPhysicsFlags = stateHandle.EntityGet("_PhysicsFlagBuffer")
-	if(!stateHandle.EntityHasFlag("PFGrounded")):
-		stateHandle.EntitySetFlag("PFAirborne")
-	if(prevPhysicsFlags.has("PFAirborne") and stateHandle.EntityHasFlag("PFGrounded")):
-		stateHandle.EntitySetFlag("PFLanding")
+	if(!stateHandle.EntityHasFlag(PHYSICS_FLAG_PREFIX + "Grounded")):
+		stateHandle.EntitySetFlag(PHYSICS_FLAG_PREFIX + "Airborne")
+	if(prevPhysicsFlags.has(PHYSICS_FLAG_PREFIX + "Airborne") and stateHandle.EntityHasFlag(PHYSICS_FLAG_PREFIX + "Grounded")):
+		stateHandle.EntitySetFlag(PHYSICS_FLAG_PREFIX + "Landing")
 	
 	var coreModule = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.CORE)
 	for pf in _physicsFlagList:
@@ -757,6 +903,103 @@ func CopyFacingToOtherFacing(args, stateHandle):
 	SetFacingHV(stateHandle, facing[0], facing[1], targetFacingType)
 
 
+onready var _TransformAxisFunctions = [
+	funcref(self, "TransformPosEntityToWorld"),
+	funcref(self, "TransformWorldPosToEntity"),
+	funcref(self, "TransformPosEntityToAbsolute"),
+	funcref(self, "TransformPosEntityAbsoluteToEntity"),
+	funcref(self, "TransformPosEntityAbsoluteToWorld"),
+	funcref(self, "TransformWorldPosToEntityAbsolute"),
+	]
+func _TransformAxisFunction(args, stateHandle, index, type, getArgID = 0, setArgID = 1):
+	# More efficient ways exists, good enough for now
+	if(index == 3):
+		_TransformAxisFunction(args, stateHandle, 0, type, 0, 2)
+		_TransformAxisFunction(args, stateHandle, 1, type, 1, 3)
+	elif(index == 4):
+		_TransformAxisFunction(args, stateHandle, 0, type, 0, 3)
+		_TransformAxisFunction(args, stateHandle, 1, type, 1, 4)
+		_TransformAxisFunction(args, stateHandle, 2, type, 2, 5)
+	else:
+		var destVar = ArgVar(args, stateHandle, setArgID, ArgVar(args, stateHandle, getArgID))
+		var opos = [0, 0, 0]
+		opos[index] = ArgInt(args, stateHandle, getArgID)
+		var tpos = _TransformAxisFunctions[type].call_func(opos, stateHandle)
+		stateHandle.EntitySet(destVar, tpos[index])
+	
+func _TransformLocalAxisToWorld(args, stateHandle, index):
+	_TransformAxisFunction(args, stateHandle, index, 0)
+func _TransformWorldAxisToLocal(args, stateHandle, index):
+	_TransformAxisFunction(args, stateHandle, index, 1)
+func _TransformLocalAxisToAbsolute(args, stateHandle, index):
+	_TransformAxisFunction(args, stateHandle, index, 2)
+func _TransformAbsoluteAxisToLocal(args, stateHandle, index):
+	_TransformAxisFunction(args, stateHandle, index, 3)
+func _TransformAbsoluteAxisToWorld(args, stateHandle, index):
+	_TransformAxisFunction(args, stateHandle, index, 4)
+func _TransformWorldAxisToAbsolute(args, stateHandle, index):
+	_TransformAxisFunction(args, stateHandle, index, 5)
+
+func TransformLocalXToWorld(args, stateHandle):
+	_TransformLocalAxisToWorld(args, stateHandle, 0)
+func TransformLocalYToWorld(args, stateHandle):
+	_TransformLocalAxisToWorld(args, stateHandle, 1)
+func TransformLocalZToWorld(args, stateHandle):
+	_TransformLocalAxisToWorld(args, stateHandle, 2)
+func TransformLocalXYToWorld(args, stateHandle):
+	_TransformLocalAxisToWorld(args, stateHandle, 3)
+func TransformLocalToWorld(args, stateHandle):
+	_TransformLocalAxisToWorld(args, stateHandle, 4)
+func TransformWorldXToLocal(args, stateHandle):
+	_TransformWorldAxisToLocal(args, stateHandle, 0)
+func TransformWorldYToLocal(args, stateHandle):
+	_TransformWorldAxisToLocal(args, stateHandle, 1)
+func TransformWorldZToLocal(args, stateHandle):
+	_TransformWorldAxisToLocal(args, stateHandle, 2)
+func TransformWorldXYToLocal(args, stateHandle):
+	_TransformWorldAxisToLocal(args, stateHandle, 3)
+func TransformWorldToLocal(args, stateHandle):
+	_TransformWorldAxisToLocal(args, stateHandle, 4)
+func TransformLocalXToAbsolute(args, stateHandle):
+	_TransformLocalAxisToAbsolute(args, stateHandle, 0)
+func TransformLocalYToAbsolute(args, stateHandle):
+	_TransformLocalAxisToAbsolute(args, stateHandle, 1)
+func TransformLocalZToAbsolute(args, stateHandle):
+	_TransformLocalAxisToAbsolute(args, stateHandle, 2)
+func TransformLocalXYToAbsolute(args, stateHandle):
+	_TransformLocalAxisToAbsolute(args, stateHandle, 3)
+func TransformLocalToAbsolute(args, stateHandle):
+	_TransformLocalAxisToAbsolute(args, stateHandle, 4)
+func TransformAbsoluteXToLocal(args, stateHandle):
+	_TransformAbsoluteAxisToLocal(args, stateHandle, 0)
+func TransformAbsoluteYToLocal(args, stateHandle):
+	_TransformAbsoluteAxisToLocal(args, stateHandle, 1)
+func TransformAbsoluteZToLocal(args, stateHandle):
+	_TransformAbsoluteAxisToLocal(args, stateHandle, 2)
+func TransformAbsoluteXYToLocal(args, stateHandle):
+	_TransformAbsoluteAxisToLocal(args, stateHandle, 3)
+func TransformAbsoluteToLocal(args, stateHandle):
+	_TransformAbsoluteAxisToLocal(args, stateHandle, 4)
+func TransformAbsoluteXToWorld(args, stateHandle):
+	_TransformAbsoluteAxisToWorld(args, stateHandle, 0)
+func TransformAbsoluteYToWorld(args, stateHandle):
+	_TransformAbsoluteAxisToWorld(args, stateHandle, 1)
+func TransformAbsoluteZToWorld(args, stateHandle):
+	_TransformAbsoluteAxisToWorld(args, stateHandle, 2)
+func TransformAbsoluteXYToWorld(args, stateHandle):
+	_TransformAbsoluteAxisToWorld(args, stateHandle, 3)
+func TransformAbsoluteToWorld(args, stateHandle):
+	_TransformAbsoluteAxisToWorld(args, stateHandle, 4)
+func TransformWorldXToAbsolute(args, stateHandle):
+	_TransformAbsoluteAxisToWorld(args, stateHandle, 0)
+func TransformWorldYToAbsolute(args, stateHandle):
+	_TransformAbsoluteAxisToWorld(args, stateHandle, 1)
+func TransformWorldZToAbsolute(args, stateHandle):
+	_TransformAbsoluteAxisToWorld(args, stateHandle, 2)
+func TransformWorldXYToAbsolute(args, stateHandle):
+	_TransformAbsoluteAxisToWorld(args, stateHandle, 3)
+func TransformWorldToAbsolute(args, stateHandle):
+	_TransformAbsoluteAxisToWorld(args, stateHandle, 4)
 
 
 
@@ -795,6 +1038,9 @@ func _BoxCreate(args, stateHandle):
 		box["Up"] = ArgInt(args, stateHandle, 1)
 		box["Down"] = -box["Up"]
 		box["Left"] = -box["Right"]
+	
+	if(box["Down"] > box["Up"] || box["Left"] > box["Right"]):
+		ModuleError("Box has negative volume. ("+str(box["Left"])+", "+str(box["Right"])+", "+str(box["Down"])+", "+str(box["Up"])+")", stateHandle)
 	return box
 
 func Colbox(args, stateHandle):
@@ -805,14 +1051,33 @@ func Colbox(args, stateHandle):
 func Hurtbox(args, stateHandle):
 	var box = _BoxCreate(args, stateHandle)
 	box["Data"] = {}
+	box["MustHave"] = stateHandle.EntityGet("_HurtboxMustHaves").duplicate()
+	box["MustNotHave"] = stateHandle.EntityGet("_HurtboxMustNotHaves").duplicate()
 	stateHandle.EntityGet("_Hurtboxes").append(box)
 	stateHandle.EntitySetFlag("NoHurtboxSet", false)
 
 func Hitbox(args, stateHandle):
 	var box = _BoxCreate(args, stateHandle)
 	box["AttackData"] = stateHandle.EntityGet("_AttackData").duplicate()
+	box["MustHave"] = stateHandle.EntityGet("_HitboxMustHaves").duplicate()
+	box["MustNotHave"] = stateHandle.EntityGet("_HitboxMustNotHaves").duplicate()
 	stateHandle.EntityGet("_Hitboxes").append(box)
 	stateHandle.EntitySetFlag("NoHitboxSet", false)
+
+
+func _HitHurtboxMustHave(stateHandle, flag, array):
+	if(flag == null):
+		stateHandle.EntitySet(array, [])
+	else:
+		stateHandle.EntityAdd(array, [flag])
+func HurtboxRequires(args, stateHandle):
+	_HitHurtboxMustHave(stateHandle, ArgRaw(args, 0, null), "_HurtboxMustHaves")
+func HurtboxAvoids(args, stateHandle):
+	_HitHurtboxMustHave(stateHandle, ArgRaw(args, 0, null), "_HurtboxMustNotHaves")
+func HitboxRequires(args, stateHandle):
+	_HitHurtboxMustHave(stateHandle, ArgRaw(args, 0, null), "_HitboxMustHaves")
+func HitboxAvoids(args, stateHandle):
+	_HitHurtboxMustHave(stateHandle, ArgRaw(args, 0, null), "_HitboxMustNotHaves")
 
 func GizmoBox(emodule, args, lineActive, _stateHandle, type):
 	var color = [Color(0.4, 0.4, 1.0), Color(1.0, 0.4, 0.4), Color(0.4, 1.0, 0.4)][type]
@@ -838,6 +1103,10 @@ func GizmoBox(emodule, args, lineActive, _stateHandle, type):
 		t = ArgInt(args, null, 1, 0)
 		l = -r
 		b = -t
+	if(r < l):
+		r = l
+	if(t < b):
+		t = b
 	var hc = (l+r)/2
 	var vc = (b+t)/2
 	var drawRhombus = (type == 2)
@@ -861,9 +1130,9 @@ func GizmoHitbox(emodule, args, lineActive, stateHandle):
 func GizmoColbox(emodule, args, lineActive, stateHandle):
 	GizmoBox(emodule, args, lineActive, stateHandle, 2)
 
-
+var _gizmoColors = [Color(0.4, 0.4, 1.0), Color(1.0, 0.4, 0.4), Color(0.4, 1.0, 0.4)]
 func GizmoMoveLine(emodule, args, lineActive, _stateHandle, type):
-	var color = [Color(0.4, 0.4, 1.0), Color(1.0, 0.4, 0.4), Color(0.4, 1.0, 0.4)][type]
+	var color = _gizmoColors[type]
 	var widthActive = [6,6,6][type]
 	var widthInactive = [2,2,2][type]
 	var width = (widthActive if lineActive else widthInactive)
@@ -900,6 +1169,14 @@ func ResetHitboxes(args, stateHandle):
 	stateHandle.EntitySetFlag("NoHitboxSet")
 
 
+
+
+func InflictAttack(_args, stateHandle):
+	var attackData = stateHandle.EntityGet("_AttackData").duplicate(true)
+	var ia = stateHandle.EntityGet("_InflictedAttacks")
+	var targetEID = stateHandle.GetTargetEID()
+	ia[targetEID] = attackData
+	stateHandle.EntitySet("_InflictedAttacks", ia)
 
 
 
@@ -1016,11 +1293,11 @@ func PhysicsPhaseEnvironment(stateHandle, activeEIDs):
 	
 	# Create Movement Buckets
 	var movementBuckets = {}
-	#var positions = {} 
 	
 	for eid in activeEIDs:
 		var entityStateHandle = ppStateHandlesByEID[eid]
-		#positions[eid] = [stateHandle.EntityGet("_PositionX"), stateHandle.EntityGet("_PositionY")]
+		if(entityStateHandle.EntityHasFlag("Frozen")):
+			continue
 		var movement = [entityStateHandle.EntityGet("_MovementX"), entityStateHandle.EntityGet("_MovementY")]
 		var bucketMovement = [movement[0]/nbBuckets, movement[1]/nbBuckets]
 		var buckets = []
@@ -1036,8 +1313,10 @@ func PhysicsPhaseEnvironment(stateHandle, activeEIDs):
 	for loopID in nbBuckets:
 		# Apply movement
 		for eid in activeEIDs:
-			var movement = movementBuckets[eid][loopID]
 			var entityStateHandle = ppStateHandlesByEID[eid]
+			if(entityStateHandle.EntityHasFlag("Frozen")):
+				continue
+			var movement = movementBuckets[eid][loopID]
 			entityStateHandle.EntityAdd("_PositionX", movement[0])
 			entityStateHandle.EntityAdd("_PositionY", movement[1])
 		
@@ -1074,27 +1353,27 @@ func PhysicsEnv_ApplyEnvConstraint(colbox, envc):
 		if(envcDir == ENVC_AAPLANE_DIR.Right):
 			colboxPos = colpos[0]
 			moveXMult = -1
-			flag = "PFWall"
+			flag = PHYSICS_FLAG_PREFIX + "Wall"
 		elif(envcDir == ENVC_AAPLANE_DIR.Up):
 			colboxPos = colpos[2]
 			moveYMult = -1
-			flag = "PFGrounded"
+			flag = PHYSICS_FLAG_PREFIX + "Grounded"
 		elif(envcDir == ENVC_AAPLANE_DIR.Left):
 			colboxPos = colpos[1]
 			moveXMult = 1
 			invertAxis = -1
-			flag = "PFWall"
+			flag = PHYSICS_FLAG_PREFIX + "Wall"
 		elif(envcDir == ENVC_AAPLANE_DIR.Down):
 			colboxPos = colpos[3]
 			moveYMult = 1
 			invertAxis = -1
-			flag = "PFCeiling"
+			flag = PHYSICS_FLAG_PREFIX + "Ceiling"
 		else:
 			ModuleError("PhysicsEnv: Direction "+str(envcDir) + " not valid for AAPlanes")
 			return
 		
 		var diff = (colboxPos - envcPos) * invertAxis
-		var margin = 10 # TODO CAST 54 Config
+		var margin = 10 # TODO CAST 56 Config
 		if(diff <= margin):
 			EntitySetFlag(entityStateHandle, flag)
 		
@@ -1139,9 +1418,6 @@ func PhysicsEnv_ColboxColbox(colboxA, colboxB):
 	entityStateHandleA.EntityAdd("_PositionX", pushbackDirA*overlap/2)
 	entityStateHandleB.EntityAdd("_PositionX", -pushbackDirA*overlap/2)
 	
-	# TODO Control of pushback
-	# TODO Check for wall ?
-	
 
 func PhysicsEnv_CanLayersCollide(a, b):
 	var layerA = a["Layer"]
@@ -1178,20 +1454,30 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 		var hurt = []
 		var hurtboxAA = null
 		var entityHurtboxList = entityStateHandle.EntityGet("_Hurtboxes")
-		for hurtboxOriginal in entityHurtboxList:
-			var h = hurtboxOriginal.duplicate()
-			var pos = GetBoxPosition(entityStateHandle, hurtboxOriginal)
+		
+		# :HACK: Bit hacky but I don't really see how to do it in a non hacky way
+		# If we are in hitstun AND landing we don't gather any hurtbox, manual intangibility
+		# It's hard to do otherwise because we don't know the info in time for the hit.
+		# Could be fixed another day
+		var prevPhysicsFlags = entityStateHandle.EntityGet("_PhysicsFlagBuffer")
+		if(stateHandle.ConfigData().Get("AttacksCanHitOnLandingHitstunFrame") or
+			!(entityStateHandle.EntityHasFlag("Hitstun")) or
+			!(prevPhysicsFlags.has(PHYSICS_FLAG_PREFIX + "Airborne") and entityStateHandle.EntityHasFlag(PHYSICS_FLAG_PREFIX + "Grounded"))):
 			
-			if(hurtboxAA == null):
-				hurtboxAA = pos
-			else:
-				ExpandAABox(hurtboxAA, pos)
-			
-			for i in range(4):
-				h[i] = pos[i]
-			h["Hitbox"] = false
-			hurt.push_back(h)
-			
+			for hurtboxOriginal in entityHurtboxList:
+				var h = hurtboxOriginal.duplicate()
+				var pos = GetBoxPosition(entityStateHandle, hurtboxOriginal)
+				
+				if(hurtboxAA == null):
+					hurtboxAA = pos
+				else:
+					ExpandAABox(hurtboxAA, pos)
+				
+				for i in range(4):
+					h[i] = pos[i]
+				h["Hitbox"] = false
+				hurt.push_back(h)
+				
 		
 		var hit = []
 		var ffHit = []
@@ -1211,7 +1497,7 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 				h[i] = pos[i]
 			h["Hitbox"] = true
 			
-			var hitboxFriendlyFire = h["AttackData"]["Flags"].has("FriendlyFire")
+			var hitboxFriendlyFire = h["AttackData"]["_Flags"].has("FriendlyFire")
 			if(hitboxFriendlyFire):
 				if(ffHitboxAA == null):
 					hitboxFriendlyFire = pos
@@ -1247,31 +1533,67 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 	# Gather potential character collisions
 	for eidAID in range(activeEIDs.size()-1):
 		var eidA = activeEIDs[eidAID]
+		var aaBoxesA = aaBoxes[eidA]
+		var handleA = ppStateHandlesByEID[eidA]
+		var pidA = handleA.EntityGet("_Player")
+		var inflictedAttacksA = handleA.EntityGet("_InflictedAttacks")
 		for eidBID in range(1, activeEIDs.size()):
 			var eidB = activeEIDs[eidBID]
-			var aaBoxesA = aaBoxes[eidA]
 			var aaBoxesB = aaBoxes[eidB]
-			var pidA = ppStateHandlesByEID[eidA].EntityGet("_Player")
-			var pidB = ppStateHandlesByEID[eidB].EntityGet("_Player")
+			var handleB = ppStateHandlesByEID[eidB]
+			var pidB = handleB.EntityGet("_Player")
+			var inflictedAttacksB = handleB.EntityGet("_InflictedAttacks")
+			
 			var sameTeam = (pidA == pidB)
 			var aaHitboxID = (2 if sameTeam else 1)
 			
+			# Use the AA box to weed out unnecessary checks, or use the inflicted attack
 			# A attacker, B defender
-			if(aaBoxesB[0] != null and aaBoxesA[aaHitboxID] != null and AreBoxesOverlapping(aaBoxesB[0], aaBoxesA[aaHitboxID])):
+			if(eidB in inflictedAttacksA):
+				var phantomHitbox = _BoxCreate([0, 1, 0, 1], handleA)
+				var phantomHurtbox = _BoxCreate([0, 1, 0, 1], handleB)
+				phantomHitbox["AttackData"] = inflictedAttacksA[eidB]
+				phantomHitbox["Hitbox"] = true
+				phantomHurtbox["Hitbox"] = false
+				ppAttackModule.HandleHit(handleA, handleB, phantomHitbox, phantomHurtbox)
+			elif(aaBoxesB[0] != null and aaBoxesA[aaHitboxID] != null and AreBoxesOverlapping(aaBoxesB[0], aaBoxesA[aaHitboxID])):
 				var atkH = (friendlyFireHitboxes[eidA] if sameTeam else hitboxes[eidA])
-				PhysicsAtk_HandleAttackDefend(stateHandle, eidA, eidB, atkH, hurtboxes[eidB])
+				PhysicsAtk_HandleAttackDefend(handleA, handleB, atkH, hurtboxes[eidB])
 			# B attacker, A defender
-			if(aaBoxesA[0] != null and aaBoxesB[aaHitboxID] != null and AreBoxesOverlapping(aaBoxesA[0], aaBoxesB[aaHitboxID])):
+			if(eidA in inflictedAttacksB):
+				var phantomHitbox = _BoxCreate([0, 1, 0, 1], handleB)
+				var phantomHurtbox = _BoxCreate([0, 1, 0, 1], handleA)
+				phantomHitbox["AttackData"] = inflictedAttacksB[eidA]
+				phantomHitbox["Hitbox"] = true
+				phantomHurtbox["Hitbox"] = false
+				ppAttackModule.HandleHit(handleB, handleA, phantomHitbox, phantomHurtbox)
+			elif(aaBoxesA[0] != null and aaBoxesB[aaHitboxID] != null and AreBoxesOverlapping(aaBoxesA[0], aaBoxesB[aaHitboxID])):
 				var atkH = (friendlyFireHitboxes[eidB] if sameTeam else hitboxes[eidB])
-				PhysicsAtk_HandleAttackDefend(stateHandle, eidB, eidA, atkH, hurtboxes[eidA])
+				PhysicsAtk_HandleAttackDefend(handleB, handleA, atkH, hurtboxes[eidA])
 
-func PhysicsAtk_HandleAttackDefend(stateHandle, attackerEID, defenderEID, attackerHitboxes, defenderHurtboxes):
+func PhysicsAtk_HandleAttackDefend(attackerHandle, defenderHandle, attackerHitboxes, defenderHurtboxes):
 	for hitbox in attackerHitboxes:
 		for hurtbox in defenderHurtboxes:
-			if(AreBoxesOverlapping(hitbox, hurtbox)):
-				if(ppAttackModule.HandleHit(stateHandle, attackerEID, hitbox, defenderEID, hurtbox)):
+			if(AreBoxesOverlapping(hitbox, hurtbox) and PhysicsAtk_ShouldBoxesConnect(defenderHandle, hitbox, hurtbox)):
+				if(ppAttackModule.HandleHit(attackerHandle, defenderHandle, hitbox, hurtbox)):
 					return true
 	return false
+
+func PhysicsAtk_ShouldBoxesConnect(defenderHandle, hitbox, hurtbox):
+	var attackFlags = hitbox["AttackData"]["_Flags"]
+	for f in hurtbox["MustHave"]:
+		if not (f in attackFlags):
+			return false
+	for f in hurtbox["MustNotHave"]:
+		if (f in attackFlags):
+			return false
+	for f in hitbox["MustHave"]:
+		if(!defenderHandle.EntityHasFlag(f)):
+			return false
+	for f in hitbox["MustNotHave"]:
+		if(defenderHandle.EntityHasFlag(f)):
+			return false
+	return true
 
 func GetEnvironmentConstraints(stateHandle):
 	if(stateHandle.ConfigData().Get("UseFightingArena")):
@@ -1350,10 +1672,8 @@ func GetBoxPosition(stateHandle, box):
 	var facingHV = GetFacingHV(stateHandle)
 	if(facingHV[0] >= 0):
 		return [cornerTL[0],cornerBR[0],cornerBR[1],cornerTL[1]]
-		#return {"Left":cornerTL[0], "Right":cornerBR[0],"Down":cornerBR[1],"Up":cornerTL[1]}
 	else:
 		return [cornerBR[0],cornerTL[0],cornerBR[1],cornerTL[1]]
-		#return {"Left":cornerBR[0], "Right":cornerTL[0],"Down":cornerBR[1],"Up":cornerTL[1]}
 
 func AreBoxesOverlapping(boxA, boxB):
 	return (boxA[1] > boxB[0]
@@ -1406,6 +1726,9 @@ func TransformWorldPosToEntityAbsolute(pos, stateHandle):
 
 func TransformWorldPosToEntity(pos, stateHandle, facingType = FACING_TYPE.Physics):
 	var absolutePos = TransformWorldPosToEntityAbsolute(pos, stateHandle)
+	return TransformPosEntityAbsoluteToEntity(absolutePos, stateHandle, facingType)
+
+func TransformPosEntityAbsoluteToEntity(absolutePos, stateHandle, facingType = FACING_TYPE.Physics):
 	var facingHV = GetFacingHV(stateHandle, facingType)
 	return [absolutePos[0] * (1 if facingHV[0] > 0 else -1), absolutePos[1]]
 

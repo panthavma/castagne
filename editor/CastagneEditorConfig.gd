@@ -1,10 +1,8 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 extends Control
-
-# :TODO:Panthavma:20220417:Prevent going back if didn't save
-# :TODO:Panthavma:20220417:Open documentation on the correct page
-# :TODO:Panthavma:20220417:Description tooltip
-# :TODO:Panthavma:20220417:Default value tooltip
-
 
 var editor
 var showAdvancedParams = false
@@ -14,7 +12,6 @@ var backLocked = false
 var SAVERELOAD_NONE = 0
 var SAVERELOAD_RELOAD = 1
 var SAVERELOAD_RESTART = 2
-
 
 func EnterMenu(advancedMode = false):
 	show()

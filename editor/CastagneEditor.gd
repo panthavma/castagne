@@ -1,6 +1,8 @@
-extends Control
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-# :TODO:Panthavma:20220408:Add a way to have automatic tests to see if combos still work (or work with different positions)
+extends Control
 
 var documentation
 var configData = null
@@ -34,16 +36,6 @@ func EnterMenu():
 	$MainMenu/Header/GameTitle.set_text(gameTitle)
 	$MainMenu/Header/CastagneTitle.set_text(castagneTitle)
 	
-	# Write character list
-	#var list = $MainMenu/Characters
-	#list.clear()
-	#for c in Castagne.SplitStringToArray(configData.Get("CharacterPaths")):
-	#	list.add_item(c)
-	#var charToSelect = configData.Get("Starter-P1")#configData.Get("Editor-SelectedCharacter"]
-	#if(charToSelect >= Castagne.SplitStringToArray(configData.Get("CharacterPaths")).size()):
-	#	charToSelect = 0
-	#list.select(charToSelect)
-	
 	var flowModule = configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.FLOW)
 	var flowRoot = $MainMenu/FlowPanel
 	if(flowModule != null):
@@ -64,7 +56,6 @@ func EnterMenu():
 		for c in flowRoot.get_children():
 			c.hide()
 		flowRoot.get_node("Error").show()
-	
 	
 	
 	# First time flow
@@ -115,29 +106,6 @@ func OpenDocumentation(page = null):
 
 func _tools_ready():
 	$TextEdit.set_text(PrintDocumentation())
-	
-	return
-	
-	
-	print(Castagne.data["CharacterPaths"])
-	var metadata = Castagne.Parser.GetCharacterMetadata(Castagne.data["CharacterPaths"][0])
-	print("---------------------------")
-	print(metadata)
-	
-	print("--------------------------")
-	var cdata = Castagne.Parser.CreateFullCharacter(Castagne.data["CharacterPaths"][0])
-	
-	#print("--------------------------")
-	#var stateName = "HitstunAir"
-	#print(stateName)
-	#var state = cdata["States"][stateName]
-	#PrintStateActions(state["Actions"])
-	
-	
-	print("--------------------------")
-	PrintCharacterOverview(cdata)
-	
-	get_tree().quit()
 
 func PrintStateActions(actions, indentLevel = 1):
 	for action in actions:

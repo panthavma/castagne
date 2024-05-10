@@ -1,0 +1,304 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://castagne/editor/submenus/SubmenuBase.tscn" type="PackedScene" id=1]
+[ext_resource path="res://castagne/editor/submenus/character/CECharacterSet.gd" type="Script" id=2]
+
+[node name="CharacterSet" instance=ExtResource( 1 )]
+script = ExtResource( 2 )
+
+[node name="Label" parent="Title" index="1"]
+text = "Character Setup"
+
+[node name="LeftPanel" type="VBoxContainer" parent="." index="2"]
+anchor_right = 0.4
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 40.0
+margin_bottom = -8.0
+
+[node name="LabelSkel" type="Label" parent="LeftPanel" index="0"]
+margin_right = 401.0
+margin_bottom = 14.0
+text = "Skeletons:"
+align = 1
+
+[node name="SkeletonList" type="ItemList" parent="LeftPanel" index="1"]
+margin_top = 18.0
+margin_right = 401.0
+margin_bottom = 116.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.4
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false ]
+
+[node name="SkeletonControls" type="HBoxContainer" parent="LeftPanel" index="2"]
+margin_top = 120.0
+margin_right = 401.0
+margin_bottom = 144.0
+rect_min_size = Vector2( 0, 24 )
+
+[node name="SkelAdd" type="Button" parent="LeftPanel/SkeletonControls" index="0"]
+margin_right = 247.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "Add"
+
+[node name="SkelRemove" type="Button" parent="LeftPanel/SkeletonControls" index="1"]
+margin_left = 251.0
+margin_right = 315.0
+margin_bottom = 24.0
+text = "Remove"
+
+[node name="SkelUp" type="Button" parent="LeftPanel/SkeletonControls" index="2"]
+margin_left = 319.0
+margin_right = 349.0
+margin_bottom = 24.0
+text = "Up"
+
+[node name="SkelDown" type="Button" parent="LeftPanel/SkeletonControls" index="3"]
+margin_left = 353.0
+margin_right = 401.0
+margin_bottom = 24.0
+text = "Down"
+
+[node name="HSeparator" type="HSeparator" parent="LeftPanel" index="3"]
+margin_top = 148.0
+margin_right = 401.0
+margin_bottom = 152.0
+
+[node name="LabelChar" type="Label" parent="LeftPanel" index="4"]
+margin_top = 156.0
+margin_right = 401.0
+margin_bottom = 170.0
+text = "Characters:"
+align = 1
+
+[node name="CharacterList" type="ItemList" parent="LeftPanel" index="5"]
+margin_top = 174.0
+margin_right = 401.0
+margin_bottom = 420.0
+size_flags_vertical = 3
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false, "Item 16", null, false, "Item 17", null, false, "Item 18", null, false, "Item 19", null, false, "Item 20", null, false, "Item 21", null, false ]
+
+[node name="CharacterControls" type="HBoxContainer" parent="LeftPanel" index="6"]
+margin_top = 424.0
+margin_right = 401.0
+margin_bottom = 448.0
+rect_min_size = Vector2( 0, 24 )
+
+[node name="CharAdd" type="Button" parent="LeftPanel/CharacterControls" index="0"]
+margin_right = 247.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "Add"
+
+[node name="CharRemove" type="Button" parent="LeftPanel/CharacterControls" index="1"]
+margin_left = 251.0
+margin_right = 315.0
+margin_bottom = 24.0
+text = "Remove"
+
+[node name="CharUp" type="Button" parent="LeftPanel/CharacterControls" index="2"]
+margin_left = 319.0
+margin_right = 349.0
+margin_bottom = 24.0
+text = "Up"
+
+[node name="CharDown" type="Button" parent="LeftPanel/CharacterControls" index="3"]
+margin_left = 353.0
+margin_right = 401.0
+margin_bottom = 24.0
+text = "Down"
+
+[node name="CharacterShow" type="HBoxContainer" parent="LeftPanel" index="7"]
+margin_top = 452.0
+margin_right = 401.0
+margin_bottom = 492.0
+rect_min_size = Vector2( 0, 24 )
+
+[node name="Label" type="Label" parent="LeftPanel/CharacterShow" index="0"]
+margin_top = 13.0
+margin_right = 48.0
+margin_bottom = 27.0
+text = "Sort by:"
+
+[node name="SortOrder" type="OptionButton" parent="LeftPanel/CharacterShow" index="1"]
+margin_left = 52.0
+margin_right = 258.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+text = "Editor Order"
+align = 1
+items = [ "Editor Order", null, false, 0, null ]
+selected = 0
+
+[node name="SortReversed" type="CheckButton" parent="LeftPanel/CharacterShow" index="2"]
+margin_left = 262.0
+margin_right = 401.0
+margin_bottom = 40.0
+text = "Reversed"
+
+[node name="HSeparator2" type="HSeparator" parent="LeftPanel" index="8"]
+margin_top = 496.0
+margin_right = 401.0
+margin_bottom = 500.0
+
+[node name="WindowControls" type="HBoxContainer" parent="LeftPanel" index="9"]
+margin_top = 504.0
+margin_right = 401.0
+margin_bottom = 528.0
+rect_min_size = Vector2( 0, 24 )
+
+[node name="Confirm" type="Button" parent="LeftPanel/WindowControls" index="0"]
+margin_right = 343.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "Confirm"
+
+[node name="Cancel" type="Button" parent="LeftPanel/WindowControls" index="1"]
+margin_left = 347.0
+margin_right = 401.0
+margin_bottom = 24.0
+text = "Cancel"
+
+[node name="CharacterInfo" type="VBoxContainer" parent="." index="3"]
+anchor_left = 0.4
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 40.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="CharacterInfo" index="0"]
+margin_right = 598.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 0, 24 )
+text = "Character Name or file"
+align = 1
+valign = 1
+
+[node name="IDs" type="HBoxContainer" parent="CharacterInfo" index="1"]
+margin_top = 28.0
+margin_right = 598.0
+margin_bottom = 52.0
+
+[node name="LabelRealID" type="Label" parent="CharacterInfo/IDs" index="0"]
+margin_top = 5.0
+margin_right = 65.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.3
+text = "Real ID:"
+align = 2
+
+[node name="RealID" type="SpinBox" parent="CharacterInfo/IDs" index="1"]
+margin_left = 69.0
+margin_right = 288.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+allow_greater = true
+editable = false
+prefix = "#"
+
+[node name="LabelEditorOrder" type="Label" parent="CharacterInfo/IDs" index="2"]
+margin_left = 292.0
+margin_top = 5.0
+margin_right = 374.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.3
+text = "Editor Order:"
+align = 2
+
+[node name="EditorOrder" type="SpinBox" parent="CharacterInfo/IDs" index="3"]
+margin_left = 378.0
+margin_right = 598.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+allow_greater = true
+editable = false
+prefix = "#"
+
+[node name="Filepath" type="HBoxContainer" parent="CharacterInfo" index="2"]
+margin_top = 56.0
+margin_right = 598.0
+margin_bottom = 80.0
+
+[node name="Label" type="Label" parent="CharacterInfo/Filepath" index="0"]
+margin_top = 5.0
+margin_right = 137.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.3
+text = "Filepath:"
+align = 2
+
+[node name="LineEdit" type="LineEdit" parent="CharacterInfo/Filepath" index="1"]
+margin_left = 141.0
+margin_right = 598.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "res://"
+editable = false
+
+[node name="HSeparator" type="HSeparator" parent="CharacterInfo" index="3"]
+margin_top = 84.0
+margin_right = 598.0
+margin_bottom = 108.0
+rect_min_size = Vector2( 0, 24 )
+
+[node name="Data" type="ScrollContainer" parent="CharacterInfo" index="4"]
+margin_top = 112.0
+margin_right = 598.0
+margin_bottom = 528.0
+size_flags_vertical = 3
+
+[node name="VBox" type="VBoxContainer" parent="CharacterInfo/Data" index="0"]
+margin_right = 598.0
+margin_bottom = 416.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DefaultWindowButtons" parent="." index="4"]
+visible = false
+
+[node name="NewCharDialog" type="FileDialog" parent="." index="5"]
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+
+[node name="NewSkelDialog" type="FileDialog" parent="." index="6"]
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+
+[node name="ErrorDialog" type="AcceptDialog" parent="." index="7"]
+margin_right = 83.0
+margin_bottom = 58.0
+window_title = "Error!"
+dialog_text = "Can't create a fighter inside of Castagne's folder!"
+
+[connection signal="item_selected" from="LeftPanel/SkeletonList" to="." method="_on_SkeletonList_item_selected"]
+[connection signal="nothing_selected" from="LeftPanel/SkeletonList" to="." method="_on_SkeletonList_nothing_selected"]
+[connection signal="pressed" from="LeftPanel/SkeletonControls/SkelAdd" to="." method="_on_SkelAdd_pressed"]
+[connection signal="pressed" from="LeftPanel/SkeletonControls/SkelRemove" to="." method="_on_SkelRemove_pressed"]
+[connection signal="pressed" from="LeftPanel/SkeletonControls/SkelUp" to="." method="_on_SkelUp_pressed"]
+[connection signal="pressed" from="LeftPanel/SkeletonControls/SkelDown" to="." method="_on_SkelDown_pressed"]
+[connection signal="item_activated" from="LeftPanel/CharacterList" to="." method="_on_CharacterList_item_activated"]
+[connection signal="item_selected" from="LeftPanel/CharacterList" to="." method="_on_CharacterList_item_selected"]
+[connection signal="pressed" from="LeftPanel/CharacterControls/CharAdd" to="." method="_on_CharAdd_pressed"]
+[connection signal="pressed" from="LeftPanel/CharacterControls/CharRemove" to="." method="_on_CharRemove_pressed"]
+[connection signal="pressed" from="LeftPanel/CharacterControls/CharUp" to="." method="_on_CharUp_pressed"]
+[connection signal="pressed" from="LeftPanel/CharacterControls/CharDown" to="." method="_on_CharDown_pressed"]
+[connection signal="item_selected" from="LeftPanel/CharacterShow/SortOrder" to="." method="_on_SortOrder_item_selected"]
+[connection signal="toggled" from="LeftPanel/CharacterShow/SortReversed" to="." method="_on_SortReversed_toggled"]
+[connection signal="pressed" from="LeftPanel/WindowControls/Confirm" to="." method="_on_Confirm_pressed"]
+[connection signal="pressed" from="LeftPanel/WindowControls/Cancel" to="." method="_on_Cancel_pressed"]
+[connection signal="file_selected" from="NewCharDialog" to="." method="_on_NewCharDialog_file_selected"]
+[connection signal="file_selected" from="NewSkelDialog" to="." method="_on_NewSkelDialog_file_selected"]

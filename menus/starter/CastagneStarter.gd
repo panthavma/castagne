@@ -1,10 +1,8 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 extends Control
-
-# :TODO:Panthavma:20211230:Be able to parameter some autostart features
-# :TODO:Panthavma:20211230:Start making an editor, Editor must include dev functions
-# :TODO:Panthavma:20220317:Save the parameters to the settings
-# :TODO:Panthavma:20220317:Use the parameters from the data
-
 
 func MainMenu():
 	call_deferred("LoadLevel", Castagne.baseConfigData.Get("PathMainMenu"))
@@ -20,58 +18,66 @@ func Editor():
 	StartCastagneEditor()
 
 func DevTools():
-	call_deferred("LoadLevel", "res://castagne/devtools/DevTools.tscn")#Castagne.baseConfigData.Get("DevTools"))
+	call_deferred("LoadLevel", "res://castagne/helpers/devtools/DevTools.tscn")
 
 # --------------------------------------------------------------------------------------------------
 # Internals
 
 var timer = 2.0
 var selectedItem = 0
+var allowChoice = false
+
 
 func _ready():
-	if OS.has_feature("standalone"):
-		$Hide.show()
-		MainMenu()
-	else:
-		if(Castagne.baseConfigData == null):
-			$TitleLabel.set_text("Castagne Config had errors.")
-			$Buttons.hide()
-			$Characters.hide()
-			return
-		
-		$TitleLabel.set_text(Castagne.baseConfigData.Get("GameTitle")+" - "+Castagne.baseConfigData.Get("GameVersion")+"\n"+Castagne.baseConfigData.Get("CastagneVersion")+"\nPress any key to stop the timer")
-		
-		timer = float(Castagne.baseConfigData.Get("Starter-Timer"))/1000.0
-		
-		# Init Options
-		var optionID = 0
-		for button in $Buttons.get_children():
-			var n = button.get_name()
-			if(has_method(n)):
-				var err = button.connect("pressed", self, "ButtonClick", [optionID])
-				if err:
-					Castagne.Error("[Starter]: " +str(n)+" button signal not connected!")
-			else:
-				Castagne.Error("[Starter]: " +str(n)+" button not associated to a function!")
-			optionID += 1
-		selectedItem = Castagne.baseConfigData.Get("Starter-Option")
-		if(selectedItem >= optionID):
-			selectedItem = 0
-		UpdateButtonText()
-		
-		# Init characters
-		var listID = 0
-		for list in $Characters.get_children():
-			list.clear()
-			for c in Castagne.SplitStringToArray(Castagne.baseConfigData.Get("CharacterPaths")):
-				list.add_item(c)
-			var charToSelect = Castagne.baseConfigData.Get("Starter-P"+str(listID+1))
-			if(charToSelect >= Castagne.SplitStringToArray(Castagne.baseConfigData.Get("CharacterPaths")).size()):
-				charToSelect = 0
-			list.select(charToSelect)
-			listID += 1
+	if(Castagne.baseConfigData == null):
+		$TitleLabel.set_text("Castagne Config had errors.")
+		$Buttons.hide()
+		$Characters.hide()
+		return
+	
+	if(!allowChoice):
+		if OS.has_feature("standalone"):
+			$Hide.show()
+			MainMenu()
+		else:
+			call_deferred("Editor")
+		return
+	
+	$TitleLabel.set_text(Castagne.baseConfigData.Get("GameTitle")+" - "+Castagne.baseConfigData.Get("GameVersion")+"\n"+Castagne.baseConfigData.Get("CastagneVersion")+"\nPress any key to stop the timer")
+	
+	timer = float(Castagne.baseConfigData.Get("Starter-Timer"))/1000.0
+	
+	# Init Options
+	var optionID = 0
+	for button in $Buttons.get_children():
+		var n = button.get_name()
+		if(has_method(n)):
+			var err = button.connect("pressed", self, "ButtonClick", [optionID])
+			if err:
+				Castagne.Error("[Starter]: " +str(n)+" button signal not connected!")
+		else:
+			Castagne.Error("[Starter]: " +str(n)+" button not associated to a function!")
+		optionID += 1
+	selectedItem = Castagne.baseConfigData.Get("Starter-Option")
+	if(selectedItem >= optionID):
+		selectedItem = 0
+	UpdateButtonText()
+	
+	# Init characters
+	var listID = 0
+	for list in $Characters.get_children():
+		list.clear()
+		for c in Castagne.SplitStringToArray(Castagne.baseConfigData.Get("CharacterPaths")):
+			list.add_item(c)
+		var charToSelect = Castagne.baseConfigData.Get("Starter-P"+str(listID+1))
+		if(charToSelect >= Castagne.SplitStringToArray(Castagne.baseConfigData.Get("CharacterPaths")).size()):
+			charToSelect = 0
+		list.select(charToSelect)
+		listID += 1
 
 func _process(delta):
+	if(!allowChoice):
+		return
 	UpdateButtonText()
 	
 	if(timer >= 0):

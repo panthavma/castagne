@@ -1,0 +1,74 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/editor/tools/inputs/CETool-Inputs.gd" type="Script" id=1]
+
+[node name="Input" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="InputVisu" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Controls" type="HBoxContainer" parent="InputVisu"]
+margin_right = 1920.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 0, 24 )
+
+[node name="Label" type="Label" parent="InputVisu/Controls"]
+margin_top = 5.0
+margin_right = 102.0
+margin_bottom = 19.0
+text = "Selected Player:"
+
+[node name="PID" type="SpinBox" parent="InputVisu/Controls"]
+margin_left = 106.0
+margin_right = 180.0
+margin_bottom = 24.0
+min_value = 1.0
+max_value = 2.0
+value = 1.0
+
+[node name="OverrideInputs" type="Button" parent="InputVisu/Controls"]
+margin_left = 184.0
+margin_right = 297.0
+margin_bottom = 24.0
+toggle_mode = true
+text = "Override Inputs"
+
+[node name="Device" type="Label" parent="InputVisu/Controls"]
+margin_left = 301.0
+margin_top = 5.0
+margin_right = 379.0
+margin_bottom = 19.0
+text = "Device: Null"
+
+[node name="Players" type="Control" parent="InputVisu"]
+margin_top = 28.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+size_flags_vertical = 3
+
+[node name="Grid" type="GridContainer" parent="InputVisu/Players"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+columns = 4
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Raw" type="TextEdit" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+readonly = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="value_changed" from="InputVisu/Controls/PID" to="." method="_on_PID_value_changed"]
+[connection signal="toggled" from="InputVisu/Controls/OverrideInputs" to="." method="_on_OverrideInputs_toggled"]

@@ -1,0 +1,177 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/editor/updater/CastagneUpdater.gd" type="Script" id=1]
+
+[node name="UpdaterPanel" type="Popup"]
+anchor_left = 0.2
+anchor_top = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+margin_right = 8.0
+margin_bottom = 8.0
+script = ExtResource( 1 )
+
+[node name="Background" type="Panel" parent="."]
+self_modulate = Color( 0.654902, 0.654902, 0.654902, 1 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="."]
+self_modulate = Color( 0.211765, 0.211765, 0.211765, 1 )
+anchor_right = 1.0
+margin_bottom = 32.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Castagne Updater"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Data" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 40.0
+margin_right = -16.0
+margin_bottom = -48.0
+
+[node name="Versions" type="HBoxContainer" parent="Data"]
+margin_right = 744.0
+margin_bottom = 14.0
+
+[node name="Current" type="Label" parent="Data/Versions"]
+margin_right = 370.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Current Version: Castagne v0.0"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Next" type="Label" parent="Data/Versions"]
+margin_left = 374.0
+margin_right = 744.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Next Version: None"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Branch" type="HBoxContainer" parent="Data"]
+margin_top = 18.0
+margin_right = 744.0
+margin_bottom = 38.0
+
+[node name="Current" type="Label" parent="Data/Branch"]
+margin_top = 3.0
+margin_right = 141.0
+margin_bottom = 17.0
+text = "Current branch: [Main]"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ChosenBranch" type="OptionButton" parent="Data/Branch"]
+margin_left = 145.0
+margin_right = 744.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "[Main] - Major versions, goes through the full tests"
+items = [ "[Main] - Major versions, goes through the full tests", null, false, 0, null, "[Unstable] - Minor versions and updates, tested quickly but open to jankiness", null, false, 1, null, "[Dev] - Code as it comes out, you should pull it through git", null, true, 2, null ]
+selected = 0
+
+[node name="HSeparator" type="HSeparator" parent="Data"]
+margin_top = 42.0
+margin_right = 744.0
+margin_bottom = 46.0
+
+[node name="Label" type="Label" parent="Data"]
+margin_top = 50.0
+margin_right = 744.0
+margin_bottom = 64.0
+text = "Changelog"
+align = 1
+valign = 1
+
+[node name="WarningYes" type="PanelContainer" parent="Data"]
+self_modulate = Color( 1, 0.890196, 0, 1 )
+margin_top = 68.0
+margin_right = 744.0
+margin_bottom = 96.0
+
+[node name="HBox" type="HBoxContainer" parent="Data/WarningYes"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 737.0
+margin_bottom = 21.0
+
+[node name="Label2" type="Label" parent="Data/WarningYes/HBox"]
+margin_right = 69.0
+margin_bottom = 14.0
+text = "WARNING:"
+align = 1
+valign = 1
+
+[node name="Warning" type="Label" parent="Data/WarningYes/HBox"]
+margin_left = 73.0
+margin_right = 730.0
+margin_bottom = 14.0
+size_flags_horizontal = 3
+text = "Warning text"
+align = 1
+valign = 1
+
+[node name="TLDR" type="Label" parent="Data"]
+margin_top = 100.0
+margin_right = 744.0
+margin_bottom = 114.0
+text = "Summary: TLDR"
+align = 1
+valign = 1
+
+[node name="Changelog" type="TextEdit" parent="Data"]
+margin_top = 118.0
+margin_right = 744.0
+margin_bottom = 352.0
+size_flags_vertical = 3
+text = "# Castagne v0.0
+
+Changes: None"
+readonly = true
+
+[node name="UpdaterUpdate" type="Button" parent="."]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = -40.0
+margin_right = -16.0
+margin_bottom = -8.0
+disabled = true
+text = "Checking for updates..."
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HTTPRequest" type="HTTPRequest" parent="."]
+
+[connection signal="item_selected" from="Data/Branch/ChosenBranch" to="." method="_on_ChosenBranch_item_selected"]
+[connection signal="pressed" from="UpdaterUpdate" to="." method="_on_UpdaterUpdate_pressed"]
+[connection signal="request_completed" from="HTTPRequest" to="." method="_on_HTTPRequest_request_completed"]

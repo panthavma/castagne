@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 # Castagne Input
 # Gives access and manages input devices
 # Is accessible through config data
@@ -183,7 +187,7 @@ func GetPrimaryPhysicalInputs(layout = null):
 	var inputs = []
 	for pi in layout:
 		var piType = pi["Type"]
-		if(piType == Castagne.PHYSICALINPUT_TYPES.COMBINATION):
+		if(piType == Castagne.PHYSICALINPUT_TYPES.COMBINATION or piType == Castagne.PHYSICALINPUT_TYPES.ANY):
 			continue
 		inputs += [pi]
 	return inputs
@@ -299,7 +303,7 @@ func CreateInputSchemaFromInputLayout(inputLayout):
 	var inputSchema = {
 		"_InputListByType":{
 			Castagne.GAMEINPUT_TYPES.DIRECT:[],
-			Castagne.GAMEINPUT_TYPES.COMBINATION:[],
+			Castagne.GAMEINPUT_TYPES.MULTIPLE:[],
 			Castagne.GAMEINPUT_TYPES.DERIVED:[],
 		},
 		"_InputList":[],
@@ -311,7 +315,7 @@ func CreateInputSchemaFromInputLayout(inputLayout):
 		var gameInputNames = PhysicalInputGetGameInputNames(physicalInput)
 		
 		
-		if(piType == Castagne.PHYSICALINPUT_TYPES.COMBINATION):
+		if(piType == Castagne.PHYSICALINPUT_TYPES.COMBINATION or piType == Castagne.PHYSICALINPUT_TYPES.ANY):
 			inputData = {
 				"Combination": GetPhysicalCombinationInputGameInputNames(physicalInput, inputLayout)
 			}
@@ -348,8 +352,11 @@ func _AddPhysicalInputToInputSchema(inputSchema, piName, piType, gameInputNames,
 				{"DerivedType":Castagne.GAMEINPUT_DERIVED_TYPES.BUTTON_PRESS, "Target":gameInputNames[i]})
 			_AddGameInputToInputSchema(inputSchema, gameInputNames[i]+"Release", Castagne.GAMEINPUT_TYPES.DERIVED,
 				{"DerivedType":Castagne.GAMEINPUT_DERIVED_TYPES.BUTTON_RELEASE, "Target":gameInputNames[i]})
-	elif(piType == Castagne.PHYSICALINPUT_TYPES.COMBINATION):
-		_AddGameInputToInputSchema(inputSchema, gameInputNames[0], Castagne.GAMEINPUT_TYPES.COMBINATION, inputData)
+	elif(piType == Castagne.PHYSICALINPUT_TYPES.COMBINATION or piType == Castagne.PHYSICALINPUT_TYPES.ANY):
+		if(!inputData):
+			inputData = {}
+		inputData["CombinationAny"] = (piType == Castagne.PHYSICALINPUT_TYPES.ANY)
+		_AddGameInputToInputSchema(inputSchema, gameInputNames[0], Castagne.GAMEINPUT_TYPES.MULTIPLE, inputData)
 		_AddGameInputToInputSchema(inputSchema, gameInputNames[0]+"Press", Castagne.GAMEINPUT_TYPES.DERIVED,
 			{"DerivedType": Castagne.GAMEINPUT_DERIVED_TYPES.BUTTON_PRESS, "Target": gameInputNames[0]})
 		_AddGameInputToInputSchema(inputSchema, gameInputNames[0]+"Release", Castagne.GAMEINPUT_TYPES.DERIVED,
@@ -361,7 +368,7 @@ func _AddGameInputToInputSchema(inputSchema, inputName, inputType, inputData = {
 	if(inputSchema.has(inputName)):
 		Castagne.Error("[CastagneInput] Input name " + str(inputName) + " already exists in the Input Schema!")
 		return
-	if(inputType == Castagne.GAMEINPUT_TYPES.COMBINATION and !inputData.has("Combination")):
+	if(inputType == Castagne.GAMEINPUT_TYPES.MULTIPLE and !inputData.has("Combination")):
 		Castagne.Error("[CastagneInput] Input name " + str(inputName) + " has no Combination for the Input Schema!")
 		return
 	inputData["Name"] = inputName
@@ -383,22 +390,46 @@ func CreateInputDataFromRawInput(rawInput, schema = null):
 	for inputName in schema["_InputList"]:
 		inputData[inputName] = false
 	
+	# Start with the direct inputs
 	for directInputName in schema["_InputListByType"][Castagne.GAMEINPUT_TYPES.DIRECT]:
 		inputData[directInputName] = rawInput[directInputName]
 	
-	for combinationInputName in schema["_InputListByType"][Castagne.GAMEINPUT_TYPES.COMBINATION]:
+	# Press the associated buttons for pressed combination buttons
+	for combinationInputName in schema["_InputListByType"][Castagne.GAMEINPUT_TYPES.MULTIPLE]:
 		var combination = schema[combinationInputName]["Combination"]
+		var combinationAny = schema[combinationInputName]["CombinationAny"]
 		if(rawInput[combinationInputName]):
-			for c in combination:
-				inputData[c] = true
+			if(combinationAny):
+				var hasOne = false
+				for c in combination:
+					if(inputData[c]):
+						hasOne = true
+				if(!hasOne):
+					inputData[combination[0]] = true
+			else:
+				for c in combination:
+					inputData[c] = true
 			inputData[combinationInputName] = true
-		else:
-			var value = true
-			for c in combination:
-				if(!rawInput[c]):
-					value = false
-					break
-			inputData[combinationInputName] = value
+	
+	# Press the combination button if the conditions are there
+	for combinationInputName in schema["_InputListByType"][Castagne.GAMEINPUT_TYPES.MULTIPLE]:
+		var combination = schema[combinationInputName]["Combination"]
+		var combinationAny = schema[combinationInputName]["CombinationAny"]
+		if(!rawInput[combinationInputName]):
+			if(combinationAny):
+				var value = false
+				for c in combination:
+					if(inputData[c]):
+						value = true
+						break
+				inputData[combinationInputName] = value
+			else:
+				var value = true
+				for c in combination:
+					if(!inputData[c]):
+						value = false
+						break
+				inputData[combinationInputName] = value
 	
 	return inputData
 

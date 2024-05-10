@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 # Holds the config for the Castagne engine, and manages it.
 # It also holds the modules and functions for convinience.
 
@@ -41,7 +45,14 @@ func Has(keyName, checkBase = true):
 		return _configSkeleton.Has(keyName, checkBase)
 	return h
 
-
+func GetConfigKeys():
+	var keys = []
+	if(_configSkeleton != null):
+		keys = _configSkeleton.GetConfigKeys()
+	for k in _configData:
+		if not (k in keys):
+			keys.push_back(k)
+	return keys
 
 
 
@@ -166,6 +177,30 @@ func RegisterModule(module):
 
 func GetModules():
 	return _modules
+
+func GetModuleSpecblocks():
+	var specblocks = {}
+	for m in GetModules():
+		for sbName in m.moduleSpecblocks:
+			var sb = m.moduleSpecblocks[sbName]
+			specblocks[sbName] = sb
+	return specblocks
+func GetModuleSpecblocksMainEntity():
+	var specblocks = {}
+	for m in GetModules():
+		for sbName in m.moduleSpecblocks:
+			var sb = m.moduleSpecblocks[sbName]
+			if(sb.isUsedForMainEntity):
+				specblocks[sbName] = sb
+	return specblocks
+func GetModuleSpecblocksSubEntity():
+	var specblocks = {}
+	for m in GetModules():
+		for sbName in m.moduleSpecblocks:
+			var sb = m.moduleSpecblocks[sbName]
+			if(sb.isUsedForSubEntity):
+				specblocks[sbName] = sb
+	return specblocks
 
 func GetModuleSlot(slot):
 	if(_modulesSlots.has(slot)):

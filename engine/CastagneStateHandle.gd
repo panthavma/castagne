@@ -1,3 +1,9 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Allows access to state data
+
 extends Node
 
 var _memory
@@ -62,6 +68,8 @@ func PointToPlayerMainEntity(pid):
 func GetEntityID():
 	return _eid
 func GetTargetEntity():
+	return _targetEID
+func GetTargetEID():
 	return _targetEID
 func SetTargetEntity(targetEID):
 	if(targetEID == null or targetEID < 0 or targetEID >= _memory._memoryEntities.size()):
@@ -162,6 +170,4 @@ func Memory(): # Temporary ?
 	return _memory
 func Input():
 	return _engine.configData.Input()
-
-# TODO Flags
 

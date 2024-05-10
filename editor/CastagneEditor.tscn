@@ -1,25 +1,26 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://castagne/editor/CastagneEditor.gd" type="Script" id=1]
 [ext_resource path="res://castagne/editor/CastagneEditorConfig.gd" type="Script" id=2]
-[ext_resource path="res://castagne/editor/CastagneEditorCharacter.tscn" type="PackedScene" id=3]
+[ext_resource path="res://castagne/editor/charactereditor/CastagneEditorCharacter.tscn" type="PackedScene" id=3]
 [ext_resource path="res://castagne/editor/CEDocumentation.gd" type="Script" id=4]
-[ext_resource path="res://castagne/editor/EditorTheme.tres" type="Theme" id=5]
-[ext_resource path="res://castagne/editor/MovingBackground.tres" type="Material" id=6]
+[ext_resource path="res://castagne/editor/misc/EditorTheme.tres" type="Theme" id=5]
+[ext_resource path="res://castagne/editor/misc/MovingBackground.tres" type="Material" id=6]
 [ext_resource path="res://icon.png" type="Texture" id=7]
 [ext_resource path="res://castagne/assets/icons/CastagneLogo.png" type="Texture" id=8]
-[ext_resource path="res://castagne/editor/CastagneUpdater.tscn" type="PackedScene" id=9]
-[ext_resource path="res://castagne/editor/CastagneEditorFirstTimeFlow.gd" type="Script" id=10]
-[ext_resource path="res://castagne/editor/CEGenreSelector.gd" type="Script" id=11]
-[ext_resource path="res://castagne/assets/icons/editor/stateflags/EFAttackLow.png" type="Texture" id=12]
-[ext_resource path="res://castagne/editor/CETutorialSelect.gd" type="Script" id=13]
-[ext_resource path="res://castagne/editor/CastagneEditorFirstTimeLaunch.gd" type="Script" id=14]
+[ext_resource path="res://castagne/editor/updater/CastagneUpdater.tscn" type="PackedScene" id=9]
+[ext_resource path="res://castagne/editor/submenus/firsttime/CEFirstTimeFlow.gd" type="Script" id=10]
+[ext_resource path="res://castagne/editor/submenus/small/CEGenreSelector.gd" type="Script" id=11]
+[ext_resource path="res://castagne/assets/editor/stateflags/EFAttackMBLow.png" type="Texture" id=12]
+[ext_resource path="res://castagne/editor/submenus/small/CETutorialSelect.gd" type="Script" id=13]
+[ext_resource path="res://castagne/editor/submenus/firsttime/CEFirstTimeLaunch.gd" type="Script" id=14]
 [ext_resource path="res://castagne/editor/tutorials/CETutorialSystem.gd" type="Script" id=15]
-[ext_resource path="res://castagne/editor/Submenus/CEInputConfig.tscn" type="PackedScene" id=16]
-[ext_resource path="res://castagne/editor/CEFlowSetup.gd" type="Script" id=17]
-[ext_resource path="res://castagne/editor/Submenus/CEModuleSet.tscn" type="PackedScene" id=18]
-[ext_resource path="res://castagne/editor/Submenus/CECharacterSet.tscn" type="PackedScene" id=19]
-[ext_resource path="res://castagne/editor/Submenus/CECharacterAddNew.tscn" type="PackedScene" id=21]
+[ext_resource path="res://castagne/editor/submenus/input/CEInputConfig.tscn" type="PackedScene" id=16]
+[ext_resource path="res://castagne/editor/submenus/small/CEFlowSetup.gd" type="Script" id=17]
+[ext_resource path="res://castagne/editor/submenus/module/CEModuleSet.tscn" type="PackedScene" id=18]
+[ext_resource path="res://castagne/editor/submenus/character/CECharacterSet.tscn" type="PackedScene" id=19]
+[ext_resource path="res://castagne/editor/submenus/music/CEMusicSettings.tscn" type="PackedScene" id=20]
+[ext_resource path="res://castagne/editor/submenus/character/CECharacterAddNew.tscn" type="PackedScene" id=21]
 
 [node name="CastagneEditor" type="Control"]
 anchor_right = 1.0
@@ -75,7 +76,7 @@ __meta__ = {
 
 [node name="GameIcon" type="TextureRect" parent="MainMenu/Header"]
 margin_right = 128.0
-margin_bottom = 120.0
+margin_bottom = 71.0
 rect_min_size = Vector2( 128, 0 )
 texture = ExtResource( 7 )
 expand = true
@@ -86,19 +87,19 @@ __meta__ = {
 
 [node name="GameTitle" type="Label" parent="MainMenu/Header"]
 margin_left = 132.0
-margin_top = 44.0
-margin_right = 758.0
-margin_bottom = 75.0
+margin_top = 20.0
+margin_right = 470.0
+margin_bottom = 51.0
 size_flags_horizontal = 3
 text = "GAME NAME
 GAME VERSION"
 valign = 1
 
 [node name="CastagneTitle" type="Label" parent="MainMenu/Header"]
-margin_left = 762.0
-margin_top = 44.0
-margin_right = 1388.0
-margin_bottom = 75.0
+margin_left = 474.0
+margin_top = 20.0
+margin_right = 812.0
+margin_bottom = 51.0
 size_flags_horizontal = 3
 text = "Castagne v0.0
 2022-00-00 [MAIN]"
@@ -106,9 +107,9 @@ align = 2
 valign = 1
 
 [node name="CastagneLogo" type="TextureRect" parent="MainMenu/Header"]
-margin_left = 1392.0
-margin_right = 1648.0
-margin_bottom = 120.0
+margin_left = 816.0
+margin_right = 1072.0
+margin_bottom = 71.0
 rect_min_size = Vector2( 256, 0 )
 texture = ExtResource( 8 )
 expand = true
@@ -131,56 +132,56 @@ __meta__ = {
 }
 
 [node name="Label" type="Label" parent="MainMenu/Menu"]
-margin_top = 240.0
-margin_right = 796.0
-margin_bottom = 254.0
+margin_top = 103.0
+margin_right = 508.0
+margin_bottom = 117.0
 text = "---- Castagne ----"
 align = 1
 
 [node name="Tutorials" type="Button" parent="MainMenu/Menu"]
-margin_top = 258.0
-margin_right = 796.0
-margin_bottom = 276.0
+margin_top = 121.0
+margin_right = 508.0
+margin_bottom = 139.0
 text = "Castagne Tutorials"
 
 [node name="Documentation" type="Button" parent="MainMenu/Menu"]
-margin_top = 280.0
-margin_right = 796.0
-margin_bottom = 298.0
+margin_top = 143.0
+margin_right = 508.0
+margin_bottom = 161.0
 size_flags_stretch_ratio = 0.5
 text = "Documentation"
 
 [node name="Updater" type="Button" parent="MainMenu/Menu"]
-margin_top = 302.0
-margin_right = 796.0
-margin_bottom = 320.0
+margin_top = 165.0
+margin_right = 508.0
+margin_bottom = 183.0
 size_flags_horizontal = 3
 text = "Updater"
 
 [node name="Label2" type="Label" parent="MainMenu/Menu"]
-margin_top = 324.0
-margin_right = 796.0
-margin_bottom = 355.0
+margin_top = 187.0
+margin_right = 508.0
+margin_bottom = 218.0
 text = "
 ---- Settings ----"
 align = 1
 
 [node name="Config" type="HBoxContainer" parent="MainMenu/Menu"]
-margin_top = 359.0
-margin_right = 796.0
-margin_bottom = 377.0
+margin_top = 222.0
+margin_right = 508.0
+margin_bottom = 240.0
 size_flags_horizontal = 3
 alignment = 1
 
 [node name="Config" type="Button" parent="MainMenu/Menu/Config"]
-margin_right = 714.0
+margin_right = 426.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Config Editor"
 
 [node name="ConfigAdv" type="Button" parent="MainMenu/Menu/Config"]
-margin_left = 718.0
-margin_right = 796.0
+margin_left = 430.0
+margin_right = 508.0
 margin_bottom = 18.0
 text = "Advanced"
 __meta__ = {
@@ -188,62 +189,62 @@ __meta__ = {
 }
 
 [node name="Label3" type="Label" parent="MainMenu/Menu"]
-margin_top = 381.0
-margin_right = 796.0
-margin_bottom = 412.0
+margin_top = 244.0
+margin_right = 508.0
+margin_bottom = 275.0
 text = "
 ---- Game ----"
 align = 1
 
 [node name="CharacterEdit" type="Button" parent="MainMenu/Menu"]
-margin_top = 416.0
-margin_right = 796.0
-margin_bottom = 448.0
+margin_top = 279.0
+margin_right = 508.0
+margin_bottom = 311.0
 rect_min_size = Vector2( 0, 32 )
 size_flags_horizontal = 3
 text = "Character Editor"
 
 [node name="CharEditOptions" type="HBoxContainer" parent="MainMenu/Menu"]
-margin_top = 452.0
-margin_right = 796.0
-margin_bottom = 470.0
+margin_top = 315.0
+margin_right = 508.0
+margin_bottom = 333.0
 
 [node name="CharacterEditNew" type="Button" parent="MainMenu/Menu/CharEditOptions"]
-margin_right = 396.0
+margin_right = 252.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "New Character"
 
 [node name="CharacterEditSafe" type="Button" parent="MainMenu/Menu/CharEditOptions"]
-margin_left = 400.0
-margin_right = 796.0
+margin_left = 256.0
+margin_right = 508.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Character Editor (Safemode)"
 
 [node name="StartGameModes" type="HBoxContainer" parent="MainMenu/Menu"]
-margin_top = 474.0
-margin_right = 796.0
-margin_bottom = 492.0
+margin_top = 337.0
+margin_right = 508.0
+margin_bottom = 355.0
 
 [node name="StartGameTraining" type="Button" parent="MainMenu/Menu/StartGameModes"]
-margin_right = 396.0
+margin_right = 252.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Start Training Mode"
 
 [node name="StartGameMatch" type="Button" parent="MainMenu/Menu/StartGameModes"]
-margin_left = 400.0
-margin_right = 796.0
+margin_left = 256.0
+margin_right = 508.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 disabled = true
 text = "Start Normal Match"
 
 [node name="StartGame" type="Button" parent="MainMenu/Menu"]
-margin_top = 496.0
-margin_right = 796.0
-margin_bottom = 514.0
+margin_top = 359.0
+margin_right = 508.0
+margin_bottom = 377.0
 size_flags_horizontal = 3
 disabled = true
 text = "Start Game Normally (Locked until v0.55)"
@@ -386,9 +387,9 @@ align = 1
 valign = 1
 
 [node name="TmpOut" type="Label" parent="MainMenu/FlowPanel"]
-margin_top = 348.0
-margin_right = 796.0
-margin_bottom = 362.0
+margin_top = 211.0
+margin_right = 508.0
+margin_bottom = 225.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "Disabled at the moment."
@@ -396,17 +397,17 @@ align = 1
 valign = 1
 
 [node name="HSeparator" type="HSeparator" parent="MainMenu/FlowPanel"]
-margin_top = 715.0
-margin_right = 796.0
-margin_bottom = 719.0
+margin_top = 440.0
+margin_right = 508.0
+margin_bottom = 444.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="FlowAdvanced" type="Button" parent="MainMenu/FlowPanel"]
-margin_top = 723.0
-margin_right = 796.0
-margin_bottom = 755.0
+margin_top = 448.0
+margin_right = 508.0
+margin_bottom = 480.0
 rect_min_size = Vector2( 0, 32 )
 toggle_mode = true
 text = "Advanced Flow Setup"
@@ -610,7 +611,7 @@ __meta__ = {
 }
 
 [node name="Label" type="Label" parent="FirstTimeFlow/VBoxContainer"]
-margin_right = 480.0
+margin_right = 736.0
 margin_bottom = 14.0
 text = "Let's set up your game!"
 align = 1
@@ -618,31 +619,31 @@ valign = 1
 
 [node name="ButtonGenre" type="Button" parent="FirstTimeFlow/VBoxContainer"]
 margin_top = 18.0
-margin_right = 480.0
+margin_right = 736.0
 margin_bottom = 42.0
 rect_min_size = Vector2( 0, 24 )
 text = "Game Genre"
 
 [node name="ButtonInput" type="Button" parent="FirstTimeFlow/VBoxContainer"]
 margin_top = 46.0
-margin_right = 480.0
+margin_right = 736.0
 margin_bottom = 70.0
 rect_min_size = Vector2( 0, 24 )
 text = "Input Setup"
 
 [node name="Label2" type="Label" parent="FirstTimeFlow/VBoxContainer"]
 margin_top = 74.0
-margin_right = 480.0
-margin_bottom = 290.0
+margin_right = 736.0
+margin_bottom = 492.0
 size_flags_vertical = 7
 text = "These may all be changed later from the config menu!"
 align = 1
 autowrap = true
 
 [node name="ButtonDone" type="Button" parent="FirstTimeFlow/VBoxContainer"]
-margin_top = 294.0
-margin_right = 480.0
-margin_bottom = 342.0
+margin_top = 496.0
+margin_right = 736.0
+margin_bottom = 544.0
 rect_min_size = Vector2( 0, 48 )
 text = "Finished Setup!"
 
@@ -1060,8 +1061,8 @@ margin_right = -8.0
 margin_bottom = -8.0
 
 [node name="VBox" type="VBoxContainer" parent="FlowSetup/BID"]
-margin_right = 905.6
-margin_bottom = 816.0
+margin_right = 598.4
+margin_bottom = 528.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -1076,14 +1077,14 @@ __meta__ = {
 }
 
 [node name="Label" type="Label" parent="FlowSetup/Parameters"]
-margin_right = 401.0
+margin_right = 606.0
 margin_bottom = 14.0
 text = "Flow Parameters"
 align = 1
 
 [node name="FlowName" type="HBoxContainer" parent="FlowSetup/Parameters"]
 margin_top = 18.0
-margin_right = 401.0
+margin_right = 606.0
 margin_bottom = 38.0
 
 [node name="Label" type="Label" parent="FlowSetup/Parameters/FlowName"]
@@ -1096,7 +1097,7 @@ valign = 1
 
 [node name="LineEdit" type="LineEdit" parent="FlowSetup/Parameters/FlowName"]
 margin_left = 46.0
-margin_right = 401.0
+margin_right = 606.0
 margin_bottom = 20.0
 size_flags_horizontal = 3
 text = "2022-00-00"
@@ -1104,42 +1105,42 @@ align = 1
 
 [node name="CheckButton" type="CheckButton" parent="FlowSetup/Parameters"]
 margin_top = 42.0
-margin_right = 401.0
+margin_right = 606.0
 margin_bottom = 78.0
 text = "Shared with the team"
 
 [node name="CheckButton2" type="CheckButton" parent="FlowSetup/Parameters"]
 margin_top = 82.0
-margin_right = 401.0
+margin_right = 606.0
 margin_bottom = 118.0
 text = "Pinned"
 
 [node name="Spacer" type="Control" parent="FlowSetup/Parameters"]
 margin_top = 122.0
-margin_right = 401.0
-margin_bottom = 484.0
+margin_right = 606.0
+margin_bottom = 772.0
 size_flags_vertical = 3
 
 [node name="HSeparator" type="HSeparator" parent="FlowSetup/Parameters"]
-margin_top = 488.0
-margin_right = 401.0
-margin_bottom = 492.0
+margin_top = 776.0
+margin_right = 606.0
+margin_bottom = 780.0
 
 [node name="Buttons" type="HBoxContainer" parent="FlowSetup/Parameters"]
-margin_top = 496.0
-margin_right = 401.0
-margin_bottom = 528.0
+margin_top = 784.0
+margin_right = 606.0
+margin_bottom = 816.0
 rect_min_size = Vector2( 0, 32 )
 
 [node name="Save" type="Button" parent="FlowSetup/Parameters/Buttons"]
-margin_right = 305.0
+margin_right = 463.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 text = "Save"
 
 [node name="Cancel" type="Button" parent="FlowSetup/Parameters/Buttons"]
-margin_left = 309.0
-margin_right = 401.0
+margin_left = 467.0
+margin_right = 606.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.3
@@ -1150,6 +1151,8 @@ visible = false
 
 [node name="CharacterSet" parent="." instance=ExtResource( 19 )]
 visible = false
+
+[node name="MusicSettings" parent="." instance=ExtResource( 20 )]
 
 [node name="ModuleSet" parent="." instance=ExtResource( 18 )]
 visible = false

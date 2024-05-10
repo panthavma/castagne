@@ -20,3 +20,5 @@ You may open the editor in advanced mode to show more properties that are hidden
 
 ## Character Editor
 The character editor can either be opened with a registered character from the list on the right, or by making/registering a character through the `New Character` button.
+
+<!-- TODO Custom Editors ? Where ? -->

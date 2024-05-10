@@ -1,0 +1,62 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/editor/submenus/CastagneEditorSubmenu.gd" type="Script" id=1]
+
+[node name="CESubmenuBase" type="Control"]
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Control" parent="."]
+anchor_right = 1.0
+margin_bottom = 32.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="Title"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.521569 )
+
+[node name="Label" type="Label" parent="Title"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "SubmenuName"
+align = 1
+valign = 1
+
+[node name="DefaultWindowButtons" type="HBoxContainer" parent="."]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -40.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[node name="Confirm" type="Button" parent="DefaultWindowButtons"]
+margin_right = 669.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+text = "Confirm"
+
+[node name="Cancel" type="Button" parent="DefaultWindowButtons"]
+margin_left = 673.0
+margin_right = 1008.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+text = "Cancel"
+
+[connection signal="pressed" from="DefaultWindowButtons/Confirm" to="." method="_on_Confirm_pressed"]
+[connection signal="pressed" from="DefaultWindowButtons/Cancel" to="." method="_on_Cancel_pressed"]

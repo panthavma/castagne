@@ -1,15 +1,9 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 # Globally accessible class for Castagne
 # Is the main interface for the Castagne Engine, and can be used to create engine instances
-
-
-
-# :TODO:Panthavma:20211230:Start working on castagne menus
-# :TODO:Panthavma:20211230:Rework input to be more modular
-# :TODO:Panthavma:20211230:More flexible tool loading (have short names for the default ones)
-
-# :TODO:Panthavma:20211230:General code documentation
-# :TODO:Panthavma:20211230:Site documentation
-# :TODO:Panthavma:20211230:Automatic documentation of modules
 
 extends Node
 
@@ -21,7 +15,7 @@ onready var Menus
 
 const CONFIG_FILE_PATH = "res://castagne-config.json"
 const CONFIG_LOCAL_FILE_PATH = "user://castagne-local-config.json"
-const CONFIG_CORE_MODULE_PATH = "res://castagne/modules/coreset/CMCore.gd"
+const CONFIG_CORE_MODULE_PATH = "res://castagne/modules/core/CMCore.gd"
 const INPUT_LOCAL = 0
 const INPUT_ONLINE = 1
 const INPUT_AI = 2
@@ -29,15 +23,15 @@ const INPUT_DUMMY = 3
 
 enum HITCONFIRMED { NONE, BLOCK, HIT, CLASH }
 
-enum STATE_TYPE { Normal, BaseState, Helper, Special }
+enum STATE_TYPE { Normal, BaseState, Helper, Special, Specblock }
 enum VARIABLE_MUTABILITY { Variable, Define, Internal }
 enum VARIABLE_TYPE { Int, Str, Var, Vec2, Vec3, Box, Bool }
 enum MEMORY_STACKS { Global, Player, Entity }
 enum MODULE_SLOTS_BASE { CORE, PHYSICS, ATTACKS, GRAPHICS, FLOW, EDITOR, INPUT, CUSTOM_1, CUSTOM_2, CUSTOM_3 }
 
 enum INPUTDEVICE_TYPES { EMPTY, KEYBOARD, CONTROLLER }
-enum PHYSICALINPUT_TYPES { RAW, BUTTON, AXIS, STICK, COMBINATION }
-enum GAMEINPUT_TYPES { DIRECT, COMBINATION, DERIVED }
+enum PHYSICALINPUT_TYPES { RAW, BUTTON, AXIS, STICK, COMBINATION, ANY }
+enum GAMEINPUT_TYPES { DIRECT, MULTIPLE, DERIVED }
 enum GAMEINPUT_DERIVED_TYPES { BUTTON_PRESS, BUTTON_RELEASE, DIRECTIONAL, DIRECTION_NEUTRAL }
 
 const PRORATION_SCALE = 1000
@@ -400,6 +394,15 @@ func SplitStringToArray(stringToSeparate, separator=","):
 			a.push_back(s)
 	return a
 
+func VariableTypeToCastagneType(variableType):
+	if(variableType == TYPE_INT):
+		return Castagne.VARIABLE_TYPE.Int
+	if(variableType == TYPE_STRING):
+		return Castagne.VARIABLE_TYPE.Str
+	if(variableType == TYPE_BOOL):
+		return Castagne.VARIABLE_TYPE.Bool
+	Error("Castagne.VariableTypeToCastagneType: Can't convert type "+str(variableType))
+	return null
 
 func BattleInitData_GetPlayer(battleInitData, pid):
 	if(battleInitData["players"].size() <= pid+1):

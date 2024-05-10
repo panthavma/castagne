@@ -1,0 +1,672 @@
+:Character:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+## Baston is an example fighter with simple moves of various properties! You can read the comments here to help you learn the engine. Start with 5A!
+##
+## This is the Character block, which holds data that can be read from outside the battles (for instance, the character select screen).
+
+# The name is displayed in the character select screen
+Name: Baston Labatte
+EditorName: Baston Labatte (Example Fighter)
+
+
+Skeleton: res://castagne/examples/fighters/baston/Baston-Model.casp
+:Specs-PhysicsMovement:
+def MOVE_Walk_SpeedF int() = 1200
+def MOVE_Walk_SpeedB int() = -1000
+:Variables:
+## Variables block hold additional data that may be read during gameplay. Here you can alter data specific to the character, or override other variable blocks to see what you can adjust.
+
+# We don't need any here for now.
+:2H:
+## Anti-air attack with an extending hitbox. Priority is made here using a limited hurtbox
+
+# Register attack
+AttackRegister(Heavy)
+
+Anim(N-BatSwingUp)
+
+# Set parameters
+AttackDamage(1400)
+AttackDuration(32)
+AttackFrameAdvantage(20, -10)
+
+# We can specify different momentum on ground hit and air hit, so that it only juggles on air hit
+AttackMomentum(800,0, 400,1400)
+AttackFloat(50)
+
+# We will give this priority against air attacks by removing the hurtbox above the legs.
+# Another approach would be to use attribute invulnerability, which does some differences in interactions
+Hurtbox(-1000, 5000, 0, 10000)
+
+F8-13:
+	Hitbox(0, 14000, 4000, 14000)
+
+	# We want to extend the hitbox progressively. Using the hitbox function twice will keep the last attack, so we don't need to redefine it.
+	F10+:
+		Hitbox(3000, 16000, 14000, 24000)
+	endif
+endif
+:2L:
+## Simple positive on block crouching attack. See 5A before this one
+
+# Because we use a crouching attack, we add this flag BEFORE registering the attack.
+# This will also alter the StandardHurtbox
+Flag(Crouching)
+
+# Once again, we register the attack and set damage / duration
+AttackRegister(Light)
+AttackDamage(400)
+AttackDuration(20)
+
+Anim(N-CrouchJab)
+
+
+# To make it plus on block, we put a positive number in the second place.
+# We will make it +3 on hit and +2 on block
+AttackFrameAdvantage(3, 2)
+
+F6-8:
+	Hitbox(0, 12000, 0, 12000)
+endif
+:2M:
+## Simple advancing low attack that will trip the opponent.
+
+# Medium crouching attack, so we register it as such
+Flag(Crouching)
+AttackRegister(Medium)
+
+Anim(N-LowKick)
+
+# Set parameters
+AttackDamage(1250)
+AttackDuration(40)
+AttackFrameAdvantage(3, -6)
+
+
+
+# We can add flags to attacks to add properties to them. Low will make it so that you can't block standing.
+# Please see the documentation for the full list of flags.
+AttackMustBlock(Low)
+
+
+# AttackMomentum allows us to determine how much the opponent will be pushed.
+# Having a positive value in the second slot will launch him upwards, which makes this attack a launcher
+AttackMomentumHit(700, 1400)
+
+# However, we don't want this to happen on block, we want the opponent to stay grounded.
+# We use this to set the momentum on block specifically.
+AttackMomentumBlock(700, 0, 500, 900)
+
+# This allows setting a custom gravity on hit, which allows more fine grained control of the launch
+AttackFloat(100)
+
+# Add some movement so it feels better
+F6-10:
+	Move(1800, 0)
+endif
+
+
+# We change the hurtbox when the character is crouching in order to interact better
+F6-18:
+	Hurtbox(0, 14000, 0, 6000)
+	Hurtbox(-5000, 5000, 0, 10000)
+else
+	Hurtbox(-5000, 5000, 0, 15000)
+endif
+
+# Finally, add the attack
+F10-12:
+	Hitbox(0, 16000, 0, 5000)
+endif
+:4S:
+## Overhead move with knockdown, can be held to ground bounce
+##
+## This move showcases knockdown, ground bounces, and how to have a move change by being held.
+## This might be a little complex, but the parts are clearly separated.
+
+# Register as a special attack, we will do in in steps
+AttackRegister(Special)
+
+# Holding logic ---
+	# Start by raising a flag, if that flag is still up at the end of the charge window we will do the charged version.
+	F1:
+		Flag(HeldVersion)
+	endif
+
+	# Window to stop charging. Doesn't start immediately to give a small buffer to the player, stays until the animation would start.
+	# Once we reach frame 15, we are locked in whichever version the player chose.
+	F4-14:
+		IS:
+		else
+			# If S is released, stop charging.
+			Unflag(HeldVersion)
+		endif
+	endif
+
+	# Carry over the flag to the next frame
+	LHeldVersion:
+		FlagNext(HeldVersion)
+	endif
+# ------------
+
+LHeldVersion:
+	# Held version
+	F27-29:
+		Move(1900)
+	endif
+
+	F30-34:
+		AttackDamage(1500)
+		AttackDuration(55)
+		AttackHitstun(30)
+		AttackFrameAdvantageBlock(-3)
+		AttackMustBlock(Overhead)
+
+		AttackMomentumHit(200, -5000)
+		AttackMomentumBlock(1800, 0, 1200, 200)
+
+		# This will activate a ground bounce of specified duration and momentum if still within the limit.
+		#AttackGroundbounce(60, 1600)
+
+		# Float is useful to control the height of the bounce better.
+		AttackFloat(40)
+
+		# This forces a knockdown of specified duration, when the ground bounce doesn't happen.
+		AttackKnockdown(30)
+
+		# Knockdown/Groundbounce only works on landing. This flag forces it even when the opponent is grounded
+		AttackFlag(ForceLanding)
+
+		Hitbox(0, 16000, 0, 18000)
+	endif
+else
+	# Unheld version
+	F17-19:
+		Move(1000)
+	endif
+
+	F20-24:
+		AttackDamage(1000)
+		AttackDuration(45)
+		AttackHitstun(30)
+		AttackFrameAdvantageBlock(-9)
+		AttackMustBlock(Overhead)
+
+		AttackMomentumHit(2000, -4000)
+		AttackMomentumBlock(1000, 0, 800, 200)
+
+		# This forces a knockdown of specified duration. With only one parameter, the knockdown's duration can be controlled by the person hit.
+		AttackKnockdown(30)
+
+		# Knockdown only works on landing. This flag forces it even when the opponent is grounded
+		AttackFlag(ForceLanding)
+
+		Hitbox(0, 16000, 0, 18000)
+	endif
+endif
+
+
+# Animation, more complex thanks to the held version.
+# We want to control when the animation progresses, so we use AnimProgress instead of Anim.
+F1:
+	# Start the animation
+	Anim(S-BatDown)
+else
+	LHeldVersion:
+		# Held version, increase startup
+		F15-25:
+		else
+		AnimProgress()
+		endif
+	else
+		# Unheld version: delay the ending a bit for feel
+		F25-34:
+		else
+			AnimProgress()
+		endif
+	endif
+endif
+:5H:
+## Simple disjointed bat swing.
+
+# Register attack as a Heavy attack, changing cancels and proration
+AttackRegister(Heavy)
+
+Anim(N-BatSwing)
+
+# Set Paramters
+AttackDamage(1500)
+AttackDuration(34)
+AttackFrameAdvantage(0, -9)
+AttackMomentum(1800, 0, 1600, 1400)
+
+# Cancels only to C moves and specials
+#AttackAddAllCancelsOnTouch(C)
+#Call(AttackAddSpecialCancels)
+
+# Add some movements because I think it feels better
+F6-9:
+	Move(1200, 0)
+endif
+
+# To have it disjointed, we simply don't add any additional hurtbox. This is all we need to do.
+# This means this attack might clash more often, which is behavior you can set in the Castagne config.
+F12-14:
+	Hitbox(0, 18000, 7000, 18000)
+endif
+
+# Since this attack is heavy, we may only cancel into other heavy attacks and specials by default.
+:5L:
+## 5A is a simple jab. This will show you how to make a simple attack!
+
+# We start by registering it as a Light attack. This will allow us to use the attack.
+# Since we used numpad notation as the name of the state, we don't need to specify it here.
+AttackRegister(Light)
+
+# Play the correct animation from the AnimationPlayer on the model
+Anim(N-BackhandJab)
+
+# We then set the damage of the attack. This will then be affected by proration.
+AttackDamage(500)
+
+# We also set the total duration of the attack here. If we forget to, our character will freeze for a bit before activating a failsafe.
+AttackDuration(24)
+
+# Set how the opponent will be pushed back by the hit. First two values are for the ground, second two for the air.
+AttackMomentum(1200, 0, 1000, 900)
+
+# The hitbox will be active from frames 6 to 8, so we put a branch for those.
+# This means the code here will only be active for those three frames
+F6-8:
+	# We add a hitbox to our attack, which allows us to attack the opponent.
+	# This must come after the other Attack functions, as it will only take into account those coming before it.
+	Hitbox(0, 13000, 9000, 17500)
+endif
+
+# We didn't set a hurtbox, frame advantage, or cancels, but Castagne can do that automatically when needed.
+# Our hurtbox will be the StandardHurtbox, which can be customized from variables.
+# Frame advantage will by default be set to neutral, meaning both character recover at the same time on hit and block.
+# Cancels are added automatically by Castagne, also customizable through variables.
+# All those behaviors may be overriden locally, for instance to prevent cancels or making reversals, but we'll see that in other moves.
+:5M:
+## Simple advancing attack with an extended, lingering hurtbox.
+
+# Since this one is a medium attack, we register it as such. This will change proration / cancels compared to Light attacks.
+AttackRegister(Medium)
+
+# Set attack parameters as usual
+AttackDamage(1000)
+AttackDuration(35)
+AttackMomentum(1000, 0, 500, 1200)
+AttackFrameAdvantage(0, -5)
+
+# We add a bit of movement at the beginning of the attack to extend range a bit
+F4-8:
+	Move(1000)
+endif
+
+# Add a hitbox for the attack
+F9-12:
+	Hitbox(0, 18000, 5000, 12000)
+endif
+
+# The attack will leave the leg hanging, so we add a hurtbox from frame 8 onwards
+# Having it out before the attack makes it easier to counterhit
+F8-24:
+	Hurtbox(0, 16000, 7000, 14000)
+endif
+
+# Because we have added a hurtbox, we will to also add a regular hurtbox to the attack, since the StandardHurtbox won't be added if another hurtbox is added.
+Hurtbox(-3000, 5000, 0, 20000)
+
+Anim(N-LongKick)
+
+# Since this is a medium attack, default cancels will not allow us to go back to light attacks, so that's taken care of for us too!
+:5S:
+## Projectile throwing move. Needs an additional entity for it to work, here its 'Ball'
+AttackRegister(Special)
+
+# No hitbox, but we still use the duration
+AttackDuration(30)
+
+
+F15:
+	# To create the entity, we just need its name.
+	# For that, it needs to have been defined beforehand. You can access that through the navigation panel
+	CreateEntity(Ball)
+
+	# By default it will copy the character's position, but you'll want to set it manually here
+	SetTargetPosition(5000, 10000)
+endif
+
+
+# Custom Animation
+F1:
+	Anim(S-PitchStraight)
+else
+	AnimProgress()
+endif
+
+F20-30:
+	AnimProgress()
+endif
+:5Throw:
+## Grounded throw startup. Throws will automatically transition to a hold state, so this just needs to be the whiffing animation.
+AttackRegister(Throw)
+AttackDuration(30)
+
+F8-10:
+	Hitbox(0, 10000, 0, 20000)
+endif
+
+Anim(ThrowStartup)
+:6S:
+## Jumping kick with a followup when hitting or blocking. Its animation is made up of several reused ones.
+
+# Start as usual
+AttackRegister(Special)
+AttackDamage(800)
+AttackDuration(48)
+AttackHitstunBlockstun(20, 20)
+AttackMomentum(1500, 0, 1700, 100)
+AttackKnockdown(28)
+
+F11-31:
+	Hitbox(0, 8000, 5000, 15000)
+endif
+
+# Animation made from other animations
+F1-10:
+	Anim(ANIM_Movement_Basic_Jumpsquat)
+endif
+F11:
+	AnimFrame(N-AirKick, 20)
+endif
+F32:
+Anim(ANIM_Movement_Basic_Landing)
+endif
+
+# Jumping part, with a bit of additional movement to feel better
+F11:
+	AddMomentum(1900, 2000)
+endif
+F11-13:
+	Move(600)
+endif
+F32-38:
+	F32-34:
+		Move(500)
+	endif
+	Move(300)
+endif
+
+# The actual followup. AttackHasTouched is active on hit and block
+LAttackHasTouched:
+	Transition(6S-Followup)
+endif
+:6S-Followup:
+## Followup for the 6D jumping kick.
+AttackRegister(Special)
+
+F1:
+	SetMomentum(-600, 2000)
+endif
+
+LPFAirborne:
+	Anim(ANIM_Movement_Basic_AirIdle)
+else
+	Anim(ANIM_Movement_Basic_Landing)
+endif
+
+AttackDuration(35)
+:AirThrowF:
+## Simple air throw followup that knocks down. Same as ThrowF for now.
+AttackRegister(AirThrowFollowup)
+
+AttackDamage(1000)
+AttackDuration(30)
+
+# Putting twice the same number makes it a hard knockdown
+AttackKnockdown(50,50)
+AttackFlag(ForceLanding)
+
+F5:
+	Hitbox(0, 20000, 0, 20000)
+endif
+
+Anim(ThrowF)
+
+
+# In the air, its a lot more likely to miss, so we stop our momentum for a bit
+F1:
+	SetMomentum(0,0)
+endif
+
+F1-12:
+	Flag(HaltMomentum)
+endif
+:ThrowF:
+## Simple throw followup that knocks down. Back throw is automatically this one if not specified.
+AttackRegister(ThrowFollowup)
+
+AttackDamage(1000)
+AttackDuration(30)
+
+# Putting twice the same number makes it a hard knockdown
+AttackKnockdown(50,50)
+AttackFlag(ForceLanding)
+
+F5:
+	Hitbox(0, 20000, 0, 20000)
+endif
+
+Anim(ThrowF)
+:TmpOld-4H:
+## Counter, will counter only mid and high attacks
+
+# Even though it's not an "attack" with a hurtbox, we register it as such in the cancel system
+AttackRegister(Heavy)
+AttackDuration(50)
+Anim(S-Bunt)
+
+# We want to use the Guard attribute system to find attacks of specific types
+F1-18:
+	# Can use Guard-All if you don't need to discriminate against a specific one, but here we want to be vulnerable to lows and throws.
+	Flag(Guard-High)
+	Flag(Guard-Mid)
+	Flag(Guard-Air)
+	Flag(Guard-Projectile)
+endif
+
+# This flag will be active when we successfuly guard againt an attribute, so we go to the followup state
+LGuarded:
+	Transition(4H-CounterConfirmed)
+endif
+:TmpOld-4H-CounterConfirmed:
+## Attack used once the 4C counter has been confirmed. In two parts, made of other animations.
+
+AttackRegister(Heavy)
+
+AttackDamage(1000)
+AttackDuration(35)
+
+# First part ---------------------------
+
+# Custom animation
+F1:
+	Anim(N-BatSwingUp)
+endif
+F2-6:
+	AnimProgress()
+endif
+F2-9:
+	AnimProgress()
+endif
+
+F3-5:
+	Move(1000)
+endif
+
+F6-7:
+	AttackMomentum(200, 200)
+	AttackHitstunBlockstun(60, 60)
+	AttackFloat(-10)
+	Hitbox(0, 15000, 0, 22000)
+endif
+
+F9:
+	Anim(S-BatDown, 12)
+endif
+
+F10+:
+AnimProgress()
+endif
+
+F14-16:
+Move(1450)
+endif
+
+F17:
+	# This should only be called once to reset the hit logic, otherwise you might hit on every frame.
+	AttackRearm()
+
+	AttackDamage(1000)
+	AttackHitstun(50)
+
+	AttackFrameAdvantageBlock(-8)
+	AttackMomentum(500, -200)
+
+	# Hard Knockdown
+	AttackKnockdown(60,60)
+
+	Hitbox(0, 16000, 0, 23000)
+endif
+:j5H:
+## Big disjointed air attack that can knockdown
+
+# Register the attack
+AttackRegister(AirHeavy)
+
+Anim(N-AirSwing)
+
+# Set params
+AttackDamage(1200)
+AttackDuration(40)
+AttackFrameAdvantage(40, -2)
+
+# Make this attack an overhead, which must be blocked standing
+AttackMustBlock(Overhead)
+
+# Makes this attack knockdown on landing, making it good to end air combos.
+# This will be a soft knockdown of default duration
+AttackKnockdown()
+
+# Help the opponent reach the ground by adding downwards momentum
+AttackMomentum(1500, 0, 1100, -400)
+
+
+# Can use hitbox several times with the same parameters.
+F5-7:
+	Hitbox(0, 15000, 7000, 18000)
+endif
+F7-10:
+	# These two hitboxes are overlapping, only the first to hit will be used.
+	Hitbox(7000, 13000, 4000, 11000)
+	Hitbox(3000, 11000, -2000, 14000)
+endif
+:j5L:
+## Air to air attack with custom movement.
+
+# Register it as an air attack
+AttackRegister(AirLight)
+
+Anim(N-AirKnee)
+
+# Set parameters
+AttackDamage(600)
+AttackDuration(50)
+AttackFrameAdvantage(30, 2)
+AttackMomentum(1200, 0, 1200, 2200)
+
+# Set hitbox
+F4-10:
+	Hitbox(0, 8000, 5000, 15000)
+endif
+
+
+
+# We want to make it more effective as an air-to-air, so we add some movement
+
+# Halt momentum, and ajust it to give the move more impact and a smoother arc at the beggining
+F1-3:
+	Flag(HaltMomentum)
+	BreakMomentumX(500, -500, 200)
+	BreakMomentumY(500, -200, 500)
+endif
+
+# Adding a burst of momentum to get a better arc
+F4:
+	AddMomentum(1000, 1300)
+endif
+
+# Additional burst of speed to increase range
+F3-6:
+	Move(1400, 1500)
+endif
+
+# Note that this isn't an overhead because it would be busted, thanks to its low hitbox and potential to setup double overheads.
+:j5M:
+## Simple overhead air attack
+
+# Register it as an air attack
+AttackRegister(AirMedium)
+
+Anim(N-AirKick)
+
+# Set Parameters
+AttackDamage(900)
+AttackDuration(20)
+AttackFrameAdvantage(40, -2)
+AttackMomentum(1400, 0, 1300, 1500)
+
+# Using a flag, we make this attack an overhead, which will beat crouching guard
+AttackMustBlock(Overhead)
+
+# Custom hurtbox to make it easier to counterhit
+F8-14:
+	Hurtbox(0, 13000, 5000, 13000)
+	Hitbox(0, 14000, 4000, 12000)
+endif
+Hurtbox(-5000, 5000, 5000, 20000)
+
+# Sneaky boost to give a bit more distance.
+F4:
+	AddMomentum(300, 100)
+endif
+:j5Throw:
+## Airborne throw startup. Throws will automatically transition to a hold state, so this just needs to be the whiffing animation.
+AttackRegister(AirThrow)
+AttackDuration(30)
+
+F8-10:
+	Hitbox(0, 10000, 0, 20000)
+endif
+
+Anim(ThrowStartup)
+:Ball---Subentity:
+## Describe entity here
+Skeleton: Projectile
+:Ball---Specs-Graphics:
+def GRAPHICS_ModelPath str() = res://castagne/examples/fighters/baston/scenes/Ball.tscn
+:Ball---Specs-Subentity:
+def SUBENTITY_Attack_Hitstun int() = 40
+def SUBENTITY_Attack_Blockstun int() = 20
+def SUBENTITY_Move_X int() = 2000
+:Ball---Variables:
+## Put variables here
+:Ball---Action:
+## Write your behavior here
+CallParent()

@@ -1,0 +1,178 @@
+:Character:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+## Simple temporary 2D file for knowing how to do 2D fighters in Castagne. If you want to learn, use the regular 2.5D version
+
+Name: Baston Labatte
+EditorName: Baston 2D (Example Character)
+Skeleton: res://castagne/examples/fighters/baston/Baston-Model.casp
+:Specs-Graphics:
+def GRAPHICS_UseSprites bool() = 1
+def GRAPHICS_UseModel bool() = 0
+def GRAPHICS_Scale int() = 3000
+:Variables:
+## This is the Variables block, where you can store custom variables or overwrite defined ones.You can see all available default variables by activating 'Show All Variables' in the navigation panel.
+
+
+var tempExampleAnim int() = 0
+internal _StateFrameID
+:5H:
+## Check out 2.5D fighter for an explanation
+
+F1-7:
+	Sprite(TemporaryStickman, 6)
+else
+	F1-9:
+		Sprite(7)
+	else
+		Sprite(8)
+	endif
+endif
+
+
+##---------------------------------------
+## Copy from Baston's regular file
+## Simple disjointed bat swing.
+
+# Register attack as a Heavy attack, changing cancels and proration
+AttackRegister(Heavy)
+
+# Set Paramters
+AttackDamage(1500)
+AttackDuration(34)
+AttackFrameAdvantage(0, -9)
+AttackMomentum(1800, 0, 1600, 1400)
+
+# Add some movements because I think it feels better
+F6-9:
+	Move(1200, 0)
+endif
+
+# To have it disjointed, we simply don't add any additional hurtbox. This is all we need to do.
+# This means this attack might clash more often, which is behavior you can set in the Castagne config.
+F12-14:
+	Hitbox(0, 18000, 7000, 18000)
+endif
+
+# Since this attack is heavy, we may only cancel into other heavy attacks and specials by default.
+:5L:
+## Check out 2.5D fighter for an explanation
+
+Sprite(TemporaryStickman, 4)
+
+##---------------------------------------
+## Copy from Baston's regular file
+
+## 5A is a simple jab. This will show you how to make a simple attack!
+
+# We start by registering it as a Light attack. This will allow us to use the attack.
+# Since we used numpad notation as the name of the state, we don't need to specify it here.
+AttackRegister(Light)
+
+# We then set the damage of the attack. This will then be affected by proration.
+AttackDamage(500)
+
+# We also set the total duration of the attack here. If we forget to, our character will freeze for a bit before activating a failsafe.
+AttackDuration(24)
+
+# Set how the opponent will be pushed back by the hit. First two values are for the ground, second two for the air.
+AttackMomentum(1200, 0, 1000, 900)
+
+# The hitbox will be active from frames 6 to 8, so we put a branch for those.
+# This means the code here will only be active for those three frames
+F6-8:
+	# We add a hitbox to our attack, which allows us to attack the opponent.
+	# This must come after the other Attack functions, as it will only take into account those coming before it.
+	Hitbox(0, 13000, 9000, 17500)
+endif
+
+# We didn't set a hurtbox, frame advantage, or cancels, but Castagne can do that automatically when needed.
+# Our hurtbox will be the StandardHurtbox, which can be customized from variables.
+# Frame advantage will by default be set to neutral, meaning both character recover at the same time on hit and block.
+# Cancels are added automatically by Castagne, also customizable through variables.
+# All those behaviors may be overriden locally, for instance to prevent cancels or making reversals, but we'll see that in other moves.
+:5M:
+## Check out 2.5D fighter for an explanation
+
+F1-7:
+	Sprite(TemporaryStickman, 3)
+else
+	Sprite(5)
+endif
+
+##---------------------------------------
+## Copy from Baston's regular file
+## Simple advancing attack with an extended, lingering hurtbox.
+
+# Since this one is a medium attack, we register it as such. This will change proration / cancels compared to Light attacks.
+AttackRegister(Medium)
+
+# Set attack parameters as usual
+AttackDamage(1000)
+AttackDuration(35)
+AttackMomentum(1000, 0, 500, 1200)
+AttackFrameAdvantage(0, -5)
+
+# We add a bit of movement at the beginning of the attack to extend range a bit
+F4-8:
+	Move(1000)
+endif
+
+# Add a hitbox for the attack
+F9-12:
+	Hitbox(0, 18000, 5000, 12000)
+endif
+
+# The attack will leave the leg hanging, so we add a hurtbox from frame 8 onwards
+# Having it out before the attack makes it easier to counterhit
+F8-24:
+	Hurtbox(0, 16000, 7000, 14000)
+endif
+
+# Because we have added a hurtbox, we will to also add a regular hurtbox to the attack, since the StandardHurtbox won't be added if another hurtbox is added.
+Hurtbox(-3000, 5000, 0, 20000)
+
+
+# Since this is a medium attack, default cancels will not allow us to go back to light attacks, so that's taken care of for us too!
+:AnimAirborne:
+Sprite(TemporaryStickman, 10)
+:AnimCrouchToStand:
+Sprite(TemporaryStickman, 0)
+:AnimCrouching:
+Sprite(TemporaryStickman, 9)
+:AnimJumpB:
+Sprite(TemporaryStickman, 10)
+:AnimJumpF:
+Sprite(TemporaryStickman, 10)
+:AnimJumpN:
+Sprite(TemporaryStickman, 10)
+:AnimJumpsquat:
+Sprite(TemporaryStickman, 11)
+:AnimLanding:
+Sprite(TemporaryStickman, 11)
+:AnimStand:
+Sprite(TemporaryStickman, 0)
+:AnimStandToCrouch:
+Sprite(TemporaryStickman, 9)
+:AnimWalkB:
+S7%32:
+	Sprite(TemporaryStickman, 3)
+S8
+	Sprite(TemporaryStickman, 2)
+S7
+	Sprite(TemporaryStickman, 1)
+S+
+	Sprite(TemporaryStickman, 2)
+endif
+:AnimWalkF:
+S7%32:
+	Sprite(TemporaryStickman, 1)
+S8
+	Sprite(TemporaryStickman, 2)
+S7
+	Sprite(TemporaryStickman, 3)
+S+
+	Sprite(TemporaryStickman, 2)
+endif

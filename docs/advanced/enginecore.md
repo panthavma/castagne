@@ -86,42 +86,48 @@ Please see the relevant pages (TODO) for more details on this system. (In develo
 
 Then, the main phase, the **(4.) Action Script Phase**, which is executed by all active entities. This is the one where most functions will be executed, and will handle most computations. Some events, mostly physics (movement, hitboxes) and transition related are buffered instead.
 
+In parallel, the **(4b.) Freeze Script Phase** is executed for currently frozen entities instead. This happens mainly when you got hit by an attack, and pauses the frame advances for a bit. Hurtboxes are still computed, and the character may be hit.
 
+<!-- TODO subentity init and action -->
 
 The **(5.) Physics Internal Phase** then happens, which has a similar callback structure to script phases, but will use a specific callback to the Physics module instead of script execution. This is where movement is managed, as well as hit/hurtbox interactions are detected. Please see the relevant pages (TODO) for more details.
 
-TODO: Update when physics is redone / final-ish
+<!-- TODO: Update when physics is redone / final-ish -->
 
 
 
-Finally, the **(6.) Resolution Script Phase** manages the results of the physics. This is where entities may react to the hits taken or given, and manage state transitions, which will be applied at the end of the frame through module callbacks.
+Finally, the **(6.) Reaction Script Phase** manages the results of the physics. This is where entities may react to the hits taken or given, and manage state transitions, which will be applied at the end of the frame through module callbacks.
 
+<!-- TODO Subentity init ? -->
 
 
 At this point, the new memory stack is complete and returned, ready to be saved if needed, and reused as the basis of the next tick.
 
-TODO: Update this section after the AI module works
+<!-- TODO: Update this section after the AI module works -->
 
-### Other Loop Types
+### Halt Loop and Manual Phase
 
-- Freeze: Can act only a bit, meant for cutscenes and the like
-- Skip: Don't do anything
+One entity may **Halt** the execution, giving it full control for a given number of frames. When a halt request is received, the next frame will be a special Halt loop instead.
 
-TODO: Update this once the final implementation is done
+During a **Halt Script Phase**, only the current initiating it has their script executed. The main use is meant for super flashes and cutscenes, where the gameplay is completely paused. This is opposed to Freeze phase, where only a single entity is frozen and the game continues as expected.
+
+If two or more entities want to halt execution on the same frame, the calls will be queued one after another one at a time. This is done in order of entity ID.
+
+Another particularity is the **Manual Phase**. This is not a phase per se, but a special compilation option which is used at times to force execution, mostly in P branches. This is an internal tool more than a conceptual phase.
 
 ## Entity Management
 
 - how entities are added
 - instanced data management
 
-TODO: Update this when implementation is cleaned up
+<!-- TODO: Update this when implementation is cleaned up -->
 
 ## Engine Stop
 
 When the match is ended, a callback is made
 
 
-TODO: Update when done
+<!-- TODO: Update when done -->
 <!--
 ## Design Philosophy
 

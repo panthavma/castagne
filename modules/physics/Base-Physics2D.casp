@@ -1,243 +1,13 @@
 :Character:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 ## Base-Physics2D: This hold basic behavior for 2D games. (IN CONSTRUCTION UNTIL v0.56)
 ##
 ## Contains multiple default states to cover various standard types of movement.
-:Variables-Physics-System:
-## This block holds parameters to alter fine parts of the movement system, like if you can turnaround or not, or if you can cancel some states.
-## Since this is fairly fundamental, it is recommended to keep those the same for all characters through a skeleton.
-
-#--- Facing
-def PHYSICS_FaceTargetAutomatically bool() = 1
-def PHYSICS_FaceTargetAutomaticallyInAir bool() = 0
-def PHYSICS_FaceTargetAutomaticallyAtAttackStart bool() = 1
-def PHYSICS_FaceTargetAutomaticallyAtAirAttackStart bool() = 0
-def PHYSICS_AllowFacingChangeAtAirAttackStart bool() = 1
-def MOVE_TurnaroundStand_Time int() = 6
-def MOVE_TurnaroundCrouch_Time int() = 6
-def MOVE_TurnaroundAirTime int() = 6
-#def MOVE_CanTurnaroundInAir bool() = 0
-
-#--- Transitional states
-def MOVE_StandToCrouch_Time int() = 6
-def MOVE_CrouchToStand_Time int() = 6
-def MOVE_CanCancelStandToCrouch bool() = 1
-def MOVE_CanCancelCrouchToStand bool() = 1
-
-#--- Jumping
-def MOVE_Jump_CanJumpForward bool() = 1
-def MOVE_Jump_CanJumpBackward bool() = 1
-def MOVE_Landing_RecoverCrouching bool() = 1
-
-#--- Dashes
-def MOVE_Dashes_DoubleTapTime int() = 12
-def MOVE_Dashes_HighjumpInputTime int() = 12
-def MOVE_Dashes_CanRun bool() = 1
-def MOVE_Dashes_CanStepDash bool() = 1
-def MOVE_Dashes_CanBackdash bool() = 1
-def MOVE_Dashes_CanHighjump bool() = 1
-def MOVE_Dashes_CanAirjump bool() = 1
-def MOVE_Dashes_CanAirdashF bool() = 1
-def MOVE_Dashes_CanAirdashB bool() = 1
-
-#--- Colliders
-def PHYSICS_StandardColbox_Use bool() = 1
-def PHYSICS_StandardColbox_Width int() = 4000
-def PHYSICS_StandardColbox_Bottom int() = 0
-def PHYSICS_StandardColbox_Top int() = 12000
-
-def PHYSICS_StandardHurtbox_Use bool() = 1
-def PHYSICS_StandardHurtbox_Width int() = 5000
-def PHYSICS_StandardHurtbox_Bottom int() = 0
-def PHYSICS_StandardHurtbox_Top int() = 20000
-def PHYSICS_StandardHurtbox_Crouching_Width int() = 5000
-def PHYSICS_StandardHurtbox_Crouching_Bottom int() = 0
-def PHYSICS_StandardHurtbox_Crouching_Top int() = 14000
-:Variables-Physics-Reactions-Techs:
-## Customize the techs you can do when exiting hitstun
-
-#--- Grounded - Neutral
-def ATTACK_Tech_Grounded_Neutral_Time int() = 10
-def ATTACK_Tech_Grounded_Neutral_MomentumX int() = -300
-def ATTACK_Tech_Grounded_Neutral_MomentumY int() = 1000
-
-#--- Grounded - Forward
-def ATTACKS_Tech_Grounded_CanTechForward bool() = 1
-def ATTACK_Tech_Grounded_Forward_Time int() = 10
-def ATTACK_Tech_Grounded_Forward_MomentumX int() = 600
-def ATTACK_Tech_Grounded_Forward_MomentumY int() = 800
-
-#--- Grounded - Backward
-def ATTACKS_Tech_Grounded_CanTechBackward bool() = 1
-def ATTACK_Tech_Grounded_Backward_Time int() = 10
-def ATTACK_Tech_Grounded_Backward_MomentumX int() = -800
-def ATTACK_Tech_Grounded_Backward_MomentumY int() = 800
-
-#--- Grounded - Up
-def ATTACKS_Tech_Grounded_CanTechUp bool() = 1
-def ATTACK_Tech_Grounded_Up_Time int() = 10
-def ATTACK_Tech_Grounded_Up_MomentumX int() = -400
-def ATTACK_Tech_Grounded_Up_MomentumY int() = 1800
-
-#--- Airborne - Neutral
-def ATTACK_Tech_Airborne_Neutral_Time int() = 10
-def ATTACK_Tech_Airborne_Neutral_MomentumX int() = -200
-def ATTACK_Tech_Airborne_Neutral_MomentumY int() = 800
-
-#--- Airborne - Forward
-def ATTACKS_Tech_Airborne_CanTechForward bool() = 1
-def ATTACK_Tech_Airborne_Forward_Time int() = 10
-def ATTACK_Tech_Airborne_Forward_MomentumX int() = 800
-def ATTACK_Tech_Airborne_Forward_MomentumY int() = 500
-
-#--- Airborne - Backward
-def ATTACKS_Tech_Airborne_CanTechBackward bool() = 1
-def ATTACK_Tech_Airborne_Backward_Time int() = 10
-def ATTACK_Tech_Airborne_Backward_MomentumX int() = -800
-def ATTACK_Tech_Airborne_Backward_MomentumY int() = 500
-
-#--- Airborne - Up
-def ATTACKS_Tech_Airborne_CanTechUp bool() = 1
-def ATTACK_Tech_Airborne_Up_Time int() = 10
-def ATTACK_Tech_Airborne_Up_MomentumX int() = 0
-def ATTACK_Tech_Airborne_Up_MomentumY int() = 1000
-
-#--- Airborne - Down
-def ATTACKS_Tech_Airborne_CanTechDown bool() = 1
-def ATTACK_Tech_Airborne_Down_Time int() = 10
-def ATTACK_Tech_Airborne_Down_MomentumX int() = 0
-def ATTACK_Tech_Airborne_Down_MomentumY int() = -500
-
-
-#--- Knockdown - Neutral
-def ATTACK_Tech_Knockdown_Neutral_Time int() = 30
-def ATTACK_Tech_Knockdown_Neutral_MomentumX int() = 0
-def ATTACK_Tech_Knockdown_Neutral_MomentumY int() = 0
-def ATTACK_Tech_Knockdown_Neutral_RecoverCrouching bool() = 1
-
-#--- Knockdown - Forward
-def ATTACKS_Tech_Knockdown_CanTechForward bool() = 1
-def ATTACK_Tech_Knockdown_Forward_Time int() = 30
-def ATTACK_Tech_Knockdown_Forward_MomentumX int() = 2000
-def ATTACK_Tech_Knockdown_Forward_MomentumY int() = 0
-def ATTACK_Tech_Knockdown_Forward_RecoverCrouching bool() = 1
-
-#--- Knockdown - Backward
-def ATTACKS_Tech_Knockdown_CanTechBackward bool() = 1
-def ATTACK_Tech_Knockdown_Backward_Time int() = 30
-def ATTACK_Tech_Knockdown_Backward_MomentumX int() = -2000
-def ATTACK_Tech_Knockdown_Backward_MomentumY int() = 0
-def ATTACK_Tech_Knockdown_Backward_RecoverCrouching bool() = 1
-
-#--- Knockdown - Up
-def ATTACKS_Tech_Knockdown_CanTechUp bool() = 1
-def ATTACK_Tech_Knockdown_Up_Time int() = 15
-def ATTACK_Tech_Knockdown_Up_MomentumX int() = 0
-def ATTACK_Tech_Knockdown_Up_MomentumY int() = 2000
-def ATTACK_Tech_Knockdown_Up_RecoverCrouching bool() = 0
-
-#--- All
-
-def MOVE_Tech_Friction_Ground int() = 20
-def MOVE_Tech_Friction_Air int() = 20
-def MOVE_Tech_Gravity int() = -50
-:Variables-Physics-Reactions:
-## Physics variables for reaction states, like hitstun and blockstun
-
-#--- Hitstun
-def MOVE_Hitstun_Friction_Ground int() = 100
-def MOVE_Hitstun_Friction_Air int() = 2
-def MOVE_Hitstun_Gravity int() = -200
-def ATTACKS_Hitstun_CanRecoverInAir bool() = 1
-
-#--- Blockstun
-def MOVE_Blockstun_Friction_Ground int() = 100
-def MOVE_Blockstun_Friction_Air int() = 2
-def MOVE_Blockstun_Gravity int() = -200
-
-#--- Throw
-def MOVE_Teching_Ground_MomentumX int() = -2000
-def MOVE_Teching_Ground_MomentumY int() = 0
-def MOVE_Teching_Ground_Time int() = 20
-def MOVE_Teched_Ground_MomentumX int() = -2000
-def MOVE_Teched_Ground_MomentumY int() = 0
-def MOVE_Teched_Ground_Time int() = 20
-def MOVE_Teching_Air_MomentumX int() = -1000
-def MOVE_Teching_Air_MomentumY int() = 1000
-def MOVE_Teching_Air_Time int() = 20
-def MOVE_Teched_Air_MomentumX int() = -1000
-def MOVE_Teched_Air_MomentumY int() = 1000
-def MOVE_Teched_Air_Time int() = 20
-:Variables-Physics-Dashes:
-## Movement data for dashes
-
-#--- Run
-def MOVE_Run_StartTime int() = 15
-def MOVE_Run_StopTime int() = 15
-def MOVE_Run_SpeedStart int() = 1900
-def MOVE_Run_Speed int() = 1500
-def MOVE_Run_SpeedStop int() = 500
-
-#--- StepDash
-def MOVE_StepDash_Time int() = 20
-def MOVE_StepDash_Speed int() = 2000
-
-#--- Backdash
-def MOVE_Backdash_Time int() = 18
-def MOVE_Backdash_Speed int() = -1600
-
-#--- Highjump
-def MOVE_Highjump_JumpsquatTime int() = 3
-def MOVE_Highjump_HighjumpN_InitialMomentumX int() = 0
-def MOVE_Highjump_HighjumpN_InitialMomentumY int() = 5000
-def MOVE_Highjump_HighjumpB_InitialMomentumX int() = -1200
-def MOVE_Highjump_HighjumpB_InitialMomentumY int() = 5000
-def MOVE_Highjump_HighjumpF_InitialMomentumX int() = 1200
-def MOVE_Highjump_HighjumpF_InitialMomentumY int() = 5000
-
-#--- Airjump
-def MOVE_Airjump_AirjumpN_InitialMomentumX int() = 0
-def MOVE_Airjump_AirjumpN_InitialMomentumY int() = 2000
-def MOVE_Airjump_AirjumpB_InitialMomentumX int() = -1200
-def MOVE_Airjump_AirjumpB_InitialMomentumY int() = 2000
-def MOVE_Airjump_AirjumpF_InitialMomentumX int() = 1200
-def MOVE_Airjump_AirjumpF_InitialMomentumY int() = 2000
-
-#--- Airdash
-def MOVE_Airdash_AirdashF_SpeedX int() = 2500
-def MOVE_Airdash_AirdashF_SpeedY int() = 0
-def MOVE_Airdash_AirdashF_Time int() = 30
-def MOVE_Airdash_AirdashB_SpeedX int() = -2500
-def MOVE_Airdash_AirdashB_SpeedY int() = 0
-def MOVE_Airdash_AirdashB_Time int() = 30
-
-#--- Air Actions
-def MOVE_AirActionsMax int() = 1
-:Variables-Physics-Base:
-## Movement data for the basic states. 
-
-#--- Physics
-def MOVE_Gravity int() = -200
-def MOVE_Friction_Ground int() = 100
-def MOVE_Friction_Air int() = 2
-
-
-#--- Basic Movement
-def MOVE_Walk_SpeedF int() = 1000
-def MOVE_Walk_SpeedB int() = -800
-def MOVE_Crawl_SpeedF int() = 0
-def MOVE_Crawl_SpeedB int() = 0
-## - Crawling is disabled when its speed is equal to zero
-
-#--- Jumping
-def MOVE_Jump_JumpsquatTime int() = 3
-def MOVE_Jump_JumpN_InitialMomentumX int() = 0
-def MOVE_Jump_JumpN_InitialMomentumY int() = 3000
-def MOVE_Jump_JumpB_InitialMomentumX int() = -1200
-def MOVE_Jump_JumpB_InitialMomentumY int() = 3000
-def MOVE_Jump_JumpF_InitialMomentumX int() = 1200
-def MOVE_Jump_JumpF_InitialMomentumY int() = 3000
-def MOVE_Landing_TimeEmpty int() = 6
-def MOVE_Landing_TimeAttack int() = 6
+:Specs-PhysicsMovement:
+# Automatic creation
 :Variables-Internals-Physics:
 ## This block contains internal variables for the physics system, used to program the behavior of the scripts.
 ## This is advanced, and as such should be left alone in most cases.
@@ -263,12 +33,21 @@ var MOVE_Dashes_FramesSinceInputF int() = 120
 var MOVE_Dashes_FramesSinceInputB int() = 120
 var MOVE_Dashes_FramesSinceInputD int() = 120
 var MOVE_AirActionsRemaining int() = 0
-:Variables-Internals-Common-TransitionPriorities:
-def ATTACKS_Tech_Priority int() = 20000
 
-# We want it to be higher than attacks
+
+#--- Transitions
+def ATTACK_Tech_Priority int() = 20000
+
+# We want it to be higher than attacks (10000)
 def PHYSICS_Landing_Priority int() = 12000
 def PHYSICS_Jumping_Priority int() = 12000
+
+
+
+# Maybe not correct ?
+internal _MomentumX
+internal _MomentumY
+internal _MomentumZ
 :AirTech-Backward:
 ## Airborne backward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
 _Category(States/Reacts/Techs)
@@ -324,7 +103,16 @@ Call(TechCommon)
 _Category(Movement/Basic/Air)
 
 Call(AirborneNeutralState)
-Call(AnimAirborne)
+
+LIdleAnimOverride_Airborne:
+	Sub(_AttackAnimInterruptableFrames, 1)
+	AnimProgress()
+	V_AttackAnimInterruptableFrames>0:
+		FlagNext(IdleAnimOverride_Airborne)
+	endif
+else
+	Call(AnimAirborne)
+endif
 
 Call(Airborne_StartDashHelper)
 Call(Airborne_AirjumpHelper)
@@ -353,14 +141,16 @@ _Helper()
 
 F6+:
 	VMOVE_AirActionsRemaining>0:
-		IJumpPress:
-			IForward:
-				Transition(AirjumpF, PHYSICS_Jumping_Priority, 1)
-			else
-				IBack:
-					Transition(AirjumpB, PHYSICS_Jumping_Priority, 1)
+		VMOVE_Dashes_CanAirjump:
+			IJumpPress:
+				IForward:
+					Transition(AirjumpF, PHYSICS_Jumping_Priority, 1)
 				else
-					Transition(AirjumpN, PHYSICS_Jumping_Priority, 1)
+					IBack:
+						Transition(AirjumpB, PHYSICS_Jumping_Priority, 1)
+					else
+						Transition(AirjumpN, PHYSICS_Jumping_Priority, 1)
+					endif
 				endif
 			endif
 		endif
@@ -374,14 +164,14 @@ _Helper()
 VMOVE_AirActionsRemaining>0:
 	IForwardPress:
 		VMOVE_Dashes_CanAirdashF:
-			VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:	
+			VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:
 				Transition(AirdashF)
 			endif
 		endif
 	else
 		IBackPress:
 			VMOVE_Dashes_CanAirdashB:
-				VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:	
+				VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:
 					Transition(AirdashB)
 				endif
 			endif
@@ -775,13 +565,26 @@ Set(CurrentFrictionGround, MOVE_Tech_Friction_Ground)
 Set(CurrentFrictionAir, MOVE_Tech_Friction_Air)
 Set(CurrentGravity, MOVE_Tech_Gravity)
 #Set(LandingTime, MOVE_Landing_TimeEmpty)
+:AttackOverrides-OnTouch-Hook:
+CallParent()
+
+Call(AttackOverrides-OnTouch-Physics)
+:AttackOverrides-OnTouch-Physics:
+## Activates physics-based overrides
+_Category(Internals/Attacks/React/Overrides)
+_Helper()
+LAirborne:
+	AttackRecievedOverride(Airborne)
+else
+	AttackRecievedOverride(Grounded)
+endif
 :AttackState:
-CallParent(AttackState)
+CallParent()
 
 F1:
 	Set(LandingTime, MOVE_Landing_TimeAttack)
 
-	LPFAirborne:
+	LPF_Airborne:
 		VPHYSICS_FaceTargetAutomaticallyAtAirAttackStart:
 			Flag(FaceTarget)
 		else
@@ -815,19 +618,19 @@ _Helper()
 
 Move(MOVE_Backdash_Speed)
 :Common:
-CallParent(Common)
+CallParent()
 
-LPFAirborne:
+LPF_Airborne:
 	Flag(Airborne)
 endif
 
-LPFLanding:
+LPF_Landing:
 	Call(OnLanding)
 endif
 
 Call(DashInputHelper)
 :CommonAfter:
-CallParent(CommonAfter)
+CallParent()
 
 Call(CommonAfterPhysics)
 :CommonAfterPhysics:
@@ -928,7 +731,16 @@ _Category(Movement/Basic/Crouching)
 _StateFlag(Grounded)
 
 Call(CrouchingNeutralState)
-Call(AnimCrouching)
+
+LIdleAnimOverride_Crouching:
+	Sub(_AttackAnimInterruptableFrames, 1)
+	AnimProgress()
+	V_AttackAnimInterruptableFrames>0:
+		FlagNext(IdleAnimOverride_Crouching)
+	endif
+else
+	Call(AnimCrouching)
+endif
 
 Call(Grounded_StartJumpHelper)
 Call(Grounded_StartDashHelper)
@@ -1092,7 +904,7 @@ _Category(Movement/Dashes/Helper)
 _Helper()
 
 IForwardPress:
-	VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:	
+	VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:
 		VMOVE_Dashes_CanRun:
 			Transition(RunStart)
 		else
@@ -1104,7 +916,7 @@ IForwardPress:
 else
 	IBackPress:
 		VMOVE_Dashes_CanBackdash:
-			VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:	
+			VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:
 				Transition(Backdash)
 			endif
 		endif
@@ -1372,6 +1184,16 @@ endif
 LStartTech:
 	Call(StartKnockdownTech)
 endif
+
+HurtboxRequires(OTG)
+Call(Knockdown-Hurtbox)
+:Knockdown-Hurtbox:
+## Helper function to add a hurtbox to knockdown states. Can be disabled in general, or for one frame with the NoHurtbox flag (useful for reversals).
+_Category(Custom/Physics)
+_Helper()
+_Overridable(If you want to put your own hurtbox code here.)
+
+Hurtbox(PHYSICS_StandardHurtbox_Knockdown_Width, PHYSICS_StandardHurtbox_Knockdown_Bottom, PHYSICS_StandardHurtbox_Knockdown_Top)
 :KnockdownTech-Backward:
 ## Grounded backward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
 _Category(States/Reacts/Techs)
@@ -1460,7 +1282,7 @@ L_FinishedLanding:
 	endif
 endif
 :NeutralStateCommon:
-CallParent(NeutralStateCommon)
+CallParent()
 
 Call(NeutralStateCommon-Physics)
 :NeutralStateCommon-Physics:
@@ -1469,36 +1291,110 @@ Call(NeutralStateCommon-Physics)
 _Category(States/Neutral)
 _Helper()
 
-LPFGrounded:
+LPF_Grounded:
 	Call(ApplyPhysics-Regular)
 endif
 
 Set(MOVE_AirActionsRemaining, MOVE_AirActionsMax)
-:OnBlock:
-CallParent(OnBlock)
+:OnAttackTouched:
+CallParent()
+Call(OnAttackTouched-Physics)
+:OnAttackTouched-Physics:
+## Prepares hit data from the attacker side, mostly momentum
+_Category(Internals/Attacks/React/2_Attacker)
+_Helper()
 
-SetMomentum(_AttackMomentumX, _AttackMomentumY)
+
+# Transform momentum to absolute
+AttackInflictedGetParam(MomentumX, CAST_REG_A)
+AttackInflictedGetParam(MomentumY, CAST_REG_B)
+AttackInflictedGetParam(MomentumZ, CAST_REG_C)
+TransformLocalToAbsolute(CAST_REG_A, CAST_REG_B, CAST_REG_C)
+
+# Inherit momentum if needed
+def ATTACK_InheritMomentumBase int() = 1000
+AttackInflictedGetParam(InheritMomentumX, CAST_REG_D)
+Mul(CAST_REG_D, _MomentumX)
+Div(CAST_REG_D, ATTACK_InheritMomentumBase)
+Add(CAST_REG_A, CAST_REG_D)
+AttackInflictedGetParam(InheritMomentumY, CAST_REG_D)
+Mul(CAST_REG_D, _MomentumY)
+Div(CAST_REG_D, ATTACK_InheritMomentumBase)
+Add(CAST_REG_B, CAST_REG_D)
+AttackInflictedGetParam(InheritMomentumZ, CAST_REG_D)
+Mul(CAST_REG_D, _MomentumZ)
+Div(CAST_REG_D, ATTACK_InheritMomentumBase)
+Add(CAST_REG_C, CAST_REG_D)
+
+# Set it back
+AttackInflictedSetParam(MomentumX, CAST_REG_A)
+AttackInflictedSetParam(MomentumY, CAST_REG_B)
+AttackInflictedSetParam(MomentumZ, CAST_REG_C)
+:OnBlock-Hook:
+CallParent()
+
+Call(OnBlock-Physics)
+:OnBlock-Physics:
+## Handles physics on block
+_Category(Internals/Attacks/React/3_Defender/Block)
+_Helper()
+
 Call(ApplyPhysics-Blockstun)
-:OnHit:
-CallParent(OnHit)
 
-SetMomentum(_AttackMomentumX, _AttackMomentumY)
+Call(OnTouch-MomentumFacing)
+:OnHit-Hook:
+CallParent()
+Call(OnHit-Physics)
+:OnHit-Physics:
+## Handles physics on hit
+_Category(Internals/Attacks/React/3_Defender/Hit)
+_Helper()
+
+## TODO: Float
+## TODO: Progressive gravity
+## TODO: Knockdown
+
+## TODO: Momentum
+
+## TODO: Landing
+## TODO: Force Landing
+
+## TODO: Force Crouch
+
 Call(ApplyPhysics-Hitstun)
 
-LAFFloat:
-	Set(CurrentGravity, _HitstunGravityFloat)
+
+LAF_ForceLanding:
+	FlagNext(PF_Landing)
 endif
 
+LCrouching:
+	FlagNext(Crouching)
+endif
+
+Call(OnTouch-MomentumFacing)
 
 
-
-FaceTowardsTarget()
+LAF_Float:
+	AttackRecievedGetParam(FloatGravity, CurrentGravity)
+	#Set(CurrentGravity, _HitstunGravityFloat)
+endif
 :OnLanding:
 ## Callback function that happens whenever the characters lands on the ground.
 _Category(Internals/Physics)
 _Helper()
 
 Call(Custom-OnLanding)
+:OnTouch-MomentumFacing:
+## Helper, handles the momentum and facing change
+_Category(Internals/Attacks/React/3_Defender/Hit)
+_Helper()
+# Or improve the facing and position techniques, might be better
+FaceTowardsTarget()
+AttackRecievedGetParam(MomentumX, CAST_REG_A)
+AttackRecievedGetParam(MomentumY, CAST_REG_B)
+SetMomentumAbsolute(CAST_REG_A, CAST_REG_B)
+#SetMomentum(_AttackMomentumX, _AttackMomentumY)
 :PhysicsAfter-CollidersManagement:
 ## Physics helper to add colliders (hurtbox and colbox) automatically, so you don't get weird behavior or invincible moves by accident. Can be configured through constants.
 ##
@@ -1553,7 +1449,7 @@ LHaltMomentum:
 else
 	LIgnoreFriction:
 	else
-		LPFGrounded:
+		LPF_Grounded:
 			BreakMomentumX(CurrentFrictionGround)
 		else
 			BreakMomentumX(CurrentFrictionAir)
@@ -1633,7 +1529,16 @@ _Category(Movement/Basic/Standing)
 _StateFlag(Grounded)
 
 Call(StandingNeutralState)
-Call(AnimStand)
+
+LIdleAnimOverride_Stand:
+	Sub(_AttackAnimInterruptableFrames, 1)
+	AnimProgress()
+	V_AttackAnimInterruptableFrames>0:
+		FlagNext(IdleAnimOverride_Stand)
+	endif
+else
+	Call(AnimStand)
+endif
 
 Call(Grounded_StartJumpHelper)
 Call(Grounded_StartDashHelper)
@@ -1724,7 +1629,7 @@ else
 	Hurtbox(PHYSICS_StandardHurtbox_Width, PHYSICS_StandardHurtbox_Bottom, PHYSICS_StandardHurtbox_Top)
 endif
 :StandardState:
-CallParent(StandardState)
+CallParent()
 
 
 #--- Flags
@@ -1741,7 +1646,7 @@ VSSTATE_CrouchingState:
 	Flag(Crouching)
 endif
 
-LPFGrounded:
+LPF_Grounded:
 	VPHYSICS_FaceTargetAutomatically:
 		Flag(FaceTarget)
 	endif
@@ -1756,7 +1661,7 @@ VSSTATE_CancelOnLanding:
 endif
 
 
-LPFAirborne:
+LPF_Airborne:
 	Flag(Airborne)
 else
 	Flag(Grounded)
@@ -1765,7 +1670,7 @@ endif
 
 #--- Behaviors
 
-LPFLanding:
+LPF_Landing:
 	LCancelOnLanding:
 		Transition(Landing, PHYSICS_Landing_Priority)
 	endif
@@ -1787,66 +1692,68 @@ _BaseState()
 _Category(Internals/Physics)
 _Helper()
 
+#VATTACK_Hitstun_CanRecoverInAir:
 IDown:
-	VATTACKS_Tech_Airborne_CanTechDown:
-		Transition(AirTech-Down, ATTACKS_Tech_Priority)
+	VATTACK_Tech_Airborne_CanTechDown:
+		Transition(AirTech-Down, ATTACK_Tech_Priority)
 	else
-		Transition(AirTech-Neutral, ATTACKS_Tech_Priority)
+		Transition(AirTech-Neutral, ATTACK_Tech_Priority)
 	endif
 else
 	IUp:
-		VATTACKS_Tech_Airborne_CanTechUp:
-			Transition(AirTech-Up, ATTACKS_Tech_Priority)
+		VATTACK_Tech_Airborne_CanTechUp:
+			Transition(AirTech-Up, ATTACK_Tech_Priority)
 		else
-			Transition(AirTech-Neutral, ATTACKS_Tech_Priority)
+			Transition(AirTech-Neutral, ATTACK_Tech_Priority)
 		endif
 	else
 		IForward:
-			VATTACKS_Tech_Airborne_CanTechForward:
-				Transition(AirTech-Forward, ATTACKS_Tech_Priority)
+			VATTACK_Tech_Airborne_CanTechForward:
+				Transition(AirTech-Forward, ATTACK_Tech_Priority)
 			else
-				Transition(AirTech-Neutral, ATTACKS_Tech_Priority)
+				Transition(AirTech-Neutral, ATTACK_Tech_Priority)
 			endif
 		else
 			IBack:
-				VATTACKS_Tech_Airborne_CanTechBackward:
-					Transition(AirTech-Backward, ATTACKS_Tech_Priority)
+				VATTACK_Tech_Airborne_CanTechBackward:
+					Transition(AirTech-Backward, ATTACK_Tech_Priority)
 				else
-					Transition(AirTech-Neutral, ATTACKS_Tech_Priority)
+					Transition(AirTech-Neutral, ATTACK_Tech_Priority)
 				endif
 			else
-					Transition(AirTech-Neutral, ATTACKS_Tech_Priority)
+					Transition(AirTech-Neutral, ATTACK_Tech_Priority)
 			endif
 		endif
 	endif
 endif
+#endif
 :StartGroundTech:
 ## Physics helper to start a ground tech
 _Category(Internals/Physics)
 _Helper()
 
 IUp:
-	VATTACKS_Tech_Grounded_CanTechUp:
-		Transition(GroundTech-Up, ATTACKS_Tech_Priority)
+	VATTACK_Tech_Grounded_CanTechUp:
+		Transition(GroundTech-Up, ATTACK_Tech_Priority)
 	else
-		Transition(GroundTech-Neutral, ATTACKS_Tech_Priority)
+		Transition(GroundTech-Neutral, ATTACK_Tech_Priority)
 	endif
 else
 	IForward:
-		VATTACKS_Tech_Grounded_CanTechForward:
-			Transition(GroundTech-Forward, ATTACKS_Tech_Priority)
+		VATTACK_Tech_Grounded_CanTechForward:
+			Transition(GroundTech-Forward, ATTACK_Tech_Priority)
 		else
-			Transition(GroundTech-Neutral, ATTACKS_Tech_Priority)
+			Transition(GroundTech-Neutral, ATTACK_Tech_Priority)
 		endif
 	else
 		IBack:
-			VATTACKS_Tech_Grounded_CanTechBackward:
-				Transition(GroundTech-Backward, ATTACKS_Tech_Priority)
+			VATTACK_Tech_Grounded_CanTechBackward:
+				Transition(GroundTech-Backward, ATTACK_Tech_Priority)
 			else
-				Transition(GroundTech-Neutral, ATTACKS_Tech_Priority)
+				Transition(GroundTech-Neutral, ATTACK_Tech_Priority)
 			endif
 		else
-				Transition(GroundTech-Neutral, ATTACKS_Tech_Priority)
+				Transition(GroundTech-Neutral, ATTACK_Tech_Priority)
 		endif
 	endif
 endif
@@ -1856,27 +1763,27 @@ _Category(Internals/Physics)
 _Helper()
 
 IUp:
-	VATTACKS_Tech_Knockdown_CanTechUp:
-		Transition(KnockdownTech-Up, ATTACKS_Tech_Priority)
+	VATTACK_Tech_Knockdown_CanTechUp:
+		Transition(KnockdownTech-Up, ATTACK_Tech_Priority)
 	else
-		Transition(KnockdownTech-Neutral, ATTACKS_Tech_Priority)
+		Transition(KnockdownTech-Neutral, ATTACK_Tech_Priority)
 	endif
 else
 	IForward:
-		VATTACKS_Tech_Knockdown_CanTechForward:
-			Transition(KnockdownTech-Forward, ATTACKS_Tech_Priority)
+		VATTACK_Tech_Knockdown_CanTechForward:
+			Transition(KnockdownTech-Forward, ATTACK_Tech_Priority)
 		else
-			Transition(KnockdownTech-Neutral, ATTACKS_Tech_Priority)
+			Transition(KnockdownTech-Neutral, ATTACK_Tech_Priority)
 		endif
 	else
 		IBack:
-			VATTACKS_Tech_Knockdown_CanTechBackward:
-				Transition(KnockdownTech-Backward, ATTACKS_Tech_Priority)
+			VATTACK_Tech_Knockdown_CanTechBackward:
+				Transition(KnockdownTech-Backward, ATTACK_Tech_Priority)
 			else
-				Transition(KnockdownTech-Neutral, ATTACKS_Tech_Priority)
+				Transition(KnockdownTech-Neutral, ATTACK_Tech_Priority)
 			endif
 		else
-				Transition(KnockdownTech-Neutral, ATTACKS_Tech_Priority)
+				Transition(KnockdownTech-Neutral, ATTACK_Tech_Priority)
 		endif
 	endif
 endif
@@ -1923,7 +1830,7 @@ endif
 _Category(Internals/Physics)
 _Helper()
 
-LPFAirborne:
+LPF_Airborne:
 	Transition(Airborne)
 else
 	LCrouching:
@@ -1993,7 +1900,7 @@ endif
 
 IDown:
 else
-	Call(Crouch_ToStandHelper)
+	Call(Crouching_ToStandHelper)
 endif
 :UseAirAction:
 ## Uses an air action
@@ -2072,3 +1979,18 @@ _Category(Movement/Basic/Standing)
 _Helper()
 
 Move(MOVE_Walk_SpeedF)
+:Base---Subentity:
+# Autogenerated
+:Base---SEAttackDefaults:
+## Sets some default parameters for attacks in subentities
+
+
+## Inherits default proration from the special attack type
+AttackProrationHitstun(ATTACK_Special_ProrationHitstun, ATTACK_Special_ProrationHitstunStarter)
+AttackProrationDamage(ATTACK_Special_ProrationDamage, ATTACK_Special_ProrationDamageStarter)
+:Base---SECommon:
+CallParent()
+Call(SEAttackDefaults)
+:Base---SEOnAttackTouched:
+CallParent()
+CallFromMain(OnAttackTouched-Physics)

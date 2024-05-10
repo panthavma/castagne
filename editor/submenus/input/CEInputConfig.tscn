@@ -1,0 +1,350 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://castagne/editor/submenus/input/CEInputConfig.gd" type="Script" id=1]
+[ext_resource path="res://castagne/editor/misc/EditorTheme.tres" type="Theme" id=2]
+[ext_resource path="res://castagne/editor/submenus/input/CEInputConfigKeyboardRebindings.gd" type="Script" id=3]
+
+[node name="InputConfig" type="Control"]
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+margin_bottom = 32.0
+color = Color( 0, 0, 0, 0.376471 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="."]
+anchor_right = 1.0
+margin_bottom = 14.0
+rect_min_size = Vector2( 0, 32 )
+text = "Input Layout Configuration"
+align = 1
+valign = 1
+
+[node name="InputList" type="VBoxContainer" parent="."]
+anchor_right = 0.3
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 48.0
+margin_right = -8.0
+margin_bottom = -16.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ItemList" type="ItemList" parent="InputList"]
+margin_right = 436.0
+margin_bottom = 736.0
+size_flags_vertical = 3
+
+[node name="AddNew" type="Button" parent="InputList"]
+margin_top = 740.0
+margin_right = 436.0
+margin_bottom = 772.0
+rect_min_size = Vector2( 0, 32 )
+text = "Add New"
+
+[node name="DeleteInput" type="Button" parent="InputList"]
+margin_top = 776.0
+margin_right = 436.0
+margin_bottom = 800.0
+rect_min_size = Vector2( 0, 24 )
+text = "Delete Input"
+
+[node name="InputData" type="Control" parent="."]
+anchor_left = 0.3
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 48.0
+margin_right = -16.0
+margin_bottom = -64.0
+
+[node name="Title" type="Label" parent="InputData"]
+anchor_right = 1.0
+rect_min_size = Vector2( 0, 32 )
+text = "Input Setup"
+align = 1
+valign = 1
+
+[node name="Title3" type="Label" parent="InputData"]
+anchor_left = 0.5
+anchor_right = 1.0
+margin_top = 32.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 0, 32 )
+text = "Bindings"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BindingsScroll" type="ScrollContainer" parent="InputData"]
+anchor_left = 0.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 64.0
+
+[node name="Bindings" type="VBoxContainer" parent="InputData/BindingsScroll"]
+margin_right = 517.6
+margin_bottom = 688.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="DataScroll" type="ScrollContainer" parent="InputData"]
+anchor_right = 0.5
+anchor_bottom = 1.0
+margin_top = 32.0
+margin_right = -8.0
+
+[node name="Data" type="VBoxContainer" parent="InputData/DataScroll"]
+margin_right = 517.6
+margin_bottom = 720.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title2" type="Label" parent="InputData/DataScroll/Data"]
+margin_right = 517.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 0, 32 )
+text = "Input Setup"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Name" type="HBoxContainer" parent="InputData/DataScroll/Data"]
+margin_top = 36.0
+margin_right = 517.0
+margin_bottom = 56.0
+
+[node name="Label" type="Label" parent="InputData/DataScroll/Data/Name"]
+margin_top = 3.0
+margin_right = 146.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+text = "Name:"
+align = 2
+
+[node name="NameField" type="LineEdit" parent="InputData/DataScroll/Data/Name"]
+margin_left = 150.0
+margin_right = 517.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="Type" type="HBoxContainer" parent="InputData/DataScroll/Data"]
+margin_top = 60.0
+margin_right = 517.0
+margin_bottom = 78.0
+
+[node name="Label" type="Label" parent="InputData/DataScroll/Data/Type"]
+margin_top = 2.0
+margin_right = 146.0
+margin_bottom = 16.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.4
+text = "Type:"
+align = 2
+
+[node name="TypeField" type="OptionButton" parent="InputData/DataScroll/Data/Type"]
+margin_left = 150.0
+margin_right = 517.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+
+[node name="HSeparator" type="HSeparator" parent="InputData/DataScroll/Data"]
+margin_top = 82.0
+margin_right = 517.0
+margin_bottom = 86.0
+
+[node name="Params" type="VBoxContainer" parent="InputData/DataScroll/Data"]
+margin_top = 90.0
+margin_right = 517.0
+margin_bottom = 720.0
+size_flags_vertical = 3
+
+[node name="InputSchema" type="Control" parent="."]
+visible = false
+anchor_left = 0.3
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 48.0
+margin_right = -16.0
+margin_bottom = -64.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="InputSchema"]
+anchor_right = 1.0
+margin_bottom = 14.0
+rect_min_size = Vector2( 0, 32 )
+text = "Input Schema"
+align = 1
+valign = 1
+
+[node name="ItemList" type="ItemList" parent="InputSchema"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 48.0
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false, "Item 16", null, false, "Item 17", null, false, "Item 18", null, false, "Item 19", null, false, "Item 20", null, false, "Item 21", null, false, "Item 22", null, false, "Item 23", null, false, "Item 24", null, false, "Item 25", null, false ]
+same_column_width = true
+
+[node name="Buttons" type="HBoxContainer" parent="."]
+anchor_left = 0.3
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -48.0
+margin_right = -16.0
+margin_bottom = -16.0
+
+[node name="SeeInputSchema" type="Button" parent="Buttons"]
+margin_right = 146.0
+margin_bottom = 32.0
+text = "Check Input Schema"
+
+[node name="Confirm" type="Button" parent="Buttons"]
+margin_left = 150.0
+margin_right = 761.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+text = "Confirm"
+
+[node name="Cancel" type="Button" parent="Buttons"]
+margin_left = 765.0
+margin_right = 1051.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.7
+text = "Cancel"
+
+[node name="KeyboardRebindings" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="KeyboardRebindings"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.572549 )
+
+[node name="Panel" type="Panel" parent="KeyboardRebindings"]
+anchor_left = 0.3
+anchor_top = 0.3
+anchor_right = 0.7
+anchor_bottom = 0.7
+
+[node name="VBox" type="VBoxContainer" parent="KeyboardRebindings/Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="ColorRect" parent="KeyboardRebindings/Panel/VBox"]
+margin_right = 409.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 0, 32 )
+color = Color( 0, 0, 0, 0.247059 )
+
+[node name="Label" type="Label" parent="KeyboardRebindings/Panel/VBox/Title"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "Rebind Keyboard Input"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Text" type="Label" parent="KeyboardRebindings/Panel/VBox"]
+margin_top = 36.0
+margin_right = 409.0
+margin_bottom = 194.0
+size_flags_vertical = 7
+text = "Waiting for Input:"
+align = 1
+valign = 1
+
+[node name="HBox" type="HBoxContainer" parent="KeyboardRebindings/Panel/VBox"]
+margin_top = 198.0
+margin_right = 409.0
+margin_bottom = 222.0
+rect_min_size = Vector2( 0, 24 )
+
+[node name="Sep" type="Control" parent="KeyboardRebindings/Panel/VBox/HBox"]
+margin_right = 8.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 8, 0 )
+
+[node name="KBRConfirm" type="Button" parent="KeyboardRebindings/Panel/VBox/HBox"]
+margin_left = 12.0
+margin_right = 288.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.5
+text = "Confirm"
+
+[node name="Sep2" type="Control" parent="KeyboardRebindings/Panel/VBox/HBox"]
+margin_left = 292.0
+margin_right = 300.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 8, 0 )
+
+[node name="KBRCancel" type="Button" parent="KeyboardRebindings/Panel/VBox/HBox"]
+margin_left = 304.0
+margin_right = 397.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+text = "Cancel"
+
+[node name="Sep3" type="Control" parent="KeyboardRebindings/Panel/VBox/HBox"]
+margin_left = 401.0
+margin_right = 409.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 8, 0 )
+
+[connection signal="item_activated" from="InputList/ItemList" to="." method="_on_ItemList_item_activated"]
+[connection signal="pressed" from="InputList/AddNew" to="." method="_on_AddNew_pressed"]
+[connection signal="pressed" from="InputList/DeleteInput" to="." method="_on_DeleteInput_pressed"]
+[connection signal="text_changed" from="InputData/DataScroll/Data/Name/NameField" to="." method="_on_NameField_text_changed"]
+[connection signal="item_selected" from="InputData/DataScroll/Data/Type/TypeField" to="." method="_on_TypeField_item_selected"]
+[connection signal="pressed" from="Buttons/SeeInputSchema" to="." method="_on_SeeInputSchema_pressed"]
+[connection signal="pressed" from="Buttons/Confirm" to="." method="_on_Confirm_pressed"]
+[connection signal="pressed" from="Buttons/Cancel" to="." method="_on_Cancel_pressed"]
+[connection signal="pressed" from="KeyboardRebindings/Panel/VBox/HBox/KBRConfirm" to="KeyboardRebindings" method="_on_KBRConfirm_pressed"]
+[connection signal="pressed" from="KeyboardRebindings/Panel/VBox/HBox/KBRCancel" to="KeyboardRebindings" method="_on_KBRCancel_pressed"]

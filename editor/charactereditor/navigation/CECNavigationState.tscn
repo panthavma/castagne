@@ -1,0 +1,178 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://castagne/assets/editor/stateflags/EFOverridable.png" type="Texture" id=2]
+[ext_resource path="res://castagne/editor/charactereditor/navigation/CECNavigationState.gd" type="Script" id=3]
+
+[node name="State" type="PanelContainer"]
+self_modulate = Color( 0.509804, 0.407843, 0, 1 )
+anchor_right = 1.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Padder" type="HBoxContainer" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1913.0
+margin_bottom = 93.0
+
+[node name="Helper" type="ColorRect" parent="Padder"]
+margin_right = 16.0
+margin_bottom = 86.0
+rect_min_size = Vector2( 16, 0 )
+color = Color( 0.992157, 1, 0, 0.188235 )
+
+[node name="Contents" type="VBoxContainer" parent="Padder"]
+margin_left = 20.0
+margin_right = 1906.0
+margin_bottom = 86.0
+size_flags_horizontal = 3
+
+[node name="MainLine" type="HBoxContainer" parent="Padder/Contents"]
+margin_right = 1886.0
+margin_bottom = 32.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StateType" type="MarginContainer" parent="Padder/Contents/MainLine"]
+margin_bottom = 32.0
+
+[node name="Normal" type="Label" parent="Padder/Contents/MainLine/StateType"]
+visible = false
+margin_top = 9.0
+margin_right = 16.0
+margin_bottom = 23.0
+text = ">>"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Base" type="Label" parent="Padder/Contents/MainLine/StateType"]
+visible = false
+margin_top = 9.0
+margin_right = 17.0
+margin_bottom = 23.0
+text = "[B]"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Helper" type="Label" parent="Padder/Contents/MainLine/StateType"]
+visible = false
+margin_top = 9.0
+margin_right = 18.0
+margin_bottom = 23.0
+text = "[H]"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Special" type="Label" parent="Padder/Contents/MainLine/StateType"]
+visible = false
+margin_top = 9.0
+margin_right = 15.0
+margin_bottom = 23.0
+text = "[S]"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Specblock" type="Label" parent="Padder/Contents/MainLine/StateType"]
+visible = false
+margin_top = 9.0
+margin_right = 23.0
+margin_bottom = 23.0
+text = "<S>"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Name" type="Label" parent="Padder/Contents/MainLine"]
+margin_left = 4.0
+margin_top = 9.0
+margin_right = 74.0
+margin_bottom = 23.0
+text = "StateName"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Filepath" type="Label" parent="Padder/Contents/MainLine"]
+margin_left = 78.0
+margin_top = 9.0
+margin_right = 179.0
+margin_bottom = 23.0
+text = "- Filename.casp"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Flags" type="HBoxContainer" parent="Padder/Contents/MainLine"]
+margin_left = 183.0
+margin_right = 215.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 32, 32 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VSeparator" type="VSeparator" parent="Padder/Contents/MainLine"]
+visible = false
+margin_left = 142.0
+margin_right = 146.0
+margin_bottom = 24.0
+
+[node name="Shortdoc" type="Label" parent="Padder/Contents/MainLine"]
+visible = false
+margin_left = 219.0
+margin_top = 9.0
+margin_right = 1246.0
+margin_bottom = 23.0
+size_flags_horizontal = 3
+text = "Short documentation"
+align = 2
+clip_text = true
+
+[node name="Selected" type="VBoxContainer" parent="Padder/Contents"]
+margin_top = 36.0
+margin_right = 1886.0
+margin_bottom = 86.0
+
+[node name="Shortdoc" type="Label" parent="Padder/Contents/Selected"]
+margin_right = 1886.0
+margin_bottom = 14.0
+text = "Documentation tagline"
+
+[node name="Over" type="HBoxContainer" parent="Padder/Contents/Selected"]
+margin_top = 18.0
+margin_right = 1886.0
+margin_bottom = 50.0
+
+[node name="Overridable2" type="TextureRect" parent="Padder/Contents/Selected/Over"]
+margin_right = 32.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 32, 32 )
+texture = ExtResource( 2 )
+expand = true
+stretch_mode = 6
+
+[node name="OverText" type="Label" parent="Padder/Contents/Selected/Over"]
+margin_left = 36.0
+margin_top = 9.0
+margin_right = 1886.0
+margin_bottom = 23.0
+size_flags_horizontal = 3
+text = "OVER: blablabla"
+valign = 1
+
+[node name="Action" type="Button" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 1913.0
+margin_bottom = 93.0
+action_mode = 0
+flat = true
+
+[connection signal="pressed" from="Action" to="." method="_on_Action_pressed"]

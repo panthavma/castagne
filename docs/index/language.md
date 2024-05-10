@@ -1,7 +1,8 @@
 ---
 title: Language Specification
 order: 300
-todo: 70
+todo: 54
+lastver: 54
 ---
 
 # Language Specification
@@ -66,6 +67,9 @@ The branch types are as follows:
 	- `F20:` will only execute on frame 20, the first frame starting to count at 1.
 	- `F10-20:` will only execute on frames 10 to 20, both included.
 	- `F10+:` will execute on frames 10 (included) and up.
+	- The modulo operator (`%`) can also be used at the end to repeat behavior every few frames.
+		- `F11-12%20:` will execute on frames 11, 12, 31, 32, 51, 52, etc.
+		- `F15+%30:` will execute on frames 15 to 29 included, then 45 to 59 included, etc.
 - `V`ariable branches check the value of a variable through a condition.
 	- `VVariableName:` will execute when VariableName >= 1
 	- `VVariableName==5` will only execute when VariableName is equal to 5
@@ -78,7 +82,33 @@ The branch types are as follows:
 - `I`nput branches will check if an input is pressed.
 	- `IA:` will check if A is held.
 	- `IAPress:` will check if A is just pressed.
-- `S`equential branches are not yet implemented.
+- `S`equential branches are a helper for F branches, which execute behavior in order. They are converted to F branches and thus have some restrictions (which might be lifted later).
+	- S branches can't be nested inside of each other, or inside of another F branch.
+	- The number of frames refers to the beginning of the state, not the first time the branch is executed.
+	- An example sequential branch started with `S5:` will execute the behavior in it for the first 5 frames (equivalent to `F1-5:`)
+	- To continue, put `S7` (without the ':'), which will execute this second behavior for the next 7 frames (equivalent to `F6-12:`)
+	- To execute behavior on only the first frame, put a star after the number like so: `S4*`. This will execute the behavior only on said next frame (equivalent to `F13:` here), but the next sequence will continue from the specified number of frames (frame 17 here).
+	- To execute only some part of the behavior on the first frame of a sequential branch, use the star operator like so `S6*`, write down the first frame behavior, then use the keyword `then`, then write the second behavior. The first behavior will be executed on the first frame (equivalent to `F17:`), and the second behavior will be executed on all specified frames (equivalent to `F17-22:`).
+	- As the last sequence, you can use `S+` to execute behavior on all remaining frames (equivalent to `F23+:`).
+	- The sequence can then be ended with `endif`.
+	- Alternatively, the S branch can also support the modulo operator (%) to repeat behavior every few frames, by specifying it in the first branch.
+		- `S5%20:` will execute its behavior on frame 1 to 5 included, then 21 to 25, etc. (equivalent to `F1-5%20:`)
+		- Then `S4` will execute on frames 6 to 9 included, then 26 to 29, etc. (equivalent to `F6-9%20:`).
+		- Then `S+` will execute on frames 10 to 20 included, then 30 to 40, etc. (equivalent to `F10+%20`).
+		- If the length of the sequence is superior to the number of frames of the modulo, an error will be raised.
+
+
+S5:
+
+S5*
+
+then
+
+
+S+
+
+endif
+
 
 ## Variables
 

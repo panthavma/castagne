@@ -1,7 +1,8 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 extends Node
-
-
-# :TODO:Panthavma:20220124:Allow only some modules to be called for slight perf boost ?
 
 
 # Function callback signature:
@@ -22,6 +23,8 @@ func OnModuleRegistration(_configData):
 # Used at the beginning of a battle
 func BattleInit(_stateHandle, _battleInitData):
 	pass
+func BattleInitLate(_stateHandle, _battleInitData):
+	pass
 
 # Called at the beginning of each frame, before choosing the loop
 func FramePreStart(_stateHandle):
@@ -34,35 +37,24 @@ func FrameEnd(_stateHandle):
 	pass
 
 
+# List of phase callbacks, they will be detected by the engine if present
 # AI Phase: Helpful to execute the AI logic for an entity and create fake button presses
-func AIPhaseStart(_gameStateHandle):
-	pass
-func AIPhaseStartEntity(_gameStateHandle):
-	pass
-func AIPhaseEndEntity(_gameStateHandle):
-	pass
-func AIPhaseEnd(_gameStateHandle):
-	pass
+#func AIPhaseStart(_gameStateHandle):
+#func AIPhaseStartEntity(_gameStateHandle):
+#func AIPhaseEndEntity(_gameStateHandle):
+#func AIPhaseEnd(_gameStateHandle):
 
 # Input Phase: Applies the input to the entities
-func InputPhaseStart(_gameStateHandle):
-	pass
-func InputPhaseStartEntity(_gameStateHandle):
-	pass
-func InputPhaseEndEntity(_gameStateHandle):
-	pass
-func InputPhaseEnd(_gameStateHandle):
-	pass
+#func InputPhaseStart(_gameStateHandle):
+#func InputPhaseStartEntity(_gameStateHandle):
+#func InputPhaseEndEntity(_gameStateHandle):
+#func InputPhaseEnd(_gameStateHandle):
 
 # Init Phase: Prepares the entities themselves
-func InitPhaseStart(_gameStateHandle):
-	pass
-func InitPhaseStartEntity(_gameStateHandle):
-	pass
-func InitPhaseEndEntity(_gameStateHandle):
-	pass
-func InitPhaseEnd(_gameStateHandle):
-	pass
+#func InitPhaseStart(_gameStateHandle):
+#func InitPhaseStartEntity(_gameStateHandle):
+#func InitPhaseEndEntity(_gameStateHandle):
+#func InitPhaseEnd(_gameStateHandle):
 
 # Action Phase: Allows the characters to act
 func ActionPhaseStart(_gameStateHandle):
@@ -74,36 +66,37 @@ func ActionPhaseEndEntity(_gameStateHandle):
 func ActionPhaseEnd(_gameStateHandle):
 	pass
 
+# Subentity Phase: Lightweight phase for subentities. By default, does the same as action phase.
+func SubentityPhaseStart(gameStateHandle):
+	ActionPhaseStart(gameStateHandle)
+func SubentityPhaseStartEntity(gameStateHandle):
+	ActionPhaseStartEntity(gameStateHandle)
+func SubentityPhaseEndEntity(gameStateHandle):
+	ActionPhaseEndEntity(gameStateHandle)
+func SubentityPhaseEnd(gameStateHandle):
+	ActionPhaseEnd(gameStateHandle)
+
 # Physics Phase: Allows the characters to move, and computes the hits
-func PhysicsPhaseStart(_gameStateHandle):
-	pass
-func PhysicsPhaseStartEntity(_gameStateHandle):
-	pass
-func PhysicsPhaseEndEntity(_gameStateHandle):
-	pass
-func PhysicsPhaseEnd(_gameStateHandle):
-	pass
-# :TODO:Panthavma:20220124:Allow a more flexible physics phase through modules
+#func PhysicsPhaseStart(_gameStateHandle):
+#func PhysicsPhaseStartEntity(_gameStateHandle):
+#func PhysicsPhaseEndEntity(_gameStateHandle):
+#func PhysicsPhaseEnd(_gameStateHandle):
 
 # Reaction Phase: Allows the entities to change their state
-func ReactionPhaseStart(_gameStateHandle):
-	pass
-func ReactionPhaseStartEntity(_gameStateHandle):
-	pass
-func ReactionPhaseEndEntity(_gameStateHandle):
-	pass
-func ReactionPhaseEnd(_gameStateHandle):
+#func ReactionPhaseStart(_gameStateHandle):
+#func ReactionPhaseStartEntity(_gameStateHandle):
+#func ReactionPhaseEndEntity(_gameStateHandle):
+#func ReactionPhaseEnd(_gameStateHandle):
+
+# Sent during the ReactionPhaseEndEntity (and other few points) to all entities which have changed state
+func OnStateTransitionEntity(_gameStateHandle, _previousStateName, _newStateName):
 	pass
 
 # Freeze Phase: Called when skipping frames
-func FreezePhaseStart(_gameStateHandle):
-	pass
-func FreezePhaseStartEntity(_gameStateHandle):
-	pass
-func FreezePhaseEndEntity(_gameStateHandle):
-	pass
-func FreezePhaseEnd(_gameStateHandle):
-	pass
+#func FreezePhaseStart(_gameStateHandle):
+#func FreezePhaseStartEntity(_gameStateHandle):
+#func FreezePhaseEndEntity(_gameStateHandle):
+#func FreezePhaseEnd(_gameStateHandle):
 
 
 # Called on each graphical frame to keep the display up to date
@@ -111,7 +104,8 @@ func UpdateGraphics(_gameStateHandle):
 	pass
 
 
-
+func TransformDefinedData(_defines):
+	return null
 
 
 
@@ -124,6 +118,7 @@ func UpdateGraphics(_gameStateHandle):
 var moduleName = "Unnamed Module"
 var moduleSlot = null
 var moduleDocumentation = {"Description":""}
+var moduleSpecblocks = {}
 
 var moduleDocumentationCategories = {null:{"Name":"Uncategorized", "Description":"", "Variables":[], "Functions":[], "Flags":[], "Config":[], "BattleInitData":[]}}
 
@@ -135,6 +130,7 @@ func RegisterModule(_moduleName, _moduleSlot=null, _moduleDocumentation = null):
 	if(_moduleDocumentation == null):
 		_moduleDocumentation = moduleDocumentation
 	moduleDocumentation = _moduleDocumentation
+	moduleSpecblocks = {}
 	
 	if(!moduleDocumentation.has("docname")):
 		moduleDocumentation["docname"] = moduleName.to_lower()
@@ -145,7 +141,6 @@ func RegisterModule(_moduleName, _moduleSlot=null, _moduleDocumentation = null):
 
 # Call before declaring functions or variables to group them in a category
 func RegisterCategory(categoryName, categoryDocumentation = null):
-	# TODO
 	currentCategory = categoryName
 	if(categoryDocumentation == null):
 		categoryDocumentation = {}
@@ -160,6 +155,26 @@ func RegisterCategory(categoryName, categoryDocumentation = null):
 	categoryDocumentation["BattleInitData"] = []
 	moduleDocumentationCategories[categoryName] = categoryDocumentation
 
+func RegisterSpecblock(specblockName, specblockGDPath, argument = null):
+	if(!specblockGDPath.ends_with(".gd")):
+		ModuleError("RegisterModuleSpecblock: Path doesn't end in .gd! Aborting. ("+str(specblockGDPath)+")")
+		return
+	var sbScript = load(specblockGDPath)
+	if(sbScript == null):
+		ModuleError("RegisterModuleSpecblock: Can't find script to load: "+str(specblockGDPath))
+		return
+	var sbNode = Node.new()
+	sbNode.set_script(sbScript)
+	sbNode.set_name(specblockName)
+	add_child(sbNode)
+	sbNode.module = self
+	sbNode._specblockName = specblockName
+	sbNode.SetupSpecblock(argument)
+	moduleSpecblocks[specblockName] = sbNode
+
+func RegisterVariablePlayer(variableName, defaultValue, flags = null, documentation = null):
+	variablesPlayer[variableName] = _RegisterVariableCommon(variableName, defaultValue, flags, documentation, false, true)
+
 func RegisterVariableEntity(variableName, defaultValue, flags = null, documentation = null):
 	variablesEntity[variableName] = _RegisterVariableCommon(variableName, defaultValue, flags, documentation, true)
 
@@ -169,23 +184,28 @@ func RegisterConstant(constantName, value, documentation = null):
 func RegisterVariableGlobal(variableName, defaultValue, flags = null, documentation = null):
 	variablesGlobal[variableName] = _RegisterVariableCommon(variableName, defaultValue, flags, documentation, false)
 
-func _RegisterVariableCommon(variableName, defaultValue, flags, documentation, entityVariable):
+func _RegisterVariableCommon(variableName, defaultValue, flags, documentation, entityVariable, entityPlayer = false):
 	if(flags == null):
 		flags = []
 	
 	if("ResetEachFrame" in flags):
-		if(entityVariable):
+		if(entityPlayer):
+			_variablesResetPlayer[variableName] = defaultValue
+		elif(entityVariable):
 			_variablesResetEntity[variableName] = defaultValue
 		else:
 			_variablesResetGlobal[variableName] = defaultValue
 	
-	# :TODO:Panthavma:20220203:Add a "temporary/volatile" flag for variables that won't get stored
-	
 	if(!"NoInit" in flags):
-		if(entityVariable):
+		if(entityPlayer):
+			_variablesInitPlayer[variableName] = defaultValue
+		elif(entityVariable):
 			_variablesInitEntity[variableName] = defaultValue
 		else:
 			_variablesInitGlobal[variableName] = defaultValue
+	
+	if("InheritToSubentity" in flags and entityVariable):
+		_variablesEntityInheritToSubentity += [variableName]
 	
 	if(documentation == null):
 		documentation = {}
@@ -203,8 +223,6 @@ func _RegisterVariableCommon(variableName, defaultValue, flags, documentation, e
 	moduleDocumentationCategories[currentCategory]["Variables"].append(documentation)
 	return documentation
 
-# :TODO:Panthavma:20220124:Document the flags and how to document
-# :TODO:Panthavma:20220124:Document how the functions are found
 # Registers a function in the parser. 
 func RegisterFunction(functionName, nbArguments, flags = null, documentation = null):
 	var parseFunc = null
@@ -213,9 +231,6 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	
 	if(flags == null):
 		flags = []
-	
-	# :TODO:Panthavma:20220124:Look at making it parallel through the ThreadSafe flag
-	# :TODO:Panthavma:20220124:Rework the flags
 	
 	if(flags.has("Transition")):
 		print("CHANGE TO REACTION: "+functionName)
@@ -230,6 +245,9 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 		flags += ["Init", "Action"]
 	if(!flags.has("NoManual")):
 		flags += ["Manual"]
+	
+	if(flags.has("Action") and !flags.has("NoSubentity")):
+		flags += ["Subentity"]
 	
 	if(has_method("Parse"+functionName)):
 		parseFunc = funcref(self, "Parse"+functionName)
@@ -345,17 +363,6 @@ func RegisterBaseCaspFile(filePaths = null, order=0):
 
 
 
-# :TODO:Panthavma:20220420:Make them actual flags instead of strings, with a more global system
-func HasFlag(eState, flagName):
-	if(eState.has("Flags")):
-		return eState["Flags"].has(flagName)
-	return false
-func SetFlag(eState, flagName, flagVarName = "Flags"):
-	if(!eState[flagVarName].has(flagName)):
-		eState[flagVarName] += [flagName]
-func UnsetFlag(eState, flagName, flagVarName = "Flags"):
-	eState[flagVarName].erase(flagName)
-
 func EntityHasFlag(stateHandle, flagName):
 	return stateHandle.EntityGet("_Flags").has(flagName)
 func EntitySetFlag(stateHandle, flagName):
@@ -378,13 +385,13 @@ func ArgStr(args, stateHandle, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
 			Castagne.Error("ArgStr ("+argID+"): This argument needs a default but doesn't have one")
-		return default
+		return str(default)
 	var value = args[argID]
 	if(stateHandle == null):
-		return default
+		return str(default)
 	if(stateHandle.EntityHas(value)):
 		return str(stateHandle.EntityGet(value))
-	return value
+	return str(value)
 
 func ArgVar(args, _stateHandle, argID, default = null):
 	if(args.size() <= argID):
@@ -417,7 +424,6 @@ func ArgInt(args, stateHandle, argID, default = null):
 	return default
 
 
-# :TODO:Panthavma:20220203:Replace by True/False constants
 func ArgBool(args, stateHandle, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
@@ -428,14 +434,12 @@ func ArgBool(args, stateHandle, argID, default = null):
 		return int(value) > 0
 	if(stateHandle.EntityHas(value)):
 		return int(stateHandle.EntityGet(value)) > 0
-	# :TODO:Panthavma:20220126:Make the message more precise
 	Castagne.Error("ArgBool ("+argID+"): Couldn't find variable " + value)
 	return default
 
 
 
 func SetVariableInTarget(stateHandle, varTargetEntity, value):
-	# TODO check if already in?
 	var copyData = {
 		"OriginEID": stateHandle.GetEntityID(), "TargetEID": stateHandle.GetTargetEntity(),
 		"Variable":varTargetEntity, "Value": value,
@@ -456,10 +460,14 @@ func SetFlagInTarget(stateHandle, flagName, value = true):
 var engine
 var currentCategory = null
 var variablesGlobal = {}
+var variablesPlayer = {}
 var variablesEntity = {}
 var _variablesInitGlobal = {}
+var _variablesInitPlayer = {}
 var _variablesInitEntity = {}
+var _variablesEntityInheritToSubentity = []
 var _variablesResetGlobal = {}
+var _variablesResetPlayer = {}
 var _variablesResetEntity = {}
 var configDefault = {}
 var _battleInitDataDefault = {}
@@ -496,8 +504,10 @@ func CopyVariablesGlobal(memory):
 	var vars = _variablesInitGlobal.duplicate(true)
 	for key in vars:
 		memory.GlobalSet(key, vars[key], true)
-	
-	#Castagne.FuseDataOverwrite(state, _variablesInitGlobal.duplicate(true))
+func CopyVariablesPlayer(memory, pid):
+	var vars = _variablesInitPlayer.duplicate(true)
+	for key in vars:
+		memory.PlayerSet(pid, key, vars[key], true)
 
 func CopyVariablesEntityParsing(data):
 	Castagne.FuseDataNoOverwrite(data, _variablesInitEntity.duplicate(true))
@@ -512,13 +522,15 @@ func CopyVariablesEntity(stateHandle, newValue = false):
 			stateHandle.EntitySet(key, vars[key])
 
 func ResetVariables(stateHandle, activeEIDs):
-	#Castagne.FuseDataOverwrite(state, _variablesResetGlobal.duplicate(true))
 	var vrg = (_variablesResetGlobal.duplicate(true))
 	for k in vrg:
 		stateHandle.GlobalSet(k, vrg[k])
 	for eid in activeEIDs:
 		stateHandle.PointToEntity(eid)
+		# Inefficient for players but okay for now
+		var vrp = (_variablesResetPlayer.duplicate(true))
+		for k in vrp:
+			stateHandle.PlayerSet(k, vrp[k])
 		var vre = _variablesResetEntity.duplicate(true)
 		for k in vre:
 			stateHandle.EntitySet(k, vre[k])
-		#Castagne.FuseDataOverwrite(state[eid], )

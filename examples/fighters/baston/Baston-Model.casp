@@ -1,0 +1,118 @@
+:Character:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+## Helper Casp file that will set up model and animations to be those of Baston.
+
+Name: Baston Labatte
+EditorName: Baston Labatte (Custom Character)
+
+
+# Palette materials, for now. (Temporary, until the v0.55 cycle)
+Palette1:res://castagne/assets/fighters/castagneur/CastagneurPalette01.tres
+Palette2:res://castagne/assets/fighters/castagneur/CastagneurPalette02.tres
+Palette3:res://castagne/assets/fighters/castagneur/CastagneurPalette03.tres
+Palette4:res://castagne/assets/fighters/castagneur/CastagneurPalette04.tres
+Palette5:res://castagne/assets/fighters/castagneur/CastagneurPalette05.tres
+Palette6:res://castagne/assets/fighters/castagneur/CastagneurPalette06.tres
+
+
+#------------------------------------------------------------------
+# Animation Names for reference:
+
+#--- Attacks
+# S-BallThrowUp S-BatDown S-PitchStraight
+
+#--- Movement
+# AirIdle Stand
+# Backdash
+# CrawlF Crouch
+# AirdashB AirdashF
+# StepDash
+# Run RunStart RunStop
+
+#--- Reacts
+# B-BlockAir B-BlockCrouch B-BlockStand
+# H-HitstunAir H-HitstunCrouch H-HitstunStand
+# ThrowF ThrowHeld ThrowHold ThrowStartup ThrowTeched ThrowTeching
+
+#--- Misc
+# Lose Win
+:Specs-Graphics:
+def GRAPHICS_ModelPath str() = res://castagne/assets/fighters/castagneur/CastagneurModel.tscn
+def GRAPHICS_SPRITESHEET_TemporaryStickman int() = 0
+def GRAPHICS_SPRITESHEET_TemporaryStickman___Path str() = res://castagne/assets/fighters/baston/sprites/StickmanSpriteSheet.png
+def GRAPHICS_SPRITESHEET_TemporaryStickman___SpritesX int() = 16
+def GRAPHICS_SPRITESHEET_TemporaryStickman___SpritesY int() = 4
+def GRAPHICS_SPRITESHEET_TemporaryStickman___OriginX int() = 32
+def GRAPHICS_SPRITESHEET_TemporaryStickman___OriginY int() = 0
+def GRAPHICS_SPRITESHEET_TemporaryStickman___PixelSize int() = 100000
+def GRAPHICS_SPRITESHEET_TemporaryStickman___PaletteMode int() = 0
+:Specs-Anims:
+def ANIM_Movement_Basic_Stand str() = Stand
+def ANIM_Movement_Basic_Stand_Loop int() = 56
+def ANIM_Movement_Basic_WalkF str() = WalkF
+def ANIM_Movement_Basic_WalkF_Loop int() = 52
+def ANIM_Movement_Basic_WalkB str() = WalkB
+def ANIM_Movement_Basic_WalkB_Loop int() = 30
+def ANIM_Movement_Basic_CrawlF str() = CrawlF
+def ANIM_Movement_Basic_CrawlF_Loop int() = 15
+def ANIM_Movement_Basic_CrawlB str() = CrawlB
+def ANIM_Movement_Basic_CrawlB_Loop int() = 15
+def ANIM_Movement_Basic_Crouching str() = Crouch
+def ANIM_Movement_Basic_Crouching_Loop int() = 56
+def ANIM_Movement_Basic_Turnaround str() = TurnaroundStand
+def ANIM_Movement_Basic_TurnaroundAirborne str() = TurnaroundAirIdle
+def ANIM_Movement_Basic_TurnaroundCrouch str() = TurnaroundCrouch
+def ANIM_Movement_Basic_StandToCrouch str() = StandToCrouch
+def ANIM_Movement_Basic_CrouchToStand str() = CrouchToStand
+def ANIM_Movement_Basic_Landing str() = Jumpsquat
+def ANIM_Movement_Basic_Jumpsquat str() = Jumpsquat
+def ANIM_Movement_Basic_AirIdle str() = AirIdle
+def ANIM_Movement_Basic_JumpN str() = AirIdle
+def ANIM_Movement_Basic_JumpF str() = AirIdle
+def ANIM_Movement_Basic_JumpB str() = AirIdle
+def ANIM_Movement_Dashes_TurnaroundRun str() = TurnaroundRun
+def ANIM_Movement_Dashes_RunStart str() = RunStart
+def ANIM_Movement_Dashes_Run str() = Run
+def ANIM_Movement_Dashes_Run_Loop int() = 15
+def ANIM_Movement_Dashes_RunStop str() = RunStop
+def ANIM_Movement_Dashes_StepDash str() = StepDash
+def ANIM_Movement_Dashes_Backdash str() = Backdash
+def ANIM_Movement_Dashes_HighjumpN str() = AirIdle
+def ANIM_Movement_Dashes_HighjumpF str() = AirIdle
+def ANIM_Movement_Dashes_HighjumpB str() = AirIdle
+def ANIM_Movement_Dashes_AirjumpN str() = AirIdle
+def ANIM_Movement_Dashes_AirjumpF str() = AirIdle
+def ANIM_Movement_Dashes_AirjumpB str() = AirIdle
+def ANIM_Movement_Dashes_AirdashF str() = AirdashF
+def ANIM_Movement_Dashes_AirdashB str() = AirdashB
+def ANIM_Reacts_Hitstun_Standing str() = H-HitstunStand
+def ANIM_Reacts_Hitstun_Crouching str() = H-HitstunCrouch
+def ANIM_Reacts_Hitstun_Airborne str() = H-HitstunAir
+def ANIM_Reacts_Knockdown str() = Knockdown
+def ANIM_Reacts_Blockstun_Standing str() = B-BlockStand
+def ANIM_Reacts_Blockstun_Crouching str() = B-BlockCrouch
+def ANIM_Reacts_Blockstun_Airborne str() = B-BlockAir
+def ANIM_Reacts_Throw_Ground_Held str() = ThrowHeld
+def ANIM_Reacts_Throw_Air_Held str() = ThrowHeld
+def ANIM_Reacts_Throw_Ground_Holding str() = ThrowHold
+def ANIM_Reacts_Throw_Air_Holding str() = ThrowHold
+def ANIM_Reacts_Throw_Ground_Teched str() = ThrowTeched
+def ANIM_Reacts_Throw_Air_Teched str() = ThrowTeched
+def ANIM_Reacts_Throw_Ground_Teching str() = ThrowTeching
+def ANIM_Reacts_Throw_Air_Teching str() = ThrowTeching
+def ANIM_Reacts_Tech_Grounded_Neutral str() = AirIdle
+def ANIM_Reacts_Tech_Grounded_Forward str() = AirIdle
+def ANIM_Reacts_Tech_Grounded_Backward str() = AirIdle
+def ANIM_Reacts_Tech_Grounded_Up str() = AirIdle
+def ANIM_Reacts_Tech_Airborne_Neutral str() = AirIdle
+def ANIM_Reacts_Tech_Airborne_Forward str() = AirIdle
+def ANIM_Reacts_Tech_Airborne_Backward str() = AirIdle
+def ANIM_Reacts_Tech_Airborne_Up str() = AirIdle
+def ANIM_Reacts_Tech_Airborne_Down str() = AirIdle
+def ANIM_Reacts_Tech_Knockdown_Up str() = AirIdle
+def ANIM_Reacts_Tech_Knockdown_Neutral str() = Wakeup
+def ANIM_Reacts_Tech_Knockdown_Forward str() = Wakeup
+def ANIM_Reacts_Tech_Knockdown_Backward str() = Wakeup

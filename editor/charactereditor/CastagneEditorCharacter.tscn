@@ -1,0 +1,1795 @@
+[gd_scene load_steps=14 format=2]
+
+[ext_resource path="res://castagne/editor/charactereditor/CastagneEditorCharacterEdit.gd" type="Script" id=1]
+[ext_resource path="res://castagne/editor/misc/EditorTheme.tres" type="Theme" id=2]
+[ext_resource path="res://castagne/editor/misc/MovingBackground.tres" type="Material" id=3]
+[ext_resource path="res://castagne/editor/charactereditor/CECPopupNewState.gd" type="Script" id=4]
+[ext_resource path="res://icon.png" type="Texture" id=5]
+[ext_resource path="res://castagne/assets/editor/stateflags/EFLock.png" type="Texture" id=6]
+[ext_resource path="res://castagne/editor/charactereditor/CECCodeWarning.tscn" type="PackedScene" id=12]
+[ext_resource path="res://castagne/editor/charactereditor/CECPopupRenameState.gd" type="Script" id=13]
+[ext_resource path="res://castagne/editor/charactereditor/CECPopupNewEntity.gd" type="Script" id=14]
+
+[sub_resource type="InputEventKey" id=1]
+control = true
+command = true
+pressed = true
+scancode = 83
+
+[sub_resource type="ShortCut" id=2]
+shortcut = SubResource( 1 )
+
+[sub_resource type="InputEventKey" id=3]
+control = true
+command = true
+pressed = true
+scancode = 82
+
+[sub_resource type="ShortCut" id=4]
+shortcut = SubResource( 3 )
+
+[node name="CharacterEdit" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource( 2 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="EngineVP" type="AspectRatioContainer" parent="."]
+anchor_right = 0.6
+anchor_bottom = 0.8
+margin_top = 32.0
+ratio = 1.778
+
+[node name="EngineVPC" type="ViewportContainer" parent="EngineVP"]
+margin_top = 56.027
+margin_right = 768.0
+margin_bottom = 487.973
+stretch = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Viewport" type="Viewport" parent="EngineVP/EngineVPC"]
+size = Vector2( 768, 431 )
+handle_input_locally = false
+render_target_update_mode = 3
+gui_disable_input = true
+
+[node name="FocusEngine" type="ToolButton" parent="EngineVP"]
+margin_top = 56.027
+margin_right = 768.0
+margin_bottom = 487.973
+action_mode = 0
+
+[node name="SpecblockMainWindowRoot" type="PanelContainer" parent="."]
+anchor_right = 0.6
+anchor_bottom = 0.8
+margin_top = 32.0
+
+[node name="TopBar" type="Panel" parent="."]
+anchor_right = 0.6
+margin_bottom = 32.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TopBar"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Back" type="Button" parent="TopBar/HBoxContainer"]
+margin_right = 46.0
+margin_bottom = 32.0
+text = "Back"
+
+[node name="Save" type="Button" parent="TopBar/HBoxContainer"]
+margin_left = 50.0
+margin_right = 95.0
+margin_bottom = 32.0
+shortcut = SubResource( 2 )
+text = "Save"
+
+[node name="Label" type="Label" parent="TopBar/HBoxContainer"]
+margin_left = 99.0
+margin_right = 768.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "Editing Castagneur.casp"
+align = 1
+valign = 1
+
+[node name="TutorialWindow" type="Button" parent="TopBar/HBoxContainer"]
+visible = false
+margin_left = 1027.0
+margin_right = 1152.0
+margin_bottom = 32.0
+shortcut = SubResource( 2 )
+text = "Tutorial Menu!"
+
+[node name="BottomPanel" type="Control" parent="."]
+anchor_top = 0.8
+anchor_right = 0.6
+anchor_bottom = 1.8
+
+[node name="BBigPanel" type="Panel" parent="BottomPanel"]
+self_modulate = Color( 0.662745, 0.662745, 0.662745, 1 )
+anchor_top = -0.8
+anchor_right = 1.0
+margin_top = 32.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="BigTool" type="Control" parent="BottomPanel/BBigPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+
+[node name="BMiniPanel" type="Panel" parent="BottomPanel"]
+anchor_right = 1.0
+anchor_bottom = 0.2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBox" type="HBoxContainer" parent="BottomPanel/BMiniPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 8.0
+margin_right = -16.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Match" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
+margin_right = 148.0
+margin_bottom = 128.0
+
+[node name="ResetExecuteMove" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_right = 148.0
+margin_bottom = 38.0
+size_flags_vertical = 3
+disabled = true
+text = "Execute Move"
+
+[node name="ExecuteMoveData" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_top = 42.0
+margin_right = 148.0
+margin_bottom = 62.0
+
+[node name="MoveToExec" type="LineEdit" parent="BottomPanel/BMiniPanel/HBox/Match/ExecuteMoveData"]
+margin_right = 64.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+align = 2
+editable = false
+placeholder_text = "Move"
+
+[node name="Frame" type="SpinBox" parent="BottomPanel/BMiniPanel/HBox/Match/ExecuteMoveData"]
+margin_left = 68.0
+margin_right = 148.0
+margin_bottom = 20.0
+value = 1.0
+allow_greater = true
+allow_lesser = true
+editable = false
+
+[node name="Reset1" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_top = 66.0
+margin_right = 148.0
+margin_bottom = 84.0
+
+[node name="ResetGround" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset1"]
+margin_right = 72.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+disabled = true
+text = "Ground"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ResetAir" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset1"]
+margin_left = 76.0
+margin_right = 148.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+disabled = true
+text = "Air"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Reset2" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_top = 88.0
+margin_right = 148.0
+margin_bottom = 106.0
+
+[node name="ResetCorner" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset2"]
+margin_right = 72.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+disabled = true
+text = "Corner"
+
+[node name="ResetCornerReverse" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset2"]
+margin_left = 76.0
+margin_right = 148.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+disabled = true
+text = "RCorner"
+
+[node name="FocusOnChar" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match"]
+visible = false
+margin_top = 156.0
+margin_right = 136.0
+margin_bottom = 176.0
+toggle_mode = true
+text = "Focus on character"
+
+[node name="MatchType" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
+margin_top = 110.0
+margin_right = 148.0
+margin_bottom = 128.0
+
+[node name="ResetMatchTraining" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/MatchType"]
+margin_right = 148.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+disabled = true
+text = "Train"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ResetMatchNormal" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/MatchType"]
+visible = false
+margin_left = 77.0
+margin_right = 136.0
+margin_bottom = 20.0
+text = "Normal"
+
+[node name="Middle" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
+margin_left = 152.0
+margin_right = 696.0
+margin_bottom = 128.0
+size_flags_horizontal = 3
+
+[node name="TopBar" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle"]
+margin_right = 544.0
+margin_bottom = 18.0
+
+[node name="Flow" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+margin_right = 220.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+
+[node name="Flow" type="Label" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
+margin_top = 2.0
+margin_right = 33.0
+margin_bottom = 16.0
+text = "Flow:"
+
+[node name="FlowPlay" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
+margin_left = 37.0
+margin_right = 77.0
+margin_bottom = 18.0
+toggle_mode = true
+pressed = true
+text = "Run"
+
+[node name="FlowSlowmo" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
+margin_left = 81.0
+margin_right = 126.0
+margin_bottom = 18.0
+toggle_mode = true
+text = "Slow"
+
+[node name="FlowNextFrame" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
+margin_left = 130.0
+margin_right = 220.0
+margin_bottom = 18.0
+text = "Next Frame"
+
+[node name="VSeparator" type="VSeparator" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+margin_left = 224.0
+margin_right = 228.0
+margin_bottom = 18.0
+
+[node name="Phase" type="Label" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+visible = false
+margin_left = 859.0
+margin_top = 2.0
+margin_right = 905.0
+margin_bottom = 16.0
+text = "Phase: "
+
+[node name="PhaseA" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+visible = false
+margin_left = 493.0
+margin_right = 514.0
+margin_bottom = 20.0
+text = "A"
+
+[node name="PhaseT" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+visible = false
+margin_left = 518.0
+margin_right = 537.0
+margin_bottom = 20.0
+text = "T"
+
+[node name="Other" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
+margin_left = 232.0
+margin_right = 544.0
+margin_bottom = 18.0
+
+[node name="Blocking" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
+margin_right = 70.0
+margin_bottom = 18.0
+toggle_mode = true
+text = "Blocking"
+
+[node name="BlockingLow" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
+margin_left = 74.0
+margin_right = 115.0
+margin_bottom = 18.0
+toggle_mode = true
+pressed = true
+text = "Low"
+
+[node name="BlockingOverhead" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
+margin_left = 119.0
+margin_right = 156.0
+margin_bottom = 18.0
+toggle_mode = true
+pressed = true
+text = "OH"
+
+[node name="HideGizmos" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
+margin_left = 160.0
+margin_right = 259.0
+margin_bottom = 18.0
+toggle_mode = true
+text = "Hide Gizmos"
+
+[node name="Mute" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
+margin_left = 263.0
+margin_right = 312.0
+margin_bottom = 18.0
+toggle_mode = true
+text = "Mute"
+
+[node name="MiniTool" type="Control" parent="BottomPanel/BMiniPanel/HBox/Middle"]
+margin_top = 22.0
+margin_right = 544.0
+margin_bottom = 128.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Reload" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
+margin_left = 700.0
+margin_right = 759.0
+margin_bottom = 128.0
+
+[node name="Reload" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
+margin_right = 59.0
+margin_bottom = 62.0
+size_flags_vertical = 3
+shortcut = SubResource( 4 )
+text = "Reload"
+
+[node name="ChangeTool" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
+margin_top = 66.0
+margin_right = 59.0
+margin_bottom = 84.0
+rect_pivot_offset = Vector2( 10, 10 )
+size_flags_horizontal = 3
+text = "Tools"
+
+[node name="BigToolExpand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
+margin_top = 88.0
+margin_right = 59.0
+margin_bottom = 106.0
+rect_pivot_offset = Vector2( 10, 10 )
+size_flags_horizontal = 3
+text = "^^"
+
+[node name="SpecblockExpand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
+margin_top = 110.0
+margin_right = 59.0
+margin_bottom = 128.0
+rect_pivot_offset = Vector2( 10, 10 )
+size_flags_horizontal = 3
+toggle_mode = true
+pressed = true
+text = "<<"
+
+[node name="Tools" type="HBoxContainer" parent="BottomPanel/BMiniPanel"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = -16.0
+margin_right = -16.0
+alignment = 1
+
+[node name="CodePanel" type="Panel" parent="."]
+anchor_left = 0.6
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Documentation" type="Control" parent="CodePanel"]
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="CodePanel/Documentation"]
+anchor_right = 1.0
+margin_left = 16.0
+margin_right = -16.0
+margin_bottom = 18.0
+text = "Hitbox (Back, Front, Bottom, Top)"
+valign = 1
+
+[node name="FuncdocButton" type="Button" parent="CodePanel/Documentation"]
+anchor_left = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 24.0
+text = "Docs"
+clip_text = true
+
+[node name="Doc" type="TextEdit" parent="CodePanel/Documentation"]
+anchor_right = 0.8
+anchor_bottom = 1.0
+margin_top = 24.0
+text = "Function description
+
+Or Argument description
+Can be long
+long"
+readonly = true
+wrap_enabled = true
+
+[node name="UseCustomEditor" type="Button" parent="CodePanel"]
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 0.1
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = 32.0
+toggle_mode = true
+text = "Use Custom Editors"
+
+[node name="Code" type="TextEdit" parent="CodePanel"]
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 0.8
+margin_left = 8.0
+margin_top = 40.0
+margin_right = -8.0
+margin_bottom = -40.0
+text = "Call(GroundedAttack)
+Hurtbox(0,10000,0,10000)
+F20-30:
+	Attack(50,50)
+	Hitbox(0,2000,0,20000)
+endif
+Anim(SuperAttack)"
+highlight_current_line = true
+syntax_highlighting = true
+show_line_numbers = true
+highlight_all_occurrences = true
+smooth_scrolling = true
+wrap_enabled = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CustomEditor" type="ScrollContainer" parent="CodePanel"]
+visible = false
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 0.8
+margin_left = 8.0
+margin_top = 40.0
+margin_right = -8.0
+margin_bottom = -40.0
+scroll_horizontal_enabled = false
+
+[node name="PanelContainer" type="PanelContainer" parent="CodePanel/CustomEditor"]
+self_modulate = Color( 0.701961, 0.517647, 0.0235294, 1 )
+margin_right = 496.0
+margin_bottom = 424.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="CodePanel/CustomEditor/PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 745.0
+margin_bottom = 669.0
+
+[node name="Label" type="Label" parent="CodePanel/CustomEditor/PanelContainer/List"]
+margin_right = 738.0
+margin_bottom = 14.0
+text = "Main Variables"
+align = 1
+valign = 2
+
+[node name="HSeparator" type="HSeparator" parent="CodePanel/CustomEditor/PanelContainer/List"]
+margin_top = 18.0
+margin_right = 738.0
+margin_bottom = 22.0
+
+[node name="Test" type="HBoxContainer" parent="CodePanel/CustomEditor/PanelContainer/List"]
+margin_top = 26.0
+margin_right = 738.0
+margin_bottom = 50.0
+
+[node name="Label" type="Label" parent="CodePanel/CustomEditor/PanelContainer/List/Test"]
+margin_top = 5.0
+margin_right = 367.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Animation Name"
+
+[node name="TextEdit" type="TextEdit" parent="CodePanel/CustomEditor/PanelContainer/List/Test"]
+margin_left = 371.0
+margin_right = 738.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 0, 24 )
+size_flags_horizontal = 3
+text = "Stand"
+
+[node name="Test2" type="HBoxContainer" parent="CodePanel/CustomEditor/PanelContainer/List"]
+margin_top = 54.0
+margin_right = 738.0
+margin_bottom = 78.0
+
+[node name="Label" type="Label" parent="CodePanel/CustomEditor/PanelContainer/List/Test2"]
+margin_top = 5.0
+margin_right = 367.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Frame Advantage"
+
+[node name="TextEdit" type="SpinBox" parent="CodePanel/CustomEditor/PanelContainer/List/Test2"]
+margin_left = 371.0
+margin_right = 738.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 0, 24 )
+size_flags_horizontal = 3
+
+[node name="Test3" type="HBoxContainer" parent="CodePanel/CustomEditor/PanelContainer/List"]
+margin_top = 82.0
+margin_right = 738.0
+margin_bottom = 106.0
+
+[node name="Label" type="Label" parent="CodePanel/CustomEditor/PanelContainer/List/Test3"]
+margin_top = 5.0
+margin_right = 367.0
+margin_bottom = 19.0
+size_flags_horizontal = 3
+text = "Damage"
+
+[node name="TextEdit" type="SpinBox" parent="CodePanel/CustomEditor/PanelContainer/List/Test3"]
+margin_left = 371.0
+margin_right = 738.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 0, 24 )
+size_flags_horizontal = 3
+
+[node name="Test4" type="VBoxContainer" parent="CodePanel/CustomEditor/PanelContainer/List"]
+margin_top = 110.0
+margin_right = 738.0
+margin_bottom = 172.0
+
+[node name="Label" type="Label" parent="CodePanel/CustomEditor/PanelContainer/List/Test4"]
+margin_right = 738.0
+margin_bottom = 14.0
+text = "Hurtbox"
+align = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CodePanel/CustomEditor/PanelContainer/List/Test4"]
+margin_top = 18.0
+margin_right = 738.0
+margin_bottom = 38.0
+
+[node name="Label" type="Label" parent="CodePanel/CustomEditor/PanelContainer/List/Test4/HBoxContainer"]
+margin_top = 3.0
+margin_right = 181.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+text = "Back"
+align = 2
+
+[node name="SpinBox" type="SpinBox" parent="CodePanel/CustomEditor/PanelContainer/List/Test4/HBoxContainer"]
+margin_left = 185.0
+margin_right = 367.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="Label2" type="Label" parent="CodePanel/CustomEditor/PanelContainer/List/Test4/HBoxContainer"]
+margin_left = 371.0
+margin_top = 3.0
+margin_right = 552.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+text = "Front"
+align = 2
+
+[node name="SpinBox2" type="SpinBox" parent="CodePanel/CustomEditor/PanelContainer/List/Test4/HBoxContainer"]
+margin_left = 556.0
+margin_right = 738.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="CodePanel/CustomEditor/PanelContainer/List/Test4"]
+margin_top = 42.0
+margin_right = 738.0
+margin_bottom = 62.0
+
+[node name="Label" type="Label" parent="CodePanel/CustomEditor/PanelContainer/List/Test4/HBoxContainer2"]
+margin_top = 3.0
+margin_right = 181.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+text = "Bottom"
+align = 2
+
+[node name="SpinBox" type="SpinBox" parent="CodePanel/CustomEditor/PanelContainer/List/Test4/HBoxContainer2"]
+margin_left = 185.0
+margin_right = 367.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="Label2" type="Label" parent="CodePanel/CustomEditor/PanelContainer/List/Test4/HBoxContainer2"]
+margin_left = 371.0
+margin_top = 3.0
+margin_right = 552.0
+margin_bottom = 17.0
+size_flags_horizontal = 3
+text = "Top"
+align = 2
+
+[node name="SpinBox2" type="SpinBox" parent="CodePanel/CustomEditor/PanelContainer/List/Test4/HBoxContainer2"]
+margin_left = 556.0
+margin_right = 738.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+
+[node name="SpecblockCode" type="ScrollContainer" parent="CodePanel"]
+visible = false
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 0.8
+margin_left = 8.0
+margin_top = 40.0
+margin_right = -8.0
+margin_bottom = -40.0
+scroll_horizontal_enabled = false
+
+[node name="PanelContainer" type="PanelContainer" parent="CodePanel/SpecblockCode"]
+self_modulate = Color( 0.701961, 0.517647, 0.0235294, 1 )
+margin_right = 496.0
+margin_bottom = 424.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Warnings" type="Button" parent="CodePanel"]
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 0.8
+margin_left = 8.0
+margin_top = -32.0
+margin_right = -8.0
+margin_bottom = -8.0
+toggle_mode = true
+text = "No Code Warnings"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="WarningsList" type="ScrollContainer" parent="CodePanel"]
+visible = false
+anchor_top = 0.25
+anchor_right = 1.0
+anchor_bottom = 0.8
+margin_left = 20.0
+margin_top = 40.0
+margin_right = -20.0
+margin_bottom = -32.0
+scroll_horizontal_enabled = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="List" type="VBoxContainer" parent="CodePanel/WarningsList"]
+margin_right = 472.0
+margin_bottom = 324.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 2
+
+[node name="CECCodeWarning" parent="CodePanel/WarningsList/List" instance=ExtResource( 12 )]
+
+[node name="Header" type="Control" parent="CodePanel"]
+anchor_right = 1.0
+anchor_bottom = 0.1
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+
+[node name="State" type="Button" parent="CodePanel/Header"]
+anchor_top = 0.4
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = ":5A:"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="File" type="Button" parent="CodePanel/Header"]
+anchor_right = 0.7
+anchor_bottom = 0.4
+text = "Castagneur.casp"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CalledScripts" type="Button" parent="CodePanel/Header"]
+anchor_left = 0.7
+anchor_right = 1.0
+anchor_bottom = 0.4
+text = "0 Called States"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Navigation" type="Control" parent="CodePanel"]
+visible = false
+anchor_left = -1.0
+anchor_top = 0.1
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_right = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel" type="Panel" parent="CodePanel/Navigation"]
+self_modulate = Color( 0.258824, 0.258824, 0.258824, 1 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ChooseState" type="Control" parent="CodePanel/Navigation"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+
+[node name="MoveList" type="ItemList" parent="CodePanel/Navigation/ChooseState"]
+visible = false
+anchor_right = 0.75
+anchor_bottom = 0.8
+margin_right = -8.0
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false, "Item 16", null, false, "Item 17", null, false, "Item 18", null, false, "Item 19", null, false, "Item 20", null, false, "Item 21", null, false, "Item 22", null, false, "Item 23", null, false, "Item 24", null, false, "Item 25", null, false, "Item 26", null, false, "Item 27", null, false, "Item 28", null, false, "Item 29", null, false, "Item 30", null, false, "Item 31", null, false ]
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StateList" type="Control" parent="CodePanel/Navigation/ChooseState"]
+anchor_right = 0.75
+anchor_bottom = 0.8
+margin_right = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Scroll" type="ScrollContainer" parent="CodePanel/Navigation/ChooseState/StateList"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+scroll_horizontal_enabled = false
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="List" type="VBoxContainer" parent="CodePanel/Navigation/ChooseState/StateList/Scroll"]
+margin_right = 724.0
+size_flags_horizontal = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Menu" type="VBoxContainer" parent="CodePanel/Navigation/ChooseState"]
+anchor_left = 0.75
+anchor_right = 1.0
+anchor_bottom = 0.8
+margin_top = 8.0
+margin_right = -8.0
+alignment = 1
+
+[node name="Label" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_right = 364.0
+margin_bottom = 14.0
+text = "--- State Management ---"
+align = 1
+valign = 2
+
+[node name="OpenState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 18.0
+margin_right = 364.0
+margin_bottom = 36.0
+text = "Open State"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NewState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 40.0
+margin_right = 364.0
+margin_bottom = 58.0
+text = "New State"
+
+[node name="NewEntity" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 62.0
+margin_right = 364.0
+margin_bottom = 80.0
+text = "New Entity"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="OverrideState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 84.0
+margin_right = 364.0
+margin_bottom = 102.0
+disabled = true
+text = "Override State"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="RenameState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 106.0
+margin_right = 364.0
+margin_bottom = 124.0
+disabled = true
+text = "Rename State"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DeleteState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 128.0
+margin_right = 364.0
+margin_bottom = 146.0
+disabled = true
+text = "Delete State"
+
+[node name="Space" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 150.0
+margin_right = 364.0
+margin_bottom = 164.0
+size_flags_vertical = 9
+text = " "
+align = 1
+valign = 2
+
+[node name="CatFiler" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 168.0
+margin_right = 364.0
+margin_bottom = 182.0
+size_flags_vertical = 9
+text = "--- Filtering (X/Y) ---"
+align = 1
+valign = 2
+
+[node name="FilterByName" type="HBoxContainer" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 186.0
+margin_right = 364.0
+margin_bottom = 206.0
+
+[node name="Name" type="LineEdit" parent="CodePanel/Navigation/ChooseState/Menu/FilterByName"]
+margin_right = 198.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+align = 1
+placeholder_text = "Filter by Name"
+
+[node name="Search" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/FilterByName"]
+margin_left = 202.0
+margin_right = 260.0
+margin_bottom = 20.0
+text = "Search"
+
+[node name="SearchInStates" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/FilterByName"]
+margin_left = 264.0
+margin_right = 336.0
+margin_bottom = 20.0
+text = "In States"
+
+[node name="Erase" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/FilterByName"]
+margin_left = 340.0
+margin_right = 364.0
+margin_bottom = 20.0
+text = "X"
+
+[node name="OpenCloseStates" type="HBoxContainer" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 210.0
+margin_right = 364.0
+margin_bottom = 228.0
+
+[node name="NavOpenCategories" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates"]
+margin_right = 180.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+text = "Open Categories"
+
+[node name="NavCloseCategories" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates"]
+margin_left = 184.0
+margin_right = 364.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+text = "Close"
+
+[node name="ToggleSpecblocks" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 272.0
+margin_right = 364.0
+margin_bottom = 308.0
+pressed = true
+text = "Show all Specblocks"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ToggleHelpers" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 232.0
+margin_right = 364.0
+margin_bottom = 268.0
+text = "Show helpers with states"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ToggleSubentities" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 312.0
+margin_right = 364.0
+margin_bottom = 348.0
+text = "Show all Subentities"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ToggleShowVariables" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 352.0
+margin_right = 364.0
+margin_bottom = 388.0
+text = "Show all variables"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ToggleOverridableStates" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 392.0
+margin_right = 364.0
+margin_bottom = 428.0
+text = "Show overridable states"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ToggleAllStates" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 432.0
+margin_right = 364.0
+margin_bottom = 468.0
+text = "Show from all files"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FilterNumber" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 472.0
+margin_right = 364.0
+margin_bottom = 486.0
+size_flags_vertical = 9
+text = "Filter by Flag"
+align = 1
+valign = 2
+
+[node name="ToggleShowAllFlags" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 490.0
+margin_right = 364.0
+margin_bottom = 526.0
+text = "Show unused flags"
+align = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Flags" type="GridContainer" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 530.0
+margin_right = 364.0
+margin_bottom = 566.0
+columns = 4
+
+[node name="Button2" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/Flags"]
+margin_right = 91.0
+margin_bottom = 36.0
+rect_min_size = Vector2( 36, 36 )
+size_flags_horizontal = 3
+text = "Flag"
+icon = ExtResource( 5 )
+clip_text = true
+expand_icon = true
+
+[node name="Spacer" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
+margin_top = 730.0
+margin_right = 364.0
+margin_bottom = 744.0
+size_flags_vertical = 10
+align = 1
+valign = 2
+
+[node name="StateInfo" type="Control" parent="CodePanel/Navigation/ChooseState"]
+anchor_top = 0.8
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StateName" type="Label" parent="CodePanel/Navigation/ChooseState/StateInfo"]
+margin_right = 40.0
+margin_bottom = 24.0
+text = "State Name - State File - Tagline"
+valign = 1
+
+[node name="StateDocs" type="TextEdit" parent="CodePanel/Navigation/ChooseState/StateInfo"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 24.0
+text = "State Documentation"
+readonly = true
+
+[node name="ChooseFile" type="Control" parent="CodePanel/Navigation"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MoveList" type="ItemList" parent="CodePanel/Navigation/ChooseFile"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false, "Item 16", null, false, "Item 17", null, false, "Item 18", null, false, "Item 19", null, false, "Item 20", null, false, "Item 21", null, false, "Item 22", null, false, "Item 23", null, false, "Item 24", null, false, "Item 25", null, false, "Item 26", null, false, "Item 27", null, false, "Item 28", null, false, "Item 29", null, false, "Item 30", null, false, "Item 31", null, false ]
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CalledStates" type="Control" parent="CodePanel/Navigation"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="MoveList" type="ItemList" parent="CodePanel/Navigation/CalledStates"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false, "Item 11", null, false, "Item 12", null, false, "Item 13", null, false, "Item 14", null, false, "Item 15", null, false, "Item 16", null, false, "Item 17", null, false, "Item 18", null, false, "Item 19", null, false, "Item 20", null, false, "Item 21", null, false, "Item 22", null, false, "Item 23", null, false, "Item 24", null, false, "Item 25", null, false, "Item 26", null, false, "Item 27", null, false, "Item 28", null, false, "Item 29", null, false, "Item 30", null, false, "Item 31", null, false ]
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ToolsWindow" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ColorRect" type="ColorRect" parent="ToolsWindow"]
+modulate = Color( 1, 1, 1, 0.494118 )
+material = ExtResource( 3 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.517647 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Window" type="Panel" parent="ToolsWindow"]
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.9
+
+[node name="Label" type="Label" parent="ToolsWindow/Window"]
+anchor_right = 1.0
+margin_bottom = 32.0
+text = "Tools"
+align = 1
+valign = 1
+
+[node name="ToolList" type="ItemList" parent="ToolsWindow/Window"]
+anchor_right = 0.6
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 40.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[node name="Info" type="Control" parent="ToolsWindow/Window"]
+anchor_left = 0.6
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 40.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[node name="Title" type="Label" parent="ToolsWindow/Window/Info"]
+anchor_right = 1.0
+margin_bottom = 32.0
+text = "Tool Name"
+align = 1
+valign = 1
+
+[node name="Description" type="TextEdit" parent="ToolsWindow/Window/Info"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = 40.0
+margin_bottom = -48.0
+text = "Tool description"
+readonly = true
+
+[node name="ToolSelect" type="Button" parent="ToolsWindow/Window/Info"]
+anchor_top = 1.0
+anchor_right = 0.6
+anchor_bottom = 1.0
+margin_top = -40.0
+text = "Select Tool"
+
+[node name="ToolDocumentation" type="Button" parent="ToolsWindow/Window/Info"]
+anchor_left = 0.6
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -40.0
+text = "Documentation"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ToolCancel" type="Button" parent="ToolsWindow/Window"]
+anchor_left = 0.9
+anchor_right = 1.0
+margin_bottom = 32.0
+text = "X"
+
+[node name="Popups" type="Control" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Back" type="ColorRect" parent="Popups"]
+modulate = Color( 1, 1, 1, 0.494118 )
+material = ExtResource( 3 )
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.494118 )
+
+[node name="Window" type="Control" parent="Popups"]
+anchor_left = 0.2
+anchor_top = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="NewState" type="Panel" parent="Popups/Window"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Popups/Window/NewState"]
+anchor_right = 1.0
+margin_bottom = 24.0
+text = "New State"
+align = 1
+valign = 1
+
+[node name="TemplateList" type="ItemList" parent="Popups/Window/NewState"]
+anchor_right = 0.4
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 32.0
+margin_bottom = -80.0
+
+[node name="CodePreview" type="TextEdit" parent="Popups/Window/NewState"]
+anchor_left = 0.4
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 32.0
+margin_right = -8.0
+margin_bottom = -80.0
+text = "CODE PREVIEW
+# COMMENT
+Function(param)"
+readonly = true
+syntax_highlighting = true
+show_line_numbers = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StateName" type="LineEdit" parent="Popups/Window/NewState"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -72.0
+margin_right = -8.0
+margin_bottom = -48.0
+align = 1
+placeholder_text = "New State Name"
+
+[node name="Buttons" type="HBoxContainer" parent="Popups/Window/NewState"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -40.0
+margin_right = -8.0
+margin_bottom = -8.0
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Create" type="Button" parent="Popups/Window/NewState/Buttons"]
+margin_right = 1010.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+disabled = true
+text = "New State"
+
+[node name="Override" type="Button" parent="Popups/Window/NewState/Buttons"]
+margin_left = 1014.0
+margin_right = 1086.0
+margin_bottom = 32.0
+size_flags_vertical = 3
+disabled = true
+text = "Override"
+
+[node name="Back" type="Button" parent="Popups/Window/NewState/Buttons"]
+margin_left = 1090.0
+margin_right = 1136.0
+margin_bottom = 32.0
+text = "Back"
+
+[node name="RenameState" type="Panel" parent="Popups/Window"]
+visible = false
+anchor_left = 0.2
+anchor_top = 0.3
+anchor_right = 0.8
+anchor_bottom = 0.6
+script = ExtResource( 13 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBox" type="VBoxContainer" parent="Popups/Window/RenameState"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 8.0
+margin_right = -8.0
+margin_bottom = -8.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Popups/Window/RenameState/VBox"]
+margin_right = 675.0
+margin_bottom = 118.0
+size_flags_vertical = 7
+text = "Rename State"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StateName" type="LineEdit" parent="Popups/Window/RenameState/VBox"]
+margin_top = 122.0
+margin_right = 675.0
+margin_bottom = 142.0
+align = 1
+placeholder_text = "New State Name"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Buttons" type="HBoxContainer" parent="Popups/Window/RenameState/VBox"]
+margin_top = 146.0
+margin_right = 675.0
+margin_bottom = 178.0
+rect_min_size = Vector2( 0, 32 )
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Create" type="Button" parent="Popups/Window/RenameState/VBox/Buttons"]
+margin_right = 625.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+disabled = true
+text = "Rename State"
+
+[node name="Back" type="Button" parent="Popups/Window/RenameState/VBox/Buttons"]
+margin_left = 629.0
+margin_right = 675.0
+margin_bottom = 32.0
+text = "Back"
+
+[node name="NewEntity" type="Panel" parent="Popups/Window"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 14 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Label" type="Label" parent="Popups/Window/NewEntity"]
+anchor_right = 1.0
+margin_bottom = 24.0
+text = "New Entity"
+align = 1
+valign = 1
+
+[node name="Central" type="Control" parent="Popups/Window/NewEntity"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 32.0
+margin_right = -8.0
+margin_bottom = -122.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="EntityList" type="ItemList" parent="Popups/Window/NewEntity/Central"]
+anchor_right = 0.35
+anchor_bottom = 1.0
+margin_right = -4.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Description" type="TextEdit" parent="Popups/Window/NewEntity/Central"]
+anchor_left = 0.35
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "CODE PREVIEW
+# COMMENT
+Function(param)"
+readonly = true
+
+[node name="CreateVariables" type="CheckButton" parent="Popups/Window/NewEntity"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -114.0
+margin_right = -8.0
+margin_bottom = -80.0
+pressed = true
+text = "Create Variables Block"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="StateName" type="LineEdit" parent="Popups/Window/NewEntity"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -72.0
+margin_right = -8.0
+margin_bottom = -48.0
+align = 1
+placeholder_text = "New State Name"
+
+[node name="Buttons" type="HBoxContainer" parent="Popups/Window/NewEntity"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -40.0
+margin_right = -8.0
+margin_bottom = -8.0
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Create" type="Button" parent="Popups/Window/NewEntity/Buttons"]
+margin_right = 1086.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+disabled = true
+text = "New State"
+
+[node name="Back" type="Button" parent="Popups/Window/NewEntity/Buttons"]
+margin_left = 1090.0
+margin_right = 1136.0
+margin_bottom = 32.0
+text = "Back"
+
+[node name="Confirm" type="Panel" parent="Popups/Window"]
+visible = false
+anchor_left = 0.2
+anchor_top = 0.3
+anchor_right = 0.8
+anchor_bottom = 0.7
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="Popups/Window/Confirm"]
+anchor_right = 1.0
+margin_bottom = 24.0
+text = "New State"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Text" type="Label" parent="Popups/Window/Confirm"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 24.0
+margin_right = -8.0
+margin_bottom = -56.0
+text = "Confirmation dialog Text ?"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Yes" type="Button" parent="Popups/Window/Confirm"]
+anchor_top = 1.0
+anchor_right = 0.65
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -48.0
+margin_right = -8.0
+margin_bottom = -8.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Yes"
+
+[node name="No" type="Button" parent="Popups/Window/Confirm"]
+anchor_left = 0.65
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -48.0
+margin_right = -8.0
+margin_bottom = -8.0
+text = "No"
+
+[node name="Tutorial" type="Panel" parent="Popups/Window"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Title" type="Label" parent="Popups/Window/Tutorial"]
+anchor_right = 1.0
+margin_bottom = 24.0
+text = "Tutorial"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Text" type="Label" parent="Popups/Window/Tutorial"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = 24.0
+margin_right = -8.0
+margin_bottom = -56.0
+text = "Tutorial brief!"
+align = 1
+valign = 1
+
+[node name="Buttons" type="HBoxContainer" parent="Popups/Window/Tutorial"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -48.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[node name="TutorialContinue" type="Button" parent="Popups/Window/Tutorial/Buttons"]
+margin_right = 904.0
+margin_bottom = 40.0
+size_flags_horizontal = 3
+text = "Continue Tutorial / Skip"
+
+[node name="TutorialReset" type="Button" parent="Popups/Window/Tutorial/Buttons"]
+margin_left = 908.0
+margin_right = 1036.0
+margin_bottom = 40.0
+text = "Reset CASP script"
+
+[node name="TutorialQuit" type="Button" parent="Popups/Window/Tutorial/Buttons"]
+margin_left = 1040.0
+margin_right = 1136.0
+margin_bottom = 40.0
+text = "Quit Tutorial"
+
+[node name="MoveState" type="Panel" parent="Popups/Window"]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Title" type="Label" parent="Popups/Window/MoveState"]
+anchor_right = 1.0
+margin_bottom = 24.0
+text = "Move State"
+align = 1
+valign = 1
+
+[node name="States" type="VBoxContainer" parent="Popups/Window/MoveState"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 24.0
+margin_right = -16.0
+margin_bottom = -56.0
+alignment = 1
+
+[node name="ProtoDefine" type="HBoxContainer" parent="Popups/Window/MoveState/States"]
+margin_top = 250.0
+margin_right = 1120.0
+margin_bottom = 282.0
+rect_min_size = Vector2( 0, 32 )
+alignment = 1
+
+[node name="Lock" type="TextureRect" parent="Popups/Window/MoveState/States/ProtoDefine"]
+margin_right = 32.0
+margin_bottom = 32.0
+texture = ExtResource( 6 )
+
+[node name="Unlock" type="Control" parent="Popups/Window/MoveState/States/ProtoDefine"]
+visible = false
+margin_left = 36.0
+margin_right = 68.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 32, 0 )
+
+[node name="Color" type="ColorRect" parent="Popups/Window/MoveState/States/ProtoDefine"]
+margin_left = 36.0
+margin_right = 753.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+color = Color( 0.0235294, 0.254902, 0.0156863, 1 )
+
+[node name="File" type="Label" parent="Popups/Window/MoveState/States/ProtoDefine/Color"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+text = "res://filepath/of/file.casp"
+align = 1
+valign = 1
+
+[node name="MoveUp" type="Button" parent="Popups/Window/MoveState/States/ProtoDefine"]
+margin_left = 757.0
+margin_right = 936.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+text = "Move Up"
+
+[node name="MoveDown" type="Button" parent="Popups/Window/MoveState/States/ProtoDefine"]
+margin_left = 940.0
+margin_right = 1120.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+text = "Move Down"
+
+[node name="ProtoUndef" type="HBoxContainer" parent="Popups/Window/MoveState/States"]
+margin_top = 286.0
+margin_right = 1120.0
+margin_bottom = 318.0
+rect_min_size = Vector2( 0, 32 )
+alignment = 1
+
+[node name="Lock" type="TextureRect" parent="Popups/Window/MoveState/States/ProtoUndef"]
+visible = false
+margin_right = 32.0
+margin_bottom = 32.0
+texture = ExtResource( 6 )
+
+[node name="Unlock" type="Control" parent="Popups/Window/MoveState/States/ProtoUndef"]
+margin_right = 32.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 32, 0 )
+
+[node name="Color" type="ColorRect" parent="Popups/Window/MoveState/States/ProtoUndef"]
+margin_left = 36.0
+margin_right = 756.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+color = Color( 0.254902, 0.0156863, 0.0156863, 1 )
+
+[node name="File" type="Label" parent="Popups/Window/MoveState/States/ProtoUndef/Color"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 2.0
+text = "res://filepath/of/file.casp"
+align = 1
+valign = 1
+
+[node name="Override" type="Button" parent="Popups/Window/MoveState/States/ProtoUndef"]
+margin_left = 760.0
+margin_right = 1120.0
+margin_bottom = 32.0
+size_flags_horizontal = 3
+text = "Override"
+
+[node name="Buttons" type="HBoxContainer" parent="Popups/Window/MoveState"]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 8.0
+margin_top = -48.0
+margin_right = -8.0
+margin_bottom = -8.0
+
+[connection signal="pressed" from="EngineVP/FocusEngine" to="." method="FocusGame"]
+[connection signal="pressed" from="TopBar/HBoxContainer/Back" to="." method="_on_Back_pressed"]
+[connection signal="pressed" from="TopBar/HBoxContainer/Save" to="." method="_on_Save_pressed"]
+[connection signal="pressed" from="TopBar/HBoxContainer/TutorialWindow" to="." method="_on_TutorialWindow_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/ResetExecuteMove" to="." method="_on_ResetExecuteMove_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset1/ResetGround" to="." method="_on_ResetGround_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset1/ResetAir" to="." method="_on_ResetAir_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset2/ResetCorner" to="." method="_on_ResetCorner_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset2/ResetCornerReverse" to="." method="_on_ResetCornerReverse_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/MatchType/ResetMatchTraining" to="." method="_on_ResetMatchTraining_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/MatchType/ResetMatchNormal" to="." method="_on_ResetMatchNormal_pressed"]
+[connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay" to="." method="_on_FlowPlay_toggled"]
+[connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo" to="." method="_on_FlowSlowmo_toggled"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowNextFrame" to="." method="_on_FlowNextFrame_pressed"]
+[connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/HideGizmos" to="." method="_on_HideGizmos_toggled"]
+[connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/Mute" to="." method="_on_Mute_toggled"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/Reload" to="." method="_on_Reload_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/ChangeTool" to="." method="_on_ChangeTool_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/BigToolExpand" to="." method="_on_BigToolExpand_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/SpecblockExpand" to="." method="_on_SpecblockExpand_pressed"]
+[connection signal="pressed" from="CodePanel/Documentation/FuncdocButton" to="." method="_on_FuncdocButton_pressed"]
+[connection signal="pressed" from="CodePanel/UseCustomEditor" to="." method="ChangeCodePanelState"]
+[connection signal="cursor_changed" from="CodePanel/Code" to="." method="_on_Code_cursor_changed"]
+[connection signal="text_changed" from="CodePanel/Code" to="." method="_on_Code_text_changed"]
+[connection signal="toggled" from="CodePanel/Warnings" to="." method="_on_CodePanel_WarningsToggled"]
+[connection signal="pressed" from="CodePanel/Header/State" to="." method="On_Header_State_Pressed"]
+[connection signal="pressed" from="CodePanel/Header/File" to="." method="_on_Header_File_pressed"]
+[connection signal="pressed" from="CodePanel/Header/CalledScripts" to="." method="_on_Header_CheckParent_pressed"]
+[connection signal="item_activated" from="CodePanel/Navigation/ChooseState/MoveList" to="." method="_on_Navigation_MoveList_item_activated"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OpenState" to="." method="_on_OpenState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/NewState" to="." method="_on_NewState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/NewEntity" to="." method="_on_NewEntity_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OverrideState" to="." method="_on_OverrideState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/RenameState" to="." method="_on_RenameState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/DeleteState" to="." method="_on_DeleteState_pressed"]
+[connection signal="text_entered" from="CodePanel/Navigation/ChooseState/Menu/FilterByName/Name" to="." method="_on_FilterByName_Name_text_entered"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/FilterByName/Search" to="." method="_on_FilterByName_Search_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/FilterByName/SearchInStates" to="." method="_on_SearchInStates_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/FilterByName/Erase" to="." method="_on_FilterByName_Erase_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates/NavOpenCategories" to="." method="_on_NavOpenCategories_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates/NavCloseCategories" to="." method="_on_NavCloseCategories_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleSpecblocks" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleHelpers" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleSubentities" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleShowVariables" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleOverridableStates" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleAllStates" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleShowAllFlags" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="item_activated" from="CodePanel/Navigation/ChooseFile/MoveList" to="." method="_on_Navigation_MoveList_item_activated"]
+[connection signal="item_activated" from="CodePanel/Navigation/CalledStates/MoveList" to="." method="_on_Navigation_MoveList_item_activated"]
+[connection signal="item_activated" from="ToolsWindow/Window/ToolList" to="." method="_on_ToolList_item_activated"]
+[connection signal="item_selected" from="ToolsWindow/Window/ToolList" to="." method="_on_ToolList_item_selected"]
+[connection signal="nothing_selected" from="ToolsWindow/Window/ToolList" to="." method="_on_ToolList_nothing_selected"]
+[connection signal="pressed" from="ToolsWindow/Window/Info/ToolSelect" to="." method="_on_ToolSelect_pressed"]
+[connection signal="pressed" from="ToolsWindow/Window/Info/ToolDocumentation" to="." method="_on_ToolDocumentation_pressed"]
+[connection signal="pressed" from="ToolsWindow/Window/ToolCancel" to="." method="_on_ToolCancel_pressed"]
+[connection signal="item_activated" from="Popups/Window/NewState/TemplateList" to="Popups/Window/NewState" method="_on_TemplateList_item_activated"]
+[connection signal="item_selected" from="Popups/Window/NewState/TemplateList" to="Popups/Window/NewState" method="_on_TemplateList_item_selected"]
+[connection signal="text_changed" from="Popups/Window/NewState/StateName" to="Popups/Window/NewState" method="_on_StateName_text_changed"]
+[connection signal="pressed" from="Popups/Window/NewState/Buttons/Create" to="Popups/Window/NewState" method="_on_Create_pressed"]
+[connection signal="pressed" from="Popups/Window/NewState/Buttons/Override" to="Popups/Window/NewState" method="_on_Override_pressed"]
+[connection signal="pressed" from="Popups/Window/NewState/Buttons/Back" to="." method="HidePopups"]
+[connection signal="text_changed" from="Popups/Window/RenameState/VBox/StateName" to="Popups/Window/RenameState" method="_on_StateName_text_changed"]
+[connection signal="pressed" from="Popups/Window/RenameState/VBox/Buttons/Create" to="Popups/Window/RenameState" method="_on_Create_pressed"]
+[connection signal="pressed" from="Popups/Window/RenameState/VBox/Buttons/Back" to="." method="HidePopups"]
+[connection signal="item_activated" from="Popups/Window/NewEntity/Central/EntityList" to="Popups/Window/NewEntity" method="_on_TemplateList_item_activated"]
+[connection signal="item_selected" from="Popups/Window/NewEntity/Central/EntityList" to="Popups/Window/NewEntity" method="_on_TemplateList_item_selected"]
+[connection signal="text_changed" from="Popups/Window/NewEntity/StateName" to="Popups/Window/NewEntity" method="_on_StateName_text_changed"]
+[connection signal="pressed" from="Popups/Window/NewEntity/Buttons/Create" to="Popups/Window/NewEntity" method="_on_Create_pressed"]
+[connection signal="pressed" from="Popups/Window/NewEntity/Buttons/Back" to="." method="HidePopups"]
+[connection signal="pressed" from="Popups/Window/Confirm/Yes" to="." method="_on_ConfirmYes_pressed"]
+[connection signal="pressed" from="Popups/Window/Confirm/No" to="." method="HidePopups"]
+[connection signal="pressed" from="Popups/Window/Tutorial/Buttons/TutorialContinue" to="." method="_on_TutorialContinue_pressed"]
+[connection signal="pressed" from="Popups/Window/Tutorial/Buttons/TutorialReset" to="." method="_on_TutorialReset_pressed"]
+[connection signal="pressed" from="Popups/Window/Tutorial/Buttons/TutorialQuit" to="." method="_on_TutorialQuit_pressed"]

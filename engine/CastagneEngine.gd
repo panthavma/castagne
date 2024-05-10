@@ -1,9 +1,11 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+# Holds the config for the Castagne engine, and manages it.
+# It also holds the modules and functions for convinience.
+
 extends Node
-
-
-# :TODO:Panthavma:20220209:Make SyncManager optional
-
-# :TODO:Panthavma:20220124:Refacto module loading
 
 var initOnReady = true
 var configData = null
@@ -11,7 +13,6 @@ var battleInitData = null
 
 
 var _memory
-# :TODO:Panthavma:20220125:Change to a struct (?)
 var instancedData = {}
 var fighterScripts = []
 
@@ -20,11 +21,7 @@ var instancesRoot
 var devicesToPoll = []
 
 
-# TODO: remove them
 var modules
-var physicsModule
-var editorModule
-var graphicsModule
 
 var useOnline = false
 var initError = false
@@ -36,9 +33,9 @@ var renderGraphics = true
 func Init():
 	# 1. Start Init
 	Castagne.Log("Init Started")
-
+	
 	_memory = CreateMemory()
-
+	
 	instancedData = {
 		"Players": [],
 		"ParsedFighters": [],
@@ -47,13 +44,13 @@ func Init():
 	fighterScripts = []
 	useOnline = false
 	initError = false
-
+	
 	if(initError):
 		AbortWithError("Initialization failed at the map init stage. Aborting.")
 		return
-
+	
 	# 3. Prepare the first frame
-
+	
 	Castagne.Parser.ResetErrors()
 	modules = configData.GetModules()
 	var sh = CreateStateHandle(_memory)
@@ -61,15 +58,53 @@ func Init():
 		module.engine = self
 		module.CopyVariablesGlobal(_memory)
 		module.BattleInit(sh, battleInitData)
-
-
+	
+	
 	if(initError):
 		AbortWithError("Initialization failed at the fighter init stage. Aborting.", true)
 		return
-
+	
+	# 4. Prepare main loop
+	
+	_inputPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.INPUT), "InputPhase")
+	_physicsPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.PHYSICS), "PhysicsPhase")
+	_modulePhaseCallbacks = {}
+	for phaseName in ["Init", "Action", "Freeze", "Reaction", "Physics", "AI", "Subentity", "Input"]:
+		_modulePhaseCallbacks[phaseName] = [[], [], [], [], 0, 0]
+		for m in modules:
+			if(m.has_method(phaseName+"PhaseStart") or m.has_method(phaseName+"PhaseStartEntity")):
+				if(m.has_method(phaseName+"PhaseStart")):
+					_modulePhaseCallbacks[phaseName][0].push_back(funcref(m, phaseName+"PhaseStart"))
+				else:
+					_modulePhaseCallbacks[phaseName][0].push_back(funcref(self, "_EmptyModuleCallback"))
+				
+				if(m.has_method(phaseName+"PhaseStartEntity")):
+					_modulePhaseCallbacks[phaseName][1].push_back(funcref(m, phaseName+"PhaseStartEntity"))
+				else:
+					_modulePhaseCallbacks[phaseName][1].push_back(funcref(self, "_EmptyModuleCallback"))
+				
+				_modulePhaseCallbacks[phaseName][4] += 1
+			
+			if(m.has_method(phaseName+"PhaseEnd") or m.has_method(phaseName+"PhaseEndEntity")):
+				if(m.has_method(phaseName+"PhaseEndEntity")):
+					_modulePhaseCallbacks[phaseName][2].push_back(funcref(m, phaseName+"PhaseEndEntity"))
+				else:
+					_modulePhaseCallbacks[phaseName][2].push_back(funcref(self, "_EmptyModuleCallback"))
+				
+				if(m.has_method(phaseName+"PhaseEnd")):
+					_modulePhaseCallbacks[phaseName][3].push_back(funcref(m, phaseName+"PhaseEnd"))
+				else:
+					_modulePhaseCallbacks[phaseName][3].push_back(funcref(self, "_EmptyModuleCallback"))
+				
+				_modulePhaseCallbacks[phaseName][5] += 1
+	
 	Castagne.Log("Init Ended\n----------------")
 
-
+var _inputPhaseFunction
+var _physicsPhaseFunction
+var _modulePhaseCallbacks
+func _EmptyModuleCallback(_gameStateHandle):
+	pass
 
 
 
@@ -87,129 +122,163 @@ func EngineTick(previousMemory, playerInputs):
 		return
 
 	_castProfilingTickStart = OS.get_ticks_usec()
-	# 1. Frame and input setup
-	# 0. Memory Set
+	# Memory Set
 	ResetStateHandles()
 	var memory = CreateMemory(previousMemory)
+	var gameStateHandle = CreateStateHandle(memory)
+	
+	# Frame and input setup
 	memory.GlobalSet("_TrueFrameID", memory.GlobalGet("_TrueFrameID")+1)
 	memory.GlobalSet("_SkipFrame", false)
-
-	var gameStateHandle = CreateStateHandle(memory)
-
 	gameStateHandle.GlobalSet("_InputsRaw", playerInputs)
 
-	# 2. Apply the framestart functions, and check if the frame needs to be skipped
+	# Apply the framestart functions, and check if the frame needs to be skipped
 	for m in modules:
 		m.FramePreStart(gameStateHandle)
-
-
-	# 3b. If skipping, stop here. If frozen, special loop using the Freeze phase
+	
+	# If skipping, stop here.
 	if(gameStateHandle.GlobalGet("_SkipFrame")):
 		return memory
-
+	
 	for m in modules:
 		m.FrameStart(gameStateHandle)
-
-	if(gameStateHandle.GlobalGet("_FrozenFrame")):
-		var activeEIDs = gameStateHandle.GlobalGet("_ActiveEntities")
-
-		var inputPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.INPUT), "InputPhase")
-		ExecuteInternalPhase("Input", activeEIDs, gameStateHandle, inputPhaseFunction)
-
-		ExecuteScriptPhase("Freeze", activeEIDs, gameStateHandle)
-
-		# :TODO:Panthavma:20230816: This was moved by a merge to be AFTER the functions, and I feel it's not correct here. Flagging for rework with the freeze phase
-		for module in modules:
-			module.ResetVariables(gameStateHandle, activeEIDs)
-
-		for m in modules:
-			m.FrameEnd(gameStateHandle)
-		return memory
-
+	
+	
+	
+	# Figure out if we are in a halt phase, and who has control
+	var haltingEntity = GetHaltingEntityID(memory)
+	var haltingEntityIsMainEntity = true
+	if(haltingEntity >= 0):
+		gameStateHandle.PointToEntity(haltingEntity)
+		haltingEntityIsMainEntity = (gameStateHandle.EntityGet("_Entity") == null)
+		gameStateHandle.EntityAdd("_HaltFrames", -1)
+	
+	# Prepare for the main loop
 	gameStateHandle.GlobalSet("_FrameID", gameStateHandle.GlobalGet("_FrameID")+1)
-
-	# 3. Gather the entities needed for the init phase
-	# 1. Init Script Phase
+	
+	
+	# Destroy previous entities
 	var entitiesToDestroy = memory.GlobalGet("_EntitiesToDestroy")
 	if(!entitiesToDestroy.empty()):
 		for eid in entitiesToDestroy:
 			RemoveEntityImmediate(gameStateHandle, eid)
 		gameStateHandle.GlobalSet("_EntitiesToDestroy", [])
-
-	var entitiesToInit = memory.GlobalGet("_EntitiesToInit")
-	var activeEIDs = memory.GlobalGet("_ActiveEntities")
-	if(!entitiesToInit.empty()):
-		gameStateHandle.GlobalSet("_EntitiesToInit", [])
-		for module in modules:
-			for eid in entitiesToInit:
-				gameStateHandle.PointToEntity(eid)
-				module.CopyVariablesEntity(gameStateHandle, true)
-		ExecuteScriptPhase("Init", entitiesToInit, gameStateHandle)
-
-	# TODO: Loop types
-
-	# 2. AI Script Phase
-	ExecuteScriptPhase("AI", activeEIDs, gameStateHandle)
-
-	# 3. Input Internal Phase
-	var inputPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.INPUT), "InputPhase")
-	ExecuteInternalPhase("Input", activeEIDs, gameStateHandle, inputPhaseFunction)
-
-	# 4. Action Script Phase
+	
+	# Create new full entities
+	DoEntityInit(gameStateHandle, "_EntitiesToInit")
+	
+	# Gather the full entities
+	var allMEIDs = memory.GlobalGet("_ActiveFullEntities")
+	if(haltingEntity >= 0 and haltingEntityIsMainEntity):
+		allMEIDs = [haltingEntity]
+	var _filteredMEIDs = SeparateFrozenEntities(memory, allMEIDs)
+	var activeMEIDs = _filteredMEIDs[0]
+	var frozenMEIDs = _filteredMEIDs[1]
+	
+	# AI Script Phase
+	ExecuteScriptPhase("AI", activeMEIDs, gameStateHandle)
+	
+	# Input Internal Phase
+	ExecuteInternalPhase("Input", allMEIDs, gameStateHandle, _inputPhaseFunction)
+	
+	# Action Script Phase
 	for module in modules:
-		module.ResetVariables(gameStateHandle, activeEIDs)
-	ExecuteScriptPhase("Action", activeEIDs, gameStateHandle)
-
-	# 5. Physics Internal Phase
-	var physicsPhaseFunction = funcref(configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.PHYSICS), "PhysicsPhase")
-	ExecuteInternalPhase("Physics", activeEIDs, gameStateHandle, physicsPhaseFunction)
-
-
-	# 6. Resolution Script Phase
-	ExecuteScriptPhase("Reaction", activeEIDs, gameStateHandle)
-
+		module.ResetVariables(gameStateHandle, activeMEIDs)
+	ExecuteScriptPhase("Action", activeMEIDs, gameStateHandle)
+	ExecuteScriptPhase("Freeze", frozenMEIDs, gameStateHandle)
+	
+	# Initialize new subentities
+	DoEntityInit(gameStateHandle, "_SubentitiesToInit")
+	
+	# Gather the list of subentities to process
+	var allSEIDs = memory.GlobalGet("_ActiveSubentities")
+	var allEIDs = memory.GlobalGet("_ActiveEntities")
+	if(haltingEntity >= 0):
+		allEIDs = [haltingEntity]
+		if(!haltingEntityIsMainEntity):
+			allSEIDs = [haltingEntity]
+	var _filteredSEIDs = SeparateFrozenEntities(memory, allSEIDs)
+	var activeSEIDs = _filteredSEIDs[0]
+	var frozenSEIDs = _filteredSEIDs[1]
+	
+	# Process subentities
+	for module in modules:
+		module.ResetVariables(gameStateHandle, activeSEIDs)
+	ExecuteScriptPhase("Subentity", activeSEIDs, gameStateHandle)
+	ExecuteScriptPhase("Freeze", frozenSEIDs, gameStateHandle)
+	
+	# Physics Internal Phase
+	ExecuteInternalPhase("Physics", allEIDs, gameStateHandle, _physicsPhaseFunction)
+	
+	# Resolution Script Phase
+	ExecuteScriptPhase("Reaction", activeMEIDs, gameStateHandle)
+	
 	# End the frame
 	for m in modules:
 		m.FrameEnd(gameStateHandle)
-
+	
 	return memory
 
 
 func ExecuteScriptPhase(phaseName, eids, gameStateHandle):
-	# :TODO:Panthavma:20220126:Optimize this by making the funcrefs beforehand
 	gameStateHandle.SetPhase(phaseName)
-	for m in modules:
-		funcref(m, phaseName+"PhaseStart").call_func(gameStateHandle)
-		var frEntity = funcref(m, phaseName+"PhaseStartEntity")
+	for mID in range(_modulePhaseCallbacks[phaseName][4]):
+		_modulePhaseCallbacks[phaseName][0][mID].call_func(gameStateHandle)
+		var frEntity = _modulePhaseCallbacks[phaseName][1][mID]
 		for eid in eids:
 			gameStateHandle.PointToEntity(eid)
 			frEntity.call_func(gameStateHandle)
 	for eid in eids:
 		gameStateHandle.PointToEntity(eid)
 		ExecuteCurrentFighterScript(gameStateHandle)
-	for m in modules:
-		var frEntity = funcref(m, phaseName+"PhaseEndEntity")
+	for mID in range(_modulePhaseCallbacks[phaseName][5]):
+		var frEntity = _modulePhaseCallbacks[phaseName][2][mID]
 		for eid in eids:
 			gameStateHandle.PointToEntity(eid)
 			frEntity.call_func(gameStateHandle)
-		funcref(m, phaseName+"PhaseEnd").call_func(gameStateHandle)
+		_modulePhaseCallbacks[phaseName][3][mID].call_func(gameStateHandle)
 
 func ExecuteInternalPhase(phaseName, activeEIDs, gameStateHandle, phaseFunction):
-	# :TODO:Panthavma:20220126:Optimize this by making the funcrefs beforehand
-	for m in modules:
-		funcref(m, phaseName+"PhaseStart").call_func(gameStateHandle)
-		var frEntity = funcref(m, phaseName+"PhaseStartEntity")
+	for mID in range(_modulePhaseCallbacks[phaseName][4]):
+		_modulePhaseCallbacks[phaseName][0][mID].call_func(gameStateHandle)
+		var frEntity = _modulePhaseCallbacks[phaseName][1][mID]
 		for eid in activeEIDs:
 			gameStateHandle.PointToEntity(eid)
 			frEntity.call_func(gameStateHandle)
 	phaseFunction.call_func(gameStateHandle, activeEIDs)
-	for m in modules:
-		var frEntity = funcref(m, phaseName+"PhaseEndEntity")
+	for mID in range(_modulePhaseCallbacks[phaseName][5]):
+		var frEntity = _modulePhaseCallbacks[phaseName][2][mID]
 		for eid in activeEIDs:
 			gameStateHandle.PointToEntity(eid)
 			frEntity.call_func(gameStateHandle)
-		funcref(m, phaseName+"PhaseEnd").call_func(gameStateHandle)
+		_modulePhaseCallbacks[phaseName][3][mID].call_func(gameStateHandle)
 
+func GetHaltingEntityID(memory):
+	var eids = memory.GlobalGet("_ActiveEntities")
+	for eid in eids:
+		if(memory.EntityGet(eid, "_HaltFrames") > 0):
+			return eid
+	return -1
+
+func SeparateFrozenEntities(memory, eids):
+	var unfrozen = []
+	var frozen = []
+	for eid in eids:
+		if(memory.EntityGet(eid, "_FreezeFrames") > 0):
+			frozen.push_back(eid)
+		else:
+			unfrozen.push_back(eid)
+	return [unfrozen, frozen]
+
+func DoEntityInit(gameStateHandle, listName):
+	var entitiesToInit = gameStateHandle.GlobalGet(listName)
+	if(!entitiesToInit.empty()):
+		gameStateHandle.GlobalSet(listName, [])
+		for module in modules:
+			for eid in entitiesToInit:
+				gameStateHandle.PointToEntity(eid)
+				module.CopyVariablesEntity(gameStateHandle, true)
+		ExecuteScriptPhase("Init", entitiesToInit, gameStateHandle)
 
 func ExecuteCurrentFighterScript(gameStateHandle):
 	# 1. Get the fighter script / state from the entity (done outside maybe ?)
@@ -224,6 +293,9 @@ func ExecuteCurrentFighterScript(gameStateHandle):
 func GetCurrentFighterScriptOfEntity(gameStateHandle):
 	var fighterID = gameStateHandle.EntityGet("_FighterID")
 	var stateName = gameStateHandle.EntityGet("_State")
+	var entityName = gameStateHandle.EntityGet("_Entity")
+	if(entityName != null):
+		stateName = entityName+"---"+stateName
 
 	return GetFighterScript(fighterID, stateName)
 
@@ -250,10 +322,31 @@ func ExecuteFighterScript(fighterScript, gameStateHandle):
 	for action in actionList:
 		action[0].call_func(action[1], gameStateHandle)
 
-func ExecuteAction(action, phaseName, entityState, moduleCallbackData):
-	# :TODO:Panthavma:20221120:Seems unneeded now
-	if(phaseName in action["Flags"]):
-		action["Func"].call_func(action["Args"], entityState, moduleCallbackData)
+# Helper for executing a single function as part of another module
+func ExecuteCASPCallback(callbackName, gameStateHandle, customTarget = null, customPhase = null):
+	var entityName = gameStateHandle.EntityGet("_Entity")
+	if(entityName != null):
+		callbackName = entityName+"---"+callbackName
+	
+	var fighterScript = GetFighterScript(gameStateHandle.EntityGet("_FighterID"), callbackName)
+	if(fighterScript == null):
+		Castagne.Error("ExecuteCASPCallback: Calling undefined state " + str(callbackName))
+		return
+	
+	var previousTarget = gameStateHandle.GetTargetEntity() if customTarget != null else null
+	var previousPhase = gameStateHandle.GetPhase() if customPhase != null else null
+	
+	if(customTarget != null):
+		gameStateHandle.SetTargetEntity(customTarget)
+	if(customPhase != null):
+		gameStateHandle.SetPhase(customPhase)
+	
+	ExecuteFighterScript(fighterScript, gameStateHandle)
+	
+	if(customTarget != null):
+		gameStateHandle.SetTargetEntity(previousTarget)
+	if(customPhase != null):
+		gameStateHandle.SetPhase(previousPhase)
 
 
 
@@ -309,6 +402,7 @@ func _on_SyncManager_sync_started() -> void:
 	Castagne.Net.Log("Engine : SyncManager Sync Started")
 	_onlineStart = true
 
+var SyncManager = null # temp
 func _OnlineInit():
 	#SyncManager.connect("scene_spawned", self, "_on_SyncManager_scene_spawned")
 	SyncManager.connect("sync_started", self, "_on_SyncManager_sync_started")
@@ -330,23 +424,6 @@ remotesync func OnlineEndMatch():
 # --------------------------------------------------------------------------------------------------
 # Helpers
 
-#func _BuildModuleCallbackData(currentState):
-#	# :TODO:Panthavma:20220124:Rework that a bit?
-#	var data = {
-#		"State": currentState,
-#		"InstancedData": instancedData,
-#		"Engine": self,
-#
-#		"Phase": "NotSpecified",
-#		"FighterScripts": fighterScripts,
-#
-#		"OriginalEID": -1,
-#		"SelectedEID": -1,
-#		"RefEID": -1,
-#		"rState": null,
-#	}
-#	return data
-
 # Parses a script file and adds it to the relevant lists. Returns the ID if okay, or -1 if not.
 func ParseFighterScript(characterPath):
 	var fighter = Castagne.Parser.CreateFullCharacter(characterPath, configData, false)
@@ -363,6 +440,7 @@ func ParseFighterScript(characterPath):
 		"File":characterPath,
 		"Character":fighter["Character"],
 		"Variables":fighter["Variables"],
+		"TransformedData":fighter["TransformedData"],
 	}
 
 	instancedData["ParsedFighters"].append(parsedFighterData)
@@ -370,15 +448,8 @@ func ParseFighterScript(characterPath):
 	return id
 
 # Adds the data needed for a new entity, and returns its ID. It will be initialized on the next frame
-func AddNewEntity(gameStateHandle, playerID, fighterID, entityName = "Main"):
-	# :TODO:Panthavma:20220310:Probably needs special attention for rollback or we're gonna get problems
-	# Add the entity
-	# :TODO:Panthavma:20220125:Move entity setup elsewhere
-	# :TODO:Panthavma:20221120:Definitely needs a second pass
-
-	var initStateName = "Init-Main"
-	if(entityName != "Main"):
-		initStateName = "Init--"+entityName
+func AddNewEntity(gameStateHandle, playerID, fighterID, entityName = null):
+	var initStateName = "Init"
 
 	var memory = gameStateHandle._memory
 	var newEID = memory.AddEntity()
@@ -387,9 +458,8 @@ func AddNewEntity(gameStateHandle, playerID, fighterID, entityName = "Main"):
 		"_FighterID": fighterID,
 		"_EID": newEID,
 		"_State": initStateName,
+		"_Entity": entityName,
 	}
-
-	# :TODO:Panthavma:20220125:Need main entity id
 
 	var entityInstanceData = {
 		"Root": null, "Model":null, "AnimPlayer":null,
@@ -397,8 +467,9 @@ func AddNewEntity(gameStateHandle, playerID, fighterID, entityName = "Main"):
 	}
 
 	gameStateHandle.GlobalSet("_CurrentEntityID", newEID)
+	var parsedFighter = instancedData["ParsedFighters"][fighterID]
 	var variablesEntity = {}
-	var parsedFighterVariables = instancedData["ParsedFighters"][fighterID]["Variables"]
+	var parsedFighterVariables = parsedFighter["Variables"]
 	if(parsedFighterVariables.has(entityName)):
 		for vName in parsedFighterVariables[entityName]:
 			memory.EntitySet(newEID, vName, parsedFighterVariables[entityName][vName], true)
@@ -406,8 +477,14 @@ func AddNewEntity(gameStateHandle, playerID, fighterID, entityName = "Main"):
 		Castagne.Error("Entity "+entityName+" has no variables attached.")
 	for k in entityState:
 		memory.EntitySet(newEID, k, entityState[k], true)
-	gameStateHandle.GlobalGet("_EntitiesToInit").append(newEID)
-
+	
+	for tdName in parsedFighter["TransformedData"]:
+		entityInstanceData["TD_"+tdName] = parsedFighter["TransformedData"][tdName].duplicate(true)
+	
+	if(entityName == null):
+		gameStateHandle.GlobalGet("_EntitiesToInit").append(newEID)
+	else:
+		gameStateHandle.GlobalGet("_SubentitiesToInit").append(newEID)
 	gameStateHandle.IDGlobalGet("Entities")[newEID] = entityInstanceData
 
 	if(gameStateHandle.PlayerGet("MainEntity") == -1):
@@ -416,19 +493,29 @@ func AddNewEntity(gameStateHandle, playerID, fighterID, entityName = "Main"):
 	return newEID
 
 func RemoveEntityImmediate(gameStateHandle, eid):
+	var memory = gameStateHandle.Memory()
 	gameStateHandle.PointToEntity(eid)
+	var playerID = gameStateHandle.EntityGet("_Player")
 	if(gameStateHandle.IDEntityHas("Root")):
-		gameStateHandle.IDEntityGet("Root").queue_free()
+		var r = gameStateHandle.IDEntityGet("Root")
+		if(r != null):
+			r.queue_free()
 	gameStateHandle.IDGlobalGet("Entities").erase(eid)
 	gameStateHandle.GlobalGet("_ActiveEntities").erase(eid)
-	gameStateHandle._memory.RemoveEntity(eid)
+	gameStateHandle.GlobalGet("_ActiveFullEntities").erase(eid)
+	gameStateHandle.GlobalGet("_ActiveSubentities").erase(eid)
+	memory.RemoveEntity(eid)
 
 	if(gameStateHandle.PlayerGet("MainEntity") == eid):
-		gameStateHandle.PlayerSet("MainEntity", -1)
-		# :TODO:Panthavma:20230318:Find new main entity
+		var newMainEntity = -1
+		var activeFullEntities = gameStateHandle.GlobalGet("_ActiveFullEntities")
+		for eid in activeFullEntities:
+			if(memory.EntityGet(eid, "_Player") == playerID):
+				newMainEntity = eid
+				break
+		gameStateHandle.PlayerSet("MainEntity", newMainEntity)
 
 func InstanceModel(eid, modelPath, animPlayerPath=null):
-	# :TODO:Panthavma:20220310:Probably needs special attention for rollback or we're gonna get problems
 	var playerModelPrefab = Castagne.Loader.Load(modelPath)
 	if(playerModelPrefab == null):
 		Castagne.Error("InstanceModel: Scene not found for " + str(modelPath))
@@ -515,22 +602,20 @@ func CreateMemory(copyFrom = null):
 		add_child(newMemory)
 		_memories.push_back(newMemory)
 	return _memories[0]
-
-
-	# :TODO:Panthavma:20230617:Put back actual memory management back in when we go faster for rollback
-	if(_memories.size() < MAX_MEMORIES_IN_MEMORY):
-		var newMemory = Node.new()
-		newMemory.set_script(_prefabMemory)
-		newMemory.InitMemory()
-		add_child(newMemory)
-		_memories.push_back(newMemory)
-	else:
-		pass
-	var memory = _memories[_nextMemoryID]
-	_nextMemoryID = (_nextMemoryID + 1) % MAX_MEMORIES_IN_MEMORY
-	if(copyFrom != null):
-		memory.CopyFrom(copyFrom)
-	return memory
+	# Temporary route around because we are too slow
+	#if(_memories.size() < MAX_MEMORIES_IN_MEMORY):
+	#	var newMemory = Node.new()
+	#	newMemory.set_script(_prefabMemory)
+	#	newMemory.InitMemory()
+	#	add_child(newMemory)
+	#	_memories.push_back(newMemory)
+	#else:
+	#	pass
+	#var memory = _memories[_nextMemoryID]
+	#_nextMemoryID = (_nextMemoryID + 1) % MAX_MEMORIES_IN_MEMORY
+	#if(copyFrom != null):
+	#	memory.CopyFrom(copyFrom)
+	#return memory
 
 var _prefabStateHandle = preload("res://castagne/engine/CastagneStateHandle.gd")
 var _stateHandles = []

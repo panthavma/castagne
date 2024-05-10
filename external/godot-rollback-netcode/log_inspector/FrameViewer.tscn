@@ -1,0 +1,103 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://addons/godot-rollback-netcode/log_inspector/FrameViewer.gd" type="Script" id=1]
+[ext_resource path="res://addons/godot-rollback-netcode/log_inspector/FrameDataGraph.tscn" type="PackedScene" id=2]
+[ext_resource path="res://addons/godot-rollback-netcode/log_inspector/FrameViewerSettingsDialog.tscn" type="PackedScene" id=3]
+
+[node name="FrameViewer" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer"]
+margin_right = 1280.0
+margin_bottom = 24.0
+
+[node name="TimeLabel" type="Label" parent="VBoxContainer/HBoxContainer"]
+margin_top = 5.0
+margin_right = 64.0
+margin_bottom = 19.0
+text = "Time (ms)"
+
+[node name="Time" type="SpinBox" parent="VBoxContainer/HBoxContainer"]
+margin_left = 68.0
+margin_right = 142.0
+margin_bottom = 24.0
+max_value = 0.0
+rounded = true
+
+[node name="StartButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+margin_left = 146.0
+margin_right = 187.0
+margin_bottom = 24.0
+text = "Start"
+
+[node name="PreviousFrameButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+margin_left = 191.0
+margin_right = 319.0
+margin_bottom = 24.0
+text = "<< Previous frame"
+
+[node name="NextFrameButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+margin_left = 323.0
+margin_right = 426.0
+margin_bottom = 24.0
+text = "Next frame >>"
+
+[node name="EndButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+margin_left = 430.0
+margin_right = 465.0
+margin_bottom = 24.0
+text = "End"
+
+[node name="Separator" type="Control" parent="VBoxContainer/HBoxContainer"]
+margin_left = 469.0
+margin_right = 1213.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="SettingsButton" type="Button" parent="VBoxContainer/HBoxContainer"]
+margin_left = 1217.0
+margin_right = 1280.0
+margin_bottom = 24.0
+text = "Settings"
+
+[node name="DataGraph" parent="VBoxContainer" instance=ExtResource( 2 )]
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_top = 28.0
+margin_right = 1280.0
+margin_bottom = 372.0
+
+[node name="DataGrid" type="RichTextLabel" parent="VBoxContainer"]
+margin_top = 376.0
+margin_right = 1280.0
+margin_bottom = 720.0
+size_flags_vertical = 3
+bbcode_enabled = true
+bbcode_text = "Data Grid"
+text = "Data Grid"
+
+[node name="SettingsDialog" parent="." instance=ExtResource( 3 )]
+visible = false
+
+[connection signal="value_changed" from="VBoxContainer/HBoxContainer/Time" to="." method="_on_Time_value_changed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/StartButton" to="." method="_on_StartButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/PreviousFrameButton" to="." method="_on_PreviousFrameButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/NextFrameButton" to="." method="_on_NextFrameButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/EndButton" to="." method="_on_EndButton_pressed"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/SettingsButton" to="." method="_on_SettingsButton_pressed"]
+[connection signal="cursor_time_changed" from="VBoxContainer/DataGraph" to="." method="_on_DataGraph_cursor_time_changed"]

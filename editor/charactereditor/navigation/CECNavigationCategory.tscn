@@ -1,0 +1,48 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/editor/charactereditor/navigation/CECNavigationCategory.gd" type="Script" id=1]
+
+[node name="Category" type="PanelContainer"]
+self_modulate = Color( 0, 0.247059, 0, 0.309804 )
+size_flags_horizontal = 3
+script = ExtResource( 1 )
+
+[node name="Contents" type="VBoxContainer" parent="."]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 128.0
+margin_bottom = 34.0
+
+[node name="Header" type="HBoxContainer" parent="Contents"]
+margin_right = 121.0
+margin_bottom = 20.0
+
+[node name="ButtonExpand" type="Button" parent="Contents/Header"]
+margin_right = 20.0
+margin_bottom = 20.0
+action_mode = 0
+text = "+"
+
+[node name="CategoryName" type="Label" parent="Contents/Header"]
+margin_left = 24.0
+margin_top = 3.0
+margin_right = 121.0
+margin_bottom = 17.0
+text = "Category Name"
+
+[node name="States" type="HBoxContainer" parent="Contents"]
+margin_top = 24.0
+margin_right = 121.0
+margin_bottom = 27.0
+
+[node name="VSeparator" type="VSeparator" parent="Contents/States"]
+margin_right = 4.0
+margin_bottom = 3.0
+
+[node name="StateList" type="VBoxContainer" parent="Contents/States"]
+margin_left = 8.0
+margin_right = 121.0
+margin_bottom = 3.0
+size_flags_horizontal = 3
+
+[connection signal="pressed" from="Contents/Header/ButtonExpand" to="." method="_on_ButtonExpand_pressed"]
