@@ -112,13 +112,18 @@ func ModuleSetup():
 	RegisterConfig("ButtonInterval", 8, {"Description":"Maximum number of frames between motion input and pressing the button for a motion to remain valid.", "Flags":["Advanced"]})
 	RegisterConfig("MinChargeTime", 30, {"Description":"Minimum number of frames for a direction to be held for a valid charge input.", "Flags":["Advanced"]})
 	#the above three values determine the number of frames between inputs in a motion. By default, shorter motions have more leniency.
-
-	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, 22, 44, 66, [4]6, [2]8",{"Description":"Motion inputs in numpad notation that the system will check for."})
+	
+	RegisterConfig("MotionAliases", [
+		{"Name":"360","Aliases":"2684, 6842, 8426, 4268"},
+		{"Name":"41236","Aliases":"4126, 4236"},
+		{"Name":"63214","Aliases":"6324, 6214"},
+	], {"Description":"List of motion input aliases.", "Flags":["Hidden"]})
+	
+	RegisterCustomConfig("Define Motion Input Aliases", "InputMotionAliases", {"Flags":["Advanced", "ReloadFull", "LockBack"]})
 
 	RegisterVariableEntity("_DirectionalInputLog", [], null, {"Description":"Array containing just the raw directional inputs for a player on each frame. Inputs are held for a number of frames equal to the buffer config variable."})
 	RegisterVariableEntity("_ChargeInputLog", [], null, {"Description":"Array containing the inputs that have been held long enough to charge on each frame. Diagonal inputs also add the cardinal direction inputs. Inputs are held for a number of frames equal to the buffer config variable."})
 	RegisterVariableEntity("_ChargeTime", {"Up":0,"Down":0,"Forward":0,"Back":0}, null, {"Description":"Dict containing the number of frames each direction has been held."})
-	RegisterVariableEntity("_PerformedMotions", [], {"Description":"Array containing the motions that have been performed by the player."})
 
 var _castagneInputScript = load("res://castagne/engine/CastagneInput.gd")
 func OnModuleRegistration(configData):
@@ -223,14 +228,6 @@ func InputPhase(stateHandle, activeEIDs):
 func InputPhaseEndEntity(stateHandle):
 	if(stateHandle.ConfigData().Get("EnableMotionInputs")):
 		LogDirectionalInputs(stateHandle)
-	
-		var validMotions = Castagne.SplitStringToArray(stateHandle.ConfigData().Get("ValidMotionInputs"))
-		var motions = []
-	
-		for m in validMotions:
-			if MotionInputCheck(stateHandle, m):
-				motions += [m]
-		stateHandle.EntitySet("_PerformedMotions", motions)
 
 func FreezePhaseStartEntity(stateHandle):
 	var frozenInputTransitionList = []
@@ -295,10 +292,15 @@ func FindCorrectInputTransition(stateHandle):
 		elif(inputs["Back"]):
 			directions += [["4", 20]]
 		directions += [["5", 10]]
-
+	
+	var performedMotions = []
+	if(stateHandle.ConfigData().Get("EnableMotionInputs")):
+		var validMotions = GetMotionsFromInputList(stateHandle, inputTransitionList)
+		performedMotions = GetMotionInputs(stateHandle, validMotions)
+	
 	#add motion inputs to the list of "directions"
 	var motionPriority = 100
-	for motion in stateHandle.EntityGet("_PerformedMotions"):
+	for motion in performedMotions:
 		directions += [[motion, motionPriority]]
 		motionPriority += 10
 
@@ -615,3 +617,47 @@ func MotionInputCheck(stateHandle, motion):
 			if !frame in range(inputFrames[i],inputFrames[i]+intervals[i]):
 				return
 	return motion
+
+func GetMotionsFromInputList(stateHandle, itl):
+	var validChars = ["0","1","2","3","4","5","6","7","8","9","[","]"]
+	var motionList = []
+	for i in range(0, len(itl)):
+		var motion = ""
+		var input = itl[i]["InputNotation"]
+		for c in range(0, len(input)):
+			if validChars.has(input[c]):
+				motion += input[c]
+		if len(motion) > 1 and !motionList.has(motion):
+			motionList += [motion]
+			var aliases = GetMotionAliases(stateHandle, motion)
+			for a in range(0, len(aliases)):
+				if len(aliases[a]) > 1 and !motionList.has(aliases[a]):
+					motionList += [aliases[a]]
+	return motionList
+
+func GetMotionAliases(stateHandle, motion):
+	var motionAliases = stateHandle.ConfigData().Get("MotionAliases")
+	for dict in motionAliases:
+		if dict["Name"] == motion:
+			return Castagne.SplitStringToArray(dict["Aliases"])
+	return []
+
+func GetMotionInputs(stateHandle, validMotions):
+	var motions = []
+	
+	for m in validMotions:
+		if MotionInputCheck(stateHandle, m):
+			motions += [m]
+			var mainMotion = GetMainMotion(stateHandle, m)
+			if len(mainMotion) > 1:
+				motions += [mainMotion]
+	return motions
+
+func GetMainMotion(stateHandle, alias):
+	var motionAliases = stateHandle.ConfigData().Get("MotionAliases")
+	for dict in motionAliases:
+		var aliases = Castagne.SplitStringToArray(dict["Aliases"])
+		for a in aliases:
+			if a == alias:
+				return dict["Name"]
+	return ""
