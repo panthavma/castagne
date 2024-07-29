@@ -278,6 +278,8 @@ func SetCurrentStateCode(newCode):
 
 func ChangeCodePanelState(newState = null, newFile = -1, newLine = 1):
 	var changedState = false
+	var oldFile = curFile
+	var oldState = curState
 	if(newFile >= 0):
 		curFile = newFile
 		changedState = true
@@ -294,11 +296,18 @@ func ChangeCodePanelState(newState = null, newFile = -1, newLine = 1):
 	
 	if(curFile >= character["NbFiles"]):
 		curFile = character["NbFiles"]-1;
-		
+	
 	var curStatePureName = Castagne.Parser._GetPureStateNameFromStateName(curState)
 	var file = character[curFile]
+	var filePath = file["Path"]
+	var lockedFile = IsFileLocked(filePath)
+	var lockedCode = lockedFile
+	var entity = Castagne.Parser._GetEntityNameFromStateName(curState)
+	var isVariablesBlock = curStatePureName.begins_with("Variables")
+	var isSpecBlock = curStatePureName.begins_with("Specs-")
 	if(!file["States"].has(curState)):
-		if(curStatePureName.begins_with("Specs-")):
+		var createStateIfDoesntExist = (isSpecBlock and !lockedFile and oldFile == curFile)
+		if(createStateIfDoesntExist):
 			file["States"][curState] = {
 				"Text": "# Automatic creation\n",
 				"Modified": true
@@ -312,17 +321,13 @@ func ChangeCodePanelState(newState = null, newFile = -1, newLine = 1):
 			return
 		else:
 			curState = "Character"
+			isSpecBlock = false
+			isVariablesBlock = false
+			entity = Castagne.Parser._GetEntityNameFromStateName(curState)
 		curStatePureName = Castagne.Parser._GetPureStateNameFromStateName(curState)
 	
 	var state = file["States"][curState]
-	var entity = Castagne.Parser._GetEntityNameFromStateName(curState)
-	var isVariablesBlock = curStatePureName.begins_with("Variables")
-	var isSpecBlock = curStatePureName.begins_with("Specs-")
 	var calledStatesList = BuildCalledStatesList(state)
-	
-	var filePath = file["Path"]
-	var lockedFile = IsFileLocked(filePath)
-	var lockedCode = lockedFile
 	
 	$CodePanel/SpecblockCode.set_visible(isSpecBlock)
 	_UpdateSpecblockMainWindowVisibility(false)
@@ -640,7 +645,7 @@ onready var prefabNavPanelState = preload("res://castagne/editor/charactereditor
 var _navigationSelected = null
 var categoriesStatus = {}
 var categoriesStatusDefault = true
-onready var nav_FilterByName_Name = $CodePanel/Navigation/ChooseState/Menu/FilterByName/Name
+onready var nav_FilterByName_Name = $CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName/Name
 var _searchInStates = false
 func RefreshNavigationPanel(mode):
 	navpanelMode = mode
@@ -705,7 +710,7 @@ func RefreshNavigationPanel(mode):
 		var categorySpecblocks = GridContainer.new()
 		categorySpecblocks.set_columns(4)
 		categorySpecblocks.set_h_size_flags(SIZE_EXPAND_FILL)
-		var showAllSpecblocks = $CodePanel/Navigation/ChooseState/Menu/ToggleSpecblocks.is_pressed()
+		var showAllSpecblocks = $CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleSpecblocks.is_pressed()
 		
 		stateListRoot.add_child(categorySpecblocks)
 		for sb in _specblocks.values():
@@ -735,7 +740,7 @@ func RefreshNavigationPanel(mode):
 			categorySpecblocks.add_child(s)
 		
 		# Get Flags and clean panel
-		var flagsPanel = $CodePanel/Navigation/ChooseState/Menu/Flags
+		var flagsPanel = $CodePanel/Navigation/ChooseState/MenuScroll/Menu/Flags
 		var activeFlags = []
 		for f in flagsPanel.get_children():
 			if(f.is_pressed()):
@@ -744,15 +749,15 @@ func RefreshNavigationPanel(mode):
 		
 		# Gather all categories at first
 		var categoriesRaw = {"Entities":{"States":[], "CategoryNode":null}}
-		var showAllStates = $CodePanel/Navigation/ChooseState/Menu/ToggleAllStates.is_pressed()
-		var showVariables = $CodePanel/Navigation/ChooseState/Menu/ToggleShowVariables.is_pressed()
-		var showOverridableStates = $CodePanel/Navigation/ChooseState/Menu/ToggleOverridableStates.is_pressed()
+		var showAllStates = $CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleAllStates.is_pressed()
+		var showVariables = $CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleShowVariables.is_pressed()
+		var showOverridableStates = $CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleOverridableStates.is_pressed()
 		var checkFromPreviousFiles = (showAllStates or showVariables or showOverridableStates)
 		var statesFound = []
 		var flagsFound = []
-		var showAllSubentities = $CodePanel/Navigation/ChooseState/Menu/ToggleSubentities.is_pressed()
+		var showAllSubentities = $CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleSubentities.is_pressed()
 		
-		if($CodePanel/Navigation/ChooseState/Menu/ToggleShowAllFlags.is_pressed()):
+		if($CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleShowAllFlags.is_pressed()):
 			flagsFound = editor.configData.GetModuleStateFlags()
 		var nbStatesTotal = 0
 		var nbStatesChosen = 0
@@ -898,12 +903,12 @@ func RefreshNavigationPanel(mode):
 			flagsPanel.add_child(b)
 		
 		# Panel
-		$CodePanel/Navigation/ChooseState/Menu/CatFiler.set_text("--- Filtering ("+str(nbStatesChosen)+" / "+str(nbStatesTotal)+") ---")
+		$CodePanel/Navigation/ChooseState/MenuScroll/Menu/CatFiler.set_text("--- Filtering ("+str(nbStatesChosen)+" / "+str(nbStatesTotal)+") ---")
 		$CodePanel/Navigation/ChooseState/StateInfo/StateName.set_text("")
 		$CodePanel/Navigation/ChooseState/StateInfo/StateDocs.set_text("")
-		$CodePanel/Navigation/ChooseState/Menu/OverrideState.set_disabled(true)
-		$CodePanel/Navigation/ChooseState/Menu/DeleteState.set_disabled(true)
-		$CodePanel/Navigation/ChooseState/Menu/RenameState.set_disabled(true)
+		$CodePanel/Navigation/ChooseState/MenuScroll/Menu/OverrideState.set_disabled(true)
+		$CodePanel/Navigation/ChooseState/MenuScroll/Menu/DeleteState.set_disabled(true)
+		$CodePanel/Navigation/ChooseState/MenuScroll/Menu/RenameState.set_disabled(true)
 
 func _NavigationParseCategoryTree(categoriesRaw, categoriesTree, categoryNameFull):
 	# Create intermediary categories if they don't exist
@@ -980,7 +985,7 @@ func _NavigationCreateCategoryTree(parentCategory, stateListRoot = null):
 		return
 	states.sort_custom(self, "_NavigationCreateCategoryTree_SortStates")
 	
-	var includeHelpers = $CodePanel/Navigation/ChooseState/Menu/ToggleHelpers.is_pressed()
+	var includeHelpers = $CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleHelpers.is_pressed()
 	
 	for state in states:
 		var s = prefabNavPanelState.instance()
@@ -1094,9 +1099,9 @@ func Navigation_SelectState(state):
 	$CodePanel/Navigation/ChooseState/StateInfo/StateDocs.set_text(sd["StateFullDoc"])
 	
 	var isFromCurrentFile = (state.GetFileID() == curFile)
-	$CodePanel/Navigation/ChooseState/Menu/OverrideState.set_disabled(isFromCurrentFile)
-	$CodePanel/Navigation/ChooseState/Menu/DeleteState.set_disabled(!isFromCurrentFile)
-	$CodePanel/Navigation/ChooseState/Menu/RenameState.set_disabled(!isFromCurrentFile)
+	$CodePanel/Navigation/ChooseState/MenuScroll/Menu/OverrideState.set_disabled(isFromCurrentFile)
+	$CodePanel/Navigation/ChooseState/MenuScroll/Menu/DeleteState.set_disabled(!isFromCurrentFile)
+	$CodePanel/Navigation/ChooseState/MenuScroll/Menu/RenameState.set_disabled(!isFromCurrentFile)
 
 func _on_NewState_pressed():
 	ShowPopup("NewState")

@@ -59,7 +59,6 @@ func Init():
 		module.CopyVariablesGlobal(_memory)
 		module.BattleInit(sh, battleInitData)
 	
-	
 	if(initError):
 		AbortWithError("Initialization failed at the fighter init stage. Aborting.", true)
 		return
@@ -97,6 +96,10 @@ func Init():
 					_modulePhaseCallbacks[phaseName][3].push_back(funcref(self, "_EmptyModuleCallback"))
 				
 				_modulePhaseCallbacks[phaseName][5] += 1
+	
+	
+	for module in modules:
+		module.BattleInitLate(sh, battleInitData)
 	
 	Castagne.Log("Init Ended\n----------------")
 

@@ -43,7 +43,7 @@ func ModuleSetup():
 	RegisterCategory("Castagne Editor")
 	RegisterConfig("Editor-SelectedCharacter", 0, {"Flags":["Hidden"]})
 	RegisterConfig("Editor-DocumentationFolders", "res://castagne/docs", {"Flags":["Advanced"]})
-	RegisterConfig("Editor-Tools", "res://castagne/editor/tools/compile/CETool-Compile.tscn, res://castagne/editor/tools/inputs/CETool-Inputs.tscn, res://castagne/editor/tools/perf/CETool-Perf.tscn", {"Flags":["Advanced"]})
+	RegisterConfig("Editor-Tools", "res://castagne/editor/tools/compile/CETool-Compile.tscn, res://castagne/editor/tools/inputs/CETool-Inputs.tscn, res://castagne/editor/tools/perf/CETool-Perf.tscn, res://castagne/editor/tools/sceneviewer/CETool-SceneViewer.tscn", {"Flags":["Advanced"]})
 	RegisterConfig("Editor-LockCastagneFiles", true, {"Flags":["Advanced"]})
 	RegisterConfig("Editor-LockBaseSkeleton", false, {"Flags":["Advanced"]})
 	RegisterConfig("Editor-OnlyAllowCustomEditors", false)

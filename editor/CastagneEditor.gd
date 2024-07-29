@@ -227,7 +227,10 @@ func _on_Characters_item_activated(_index):
 
 # Just copied from the started, a bit of a code smell lol
 func _on_StartGame_pressed():
-	call_deferred("LoadLevel", configData.Get("PathMainMenu"))
+	var menu = Castagne.Menus.InstanceMenu("MainMenu")
+	get_tree().get_root().add_child(menu)
+	queue_free()
+	#call_deferred("LoadLevel", configData.Get("PathMainMenu"))
 func _on_StartGameMatch_pressed():
 	pass # Replace with function body.
 func _on_StartGameTraining_pressed():

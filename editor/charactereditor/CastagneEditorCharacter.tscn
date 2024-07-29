@@ -33,9 +33,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 theme = ExtResource( 2 )
 script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="EngineVP" type="AspectRatioContainer" parent="."]
 anchor_right = 0.6
@@ -44,24 +41,24 @@ margin_top = 32.0
 ratio = 1.778
 
 [node name="EngineVPC" type="ViewportContainer" parent="EngineVP"]
-margin_top = 56.027
-margin_right = 768.0
-margin_bottom = 487.973
+margin_top = 92.0405
+margin_right = 1152.0
+margin_bottom = 739.959
 stretch = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Viewport" type="Viewport" parent="EngineVP/EngineVPC"]
-size = Vector2( 768, 431 )
+size = Vector2( 1152, 647 )
 handle_input_locally = false
 render_target_update_mode = 3
 gui_disable_input = true
 
 [node name="FocusEngine" type="ToolButton" parent="EngineVP"]
-margin_top = 56.027
-margin_right = 768.0
-margin_bottom = 487.973
+margin_top = 92.0405
+margin_right = 1152.0
+margin_bottom = 739.959
 action_mode = 0
 
 [node name="SpecblockMainWindowRoot" type="PanelContainer" parent="."]
@@ -91,7 +88,7 @@ text = "Save"
 
 [node name="Label" type="Label" parent="TopBar/HBoxContainer"]
 margin_left = 99.0
-margin_right = 768.0
+margin_right = 1152.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 1
@@ -117,9 +114,6 @@ self_modulate = Color( 0.662745, 0.662745, 0.662745, 1 )
 anchor_top = -0.8
 anchor_right = 1.0
 margin_top = 32.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="BigTool" type="Control" parent="BottomPanel/BBigPanel"]
 anchor_right = 1.0
@@ -149,19 +143,19 @@ __meta__ = {
 
 [node name="Match" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
 margin_right = 148.0
-margin_bottom = 128.0
+margin_bottom = 200.0
 
 [node name="ResetExecuteMove" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match"]
 margin_right = 148.0
-margin_bottom = 38.0
+margin_bottom = 110.0
 size_flags_vertical = 3
 disabled = true
 text = "Execute Move"
 
 [node name="ExecuteMoveData" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 42.0
+margin_top = 114.0
 margin_right = 148.0
-margin_bottom = 62.0
+margin_bottom = 134.0
 
 [node name="MoveToExec" type="LineEdit" parent="BottomPanel/BMiniPanel/HBox/Match/ExecuteMoveData"]
 margin_right = 64.0
@@ -181,9 +175,9 @@ allow_lesser = true
 editable = false
 
 [node name="Reset1" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 66.0
+margin_top = 138.0
 margin_right = 148.0
-margin_bottom = 84.0
+margin_bottom = 156.0
 
 [node name="ResetGround" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset1"]
 margin_right = 72.0
@@ -209,9 +203,9 @@ __meta__ = {
 }
 
 [node name="Reset2" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 88.0
+margin_top = 160.0
 margin_right = 148.0
-margin_bottom = 106.0
+margin_bottom = 178.0
 
 [node name="ResetCorner" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset2"]
 margin_right = 72.0
@@ -237,9 +231,9 @@ toggle_mode = true
 text = "Focus on character"
 
 [node name="MatchType" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 110.0
+margin_top = 182.0
 margin_right = 148.0
-margin_bottom = 128.0
+margin_bottom = 200.0
 
 [node name="ResetMatchTraining" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/MatchType"]
 margin_right = 148.0
@@ -261,16 +255,16 @@ text = "Normal"
 
 [node name="Middle" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
 margin_left = 152.0
-margin_right = 696.0
-margin_bottom = 128.0
+margin_right = 1057.0
+margin_bottom = 200.0
 size_flags_horizontal = 3
 
 [node name="TopBar" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle"]
-margin_right = 544.0
+margin_right = 905.0
 margin_bottom = 18.0
 
 [node name="Flow" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_right = 220.0
+margin_right = 581.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 
@@ -302,8 +296,8 @@ margin_bottom = 18.0
 text = "Next Frame"
 
 [node name="VSeparator" type="VSeparator" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_left = 224.0
-margin_right = 228.0
+margin_left = 585.0
+margin_right = 589.0
 margin_bottom = 18.0
 
 [node name="Phase" type="Label" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
@@ -329,8 +323,8 @@ margin_bottom = 20.0
 text = "T"
 
 [node name="Other" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_left = 232.0
-margin_right = 544.0
+margin_left = 593.0
+margin_right = 905.0
 margin_bottom = 18.0
 
 [node name="Blocking" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
@@ -371,43 +365,43 @@ text = "Mute"
 
 [node name="MiniTool" type="Control" parent="BottomPanel/BMiniPanel/HBox/Middle"]
 margin_top = 22.0
-margin_right = 544.0
-margin_bottom = 128.0
+margin_right = 905.0
+margin_bottom = 200.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Reload" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
-margin_left = 700.0
-margin_right = 759.0
-margin_bottom = 128.0
+margin_left = 1061.0
+margin_right = 1120.0
+margin_bottom = 200.0
 
 [node name="Reload" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
 margin_right = 59.0
-margin_bottom = 62.0
+margin_bottom = 134.0
 size_flags_vertical = 3
 shortcut = SubResource( 4 )
 text = "Reload"
 
 [node name="ChangeTool" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 66.0
+margin_top = 138.0
 margin_right = 59.0
-margin_bottom = 84.0
+margin_bottom = 156.0
 rect_pivot_offset = Vector2( 10, 10 )
 size_flags_horizontal = 3
 text = "Tools"
 
 [node name="BigToolExpand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 88.0
+margin_top = 160.0
 margin_right = 59.0
-margin_bottom = 106.0
+margin_bottom = 178.0
 rect_pivot_offset = Vector2( 10, 10 )
 size_flags_horizontal = 3
 text = "^^"
 
 [node name="SpecblockExpand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 110.0
+margin_top = 182.0
 margin_right = 59.0
-margin_bottom = 128.0
+margin_bottom = 200.0
 rect_pivot_offset = Vector2( 10, 10 )
 size_flags_horizontal = 3
 toggle_mode = true
@@ -515,8 +509,8 @@ scroll_horizontal_enabled = false
 
 [node name="PanelContainer" type="PanelContainer" parent="CodePanel/CustomEditor"]
 self_modulate = Color( 0.701961, 0.517647, 0.0235294, 1 )
-margin_right = 496.0
-margin_bottom = 424.0
+margin_right = 752.0
+margin_bottom = 676.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -688,8 +682,8 @@ scroll_horizontal_enabled = false
 
 [node name="PanelContainer" type="PanelContainer" parent="CodePanel/SpecblockCode"]
 self_modulate = Color( 0.701961, 0.517647, 0.0235294, 1 )
-margin_right = 496.0
-margin_bottom = 424.0
+margin_right = 752.0
+margin_bottom = 676.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -722,8 +716,8 @@ __meta__ = {
 }
 
 [node name="List" type="VBoxContainer" parent="CodePanel/WarningsList"]
-margin_right = 472.0
-margin_bottom = 324.0
+margin_right = 728.0
+margin_bottom = 522.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 2
@@ -764,7 +758,6 @@ __meta__ = {
 }
 
 [node name="Navigation" type="Control" parent="CodePanel"]
-visible = false
 anchor_left = -1.0
 anchor_top = 0.1
 anchor_right = 1.0
@@ -818,54 +811,58 @@ __meta__ = {
 }
 
 [node name="List" type="VBoxContainer" parent="CodePanel/Navigation/ChooseState/StateList/Scroll"]
-margin_right = 724.0
+margin_right = 1108.0
 size_flags_horizontal = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Menu" type="VBoxContainer" parent="CodePanel/Navigation/ChooseState"]
+[node name="MenuScroll" type="ScrollContainer" parent="CodePanel/Navigation/ChooseState"]
 anchor_left = 0.75
 anchor_right = 1.0
 anchor_bottom = 0.8
-margin_top = 8.0
-margin_right = -8.0
+
+[node name="Menu" type="VBoxContainer" parent="CodePanel/Navigation/ChooseState/MenuScroll"]
+margin_right = 372.0
+margin_bottom = 752.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 alignment = 1
 
-[node name="Label" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
-margin_right = 364.0
+[node name="Label" type="Label" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
+margin_right = 372.0
 margin_bottom = 14.0
 text = "--- State Management ---"
 align = 1
 valign = 2
 
-[node name="OpenState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="OpenState" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 18.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 36.0
 text = "Open State"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="NewState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="NewState" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 40.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 58.0
 text = "New State"
 
-[node name="NewEntity" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="NewEntity" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 62.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 80.0
 text = "New Entity"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="OverrideState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="OverrideState" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 84.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 102.0
 disabled = true
 text = "Override State"
@@ -873,9 +870,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="RenameState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="RenameState" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 106.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 124.0
 disabled = true
 text = "Rename State"
@@ -883,83 +880,83 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="DeleteState" type="Button" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="DeleteState" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 128.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 146.0
 disabled = true
 text = "Delete State"
 
-[node name="Space" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="Space" type="Label" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 150.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 164.0
 size_flags_vertical = 9
 text = " "
 align = 1
 valign = 2
 
-[node name="CatFiler" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="CatFiler" type="Label" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 168.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 182.0
 size_flags_vertical = 9
 text = "--- Filtering (X/Y) ---"
 align = 1
 valign = 2
 
-[node name="FilterByName" type="HBoxContainer" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="FilterByName" type="HBoxContainer" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 186.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 206.0
 
-[node name="Name" type="LineEdit" parent="CodePanel/Navigation/ChooseState/Menu/FilterByName"]
-margin_right = 198.0
+[node name="Name" type="LineEdit" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName"]
+margin_right = 206.0
 margin_bottom = 20.0
 size_flags_horizontal = 3
 align = 1
 placeholder_text = "Filter by Name"
 
-[node name="Search" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/FilterByName"]
-margin_left = 202.0
-margin_right = 260.0
+[node name="Search" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName"]
+margin_left = 210.0
+margin_right = 268.0
 margin_bottom = 20.0
 text = "Search"
 
-[node name="SearchInStates" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/FilterByName"]
-margin_left = 264.0
-margin_right = 336.0
+[node name="SearchInStates" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName"]
+margin_left = 272.0
+margin_right = 344.0
 margin_bottom = 20.0
 text = "In States"
 
-[node name="Erase" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/FilterByName"]
-margin_left = 340.0
-margin_right = 364.0
+[node name="Erase" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName"]
+margin_left = 348.0
+margin_right = 372.0
 margin_bottom = 20.0
 text = "X"
 
-[node name="OpenCloseStates" type="HBoxContainer" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="OpenCloseStates" type="HBoxContainer" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 210.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 228.0
 
-[node name="NavOpenCategories" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates"]
-margin_right = 180.0
+[node name="NavOpenCategories" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/OpenCloseStates"]
+margin_right = 184.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Open Categories"
 
-[node name="NavCloseCategories" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates"]
-margin_left = 184.0
-margin_right = 364.0
+[node name="NavCloseCategories" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/OpenCloseStates"]
+margin_left = 188.0
+margin_right = 372.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Close"
 
-[node name="ToggleSpecblocks" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
-margin_top = 272.0
-margin_right = 364.0
-margin_bottom = 308.0
+[node name="ToggleSpecblocks" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
+margin_top = 232.0
+margin_right = 372.0
+margin_bottom = 268.0
 pressed = true
 text = "Show all Specblocks"
 align = 2
@@ -967,19 +964,19 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ToggleHelpers" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
-margin_top = 232.0
-margin_right = 364.0
-margin_bottom = 268.0
+[node name="ToggleHelpers" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
+margin_top = 272.0
+margin_right = 372.0
+margin_bottom = 308.0
 text = "Show helpers with states"
 align = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ToggleSubentities" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="ToggleSubentities" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 312.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 348.0
 text = "Show all Subentities"
 align = 2
@@ -987,9 +984,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ToggleShowVariables" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="ToggleShowVariables" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 352.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 388.0
 text = "Show all variables"
 align = 2
@@ -997,9 +994,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ToggleOverridableStates" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="ToggleOverridableStates" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 392.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 428.0
 text = "Show overridable states"
 align = 2
@@ -1007,9 +1004,9 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ToggleAllStates" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="ToggleAllStates" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 432.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 468.0
 text = "Show from all files"
 align = 2
@@ -1017,18 +1014,18 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="FilterNumber" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="FilterNumber" type="Label" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 472.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 486.0
 size_flags_vertical = 9
 text = "Filter by Flag"
 align = 1
 valign = 2
 
-[node name="ToggleShowAllFlags" type="CheckButton" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="ToggleShowAllFlags" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 490.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 526.0
 text = "Show unused flags"
 align = 2
@@ -1036,14 +1033,14 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Flags" type="GridContainer" parent="CodePanel/Navigation/ChooseState/Menu"]
+[node name="Flags" type="GridContainer" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 530.0
-margin_right = 364.0
+margin_right = 372.0
 margin_bottom = 566.0
 columns = 4
 
-[node name="Button2" type="Button" parent="CodePanel/Navigation/ChooseState/Menu/Flags"]
-margin_right = 91.0
+[node name="Button2" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/Flags"]
+margin_right = 93.0
 margin_bottom = 36.0
 rect_min_size = Vector2( 36, 36 )
 size_flags_horizontal = 3
@@ -1052,10 +1049,10 @@ icon = ExtResource( 5 )
 clip_text = true
 expand_icon = true
 
-[node name="Spacer" type="Label" parent="CodePanel/Navigation/ChooseState/Menu"]
-margin_top = 730.0
-margin_right = 364.0
-margin_bottom = 744.0
+[node name="Spacer" type="Label" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
+margin_top = 738.0
+margin_right = 372.0
+margin_bottom = 752.0
 size_flags_vertical = 10
 align = 1
 valign = 2
@@ -1747,25 +1744,25 @@ margin_bottom = -8.0
 [connection signal="pressed" from="CodePanel/Header/File" to="." method="_on_Header_File_pressed"]
 [connection signal="pressed" from="CodePanel/Header/CalledScripts" to="." method="_on_Header_CheckParent_pressed"]
 [connection signal="item_activated" from="CodePanel/Navigation/ChooseState/MoveList" to="." method="_on_Navigation_MoveList_item_activated"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OpenState" to="." method="_on_OpenState_pressed"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/NewState" to="." method="_on_NewState_pressed"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/NewEntity" to="." method="_on_NewEntity_pressed"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OverrideState" to="." method="_on_OverrideState_pressed"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/RenameState" to="." method="_on_RenameState_pressed"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/DeleteState" to="." method="_on_DeleteState_pressed"]
-[connection signal="text_entered" from="CodePanel/Navigation/ChooseState/Menu/FilterByName/Name" to="." method="_on_FilterByName_Name_text_entered"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/FilterByName/Search" to="." method="_on_FilterByName_Search_pressed"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/FilterByName/SearchInStates" to="." method="_on_SearchInStates_pressed"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/FilterByName/Erase" to="." method="_on_FilterByName_Erase_pressed"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates/NavOpenCategories" to="." method="_on_NavOpenCategories_pressed"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/OpenCloseStates/NavCloseCategories" to="." method="_on_NavCloseCategories_pressed"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleSpecblocks" to="." method="OnNavigationPanelParamsChanged"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleHelpers" to="." method="OnNavigationPanelParamsChanged"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleSubentities" to="." method="OnNavigationPanelParamsChanged"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleShowVariables" to="." method="OnNavigationPanelParamsChanged"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleOverridableStates" to="." method="OnNavigationPanelParamsChanged"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleAllStates" to="." method="OnNavigationPanelParamsChanged"]
-[connection signal="pressed" from="CodePanel/Navigation/ChooseState/Menu/ToggleShowAllFlags" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/OpenState" to="." method="_on_OpenState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/NewState" to="." method="_on_NewState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/NewEntity" to="." method="_on_NewEntity_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/OverrideState" to="." method="_on_OverrideState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/RenameState" to="." method="_on_RenameState_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/DeleteState" to="." method="_on_DeleteState_pressed"]
+[connection signal="text_entered" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName/Name" to="." method="_on_FilterByName_Name_text_entered"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName/Search" to="." method="_on_FilterByName_Search_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName/SearchInStates" to="." method="_on_SearchInStates_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName/Erase" to="." method="_on_FilterByName_Erase_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/OpenCloseStates/NavOpenCategories" to="." method="_on_NavOpenCategories_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/OpenCloseStates/NavCloseCategories" to="." method="_on_NavCloseCategories_pressed"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleSpecblocks" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleHelpers" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleSubentities" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleShowVariables" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleOverridableStates" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleAllStates" to="." method="OnNavigationPanelParamsChanged"]
+[connection signal="pressed" from="CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleShowAllFlags" to="." method="OnNavigationPanelParamsChanged"]
 [connection signal="item_activated" from="CodePanel/Navigation/ChooseFile/MoveList" to="." method="_on_Navigation_MoveList_item_activated"]
 [connection signal="item_activated" from="CodePanel/Navigation/CalledStates/MoveList" to="." method="_on_Navigation_MoveList_item_activated"]
 [connection signal="item_activated" from="ToolsWindow/Window/ToolList" to="." method="_on_ToolList_item_activated"]

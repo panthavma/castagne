@@ -13,6 +13,8 @@ func ModuleSetup():
 	RegisterSpecblock("Graphics", "res://castagne/modules/graphics/CMGraphicsSBGraphics.gd")
 	RegisterSpecblock("Anims", "res://castagne/modules/graphics/CMGraphicsSBAnims.gd")
 	
+	
+	# -[CTG_MODEL]----------------------------------------------------------------------------------
 	RegisterCategory("Model", {
 		"Description":"""Functions relating to models. A model is a .tscn scene, which may come with an AnimationPlayer node.
 Model functions affect the whole graphics side, so even sprites are affected here."""
@@ -65,6 +67,10 @@ Model functions affect the whole graphics side, so even sprites are affected her
 	
 	RegisterVariableGlobal("_GraphicsCamPos", Vector3()) # TEMP ?
 	
+	
+	
+	
+	# -[CTG_SPRITES]--------------------------------------------------------------------------------
 	RegisterCategory("Sprites", {
 		"Descriptions":"""Sprite related functions. This is a work in progress."""
 	})
@@ -135,10 +141,11 @@ Model functions affect the whole graphics side, so even sprites are affected her
 	RegisterVariableEntity("_SpriteOrder", 0)
 	RegisterVariableEntity("_SpriteOrderOffset", 0)
 	RegisterConfig("PositionScale", 0.0001)
-	#RegisterVariableEntity("_SpritePalettePath", "res://castagne/assets/helpers/palette/PaletteManual01.png", ["InheritToSubentity"])
-	RegisterVariableEntity("_SpritePaletteID", 0, ["InheritToSubentity"])
+	#RegisterVariableEntity("_SpritePaletteID", 0, ["InheritToSubentity"])
 	
 	
+	
+	# -[CTG_ANIMS]----------------------------------------------------------------------------------
 	RegisterCategory("Animations", {"Description":"Functions relating to the animation system. This will be moved later to graphics."})
 	RegisterFunction("Anim", [1,2], null, {
 		"Description": "Plays an animation frame by frame. The animation updates only when this function is called, and starts at the first frame the function is called. Resets on state change.",
@@ -162,6 +169,7 @@ Model functions affect the whole graphics side, so even sprites are affected her
 	RegisterVariableEntity("_AnimFuncOffset", null, null, {"Description":"Remembers an offset for the Anim function"})
 	
 	
+	# -[CTG_CAMERA]---------------------------------------------------------------------------------
 	RegisterCategory("Camera")
 	RegisterConfig("CameraOffsetX", 0)
 	RegisterConfig("CameraOffsetY", 20000)
@@ -174,6 +182,7 @@ Model functions affect the whole graphics side, so even sprites are affected her
 	RegisterConfig("CameraPosMaxY",  1000000)
 	
 	
+	# -[CTG_VFX]------------------------------------------------------------------------------------
 	RegisterCategory("VFX Test")
 	
 	#RegisterFunction("VFXPrepare", [3], null, {
@@ -184,7 +193,11 @@ Model functions affect the whole graphics side, so even sprites are affected her
 	RegisterFunction("VFXReset", [0])
 	RegisterFunction("VFXModel", [1])
 	RegisterFunction("VFXSprite", [1, 2])
-	RegisterFunction("VFXSpriteCreate", [4, 5])
+	RegisterFunction("VFXSpriteCreate", [4, 5], null, {
+		"Description":"Helper function to quickly create a simple sprite VFX.",
+		"Args":["Sprite Animation / Spritesheet", "(Optional) Sprite ID if using spritesheet",
+				"Time (frames)", "Position X", "Position Y"],
+		})
 	
 	RegisterFunction("VFXTime", [1])
 	RegisterFunction("VFXPosition", [1, 2])
@@ -199,28 +212,78 @@ Model functions affect the whole graphics side, so even sprites are affected her
 	
 	RegisterVariableEntity("_PreparingVFX", {})
 	RegisterVariableGlobal("_VFXList", [])
+	
+	
+	# -[CTG_PALETTES]-------------------------------------------------------------------------------
+	RegisterCategory("Palettes")
+	
+	RegisterFunction("PaletteApply", [0, 1], null, {
+		"Description":"Sets the variables to the values given by the palette settings.",
+		"Args":["(Optional) Palette ID to apply (default: selected palette)"],
+	})
+	
+	RegisterFunction("PaletteSprite", [1], null, {
+		"Description":"Changes the active sprite palette to the one given.",
+		"Args":["The path to the palette lookup texture."],
+	})
+	
+	RegisterVariableEntity("_PaletteID", 0, ["InheritToSubentity"], {"Description":"Current palette ID."})
+	RegisterVariableEntity("_SpritePalettePath", "res://castagne/assets/helpers/palette/PaletteManual01.png", ["InheritToSubentity"],{
+		"Description":"Path to the sprite palette lookup texture.",
+	})
+	RegisterVariableEntity("_ModelPath", "res://castagne/assets/fighters/castagneur/CastagneurModel.tscn", ["InheritToSubentity"], {
+		"Description":"Path to the model to spawn, set by the palette",
+	})
+	RegisterVariableEntity("_PaletteExtra", 0, ["InheritToSubentity"], {"Description":"Extra palette parameter."})
+	RegisterVariableEntity("_Tmp_DefaultSpritePalettePath", "res://castagne/assets/helpers/palette/PaletteManual01.png", ["InheritToSubentity"])
+	RegisterVariableEntity("_Tmp_DefaultModelPath", "res://castagne/assets/fighters/castagneur/CastagneurModel.tscn", ["InheritToSubentity"])
+	
+	
+	
+	# -[CTG_UI]-------------------------------------------------------------------------------------
+	RegisterCategory("UI")
+	
+	RegisterConfig("UIRootScene", "res://castagne/modules/graphics/ui/UISceneRoot.tscn")
+	RegisterConfig("UIPlayerRootScene", "res://castagne/modules/graphics/ui/UIPlayerRoot.tscn")
+	RegisterConfig("UIFlipSecondPlayerUI", true)
+	
+	# -[CTG_INTERNALS]------------------------------------------------------------------------------
 
 func BattleInit(stateHandle, battleInitData):
 	graphicsRoot = _CreateGraphicsRootNode(engine)
+	var config = stateHandle.ConfigData()
 	
 	var camera = _InitCamera(stateHandle, battleInitData)
 	graphicsRoot.add_child(camera)
 	#engine.graphicsModule = self
 	
-	POSITION_SCALE = stateHandle.ConfigData().Get("PositionScale")
+	POSITION_SCALE = config.Get("PositionScale")
 	
 	stateHandle.IDGlobalSet("GraphicsRoot", graphicsRoot)
 	stateHandle.IDGlobalSet("Camera", camera)
 	lastRegisteredCamera = camera
 	
-	cameraOffset = Vector3(stateHandle.ConfigData().Get("CameraOffsetX"), stateHandle.ConfigData().Get("CameraOffsetY"), stateHandle.ConfigData().Get("CameraOffsetZ"))
+	cameraOffset = Vector3(config.Get("CameraOffsetX"), config.Get("CameraOffsetY"), config.Get("CameraOffsetZ"))
 	
-	var prefabMap = Castagne.Loader.Load(Castagne.SplitStringToArray(stateHandle.ConfigData().Get("StagePaths"))[battleInitData["map"]])
+	var prefabMap = Castagne.Loader.Load(Castagne.SplitStringToArray(config.Get("StagePaths"))[battleInitData["map"]])
 	var map = prefabMap.instance()
 	graphicsRoot.add_child(map)
 	stateHandle.IDGlobalSet("map", map)
 	
 	stateHandle.IDGlobalSet("VFXState", [])
+	
+	return # TODOUI
+	var uiRoot = null
+	var uiRootScenePath = config.Get("UIRootScene")
+	if(uiRootScenePath != null):
+		var uiRootScenePacked = Castagne.Loader.Load(uiRootScenePath)
+		if(uiRootScenePacked != null):
+			uiRoot = uiRootScenePacked.instance()
+		else:
+			ModuleError("Graphics: Can't instance UI Root at path "+str(uiRootScenePath))
+		stateHandle.Engine().add_child(uiRoot)
+		uiRoot.UIInitialize(stateHandle, battleInitData)
+	stateHandle.IDGlobalSet("UIRoot", uiRoot)
 
 func FrameStart(stateHandle):
 	var vfxList = stateHandle.GlobalGet("_VFXList")
@@ -255,9 +318,6 @@ func InitPhaseStartEntity(stateHandle):
 			s["PixelSize"], s["PaletteMode"]
 		], stateHandle)
 
-func InitPhaseEndEntity(stateHandle):
-	SetPalette(stateHandle, stateHandle.GetPlayer())
-
 
 func ActionPhaseStartEntity(stateHandle):
 	_ResetVFXData(stateHandle)
@@ -271,25 +331,6 @@ func PhysicsPhaseStartEntity(stateHandle):
 		else:
 			stateHandle.EntitySet("_ModelPositionX", stateHandle.EntityGet("_PositionX"))
 			stateHandle.EntitySet("_ModelPositionY", stateHandle.EntityGet("_PositionY"))
-
-func SetPalette(stateHandle, paletteID):
-	var paletteKey = "Palette"+str(paletteID+1)
-	var fighterMetadata = stateHandle.IDGlobalGet("ParsedFighters")[stateHandle.EntityGet("_FighterID")]["Character"]
-	if(!fighterMetadata.has(paletteKey)):
-		return
-	# :TODO:Panthavma:20220217:Do it better, maybe simply charge different models ?
-	var palettePath = fighterMetadata[paletteKey]
-	var paletteMaterial = Castagne.Loader.Load(palettePath)
-	var modelRoot = stateHandle.IDEntityGet("Model")
-	if(modelRoot == null):
-		return
-	var modelSearch = [modelRoot]
-	while(!modelSearch.empty()):
-		var m = modelSearch.pop_back()
-		modelSearch.append_array(m.get_children())
-		if(m.has_method("set_surface_material")):
-			for i in range(m.get_surface_material_count()):
-				m.set_surface_material(i, paletteMaterial)
 
 
 var lastRegisteredCamera = null
@@ -335,6 +376,12 @@ func UpdateGraphics(stateHandle):
 	
 	for vfx in stateHandle.GlobalGet("_VFXList"):
 		_VFXUpdate_UpdateGraphics(stateHandle, vfx)
+	
+	
+	return # TODOUI
+	var uiRoot = stateHandle.IDGlobalGet("UIRoot")
+	if(uiRoot != null):
+		uiRoot.UIUpdate(stateHandle)
 
 
 
@@ -346,7 +393,7 @@ func UpdateGraphics(stateHandle):
 
 
 
-
+# -[CTG_MODEL]--------------------------------------------------------------------------------------
 func ModelCreate(args, stateHandle):
 	_EnsureRootIsSet(stateHandle)
 	var animPath = (ArgStr(args, stateHandle, 1) if args.size() > 1 else null)
@@ -365,6 +412,10 @@ func ModelSwitchFacing(_args, stateHandle):
 	return
 
 
+
+
+
+# -[CTG_SPRITES]------------------------------------------------------------------------------------
 func Sprite(args, stateHandle):
 	stateHandle.EntitySet("_Anim", null)
 	if(args.size() == 1):
@@ -454,6 +505,8 @@ func _SpriteOrderSet(stateHandle, order, orderOffset):
 
 
 
+
+# -[CTG_ANIMS]--------------------------------------------------------------------------------------
 func Anim(args, stateHandle):
 	var newAnim = ArgStr(args, stateHandle, 0)
 	var offset = ArgInt(args, stateHandle, 1, 0)
@@ -493,7 +546,7 @@ func AnimLoop(args, stateHandle):
 
 
 
-
+# -[CTG_VFX]----------------------------------------------------------------------------------------
 func VFXPrepare(args, stateHandle):
 	#var vfxName = ArgStr(args, stateHandle, 0)
 	var time = ArgInt(args, stateHandle, 0)
@@ -633,6 +686,35 @@ func _VFXUpdate_UpdateGraphics(stateHandle, vfxData):
 
 
 
+# -[CTG_PALETTES]-----------------------------------------------------------------------------------
+func PaletteApply(args, stateHandle):
+	var paletteID = ArgInt(args, stateHandle, 0, stateHandle.EntityGet("_PaletteID"))
+	paletteID -= 1 # Palette 0 is the default, paletteData only holds the second palette and up
+	var palettesData = stateHandle.IDEntityGet("TD_Graphics")["Palettes"]
+	
+	# :TODO:v0.7 Get the defaults in a better way
+	var spritePalettePath = stateHandle.EntityGet("_Tmp_DefaultSpritePalettePath")
+	var modelPath = stateHandle.EntityGet("_Tmp_DefaultModelPath")
+	var paletteExtra = 0
+	
+	if(paletteID >= 0 and paletteID < palettesData.size()):
+		var paletteName = palettesData.keys()[paletteID]
+		spritePalettePath = palettesData[paletteName]["SpritePalettePath"]
+		modelPath = palettesData[paletteName]["ModelPath"]
+		paletteExtra = palettesData[paletteName]["Extra"]
+	elif(paletteID != -1):
+		ModuleError("Palette ID "+str(paletteID+1)+" is not in range!", stateHandle)
+	
+	stateHandle.EntitySet("_SpritePalettePath", spritePalettePath)
+	stateHandle.EntitySet("_ModelPath", modelPath)
+	stateHandle.EntitySet("_PaletteExtra", paletteExtra)
+
+func PaletteSprite(args, stateHandle):
+	var palettePath = ArgStr(args, stateHandle, 0)
+	stateHandle.EntitySet("_SpritePalettePath", palettePath)
+	var sprite = stateHandle.IDEntityGet("Sprite")
+	if(sprite != null):
+		sprite.ApplyMaterial(stateHandle)
 
 
 
@@ -646,7 +728,7 @@ func _VFXUpdate_UpdateGraphics(stateHandle, vfxData):
 
 
 
-
+# -[CTG_INTERNALS]----------------------------------------------------------------------------------
 func _EnsureRootIsSet(stateHandle):
 	if(stateHandle.IDEntityGet("Root") == null):
 		var root = _CreateRootNode()

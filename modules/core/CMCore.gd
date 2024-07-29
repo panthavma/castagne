@@ -485,13 +485,13 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		)
 	var castagneStandardModules = {
 		# Coreset
-		"coreset":"editor, functions, attacks, audio, input, menus, tmp",
+		"coreset":"editor, functions, attacks, audio, input, menus",
 		"editor":"res://castagne/modules/editor/CMEditor.gd",
 		"functions":"res://castagne/modules/general/CMFunctions.gd",
 		"audio":"res://castagne/modules/general/CMAudio.gd",
 		"attacks":"res://castagne/modules/attacks/CMAttacks.gd",
 		"input":"res://castagne/modules/general/CMInput.gd",
-		"menus":"res://castagne/modules/temp/CMMenus.gd",
+		"menus":"res://castagne/modules/general/CMMenus.gd",
 		
 		# Flow
 		"flow": "flowfighting",
@@ -515,8 +515,7 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		"user": "",
 		
 		# Temporary Modules
-		"tmp": "ui",
-		"ui": "res://castagne/modules/temp/FightingUI.tscn",
+		"tmp": "",
 	}
 	var castagneStandardModulesList = null
 	

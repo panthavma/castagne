@@ -250,28 +250,28 @@ When selected, a state will show a few more details, like what it does, and if y
 		yield()
 		
 		system.ShowDialogue("""Then, we have the menu! You can do a few things from there.""")
-		system.StencilNode(editor.get_node("CharacterEdit/CodePanel/Navigation/ChooseState/Menu"))
+		system.StencilNode(editor.get_node("CharacterEdit/CodePanel/Navigation/ChooseState/MenuScroll/Menu"))
 		
 		yield()
 		
 		system.ShowDialogue("""These buttons can help you manipulate states!
 
 New state and new entity will open a small menu to help you get started with some templates!""")
-		system.StencilNode(editor.get_node("CharacterEdit/CodePanel/Navigation/ChooseState/Menu/NewState"))
+		system.StencilNode(editor.get_node("CharacterEdit/CodePanel/Navigation/ChooseState/MenuScroll/Menu/NewState"))
 		
 		yield()
 		
 		system.ShowDialogue("""These toggles can bring more states to the forefront, even from other files!
 
 This one in particular will show the overridable states! These are super useful as it will allow you to customize a lot of how the engine works quickly!""")
-		system.StencilNode(editor.get_node("CharacterEdit/CodePanel/Navigation/ChooseState/Menu/ToggleOverridableStates"))
+		system.StencilNode(editor.get_node("CharacterEdit/CodePanel/Navigation/ChooseState/MenuScroll/Menu/ToggleOverridableStates"))
 		
 		yield()
 		
 		system.ShowDialogue("""And finally, you may here use the state flags to find states quickly!
 
 These are added automatically to states based on their contents, and displayed as icons near their name. This is really useful to find the important parts quickly!""")
-		system.StencilNode(editor.get_node("CharacterEdit/CodePanel/Navigation/ChooseState/Menu/Flags"))
+		system.StencilNode(editor.get_node("CharacterEdit/CodePanel/Navigation/ChooseState/MenuScroll/Menu/Flags"))
 		
 		yield()
 		

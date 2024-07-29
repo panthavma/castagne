@@ -426,8 +426,13 @@ _BaseState()
 AttackInit()
 Flag(Attacking)
 
-# Counter hit / punish management
+F1:
+	Set(_AttackDuration, 180)
+	AttackRearm()
+	Set(_AttackAnimInterruptableFrames, 0)
+endif
 
+# Counter hit / punish management
 LAttackHasTouched:
 	Flag(AttackWasActive)
 endif
@@ -441,12 +446,6 @@ endif
 
 
 Call(StandardState)
-
-F1:
-	Set(_AttackDuration, 180)
-	AttackRearm()
-	Set(_AttackAnimInterruptableFrames, 0)
-endif
 Unflag(FaceTarget)
 
 Call(AttackState-DefaultParams)

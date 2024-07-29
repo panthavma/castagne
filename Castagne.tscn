@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://castagne/engine/CastagneGlobal.gd" type="Script" id=1]
 [ext_resource path="res://castagne/engine/CastagneParser.gd" type="Script" id=2]
 [ext_resource path="res://castagne/engine/CastagneNet.gd" type="Script" id=3]
 [ext_resource path="res://castagne/engine/CastagneLoader.gd" type="Script" id=4]
+[ext_resource path="res://castagne/menus/CastagneMenus.gd" type="Script" id=5]
 
 [node name="Castagne" type="Node"]
 script = ExtResource( 1 )
@@ -16,3 +17,6 @@ script = ExtResource( 3 )
 
 [node name="Loader" type="Node" parent="."]
 script = ExtResource( 4 )
+
+[node name="Menus" type="Node" parent="."]
+script = ExtResource( 5 )

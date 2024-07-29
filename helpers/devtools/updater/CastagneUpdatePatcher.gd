@@ -42,7 +42,7 @@ func _ready():
 	$Progress/Data.set_text("New Version: "+str(nextVersionData["version"])+" / ["+str(branch)+"]"+
 		"\nPrevious Version: "+str(Castagne.baseConfigData.Get("Updater-LastUpdate"))+" / ["+str(Castagne.baseConfigData.Get("Updater-Branch"))+"]")
 	
-	downloadAddress = Castagne.baseConfigData.Get("Updater-Source") + "castagne-patch-"+branch+".zip"
+	downloadAddress = Castagne.baseConfigData.Get("Updater-Source") + "castagne-patch-"+branch.to_lower()+".zip"
 	$Progress/DownloadFrom.set_text("Downloading "+str(downloadAddress))
 
 func StartUpdate():

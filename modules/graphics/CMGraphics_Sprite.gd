@@ -11,7 +11,7 @@ var PALETTEMODE_MANUAL = 1
 
 func Initialize(stateHandle, _sprite):
 	sprite = _sprite
-	_ApplyMaterial(stateHandle)
+	ApplyMaterial(stateHandle)
 	_CreateSpriteAnims(stateHandle)
 
 func UpdateSprite(stateHandle):
@@ -113,14 +113,8 @@ func _CreateSpriteAnims(stateHandle):
 		animations[animName] = animData
 
 var spriteShaderRessource = preload("res://castagne/modules/graphics/CastagneSpriteShader.gdshader")
-func _ApplyMaterial(stateHandle):
-	var paletteTextureID = stateHandle.EntityGet("_SpritePaletteID")
-	#var paletteTexturePath = stateHandle.EntityGet("_SpritePalettePath")
-	var paletteTexturePath = "res://castagne/assets/helpers/palette/PaletteManual01.png"
-	var paletteTextures = stateHandle.IDEntityGet("TD_Graphics")["SpritePalettes"]
-	if(paletteTextureID < paletteTextures.size()):
-		var paletteTextureName = paletteTextures.keys()[paletteTextureID]
-		paletteTexturePath = paletteTextures[paletteTextureName]["Path"]
+func ApplyMaterial(stateHandle):
+	var paletteTexturePath = stateHandle.EntityGet("_SpritePalettePath")
 	paletteTexture = Castagne.Loader.Load(paletteTexturePath)
 	spriteMaterial = ShaderMaterial.new()
 	spriteMaterial.set_shader(spriteShaderRessource)
@@ -128,7 +122,7 @@ func _ApplyMaterial(stateHandle):
 	if(is2D):
 		sprite.set_material(spriteMaterial)
 	else:
-		pass
+		pass # TODO
 		#sprite.set_material_override(spriteMaterial)
 
 func HandleAnimation(animName, animFrame):

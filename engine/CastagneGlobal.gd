@@ -10,7 +10,7 @@ extends Node
 onready var Parser = $Parser
 onready var Net = $Net
 onready var Loader = $Loader
-onready var Menus
+onready var Menus = $Menus
 # Dict with options
 
 const CONFIG_FILE_PATH = "res://castagne-config.json"

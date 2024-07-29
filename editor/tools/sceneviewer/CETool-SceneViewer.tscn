@@ -1,0 +1,46 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/editor/tools/sceneviewer/CETool-SceneViewer.gd" type="Script" id=2]
+
+[node name="CETool-SceneViewer" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 2 )
+
+[node name="Small" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Main" type="VBoxContainer" parent="Small"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 32.0
+margin_right = -32.0
+alignment = 1
+
+[node name="Title" type="Label" parent="Small/Main"]
+margin_top = 512.0
+margin_right = 1856.0
+margin_bottom = 526.0
+text = "- Animation Data -"
+align = 1
+
+[node name="AnimList" type="OptionButton" parent="Small/Main"]
+margin_top = 530.0
+margin_right = 1856.0
+margin_bottom = 550.0
+align = 1
+
+[node name="AnimInfo" type="Label" parent="Small/Main"]
+margin_top = 554.0
+margin_right = 1856.0
+margin_bottom = 568.0
+text = "Animation Length: 0"
+align = 1
+
+[node name="FullScreen" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[connection signal="item_focused" from="Small/Main/AnimList" to="." method="_on_AnimList_item_focused"]
+[connection signal="item_selected" from="Small/Main/AnimList" to="." method="_on_AnimList_item_selected"]

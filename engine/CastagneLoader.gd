@@ -13,8 +13,8 @@ func Load(path):
 	return Preload(path)
 
 func Preload(path):
-	if(!File.new().file_exists(path)):
-		return null
+	#if(!File.new().file_exists(path)):
+	#	return null
 	var i = load(path)
 	_loaded[path] = i
 	return i

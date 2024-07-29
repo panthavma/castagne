@@ -50,7 +50,7 @@ func CheckForUpdates(forceRetry = false):
 	httpRequest.cancel_request()
 	
 	updateStatus = UPDATE_STATUS.Checking
-	var error = httpRequest.request(configData.Get("Updater-Source") + "data-"+currentBranch+".json")
+	var error = httpRequest.request(configData.Get("Updater-Source") + "data-"+currentBranch.to_lower()+".json")
 	if error != OK:
 		print("[Updater] An error occurred in the HTTP request.")
 		updateStatus = UPDATE_STATUS.NetworkIssue

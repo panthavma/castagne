@@ -70,9 +70,7 @@ margin_left = 8.0
 margin_top = 8.0
 margin_right = -8.0
 margin_bottom = -8.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
+alignment = 1
 
 [node name="GameIcon" type="TextureRect" parent="MainMenu/Header"]
 margin_right = 128.0
@@ -127,9 +125,6 @@ margin_top = 8.0
 margin_right = -12.0
 margin_bottom = -8.0
 alignment = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Label" type="Label" parent="MainMenu/Menu"]
 margin_top = 103.0
@@ -1153,6 +1148,7 @@ visible = false
 visible = false
 
 [node name="MusicSettings" parent="." instance=ExtResource( 20 )]
+visible = false
 
 [node name="ModuleSet" parent="." instance=ExtResource( 18 )]
 visible = false

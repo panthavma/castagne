@@ -18,6 +18,7 @@ func SetupSpecblock(_argument):
 	
 	AddCategory("Sprites")
 	AddDefine("GRAPHICS_UseSprites", false)
+	AddDefine("GRAPHICS_SpritePalette", "res://castagne/assets/helpers/palette/PaletteManual01.png")
 	
 	AddStructure("Spritesheets", "GRAPHICS_SPRITESHEET_")
 	AddStructureDefine("Path", "res://")
@@ -36,6 +37,8 @@ func SetupSpecblock(_argument):
 		AddStructureDefine(str(i+1)+"_Spritesheet", "")
 		AddStructureDefine(str(i+1)+"_Frame", 0)
 	
-	AddStructure("SpritePalettes", "GRAPHICS_SPRITE_PALETTE_", "Palettes")
-	AddStructureDefine("Path", "res://castagne/assets/helpers/palette/PaletteManual01.png")
+	AddStructure("Palettes", "GRAPHICS_SPRITE_PALETTE_", "Palettes", 2)
+	AddStructureDefine("ModelPath", "res://castagne/assets/fighters/castagneur/CastagneurModel.tscn")
+	AddStructureDefine("SpritePalettePath", "res://castagne/assets/helpers/palette/PaletteManual01.png")
+	AddStructureDefine("Extra", 0)
 

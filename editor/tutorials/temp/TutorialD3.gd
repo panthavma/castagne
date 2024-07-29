@@ -9,7 +9,7 @@ func TutorialScript():
 	
 	var navigationPanel = charEditor.get_node("CodePanel/Navigation")
 	var popupNewState = charEditor.get_node("Popups/Window/NewState")
-	var newStateButton = navigationPanel.get_node("ChooseState/Menu/NewState")
+	var newStateButton = navigationPanel.get_node("ChooseState/MenuScroll/Menu/NewState")
 	
 	var codeWindow = editor.get_node("CharacterEdit/CodePanel/Code")
 	var customEditor = charEditor.get_node("CodePanel/CustomEditor")

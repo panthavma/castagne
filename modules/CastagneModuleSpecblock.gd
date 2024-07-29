@@ -124,7 +124,8 @@ func AddCategory(cName, openByDefault = true):
 		_categories[cName] = {"Name": cName, "DisplayName":displayName, "Open":openByDefault}
 
 var _lastDefinedStructName
-func AddStructure(structName, prefix, displayName = null):
+# Ordered start: if null, not ordered. Otherwise, it's the displayed number
+func AddStructure(structName, prefix, displayName = null, orderedStart = null):
 	_lastDefinedStructName = structName
 	if(displayName == null):
 		displayName = structName
@@ -133,6 +134,7 @@ func AddStructure(structName, prefix, displayName = null):
 		"Prefix": prefix,
 		"DisplayName": displayName,
 		"Variables": [],
+		"OrderedStart": orderedStart,
 	}
 
 func AddStructureDefine(dName, dValue, displayName = null, data = {}):
@@ -327,7 +329,7 @@ var _skipFieldChangeCallback = false # needed for spinbox lol
 func _FieldChangeCallback(defineValue, defineName):
 	if(_skipFieldChangeCallback):
 		return
-	_SetDefineValue(defineName, defineValue)
+	_SetDefineValue(defineName, defineValue, true, false)
 	_UpdateCurrentStateCode()
 
 func _UpdateCurrentStateCode():
@@ -342,7 +344,7 @@ func _FieldRemoveOverwrite(defineName):
 	_specblockDefines[defineName]["OverwriteButton"].set_disabled(true)
 	_UpdateCurrentStateCode()
 
-func _SetDefineValue(defineName, defineValue, markAsAltered = true):
+func _SetDefineValue(defineName, defineValue, markAsAltered = true, setFieldNode = true):
 	if(_specblockDefines.has(defineName)):
 		var d = _specblockDefines[defineName]
 		d["Value"] = defineValue
@@ -350,12 +352,15 @@ func _SetDefineValue(defineName, defineValue, markAsAltered = true):
 		var dType = d["Type"]
 		if(dType == Castagne.VARIABLE_TYPE.Int):
 			_skipFieldChangeCallback = true
-			field.set_value(defineValue)
+			if(setFieldNode):
+				field.set_value(defineValue)
 			_skipFieldChangeCallback = false
 		elif(dType == Castagne.VARIABLE_TYPE.Str):
-			field.set_text(defineValue)
+			if(setFieldNode):
+				field.set_text(defineValue)
 		elif(dType == Castagne.VARIABLE_TYPE.Bool):
-			field.set_pressed_no_signal(defineValue)
+			if(setFieldNode):
+				field.set_pressed_no_signal(defineValue)
 		if(markAsAltered and !(defineName in _alteredValues)):
 			_alteredValues += [defineName]
 			d["OverwriteButton"].set_disabled(false)
@@ -383,7 +388,7 @@ func ConvertValuesToCode():
 	var defines = _GetDefinedValuesToSave().values()
 	
 	for define in defines:
-		var l = "def " + define["Name"] + " "
+		var l = "def " + str(define["Name"]) + " "
 		var defineType = define["Type"]
 		var value = define["Value"]
 		if(defineType == Castagne.VARIABLE_TYPE.Int):
@@ -426,6 +431,7 @@ const _struct_namevar_separator = "___"
 
 func GetStructInstancesAndVariablesStored(structType):
 	var prefix = _structureDefinitions[structType]["Prefix"]
+	var orderedStart = _structureDefinitions[structType]["OrderedStart"]
 	var structInstances = {}
 	
 	for n in _extraValues:
@@ -437,6 +443,12 @@ func GetStructInstancesAndVariablesStored(structType):
 			if(sep >= 0):
 				varName = instanceName.right(sep+len(_struct_namevar_separator))
 				instanceName = instanceName.left(sep)
+			if(orderedStart != null):
+				if(instanceName.is_valid_integer()):
+					pass
+					#instanceName = int(instanceName)
+				else:
+					Castagne.Error("Specblock GetStructInstancesAndVariablesStored: Variable "+str(n)+" is in an ordered struct but its name is not a number! Potential bugs to follow.")
 			if(!instanceName in structInstances):
 				structInstances[instanceName] = {"InstanceName": instanceName}
 			structInstances[instanceName][varName] = v
@@ -476,12 +488,49 @@ func StructList_UpdateList(structType):
 		c.queue_free()
 	
 	var structInstances = GetStructInstancesAndVariablesStored(structType)
+	var structDef = _structureDefinitions[structType]
+	var structDefOrderedStart = structDef["OrderedStart"]
 	
-	for siN in structInstances:
+	var structInstancesKeys = structInstances.keys()
+	structInstancesKeys.sort()
+	
+	for i in range(structInstancesKeys.size()):
+		var siN = structInstancesKeys[i]
 		var sinButton = Button.new()
-		sinButton.set_text(siN)
+		sinButton.set_h_size_flags(Control.SIZE_EXPAND_FILL)
+		var structElementRoot = sinButton
+		if(structDefOrderedStart != null):
+			var displayName = siN
+			if("DisplayName" in structInstances[siN]):
+				displayName = str(structInstances[siN]["DisplayName"]["Value"])
+			sinButton.set_text("["+str(i+structDefOrderedStart)+"] " + displayName)
+			structElementRoot = HBoxContainer.new()
+			structElementRoot.add_child(sinButton)
+		else:
+			sinButton.set_text(siN)
 		sinButton.connect("pressed", self, "StructEditorShow", [structType, structInstances[siN]])
-		list.add_child(sinButton)
+		list.add_child(structElementRoot)
+		
+		if(structDefOrderedStart != null):
+			var moveUpButton = Button.new()
+			moveUpButton.set_text("^")
+			if(i == 0):
+				moveUpButton.set_disabled(true)
+			else:
+				var prevSIN = structInstancesKeys[i-1]
+				moveUpButton.connect("pressed", self, "StructEditor_SwapNames",
+					[structType, siN, prevSIN, prevSIN])
+			structElementRoot.add_child(moveUpButton)
+			
+			var moveDownButton = Button.new()
+			moveDownButton.set_text("v")
+			if(i == structInstancesKeys.size() - 1):
+				moveDownButton.set_disabled(true)
+			else:
+				var nextSIN = structInstancesKeys[i+1]
+				moveDownButton.connect("pressed", self, "StructEditor_SwapNames",
+					[structType, siN, nextSIN, nextSIN])
+			structElementRoot.add_child(moveDownButton)
 
 func StructList_ToggleVisibility(toggled, structType):
 	var list = _StructList_ListNodes[structType]
@@ -491,12 +540,20 @@ func StructList_NewStruct(structType):
 	var existingNames = GetStructInstancesAndVariablesStored(structType).keys()
 	var sD = _structureDefinitions[structType]
 	
-	var newStructName_base = "New_" + sD["Name"]
-	var newStructName_i = 0
-	var newStructName = newStructName_base
-	while newStructName in existingNames:
-		newStructName_i += 1
-		newStructName = newStructName_base + "_"+str(newStructName_i)
+	var newStructName = "NewStruct"
+	
+	if(sD["OrderedStart"] != null):
+		newStructName = existingNames.size()
+		while str(newStructName) in existingNames:
+			newStructName += 1
+		newStructName = str(newStructName)
+	else:
+		var newStructName_base = "New_" + sD["Name"]
+		var newStructName_i = 0
+		newStructName = newStructName_base
+		while newStructName in existingNames:
+			newStructName_i += 1
+			newStructName = newStructName_base + "_"+str(newStructName_i)
 	
 	_SetDefineValue(sD["Prefix"]+newStructName, 0)
 	
@@ -509,11 +566,16 @@ func StructEditorShow(structType = null, structInstance = null):
 	for c in _interfaceMain_StructEditor.get_children():
 		c.queue_free()
 	
+	var rootScroll = ScrollContainer.new()
+	rootScroll.set_h_size_flags(Control.SIZE_EXPAND_FILL)
+	rootScroll.set_v_size_flags(Control.SIZE_EXPAND_FILL)
+	rootScroll.set_anchors_and_margins_preset(Control.PRESET_WIDE)
 	var root = VBoxContainer.new()
 	root.set_h_size_flags(Control.SIZE_EXPAND_FILL)
 	root.set_v_size_flags(Control.SIZE_EXPAND_FILL)
 	root.set_anchors_and_margins_preset(Control.PRESET_WIDE)
-	_interfaceMain_StructEditor.add_child(root)
+	rootScroll.add_child(root)
+	_interfaceMain_StructEditor.add_child(rootScroll)
 	var title = Label.new()
 	title.set_align(Label.ALIGN_CENTER)
 	title.set_h_size_flags(Control.SIZE_EXPAND_FILL)
@@ -577,13 +639,28 @@ func StructEditor_Rename(structType, structInstance, renameBox):
 	var newStructName = renameBox.get_text()
 	if(newStructName.empty()):
 		return
-	var instances = GetStructInstancesAndVariablesStored(structType)
-	var existingNames = instances.keys()
-	if(newStructName in existingNames):
-		return
 	
+	if(_structureDefinitions[structType]["OrderedStart"] != null):
+		# If we are an ordered structure: don't change the internal name anyway (that's done through the swaps)
+		# So we just change the displayed name
+		var variableName = _structureDefinitions[structType]["Prefix"] + structInstance + _struct_namevar_separator + "DisplayName"
+		_SetDefineValue(variableName, newStructName)
+		newStructName = structInstance
+	else:
+		var instances = GetStructInstancesAndVariablesStored(structType)
+		var existingNames = instances.keys()
+		if(newStructName in existingNames):
+			return
+		
+		_StructEditor_Rename_Internal(structType, structInstance, newStructName)
+	
+	_UpdateCurrentStateCode()
+	StructList_UpdateList(structType)
+	StructEditorShow(structType, GetStructInstancesAndVariablesStored(structType)[newStructName])
+
+func _StructEditor_Rename_Internal(structType, oldName, newName):
 	var prefix = _structureDefinitions[structType]["Prefix"]
-	var prefixPlusName = prefix+structInstance
+	var prefixPlusName = prefix+oldName
 	var _evkeys = _extraValues.keys()
 	for n in _evkeys:
 		if(n.begins_with(prefixPlusName)):
@@ -591,11 +668,26 @@ func StructEditor_Rename(structType, structInstance, renameBox):
 			var rightPart = n.right(len(prefixPlusName))
 			_extraValues.erase(n)
 			#_extraValues[prefix+newStructName+rightPart] = v
-			_SetDefineValue(prefix+newStructName+rightPart, v["Value"])
+			_SetDefineValue(prefix+newName+rightPart, v["Value"])
+
+func StructEditor_SwapNames(structType, instanceNameA, instanceNameB, showAfter = null):
+	var instances = GetStructInstancesAndVariablesStored(structType)
+	var existingNames = instances.keys()
+	if(!(instanceNameA in existingNames) or !(instanceNameB in existingNames)):
+		return
+	
+	# Kinda jank, but will be good enough
+	var swapName = "INTERNAL_StructEditor_SwapNames"
+	_StructEditor_Rename_Internal(structType, instanceNameA, swapName)
+	_StructEditor_Rename_Internal(structType, instanceNameB, instanceNameA)
+	_StructEditor_Rename_Internal(structType, swapName, instanceNameB)
 	
 	_UpdateCurrentStateCode()
 	StructList_UpdateList(structType)
-	StructEditorShow(structType, GetStructInstancesAndVariablesStored(structType)[newStructName])
+	if(showAfter != null):
+		StructEditorShow(structType, GetStructInstancesAndVariablesStored(structType)[showAfter])
+	else:
+		StructEditorShow()
 
 func StructEditor_Delete(structType, structInstance):
 	var prefix = _structureDefinitions[structType]["Prefix"]

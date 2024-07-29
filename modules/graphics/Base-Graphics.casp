@@ -9,6 +9,14 @@
 ## Its main purpose here is to provide model or sprite initialization, as well as help with standard animations.
 :Specs-Sprites:
 # Automatic creation
+:Variables-Internals-Graphics:
+## Variables used by the graphics module
+
+internal _ModelPath
+internal _SpritePalettePath
+internal _PaletteID
+internal _Tmp_DefaultModelPath
+internal _Tmp_DefaultSpritePalettePath
 :AnimAirTechBackward:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
@@ -395,6 +403,8 @@ Call(Init-Graphics)
 ## Helper that creates the model or sprites on entity instanciation.
 _Category(Graphics)
 
+Call(Init-Graphics-Palette)
+
 VGRAPHICS_UseSprites:
 	Call(Init-Graphics-Sprites)
 else
@@ -409,6 +419,17 @@ ModelScale(GRAPHICS_Scale)
 _Category(Graphics)
 
 ModelCreate(GRAPHICS_ModelPath, GRAPHICS_ModelPath_AnimPlayer)
+:Init-Graphics-Palette:
+## Helper that sets the palette variables before creation
+_Category(Graphics)
+
+## CASTDO Temp until v0.7
+SetStr(_Tmp_DefaultModelPath, GRAPHICS_ModelPath)
+SetStr(_Tmp_DefaultSpritePalettePath, GRAPHICS_SpritePalette)
+
+SetStr(_ModelPath, GRAPHICS_ModelPath)
+SetStr(_SpritePalettePath, GRAPHICS_SpritePalette)
+PaletteApply()
 :Init-Graphics-Sprites:
 ## Helper for sprite initialization
 _Category(Graphics)

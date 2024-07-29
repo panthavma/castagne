@@ -805,6 +805,7 @@ func AttackRearm(args, stateHandle):
 	stateHandle.EntitySet("_AttackHitEntitiesMultihit", [])
 	stateHandle.EntitySet("_AttackHitEntities", [])
 	stateHandle.EntitySet("_AttackHitconfirm_State", null)
+	_UpdateAttackHitFlags(stateHandle)
 func AttackMultihit(args, stateHandle):
 	stateHandle.EntitySet("_AttackHitEntities", [])
 	stateHandle.EntitySet("_AttackInitialOutFrame", -1)
