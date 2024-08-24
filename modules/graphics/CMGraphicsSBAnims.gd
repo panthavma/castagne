@@ -94,3 +94,14 @@ func SetupSpecblock(_argument):
 	AddDefine("ANIM_Reacts_Tech_Knockdown_Forward", "ANIM_Reacts_Tech_Knockdown_Forward", "Recover Forward (Knockdown)")
 	AddDefine("ANIM_Reacts_Tech_Knockdown_Backward", "ANIM_Reacts_Tech_Knockdown_Backward", "Recover Backwards (Knockdown)")
 	AddDefine("ANIM_Reacts_Tech_Knockdown_Up", "ANIM_Reacts_Tech_Knockdown_Up", "Recover Up (Knockdown)")
+	
+	
+	
+	
+	
+	AddStructure("SpriteAnimations", "GRAPHICS_SPRITE_ANIMATIONS_", "Sprite Animations")
+	for i in range(10):
+		AddStructureSeparator("Keyframe "+str(i+1))
+		AddStructureDefine(str(i+1)+"_Duration", 0, "("+str(i+1)+") Duration")
+		AddStructureDefine(str(i+1)+"_Spritesheet", "", "("+str(i+1)+") Spritesheet")
+		AddStructureDefine(str(i+1)+"_Frame", 0, "("+str(i+1)+") Frame")

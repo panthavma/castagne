@@ -5,7 +5,7 @@
 extends Control
 
 func MainMenu():
-	call_deferred("LoadLevel", Castagne.baseConfigData.Get("PathMainMenu"))
+	StartMenu("MainMenu")
 
 func LocalBattle():
 	Castagne.battleInitData["mode"] = "Battle"
@@ -38,7 +38,7 @@ func _ready():
 	if(!allowChoice):
 		if OS.has_feature("standalone"):
 			$Hide.show()
-			MainMenu()
+			call_deferred("MainMenu")
 		else:
 			call_deferred("Editor")
 		return
@@ -168,6 +168,12 @@ func StartCastagneEditor(configDataPath = null, addToTree = true):
 		get_tree().get_root().add_child(editor)
 	queue_free()
 	return editor
+
+func StartMenu(menuName):
+	var menu = Castagne.Menus.InstanceMenu(menuName)
+	get_tree().get_root().add_child(menu)
+	queue_free()
+	return menu
 
 func LoadLevel(path):
 	var ps = load(path)

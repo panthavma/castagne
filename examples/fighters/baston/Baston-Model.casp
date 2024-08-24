@@ -9,15 +9,6 @@ Name: Baston Labatte
 EditorName: Baston Labatte (Custom Character)
 
 
-# Palette materials, for now. (Temporary, until the v0.55 cycle)
-Palette1:res://castagne/assets/fighters/castagneur/CastagneurPalette01.tres
-Palette2:res://castagne/assets/fighters/castagneur/CastagneurPalette02.tres
-Palette3:res://castagne/assets/fighters/castagneur/CastagneurPalette03.tres
-Palette4:res://castagne/assets/fighters/castagneur/CastagneurPalette04.tres
-Palette5:res://castagne/assets/fighters/castagneur/CastagneurPalette05.tres
-Palette6:res://castagne/assets/fighters/castagneur/CastagneurPalette06.tres
-
-
 #------------------------------------------------------------------
 # Animation Names for reference:
 
@@ -40,7 +31,7 @@ Palette6:res://castagne/assets/fighters/castagneur/CastagneurPalette06.tres
 #--- Misc
 # Lose Win
 :Specs-Graphics:
-def GRAPHICS_ModelPath str() = res://castagne/assets/fighters/castagneur/CastagneurModel.tscn
+def GRAPHICS_ModelPath str() = res://castagne/assets/fighters/baston/model/BastonModel.tscn
 def GRAPHICS_SPRITESHEET_TemporaryStickman int() = 0
 def GRAPHICS_SPRITESHEET_TemporaryStickman___Path str() = res://castagne/assets/fighters/baston/sprites/StickmanSpriteSheet.png
 def GRAPHICS_SPRITESHEET_TemporaryStickman___SpritesX int() = 16
@@ -49,6 +40,31 @@ def GRAPHICS_SPRITESHEET_TemporaryStickman___OriginX int() = 32
 def GRAPHICS_SPRITESHEET_TemporaryStickman___OriginY int() = 0
 def GRAPHICS_SPRITESHEET_TemporaryStickman___PixelSize int() = 100000
 def GRAPHICS_SPRITESHEET_TemporaryStickman___PaletteMode int() = 0
+def GRAPHICS_SPRITE_PALETTE_0 int() = 0
+def GRAPHICS_SPRITE_PALETTE_0___ModelPath str() = res://castagne/assets/fighters/baston/model/BastonModel-Pal02.tscn
+def GRAPHICS_SPRITE_PALETTE_0___SpritePalettePath str() = res://castagne/assets/helpers/palette/PaletteManual01.png
+def GRAPHICS_SPRITE_PALETTE_0___Extra int() = 0
+def GRAPHICS_SPRITE_PALETTE_1 int() = 0
+def GRAPHICS_SPRITE_PALETTE_1___ModelPath str() = res://castagne/assets/fighters/baston/model/BastonModel-Pal03.tscn
+def GRAPHICS_SPRITE_PALETTE_1___SpritePalettePath str() = res://castagne/assets/helpers/palette/PaletteManual01.png
+def GRAPHICS_SPRITE_PALETTE_1___Extra int() = 0
+def GRAPHICS_SPRITE_PALETTE_2 int() = 0
+def GRAPHICS_SPRITE_PALETTE_2___ModelPath str() = res://castagne/assets/fighters/baston/model/BastonModel-Pal04.tscn
+def GRAPHICS_SPRITE_PALETTE_2___SpritePalettePath str() = res://castagne/assets/helpers/palette/PaletteManual01.png
+def GRAPHICS_SPRITE_PALETTE_2___Extra int() = 0
+def GRAPHICS_SPRITE_PALETTE_0___DisplayName str() = Blue
+def GRAPHICS_SPRITE_PALETTE_1___DisplayName str() = Green
+def GRAPHICS_SPRITE_PALETTE_2___DisplayName str() = Yellow
+def GRAPHICS_SPRITE_PALETTE_3 int() = 0
+def GRAPHICS_SPRITE_PALETTE_3___ModelPath str() = res://castagne/assets/fighters/baston/model/BastonModel-Pal05.tscn
+def GRAPHICS_SPRITE_PALETTE_3___SpritePalettePath str() = res://castagne/assets/helpers/palette/PaletteManual01.png
+def GRAPHICS_SPRITE_PALETTE_3___Extra int() = 0
+def GRAPHICS_SPRITE_PALETTE_3___DisplayName str() = Purple
+def GRAPHICS_SPRITE_PALETTE_4 int() = 0
+def GRAPHICS_SPRITE_PALETTE_4___ModelPath str() = res://castagne/assets/fighters/baston/model/BastonModel-Pal06.tscn
+def GRAPHICS_SPRITE_PALETTE_4___SpritePalettePath str() = res://castagne/assets/helpers/palette/PaletteManual01.png
+def GRAPHICS_SPRITE_PALETTE_4___Extra int() = 0
+def GRAPHICS_SPRITE_PALETTE_4___DisplayName str() = White
 :Specs-Anims:
 def ANIM_Movement_Basic_Stand str() = Stand
 def ANIM_Movement_Basic_Stand_Loop int() = 56

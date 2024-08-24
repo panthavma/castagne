@@ -6,11 +6,24 @@ extends PanelContainer
 
 var editor
 var _categoryData
+var _specialOrder
 
-func InitFromCategory(categoryData):
-	$Contents/Header/CategoryName.set_text(categoryData["Name"])
+func InitFromCategory(categoryData, specialOrder = null):
 	editor = categoryData["Editor"]
 	_categoryData = categoryData
+	_specialOrder = specialOrder
+	var displayName = categoryData["Name"]
+	
+	if(specialOrder != null):
+		if(specialOrder.has("DisplayName")):
+			displayName = specialOrder["DisplayName"]
+		if(specialOrder.has("IconPath")):
+			var icon = Castagne.Loader.Load(specialOrder["IconPath"])
+			if(icon != null):
+				$Contents/Header/SpecialIcon.set_texture(icon)
+				$Contents/Header/SpecialIcon.show()
+	
+	$Contents/Header/CategoryName.set_text(displayName)
 	if(categoryData["Open"]):
 		Expand()
 	else:

@@ -24,13 +24,17 @@ var CAST_REG_B_STR str() = B
 _Category(Internals)
 _BaseState()
 
+## CASTDO Somewhat temporary, only works because of fighting flow forcing the main target opponent
+TargetSave()
+
 CallAfter(CommonAfter)
 :CommonAfter:
 ## This state is called after every script that links back to :Common:. It's purpose it to hold some helpers, like putting default hurtboxes on characters.
 
 _Helper()
 _Category(Internals)
-#Log(CommonAFTER)
+
+TargetRecall()
 :Custom-NeutralStateCommon:
 ## Custom override point for the NeutralStateCommon helper, which is called in all neutral states.
 ## This happens at the beginning of the function.

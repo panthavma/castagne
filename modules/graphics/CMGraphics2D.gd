@@ -13,6 +13,7 @@ func ModuleSetup():
 	RegisterModule("Graphics 2D", Castagne.MODULE_SLOTS_BASE.GRAPHICS)
 	.ModuleSetup()
 	
+	RegisterCategory("2D Specific")
 	RegisterConfig("2DScreenSizeX", 1920)
 	RegisterConfig("2DScreenSizeY", 1080)
 	RegisterConfig("2DFixedScreenSize", true)

@@ -160,9 +160,9 @@ func EditorGetCurrentBattleInitData(editor, root):
 			cdbn += str(eid) + "-"
 			e["scriptpath"] = eRoot.get_child(1).get_selected_id()
 			e["overrides"] = {}
-			e["overrides"]["_SpritePaletteID"] = eRoot.get_child(2).get_value()-1
+			e["overrides"]["_PaletteID"] = eRoot.get_child(2).get_value()-1
 			editor.configData.Set(cdbn+"scriptpath", e["scriptpath"], true)
-			editor.configData.Set(cdbn+"palette", e["overrides"]["_SpritePaletteID"], true)
+			editor.configData.Set(cdbn+"palette", e["overrides"]["_PaletteID"], true)
 	
 	var cdbng = localConfigPrefixBase+"Global-"
 	var globalStart = nbPlayers*2

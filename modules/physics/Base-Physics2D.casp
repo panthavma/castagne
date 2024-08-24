@@ -139,18 +139,27 @@ _BaseState()
 _Category(Movement/Dashes/Helper)
 _Helper()
 
+## CASTDO Remove the Frame limit, probably was because of input buffer
 F6+:
-	VMOVE_AirActionsRemaining>0:
-		VMOVE_Dashes_CanAirjump:
-			IJumpPress:
-				IForward:
-					Transition(AirjumpF, PHYSICS_Jumping_Priority, 1)
+	IJumpPress:
+		Call(Airborne_StartAirjumpHelper)
+	endif
+endif
+:Airborne_StartAirjumpHelper:
+## Actually starts the air jump
+_Category(Movement/Dashes/Helper)
+_Helper()
+
+VMOVE_AirActionsRemaining>0:
+	VMOVE_Dashes_CanAirjump:
+		IJumpPress:
+			IForward:
+				Transition(AirjumpF, PHYSICS_Jumping_Priority, 1)
+			else
+				IBack:
+					Transition(AirjumpB, PHYSICS_Jumping_Priority, 1)
 				else
-					IBack:
-						Transition(AirjumpB, PHYSICS_Jumping_Priority, 1)
-					else
-						Transition(AirjumpN, PHYSICS_Jumping_Priority, 1)
-					endif
+					Transition(AirjumpN, PHYSICS_Jumping_Priority, 1)
 				endif
 			endif
 		endif
@@ -565,6 +574,16 @@ Set(CurrentFrictionGround, MOVE_Tech_Friction_Ground)
 Set(CurrentFrictionAir, MOVE_Tech_Friction_Air)
 Set(CurrentGravity, MOVE_Tech_Gravity)
 #Set(LandingTime, MOVE_Landing_TimeEmpty)
+:Attack-JumpCancel:
+CallParent()
+
+LCanJumpCancel:
+	LPF_Grounded:
+		Call(Grounded_StartJumpHelper)
+	else
+		Call(Airborne_StartAirjumpHelper)
+	endif
+endif
 :AttackOverrides-OnTouch-Hook:
 CallParent()
 

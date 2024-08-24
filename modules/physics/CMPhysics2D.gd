@@ -669,6 +669,12 @@ func SetTargetPosition(args, stateHandle, useAbsolute=false):
 func SetTargetPositionAbsolute(args, stateHandle):
 	SetTargetPosition(args, stateHandle, true)
 
+func GizmoSetTargetPosition(emodule, args, lineActive, stateHandle):
+	if(args.size() >= 2):
+		var color = Color(1.0, 0.4, 1.0)
+		var pos = [int(args[0]),int(args[1]),0]
+		GizmoPoint(emodule, pos, color, lineActive)
+
 func TargetGetRelativePosition(args, stateHandle):
 	var selfEID = stateHandle.PointToCurrentTargetEntity()
 	var pos = [stateHandle.EntityGet("_PositionX"), stateHandle.EntityGet("_PositionY")]
@@ -1122,6 +1128,16 @@ func GizmoBox(emodule, args, lineActive, _stateHandle, type):
 		emodule.GizmoLine([hc, t,0], [r, vc,0], color, width)
 		emodule.GizmoLine([r, vc,0], [hc, b,0], color, width)
 		emodule.GizmoLine([hc, b,0], [l, vc,0], color, width)
+
+func GizmoPoint(emodule, pos, color, lineActive):
+	var lineWidth = (4 if lineActive else 2)
+	var anchorSize = 2000
+	emodule.GizmoLine([pos[0]-anchorSize,pos[1],pos[2]], [pos[0]+anchorSize,pos[1],pos[2]], color, lineWidth)
+	emodule.GizmoLine([pos[0],pos[1]-anchorSize,pos[2]], [pos[0],pos[1]+anchorSize,pos[2]], color, lineWidth)
+	emodule.GizmoLine([pos[0]-anchorSize,pos[1],pos[2]], [pos[0],pos[1]+anchorSize,pos[2]], color, lineWidth)
+	emodule.GizmoLine([pos[0]-anchorSize,pos[1],pos[2]], [pos[0],pos[1]-anchorSize,pos[2]], color, lineWidth)
+	emodule.GizmoLine([pos[0]+anchorSize,pos[1],pos[2]], [pos[0],pos[1]+anchorSize,pos[2]], color, lineWidth)
+	emodule.GizmoLine([pos[0]+anchorSize,pos[1],pos[2]], [pos[0],pos[1]-anchorSize,pos[2]], color, lineWidth)
 
 func GizmoHurtbox(emodule, args, lineActive, stateHandle):
 	GizmoBox(emodule, args, lineActive, stateHandle, 0)

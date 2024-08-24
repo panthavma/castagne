@@ -6,7 +6,7 @@ var toolName = "No Name"
 var toolDescription = "No Description"
 var toolDocumentationPage = "/Editor"
 
-func ToolSetup():
+func SetupTool():
 	pass
 
 func AddTool(rootSmallView, rootExpandedView):

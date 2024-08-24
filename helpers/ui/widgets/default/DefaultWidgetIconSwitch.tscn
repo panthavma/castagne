@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/helpers/ui/widgets/default/CUIWidget_IconSwitch_Default.gd" type="Script" id=1]
+
+[node name="DefaultWidgetIconSwitch" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )

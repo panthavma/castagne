@@ -28,41 +28,41 @@ anchor_bottom = 1.0
 alignment = 1
 
 [node name="Label2" type="Label" parent="Analyzer/Sidebar"]
-margin_top = 435.0
-margin_right = 384.0
-margin_bottom = 449.0
+margin_top = 255.0
+margin_right = 256.0
+margin_bottom = 269.0
 text = "--- State Selection ---"
 align = 1
 
 [node name="StateName" type="LineEdit" parent="Analyzer/Sidebar"]
-margin_top = 453.0
-margin_right = 384.0
-margin_bottom = 477.0
+margin_top = 273.0
+margin_right = 256.0
+margin_bottom = 297.0
 text = "Character"
 
 [node name="Label" type="Label" parent="Analyzer/Sidebar"]
-margin_top = 481.0
-margin_right = 384.0
-margin_bottom = 495.0
+margin_top = 301.0
+margin_right = 256.0
+margin_bottom = 315.0
 text = "--- Phase Selection ---"
 align = 1
 
 [node name="Phases" type="GridContainer" parent="Analyzer/Sidebar"]
-margin_top = 499.0
-margin_right = 384.0
-margin_bottom = 591.0
+margin_top = 319.0
+margin_right = 256.0
+margin_bottom = 411.0
 columns = 2
 
 [node name="Init" type="Button" parent="Analyzer/Sidebar/Phases"]
-margin_right = 190.0
+margin_right = 126.0
 margin_bottom = 20.0
 hint_tooltip = "Init phase is executed once for each new entity. This is used for states beginning with Init--"
 size_flags_horizontal = 3
 text = "Init"
 
 [node name="Subentity" type="Button" parent="Analyzer/Sidebar/Phases"]
-margin_left = 194.0
-margin_right = 384.0
+margin_left = 130.0
+margin_right = 256.0
 margin_bottom = 20.0
 hint_tooltip = "Freeze phase is activated on command for elements like hitstun, or super freeze. This is a different main loop type."
 size_flags_horizontal = 3
@@ -70,16 +70,16 @@ text = "Subentity"
 
 [node name="Action" type="Button" parent="Analyzer/Sidebar/Phases"]
 margin_top = 24.0
-margin_right = 190.0
+margin_right = 126.0
 margin_bottom = 44.0
 hint_tooltip = "Main phase where behavior is set up. Most of the time, the only phase you need to be concerned with."
 size_flags_horizontal = 3
 text = "Action"
 
 [node name="Reaction" type="Button" parent="Analyzer/Sidebar/Phases"]
-margin_left = 194.0
+margin_left = 130.0
 margin_top = 24.0
-margin_right = 384.0
+margin_right = 256.0
 margin_bottom = 44.0
 hint_tooltip = "Phase executed after the physics resolution. Mostly useful to react to hits or movement changes, and where the transitions are actually made."
 size_flags_horizontal = 3
@@ -87,16 +87,16 @@ text = "Reaction"
 
 [node name="AI" type="Button" parent="Analyzer/Sidebar/Phases"]
 margin_top = 48.0
-margin_right = 190.0
+margin_right = 126.0
 margin_bottom = 68.0
 hint_tooltip = "Phase used to drive AI behavior by pressing buttons. Executed before the Action phase."
 size_flags_horizontal = 3
 text = "AI"
 
 [node name="Manual" type="Button" parent="Analyzer/Sidebar/Phases"]
-margin_left = 194.0
+margin_left = 130.0
 margin_top = 48.0
-margin_right = 384.0
+margin_right = 256.0
 margin_bottom = 68.0
 hint_tooltip = "Special phase used internally by the engine to force full execution at times."
 size_flags_horizontal = 3
@@ -104,32 +104,32 @@ text = "Manual"
 
 [node name="Freeze" type="Button" parent="Analyzer/Sidebar/Phases"]
 margin_top = 72.0
-margin_right = 190.0
+margin_right = 126.0
 margin_bottom = 92.0
 hint_tooltip = "Freeze phase is activated on command for elements like hitstun, or super freeze. This is a different main loop type."
 size_flags_horizontal = 3
 text = "Freeze"
 
 [node name="Halt" type="Button" parent="Analyzer/Sidebar/Phases"]
-margin_left = 194.0
+margin_left = 130.0
 margin_top = 72.0
-margin_right = 384.0
+margin_right = 256.0
 margin_bottom = 92.0
 hint_tooltip = "Freeze phase is activated on command for elements like hitstun, or super freeze. This is a different main loop type."
 size_flags_horizontal = 3
 text = "Halt"
 
 [node name="Label3" type="Label" parent="Analyzer/Sidebar"]
-margin_top = 595.0
-margin_right = 384.0
-margin_bottom = 609.0
+margin_top = 415.0
+margin_right = 256.0
+margin_bottom = 429.0
 text = "--- Variables ---"
 align = 1
 
 [node name="VariablesTotal" type="Label" parent="Analyzer/Sidebar"]
-margin_top = 613.0
-margin_right = 384.0
-margin_bottom = 644.0
+margin_top = 433.0
+margin_right = 256.0
+margin_bottom = 464.0
 text = "Global: 0 / Players: 0 / Entities: 0
 Total: 0"
 align = 1
@@ -141,27 +141,27 @@ anchor_bottom = 1.0
 alignment = 1
 
 [node name="Label" type="Label" parent="Analyzer/Main"]
-margin_right = 1536.0
+margin_right = 1024.0
 margin_bottom = 14.0
 text = "--- Code Visualisation ---"
 align = 1
 
 [node name="State" type="Label" parent="Analyzer/Main"]
 margin_top = 18.0
-margin_right = 1536.0
+margin_right = 1024.0
 margin_bottom = 32.0
 text = "State: "
 align = 1
 
 [node name="HSeparator" type="HSeparator" parent="Analyzer/Main"]
 margin_top = 36.0
-margin_right = 1536.0
+margin_right = 1024.0
 margin_bottom = 40.0
 
 [node name="Display" type="TextEdit" parent="Analyzer/Main"]
 margin_top = 44.0
-margin_right = 1536.0
-margin_bottom = 1080.0
+margin_right = 1024.0
+margin_bottom = 720.0
 size_flags_vertical = 3
 text = "FUNCTION 1()
 FUNCTION 2()"

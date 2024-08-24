@@ -9,6 +9,11 @@ func ModuleSetup():
 	RegisterModule("Functions", null, {"Description":"Additional helper functions for the engine that don't fit in a dedicated module."})
 	
 	RegisterCategory("Mathematics (Advanced)", {"Description":"More complex mathematical functions."})
+	RegisterFunction("Abs", [1,2], null, {
+		"Description": "Returns the absolute value.",
+		"Arguments": ["Variable", "(Optional) Destination Variable"],
+	})
+	
 	RegisterFunction("Cos", [2,3], null, {
 		"Description": "Returns the cosine of an angle (in milliradians) multiplied by a variable.",
 		"Arguments": ["Variable", "Angle", "(Optional) Destination Variable"]
@@ -31,7 +36,10 @@ func ModuleSetup():
 
 
 
-
+func Abs(args, stateHandle):
+	var destVar = ArgVar(args, stateHandle, 1, ArgVar(args, stateHandle, 0))
+	var v = ArgInt(args, stateHandle, 0)
+	stateHandle.EntitySet(destVar, (v if v >= 0 else -v))
 
 func Cos(args, stateHandle):
 	var destVar = ArgVar(args, stateHandle, 2, ArgVar(args, stateHandle, 0))
