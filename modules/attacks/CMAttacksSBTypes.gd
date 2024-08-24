@@ -22,6 +22,8 @@ func SetupSpecblock(_argument):
 	AddDefine("ATTACK_Light_CanCancelIntoMediums", true, "Can Cancel into Mediums")
 	AddDefine("ATTACK_Light_CanCancelIntoHeavies", true, "Can Cancel into Heavies")
 	AddDefine("ATTACK_Light_CanCancelIntoSpecials", true, "Can Cancel into Specials")
+	AddDefine("ATTACK_Light_CanJumpCancelOnHit", true, "Can Jump Cancel on Hit")
+	AddDefine("ATTACK_Light_CanJumpCancelOnBlock", false, "Can Jump Cancel on Block")
 	
 	AddCategory("Medium Attacks")
 	AddCategory("Medium Attacks/Proration")
@@ -34,6 +36,8 @@ func SetupSpecblock(_argument):
 	AddDefine("ATTACK_Medium_CanCancelIntoMediums", true, "Can Cancel into Mediums")
 	AddDefine("ATTACK_Medium_CanCancelIntoHeavies", true, "Can Cancel into Heavies")
 	AddDefine("ATTACK_Medium_CanCancelIntoSpecials", true, "Can Cancel into Specials")
+	AddDefine("ATTACK_Medium_CanJumpCancelOnHit", true, "Can Jump Cancel on Hit")
+	AddDefine("ATTACK_Medium_CanJumpCancelOnBlock", false, "Can Jump Cancel on Block")
 	
 	AddCategory("Heavy Attacks")
 	AddCategory("Heavy Attacks/Proration")
@@ -46,6 +50,8 @@ func SetupSpecblock(_argument):
 	AddDefine("ATTACK_Heavy_CanCancelIntoMediums", false, "Can Cancel into Mediums")
 	AddDefine("ATTACK_Heavy_CanCancelIntoHeavies", true, "Can Cancel into Heavies")
 	AddDefine("ATTACK_Heavy_CanCancelIntoSpecials", true, "Can Cancel into Specials")
+	AddDefine("ATTACK_Heavy_CanJumpCancelOnHit", true, "Can Jump Cancel on Hit")
+	AddDefine("ATTACK_Heavy_CanJumpCancelOnBlock", false, "Can Jump Cancel on Block")
 	
 	AddCategory("Special Attacks")
 	AddCategory("Special Attacks/Proration")
@@ -56,6 +62,8 @@ func SetupSpecblock(_argument):
 	AddCategory("Special Attacks/Cancels")
 	AddDefine("ATTACK_Special_CanCancelIntoEX", true, "Can Cancel into EX")
 	AddDefine("ATTACK_Special_CanCancelIntoSuper", true, "Can Cancel into Supers")
+	AddDefine("ATTACK_Special_CanJumpCancelOnHit", false, "Can Jump Cancel on Hit")
+	AddDefine("ATTACK_Special_CanJumpCancelOnBlock", false, "Can Jump Cancel on Block")
 	
 	AddCategory("EX Attacks")
 	AddDefine("ATTACK_EX_MeterCost", 25, "EX Attack Cost")
@@ -67,6 +75,8 @@ func SetupSpecblock(_argument):
 	AddCategory("EX Attacks/Cancels")
 	AddDefine("ATTACK_EX_CanCancelIntoEX", false, "Can Cancel into EX")
 	AddDefine("ATTACK_EX_CanCancelIntoSuper", true, "Can Cancel into Supers")
+	AddDefine("ATTACK_EX_CanJumpCancelOnHit", false, "Can Jump Cancel on Hit")
+	AddDefine("ATTACK_EX_CanJumpCancelOnBlock", false, "Can Jump Cancel on Block")
 	
 	AddCategory("Super Attacks")
 	AddDefine("ATTACK_Super_MeterCost", 50, "Super Attack Cost")
@@ -75,7 +85,7 @@ func SetupSpecblock(_argument):
 	AddDefine("ATTACK_Super_ProrationDamage", 500, "Damage Proration")
 	AddDefine("ATTACK_Super_ProrationHitstunStarter", 1000, "Hitstun Proration (Starter)")
 	AddDefine("ATTACK_Super_ProrationHitstun", 980, "Hitstun Proration")
-	AddCategory("Super Attacks/Cancels")
+	#AddCategory("Super Attacks/Cancels")
 	
 	AddCategory("Throws")
 	AddCategory("Throws/Proration")
@@ -87,6 +97,8 @@ func SetupSpecblock(_argument):
 	AddDefine("ATTACK_Throw_CanCancelIntoSpecials", false, "Can Cancel into Specials")
 	AddDefine("ATTACK_Throw_CanCancelIntoEX", false, "Can Cancel into EX")
 	AddDefine("ATTACK_Throw_CanCancelIntoSuper", false, "Can Cancel into Supers")
+	AddDefine("ATTACK_Throw_CanJumpCancelOnHit", false, "Can Jump Cancel on Hit")
+	AddDefine("ATTACK_Throw_CanJumpCancelOnBlock", false, "Can Jump Cancel on Block")
 	
 
 

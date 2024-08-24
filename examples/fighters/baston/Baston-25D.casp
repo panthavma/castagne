@@ -460,7 +460,7 @@ AttackKnockdown(50,50)
 AttackFlag(ForceLanding)
 
 F5:
-	Hitbox(0, 20000, 0, 20000)
+	InflictAttack()
 endif
 
 Anim(ThrowF)

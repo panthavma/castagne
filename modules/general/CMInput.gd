@@ -18,9 +18,10 @@ func ModuleSetup():
 		{"Name":"L", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_H, KEY_KP_4]]], "ControllerInputs":[[[JOY_XBOX_X]]]},
 		{"Name":"M", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_J, KEY_KP_5]]], "ControllerInputs":[[[JOY_XBOX_Y]]]},
 		{"Name":"H", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_K, KEY_KP_6]]], "ControllerInputs":[[[JOY_XBOX_B]]]},
-		{"Name":"S", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_L, KEY_KP_0]]], "ControllerInputs":[[[JOY_XBOX_A]]]},
+		{"Name":"S", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_N, KEY_KP_0]]], "ControllerInputs":[[[JOY_XBOX_A]]]},
+		{"Name":"E", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_L, KEY_KP_ADD]]], "ControllerInputs":[[[JOY_R]]]},
 		{"Name":"Throw", "Type":Castagne.PHYSICALINPUT_TYPES.COMBINATION,
-			"KeyboardInputs":[[[KEY_KP_ADD]]], "ControllerInputs":[[[JOY_L]]],
+			"KeyboardInputs":[[[KEY_SHIFT]]], "ControllerInputs":[[[JOY_L]]],
 			"Combination":[[1, 0], [2, 0]]},
 		{"Name":"Jump", "Type":Castagne.PHYSICALINPUT_TYPES.ANY,
 			"KeyboardInputs":[[]], "ControllerInputs":[[]],
@@ -97,9 +98,7 @@ func ModuleSetup():
 		"Types":["str", "str", "str", "int"],
 		})
 	RegisterVariableEntity("_InputTransitionList", [], ["ResetEachFrame"], {"Description":"List of the input transitions to watch for."})
-	RegisterVariableEntity("_FrozenInputTransitionList", [], null, {"Description":"List of the input transitions to watch for while in a freeze frame state, prevserved from the last frame before the freeze."})
-	RegisterVariableEntity("_SelectedInputTransition", null, {"Description":"Holds the current state determined from inputs to transition to during the reaction phase."})
-	RegisterVariableEntity("_SelectedFrozenInputTransition", null, {"Description":"Holds the input transition data during the freeze phase."})
+	RegisterVariableEntity("_FrozenInputTransition", null, {"Description":"Holds the input transition data during the freeze phase."})
 	RegisterConfig("InputTransitionDefaultPriority", 1000, {"Description":"The default Transition priority for InputTransition."})
 
 	RegisterCategory("Motion Inputs", {"Description":"System for detecting when motion input has been performed by a player."})
@@ -111,14 +110,17 @@ func ModuleSetup():
 	RegisterConfig("LongMotionInterval", 8, {"Description":"Maximum number of frames between inputs for a motion to remain valid. This value is for motions with more than three directions.", "Flags":["Advanced"]})
 	RegisterConfig("ButtonInterval", 8, {"Description":"Maximum number of frames between motion input and pressing the button for a motion to remain valid.", "Flags":["Advanced"]})
 	RegisterConfig("MinChargeTime", 30, {"Description":"Minimum number of frames for a direction to be held for a valid charge input.", "Flags":["Advanced"]})
-	#the above three values determine the number of frames between inputs in a motion. By default, shorter motions have more leniency.
-
-	RegisterConfig("ValidMotionInputs","236, 214, 623, 421, 41236, 63214, 22, 44, 66, [4]6, [2]8",{"Description":"Motion inputs in numpad notation that the system will check for."})
+	RegisterConfig("StrictDiagonalCharge", false, {"Description":"If enabled, holding a diagonal direction will not count as charing the two diagional inputs.", "Flags":["Advanced"]})
+	
+	RegisterConfig("MotionAliases", [
+		{"Name":"360","Aliases":"2684, 6842, 8426, 4268"},
+		{"Name":"41236","Aliases":"4126, 4236"},
+		{"Name":"63214","Aliases":"6324, 6214"},
+	], {"Description":"List of motion input aliases.", "Flags":["Hidden"]})
+	
+	RegisterCustomConfig("Define Motion Input Aliases", "InputMotionAliases", {"Flags":["Advanced", "ReloadFull", "LockBack"]})
 
 	RegisterVariableEntity("_DirectionalInputLog", [], null, {"Description":"Array containing just the raw directional inputs for a player on each frame. Inputs are held for a number of frames equal to the buffer config variable."})
-	RegisterVariableEntity("_ChargeInputLog", [], null, {"Description":"Array containing the inputs that have been held long enough to charge on each frame. Diagonal inputs also add the cardinal direction inputs. Inputs are held for a number of frames equal to the buffer config variable."})
-	RegisterVariableEntity("_ChargeTime", {"Up":0,"Down":0,"Forward":0,"Back":0}, null, {"Description":"Dict containing the number of frames each direction has been held."})
-	RegisterVariableEntity("_PerformedMotions", [], {"Description":"Array containing the motions that have been performed by the player."})
 
 var _castagneInputScript = load("res://castagne/engine/CastagneInput.gd")
 func OnModuleRegistration(configData):
@@ -223,29 +225,26 @@ func InputPhase(stateHandle, activeEIDs):
 func InputPhaseEndEntity(stateHandle):
 	if(stateHandle.ConfigData().Get("EnableMotionInputs")):
 		LogDirectionalInputs(stateHandle)
-	
-		var validMotions = Castagne.SplitStringToArray(stateHandle.ConfigData().Get("ValidMotionInputs"))
-		var motions = []
-	
-		for m in validMotions:
-			if MotionInputCheck(stateHandle, m):
-				motions += [m]
-		stateHandle.EntitySet("_PerformedMotions", motions)
 
+#checks for inputs during the freeze phase
 func FreezePhaseStartEntity(stateHandle):
-	var frozenInputTransitionList = []
-	frozenInputTransitionList = stateHandle.EntityGet("_FrozenInputTransitionList")
-	if(!frozenInputTransitionList.empty()):
-		stateHandle.EntitySet("_InputTransitionList", frozenInputTransitionList)
-		var frozenInputTransition = FindCorrectInputTransition(stateHandle)
-		if(frozenInputTransition != null):
-			stateHandle.EntitySet("_SelectedFrozenInputTransition", frozenInputTransition)
+	var frozenInputTransition = FindCorrectInputTransition(stateHandle)
+	if frozenInputTransition != null:
+		stateHandle.EntitySet("_FrozenInputTransition", frozenInputTransition)
 
 func ReactionPhaseStartEntity(stateHandle):
 	var inputTransition = FindCorrectInputTransition(stateHandle)
-	var frozenInputTransition = stateHandle.EntityGet("_SelectedFrozenInputTransition")
-	if(inputTransition == null):
-		inputTransition = frozenInputTransition
+	var frozenIT = stateHandle.EntityGet("_FrozenInputTransition")
+	
+	#checks if there is an input from the freeze phase that is still a valid input and sets it as the input transition
+	if frozenIT != null:
+		if inputTransition == null:
+			var itl = stateHandle.EntityGet("_InputTransitionList")
+			for input in itl:
+				if input["TargetState"] == frozenIT["TargetState"]:
+					inputTransition = frozenIT
+					break
+		stateHandle.EntitySet("_FrozenInputTransition", null)
 	
 	if(inputTransition != null):
 		var coreModule = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.CORE)
@@ -255,9 +254,6 @@ func ReactionPhaseStartEntity(stateHandle):
 			coreModule.Flag([inputTransition["TargetFlag"]], stateHandle)
 		if(inputTransition.has("TargetFlagNext")):
 			coreModule.FlagNext([inputTransition["TargetFlagNext"]], stateHandle)
-	stateHandle.EntitySet("_SelectedInputTransition",null)
-	stateHandle.EntitySet("_FrozenInputTransitionList", stateHandle.EntityGet("_InputTransitionList"))
-	stateHandle.EntitySet("_SelectedFrozenInputTransition", null)
 
 func FindCorrectInputTransition(stateHandle):
 	var inputTransitionList = stateHandle.EntityGet("_InputTransitionList")
@@ -295,10 +291,15 @@ func FindCorrectInputTransition(stateHandle):
 		elif(inputs["Back"]):
 			directions += [["4", 20]]
 		directions += [["5", 10]]
-
+	
+	var performedMotions = []
+	if(stateHandle.ConfigData().Get("EnableMotionInputs")):
+		var validMotions = GetMotionsFromInputList(stateHandle, inputTransitionList)
+		performedMotions = GetMotionInputs(stateHandle, validMotions)
+	
 	#add motion inputs to the list of "directions"
 	var motionPriority = 100
-	for motion in stateHandle.EntityGet("_PerformedMotions"):
+	for motion in performedMotions:
 		directions += [[motion, motionPriority]]
 		motionPriority += 10
 
@@ -494,106 +495,73 @@ func AddInputTransitionFlag(stateHandle, inputNotation, targetState = null, targ
 		itd["TargetFlag"] = targetFlag
 	if(targetFlagNext != null):
 		itd["TargetFlagNext"] = targetFlagNext
-
+	
 	Castagne.FuseDataOverwrite(itd, data)
-
+	
 	stateHandle.EntityAdd("_InputTransitionList", [itd])
 
-#motion input stuff:
+#creates log of inputs ordered from newest to oldest
 func LogDirectionalInputs(stateHandle):
 	var inputs = stateHandle.EntityGet("_Inputs")
 	var buffer = stateHandle.ConfigData().Get("DirectionalInputBuffer")
 	var direction = 5
 	var inputLog = stateHandle.EntityGet("_DirectionalInputLog")
-
-	var minChargeTime = stateHandle.ConfigData().Get("MinChargeTime")
-	var chargeTime = stateHandle.EntityGet("_ChargeTime")
-	var chargeLog = stateHandle.EntityGet("_ChargeInputLog")
-	var currentCharge = []
-
+	
 	if inputLog.empty():
 		inputLog.resize(buffer)
 		inputLog.fill(5)
-	if chargeLog.empty():
-		chargeLog.resize(buffer)
-		chargeLog.fill([])
-
+	
 	if(inputs["Up"]):
-		chargeTime["Up"] += 1
 		direction += 3
-	else:
-		chargeTime["Up"] = 0
-
+	
 	if(inputs["Down"]):
-		chargeTime["Down"] += 1
 		direction -= 3
-	else:
-		chargeTime["Down"] = 0
+	
 	if(inputs["Forward"]):
-		chargeTime["Forward"] += 1
 		direction += 1
-	else:
-		chargeTime["Forward"] = 0
-
+	
 	if(inputs["Back"]):
-		chargeTime["Back"] += 1
 		direction -= 1
-	else:
-		chargeTime["Back"] = 0
-
+	
 	direction = str(direction)
-
-	if chargeTime["Down"] >= minChargeTime:
-		if chargeTime["Back"] >= minChargeTime:
-			currentCharge += ["1"]
-		currentCharge += ["2"]
-		if chargeTime["Forward"] >= minChargeTime:
-			currentCharge += ["3"]
-
-	if chargeTime["Back"] >= minChargeTime:
-		currentCharge += ["4"]
-
-	if chargeTime["Forward"] >= minChargeTime:
-		currentCharge += ["6"]
-
-	if chargeTime["Up"] >= minChargeTime:
-		if chargeTime["Back"] >= minChargeTime:
-			currentCharge += ["7"]
-		currentCharge += ["8"]
-		if chargeTime["Forward"] >= minChargeTime:
-			currentCharge += ["9"]
-
+	
 	inputLog.push_front(direction)
 	inputLog.resize(buffer)
 	stateHandle.EntitySet("_DirectionalInputLog", inputLog)
 
-	chargeLog.push_front(currentCharge)
-	chargeLog.resize(buffer)
-	stateHandle.EntitySet("_ChargeInputLog", chargeLog)
-
-	stateHandle.EntitySet("_ChargeTime", chargeTime)
-
+#checks the input log to see if a motion was done
 func MotionInputCheck(stateHandle, motion):
 	var inputLog = stateHandle.EntityGet("_DirectionalInputLog")
-	var chargeLog = stateHandle.EntityGet("_ChargeInputLog")
 	var minChargeTime = stateHandle.ConfigData().Get("MinChargeTime")
+	var strictDiag = stateHandle.ConfigData().Get("StrictDiagonalCharge")
 	
 	var inputFrames = [0]
-
+	
 	var directions = []
-
+	
+	#convert the notation from str to array and reverse the order so the latest inputs are checked first
 	for i in len(motion):
 		if motion[i] == "]":
 			pass
+		elif i > 0 && motion[i-1] == "[" && !strictDiag:
+			if motion[i] == "2":
+				directions.push_front("123")
+			elif motion[i] == "4":
+				directions.push_front("147")
+			elif motion[i] == "6":
+				directions.push_front("369")
+			elif motion[i] == "8":
+				directions.push_front("789")
+			else:
+				directions.push_front(motion[i])
 		else:
 			directions.push_front(motion[i])
-
 		if i > 0 && motion[i] == motion[i-1]:
 			directions.insert(1,"5")
-
+	
 	var intervals = []
 	intervals.resize(len(directions)-1)
-
+	
 	if len(directions) <= 3:
 		intervals.fill(stateHandle.ConfigData().Get("ShortMotionInterval"))
 	else:
@@ -601,17 +569,83 @@ func MotionInputCheck(stateHandle, motion):
 	intervals.append(stateHandle.ConfigData().Get("ButtonInterval"))
 
 	for i in range(0, len(directions)):
+		#need "[" to mark charges but it doesn't need to be parsed - this should really only be a factor if the motion has a charge partway through it
 		if directions[i] == "[":
-			inputFrames.append(inputLog.find_last(directions[i-1]))
+			inputFrames.append(inputLog[i-1])
 		else:
 			var frame = -1
+			#if the input is a charge, check if there is a sequence of consective inputs longer than the charge time
 			if i < len(directions)-1 && directions[i+1] == "[":
-				for j in range(inputFrames[i],inputFrames[i]+intervals[i]):
-					if !chargeLog[j].find(directions[i]) == -1:
-						frame = j
+				var count = 0
+				var maxCharge = 0
+				var firstFrame = 0
+				for j in range(inputFrames[i],inputFrames[i]+intervals[i]+minChargeTime):
+					if inputLog[j] in directions[i]:
+						count += 1
+						if count > maxCharge:
+							maxCharge = count
+							firstFrame = j
+					else:
+						count = 0
+				if maxCharge >= minChargeTime:
+					inputFrames.append(firstFrame)
+				else:
+					return
+			#otherwise, just check if the input is present in the log between the previous input and the buffer interval
 			else:
 				frame = inputLog.find(directions[i],inputFrames[i])
-			inputFrames.append(frame)
-			if !frame in range(inputFrames[i],inputFrames[i]+intervals[i]):
-				return
+				if frame in range(inputFrames[i],inputFrames[i]+intervals[i]):
+					inputFrames.append(frame)
+				else:
+					return
 	return motion
+
+#parses possible motions and aliases from the input transition list 
+func GetMotionsFromInputList(stateHandle, itl):
+	var validChars = ["0","1","2","3","4","5","6","7","8","9","[","]"]
+	var motionList = []
+	for i in range(0, len(itl)):
+		var motion = ""
+		var input = itl[i]["InputNotation"]
+		#for each input, pulls only the valid characters
+		for c in range(0, len(input)):
+			if validChars.has(input[c]):
+				motion += input[c]
+		#if the input has 2 or more valid characters, it is counted as a motion
+		if len(motion) > 1 and !motionList.has(motion):
+			motionList += [motion]
+			var aliases = GetMotionAliases(stateHandle, motion)
+			for a in range(0, len(aliases)):
+				if len(aliases[a]) > 1 and !motionList.has(aliases[a]):
+					motionList += [aliases[a]]
+	return motionList
+
+#pulls the aliases of a motion input from the config
+func GetMotionAliases(stateHandle, motion):
+	var motionAliases = stateHandle.ConfigData().Get("MotionAliases")
+	for dict in motionAliases:
+		if dict["Name"] == motion:
+			return Castagne.SplitStringToArray(dict["Aliases"])
+	return []
+
+#checks the list of possible motions to determine which ones, if any, were performed
+func GetMotionInputs(stateHandle, validMotions):
+	var motions = []
+	
+	for m in validMotions:
+		if MotionInputCheck(stateHandle, m):
+			motions += [m]
+			var mainMotion = GetMainMotion(stateHandle, m)
+			if len(mainMotion) > 1:
+				motions += [mainMotion]
+	return motions
+
+#finds the main motion given an alias
+func GetMainMotion(stateHandle, alias):
+	var motionAliases = stateHandle.ConfigData().Get("MotionAliases")
+	for dict in motionAliases:
+		var aliases = Castagne.SplitStringToArray(dict["Aliases"])
+		for a in aliases:
+			if a == alias:
+				return dict["Name"]
+	return ""

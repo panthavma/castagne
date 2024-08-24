@@ -19,22 +19,22 @@ margin_right = -32.0
 alignment = 1
 
 [node name="Title" type="Label" parent="Small/Main"]
-margin_top = 512.0
-margin_right = 1856.0
-margin_bottom = 526.0
+margin_top = 332.0
+margin_right = 1216.0
+margin_bottom = 346.0
 text = "- Animation Data -"
 align = 1
 
 [node name="AnimList" type="OptionButton" parent="Small/Main"]
-margin_top = 530.0
-margin_right = 1856.0
-margin_bottom = 550.0
+margin_top = 350.0
+margin_right = 1216.0
+margin_bottom = 370.0
 align = 1
 
 [node name="AnimInfo" type="Label" parent="Small/Main"]
-margin_top = 554.0
-margin_right = 1856.0
-margin_bottom = 568.0
+margin_top = 374.0
+margin_right = 1216.0
+margin_bottom = 388.0
 text = "Animation Length: 0"
 align = 1
 

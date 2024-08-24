@@ -28,7 +28,7 @@ func EnterMenu(bid):
 	
 	if(typeof(characterPath) == TYPE_INT):
 		characterPath = Castagne.SplitStringToArray(editor.configData.Get("CharacterPaths"))[characterPath]
-	$TopBar/HBoxContainer/Label.set_text("Editing " + characterPath)
+	$TopBar/HBoxContainer/Label.set_text(Castagne.versionInfo["version-name"]+" | Editing " + characterPath)
 	
 	$TopBar/HBoxContainer/Save.set_disabled(true)
 	
@@ -47,9 +47,12 @@ func EnterMenu(bid):
 			$SpecblockMainWindowRoot.add_child(sb.interfaceMain)
 	
 	BigToolPanelSetVisible(false)
-	for t in Castagne.SplitStringToArray(editor.configData.Get("Editor-Tools")):
+	for t in Castagne.SplitStringToArray(editor.configData.Get("Editor-ToolsCastagne")+","+editor.configData.Get("Editor-Tools")):
 		LoadTool(t)
-	ShowTool(0)
+	if(safeMode):
+		ShowTool(0)
+	else:
+		ShowTool(editor.configData.Get("LocalConfig-Editor-LastSelectedTool"))
 	HideToolWindow()
 	
 	$TopBar/HBoxContainer/TutorialWindow.set_visible(editor.tutorialPath != null)
@@ -334,6 +337,7 @@ func ChangeCodePanelState(newState = null, newFile = -1, newLine = 1):
 	if(isSpecBlock):
 		var specblockname = curStatePureName.right(6)
 		var sb = _specblocks[specblockname]
+		sb.ResetVariables()
 		for parentFileID in range(curFile):
 			print(character[parentFileID]["Path"])
 			var parentStates = character[parentFileID]["States"]
@@ -954,8 +958,10 @@ func _NavigationCreateCategoryTree(parentCategory, stateListRoot = null):
 	else:
 		categories = parentCategory["Categories"]
 		states = parentCategory["States"]
+		fullNameBase = str(parentCategory["FullName"])+"/"
 	
 	var categoriesNames = categories.keys()
+	_categoriesSort_currentRoot = fullNameBase
 	categoriesNames.sort_custom(self, "_NavigationCreateCategoryTree_SortCategories")
 	
 	# Create the categories first
@@ -970,8 +976,11 @@ func _NavigationCreateCategoryTree(parentCategory, stateListRoot = null):
 			categoriesStatus[cNode["FullName"]] = categoriesStatusDefault
 		cNode["Open"] = categoriesStatus[cNode["FullName"]]
 		cNode["Editor"] = self
+		var cSpecialOrder = null
+		if(_categoriesSpecialSortData.has(cNode["FullName"])):
+			cSpecialOrder = _categoriesSpecialSortData[cNode["FullName"]]
 		var category = prefabNavPanelCategory.instance()
-		category.InitFromCategory(cNode)
+		category.InitFromCategory(cNode, cSpecialOrder)
 		cNode["GodotNode"] = category
 		if(isRootLevel):
 			stateListRoot.add_child(category)
@@ -982,6 +991,8 @@ func _NavigationCreateCategoryTree(parentCategory, stateListRoot = null):
 	
 	# Create the states for this category
 	if(isRootLevel):
+		if(categories.has("Entities")):
+			categories["Entities"]["GodotNode"].queue_free()
 		return
 	states.sort_custom(self, "_NavigationCreateCategoryTree_SortStates")
 	
@@ -1010,17 +1021,101 @@ func _NavigationCreateCategoryTree(parentCategory, stateListRoot = null):
 				cs.InitFromState(cstate)
 				parentCategory["GodotNode"].AddItem(cs)
 
-func _NavigationCreateCategoryTree_SortCategories(a, b):
-	var priority = [0, 0]
+var _categoriesSpecialSortData = {
+	null:				{"Order":-999,	}, # Uncategorized
+	"Variables": 		{"Order":  10,	},
+	"Attacks":			{"Order": 100,
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttack.png"},
+	"Attacks/Light":	{"Order": 120,
+		"DisplayName": "Light Attacks (Grounded)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-Light.png"},
+	"Attacks/Medium":	{"Order": 140,
+		"DisplayName": "Medium Attacks (Grounded)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-Medium.png"},
+	"Attacks/Heavy":	{"Order": 160,
+		"DisplayName": "Heavy Attacks (Grounded)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-Heavy.png"},
+	"Attacks/AirLight":	{"Order": 220,
+		"DisplayName": "Light Attacks (Airborne)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-AirLight.png"},
+	"Attacks/AirMedium":{"Order": 240,
+		"DisplayName": "Medium Attacks (Airborne)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-AirMedium.png"},
+	"Attacks/AirHeavy":	{"Order": 260,
+		"DisplayName": "Heavy Attacks (Airborne)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-AirHeavy.png"},
+	"Attacks/Throw":	{"Order": 320,
+		"DisplayName": "Throw Starters (Grounded)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-Throw.png"},
+	"Attacks/ThrowFollowup":{"Order": 340,
+		"DisplayName": "Throw Followups (Grounded)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-ThrowFollowup.png"},
+	"Attacks/AirThrow":	{"Order": 360,
+		"DisplayName": "Throw Starters (Airborne)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-AirThrow.png"},
+	"Attacks/AirThrowFollowup":{"Order": 380,
+		"DisplayName": "Throw Followups (Airborne)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-AirThrowFollowup.png"},
+	"Attacks/Special":	{"Order": 420,
+		"DisplayName": "Special Attacks (Grounded)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-Special.png"},
+	"Attacks/AirSpecial":	{"Order": 440,
+		"DisplayName": "Special Attacks (Airborne)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-AirSpecial.png"},
+	"Attacks/EX":	{"Order": 520,
+		"DisplayName": "EX Attacks (Grounded)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-EX.png"},
+	"Attacks/AirEX":	{"Order": 540,
+		"DisplayName": "EX Attacks (Airborne)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-AirEX.png"},
+	"Attacks/Super":	{"Order": 620,
+		"DisplayName": "Super Attacks (Grounded)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-Super.png"},
+	"Attacks/AirSuper":	{"Order": 640,
+		"DisplayName": "Super Attacks (Airborne)",
+		"IconPath": "res://castagne/assets/editor/stateflags/EFAttackType-AirSuper.png"},
+	"Internals":		{"Order":-100,	},
+	"Custom":			{"Order": 200,
+		"IconPath": "res://castagne/assets/editor/stateflags/EFOverridable.png"}
+}
+var _categoriesSort_currentRoot = "" # Set before calling the sort
+func _NavigationCreateCategoryTree_SortCategories(aName, bName):
+	# Check for special priorities. null is regular order
+	# Negative values end up at the end, the more negative the more at the end
+	var priority = [null, null]
 	for i in range(2):
-		var c = [a, b][i]
-		if(c == null):
-			priority[i] = -9000
-		elif(c == "Variables"):
-			priority[i] = 1000
-	if(priority[0] != priority[1]):
-		return priority[0] > priority[1]
-	return a < b
+		var shortName = [aName, bName][i]
+		var fullName = null
+		if(shortName != null):
+			fullName = _categoriesSort_currentRoot + shortName
+		if(_categoriesSpecialSortData.has(fullName) and _categoriesSpecialSortData[fullName].has("Order")):
+			priority[i] = _categoriesSpecialSortData[fullName]["Order"]
+	
+	# Sorting behavior if it's not two special priorities
+	if(priority[0] == null):
+		if(priority[1] == null):
+			return aName < bName # No special priority: regular alphabetical sort
+		else:
+			return priority[1] < 0 # Follow B's special priority
+	else:
+		if(priority[1] == null):
+			return priority[0] > 0 # Follow A's special priorities
+	
+	# Two special priorities sort, we check positives and negatives
+	if(priority[0] == priority[1]):
+		return aName < bName # Early out if both are identical, we do regular sorts
+	
+	if(priority[0] >= 0):
+		if(priority[1] >= 0):
+			return priority[0] < priority[1] # Two positives: lowest number on top
+		else:
+			return true # A is above
+	else:
+		if(priority[1] >= 0):
+			return false # B is above
+		else:
+			return priority[0] > priority[1] # Two negatives: lowest number at the bottom
+	
 func _NavigationCreateCategoryTree_SortStates(a, b):
 	return a["Name"] < b["Name"]
 
@@ -1440,7 +1535,8 @@ func UnloadTools():
 	_tools = []
 func ShowTool(toolID):
 	if(toolID < 0 or toolID >= _tools.size()):
-		Castagne.Error("Editor: Show a tool outside of what's possible! " + str(toolID))
+		Castagne.Error("Editor ShowTool: Tool ID unvalid! " + str(toolID))
+		toolID = 0
 	var i = 0
 	for t in _tools:
 		if(i == toolID):
@@ -1453,6 +1549,7 @@ func ShowTool(toolID):
 			t["Tool"].toolFocused = false
 		i += 1
 	_currentTool = toolID
+	editor.configData.Set("LocalConfig-Editor-LastSelectedTool", toolID)
 
 
 
@@ -1600,3 +1697,7 @@ func _on_FilterByName_Erase_pressed():
 
 func _on_Mute_toggled(button_pressed):
 	AudioServer.set_bus_mute(0, button_pressed)
+
+
+func _on_CompilStatus_pressed():
+	ShowTool(0)

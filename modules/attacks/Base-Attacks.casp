@@ -22,6 +22,7 @@ var _AttackAnimInterruptableFrames int() = 0
 
 
 var Meter int() = 100
+var MeterMax int() = 100
 var ATTACK_CancelFlags int() = 11
 
 var SimpleAttack_ActiveEnd int() = 12
@@ -241,6 +242,31 @@ else
 endif
 Flag(CanBlock-Overhead)
 Flag(CanBlock-Low)
+:Attack-JumpCancel:
+## Manages jump cancels through an After state. The actual jump is in the physics CASP, this is just the logic that determines if you can jump cancel or not. Happens in reaction phase in order to be able to react to attacks hitting on the current frame / during hitstop.
+## Flags:
+## - CanJumpCancel: Set manually by the user, forces the action to be jump cancellable
+## - CanJumpCancel-OnHit / CanJumpCancel-OnBlock: Often added by default, sets CanJumpCancel on specific conditions
+## - NoJumpCancels: Removes jump cancels automatically
+_Helper()
+_Category(Internals/Attacks/Helpers)
+
+PReaction:
+	LNoJumpCancels:
+		Unflag(CanJumpCancel)
+	else
+		LCanJumpCancel-OnHit:
+			LAttackHasHit:
+				Flag(CanJumpCancel)
+			endif
+		endif
+		LCanJumpCancel-OnBlock:
+			LAttackWasBlocked:
+				Flag(CanJumpCancel)
+			endif
+		endif
+	endif
+endif
 :Attack-ThrowTechingManagement:
 ## Handles teching windows
 _Category(Internals/Attacks/Throws)
@@ -455,6 +481,12 @@ F_AttackDuration+:
 endif
 
 ## CASTDO Find a way to remove the warning
+:AttackState-After:
+## Handles some additional checks for attacks, like jump cancels
+_Helper()
+_Category(Internals/Attacks)
+
+Call(Attack-JumpCancel)
 :AttackState-DefaultParams:
 ## Helper to set general parameters for all attacks
 _Category(Internals/Attacks)
@@ -601,10 +633,7 @@ AttackFlag(AirThrow)
 AttackUnblockableAirborne()
 AttackTransitionTo(AirThrowHeld)
 
-LNoDefaultCancels:
-else
-	Call(AttackTypeHelper-CancelRules-Throw)
-endif
+# No throw cancels here, it automatically transitions.
 
 IBack:
 	FlagNext(ThrowBack)
@@ -622,6 +651,11 @@ _StateFlag(AttackType-AirThrowFollowup)
 
 F1:
 	SetTargetPosition(ATTACK_Throw_Air_HoldPointX, ATTACK_Throw_Air_HoldPointY)
+endif
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Throw)
 endif
 :AttackType-EX:
 ## Base behavior for EX special attacks, which are specials that cost meter. Used by calling AttackRegister(EX)
@@ -727,10 +761,7 @@ AttackFlag(Throw)
 AttackUnblockableGround()
 AttackTransitionTo(ThrowHeld)
 
-LNoDefaultCancels:
-else
-	#Call(AttackTypeHelper-CancelRules-Throw)
-endif
+# No throw cancels here, it automatically transitions.
 
 IBack:
 	FlagNext(ThrowBack)
@@ -749,6 +780,11 @@ _StateFlag(AttackType-ThrowFollowup)
 
 F1:
 	SetTargetPosition(ATTACK_Throw_Ground_HoldPointX, ATTACK_Throw_Ground_HoldPointY)
+endif
+
+LNoDefaultCancels:
+else
+	Call(AttackTypeHelper-CancelRules-Throw)
 endif
 :AttackTypeHelper-CancelRules-Common:
 ## Attack helper that computes the possible cancel situations. Activate the AttackWhiffCancel flag to automatically allow attacks to cancel on whiff.
@@ -773,9 +809,16 @@ _Overridable(If you want to change the default cancel rules for EX specials)
 VATTACK_EX_CanCancelIntoEX:
 	Call(AttackCancels-Specials-EX)
 endif
-
 VATTACK_EX_CanCancelIntoSuper:
 	Call(AttackCancels-Specials-Supers)
+endif
+
+
+VATTACK_EX_CanJumpCancelOnHit:
+	Flag(CanJumpCancel-OnHit)
+endif
+VATTACK_EX_CanJumpCancelOnBlock:
+	Flag(CanJumpCancel-OnBlock)
 endif
 :AttackTypeHelper-CancelRules-Heavy:
 ## Defines default cancels for Heavy / AirHeavy attacks. Activate the NoDefaultCancels flag to disable.
@@ -786,17 +829,22 @@ _Overridable(If you want to change the default cancel rules for heavy attacks)
 VATTACK_Heavy_CanCancelIntoLights:
 	Call(AttackCancels-Normals-Lights)
 endif
-
 VATTACK_Heavy_CanCancelIntoMediums:
 	Call(AttackCancels-Normals-Mediums)
 endif
-
 VATTACK_Heavy_CanCancelIntoHeavies:
 	Call(AttackCancels-Normals-Heavies)
 endif
-
 VATTACK_Heavy_CanCancelIntoSpecials:
 	Call(AttackCancels-Specials-All)
+endif
+
+
+VATTACK_Heavy_CanJumpCancelOnHit:
+	Flag(CanJumpCancel-OnHit)
+endif
+VATTACK_Heavy_CanJumpCancelOnBlock:
+	Flag(CanJumpCancel-OnBlock)
 endif
 :AttackTypeHelper-CancelRules-Light:
 ## Defines default cancels for Light / AirLight attacks. Activate the NoDefaultCancels flag to disable.
@@ -807,17 +855,21 @@ _Overridable(If you want to change the default cancel rules for light attacks)
 VATTACK_Light_CanCancelIntoLights:
 	Call(AttackCancels-Normals-Lights)
 endif
-
 VATTACK_Light_CanCancelIntoMediums:
 	Call(AttackCancels-Normals-Mediums)
 endif
-
 VATTACK_Light_CanCancelIntoHeavies:
 	Call(AttackCancels-Normals-Heavies)
 endif
-
 VATTACK_Light_CanCancelIntoSpecials:
 	Call(AttackCancels-Specials-All)
+endif
+
+VATTACK_Light_CanJumpCancelOnHit:
+	Flag(CanJumpCancel-OnHit)
+endif
+VATTACK_Light_CanJumpCancelOnBlock:
+	Flag(CanJumpCancel-OnBlock)
 endif
 :AttackTypeHelper-CancelRules-Medium:
 ## Defines default cancels for Medium / AirMedium attacks. Activate the NoDefaultCancels flag to disable.
@@ -828,17 +880,22 @@ _Overridable(If you want to change the default cancel rules for medium attacks)
 VATTACK_Medium_CanCancelIntoLights:
 	Call(AttackCancels-Normals-Lights)
 endif
-
 VATTACK_Medium_CanCancelIntoMediums:
 	Call(AttackCancels-Normals-Mediums)
 endif
-
 VATTACK_Medium_CanCancelIntoHeavies:
 	Call(AttackCancels-Normals-Heavies)
 endif
-
 VATTACK_Medium_CanCancelIntoSpecials:
 	Call(AttackCancels-Specials-All)
+endif
+
+
+VATTACK_Medium_CanJumpCancelOnHit:
+	Flag(CanJumpCancel-OnHit)
+endif
+VATTACK_Medium_CanJumpCancelOnBlock:
+	Flag(CanJumpCancel-OnBlock)
 endif
 :AttackTypeHelper-CancelRules-Special:
 ## Defines default cancels for Special / AirSpecial attacks. Activate the NoDefaultCancels flag to disable.
@@ -849,9 +906,16 @@ _Overridable(If you want to change the default cancel rules for specials)
 VATTACK_Special_CanCancelIntoEX:
 	Call(AttackCancels-Specials-EX)
 endif
-
 VATTACK_Special_CanCancelIntoSuper:
 	Call(AttackCancels-Specials-Supers)
+endif
+
+
+VATTACK_Special_CanJumpCancelOnHit:
+	Flag(CanJumpCancel-OnHit)
+endif
+VATTACK_Special_CanJumpCancelOnBlock:
+	Flag(CanJumpCancel-OnBlock)
 endif
 :AttackTypeHelper-CancelRules-Super:
 ## Defines default cancels for Super / AirSuper attacks. Activate the NoDefaultCancels flag to disable.
@@ -860,9 +924,28 @@ _Helper()
 _Overridable(If you want to change the default cancel rules for supers)
 :AttackTypeHelper-CancelRules-Throw:
 ## Defines default cancels for Throw / AirThrow attacks. Activate the NoDefaultCancels flag to disable.
+## This is actually called by the Throw Followup state, since the Throw attack is meant for the start
 _Category(Internals/Attacks/Types/Cancels)
 _Helper()
 _Overridable(If you want to change the default cancel rules for throws)
+
+VATTACK_Throw_CanCancelIntoSpecials:
+	Call(AttackCancels-Specials-Specials)
+endif
+VATTACK_Throw_CanCancelIntoEX:
+	Call(AttackCancels-Specials-EX)
+endif
+VATTACK_Throw_CanCancelIntoSuper:
+	Call(AttackCancels-Specials-Supers)
+endif
+
+
+VATTACK_Throw_CanJumpCancelOnHit:
+	Flag(CanJumpCancel-OnHit)
+endif
+VATTACK_Throw_CanJumpCancelOnBlock:
+	Flag(CanJumpCancel-OnBlock)
+endif
 :Blockstun:
 ## Blockstun state behavior, which happens when you block an attack.
 _Category(States/Reacts/Blockstun)
@@ -940,6 +1023,10 @@ CallParent()
 
 Call(Attack-ThrowTechingManagement)
 Call(Attack-BlockingLogic)
+:CommonAfter:
+CallParent()
+
+Call(AttackState-After)
 :Custom-AttackOverrides-OnBlock:
 ## Custom override point for attack overrides on block
 _Category(Custom/Attacks/Overrides)

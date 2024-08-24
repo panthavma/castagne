@@ -7,6 +7,33 @@
 ## Base-Graphics: Holds some basic behavior for graphics, independant of 2D or 3D. (IN PROGRESS UNTIL v0.55)
 ##
 ## Its main purpose here is to provide model or sprite initialization, as well as help with standard animations.
+:Specs-UI:
+def UI_Widgets_HPBar int() = 0
+def UI_Widgets_HPBar___UseWidget bool() = 1
+def UI_Widgets_HPBar___Type int() = 1
+def UI_Widgets_HPBar___ScenePath str() = res://
+def UI_Widgets_HPBar___HookPoint str() = HP
+def UI_Widgets_HPBar___Variable1 str() = HP
+def UI_Widgets_HPBar___Variable2 str() = 
+def UI_Widgets_HPBar___Variable3 str() = HPMax
+def UI_Widgets_HPBar___Asset1 str() = 
+def UI_Widgets_HPBar___Asset2 str() = 
+def UI_Widgets_HPBar___Asset3 str() = 
+def UI_Widgets_HPBar___Direction int() = 1
+def UI_Widgets_HPBar___DefaultColor int() = 1
+def UI_Widgets_Meter int() = 0
+def UI_Widgets_Meter___UseWidget bool() = 1
+def UI_Widgets_Meter___Type int() = 1
+def UI_Widgets_Meter___ScenePath str() = res://
+def UI_Widgets_Meter___HookPoint str() = Meter
+def UI_Widgets_Meter___Direction int() = 1
+def UI_Widgets_Meter___Variable1 str() = Meter
+def UI_Widgets_Meter___Variable2 str() = 
+def UI_Widgets_Meter___Variable3 str() = MeterMax
+def UI_Widgets_Meter___Asset1 str() = 
+def UI_Widgets_Meter___Asset2 str() = 
+def UI_Widgets_Meter___Asset3 str() = 
+def UI_Widgets_Meter___DefaultColor int() = 3
 :Specs-Sprites:
 # Automatic creation
 :Variables-Internals-Graphics:
@@ -418,7 +445,7 @@ ModelScale(GRAPHICS_Scale)
 ## Graphics helper to initialize a model
 _Category(Graphics)
 
-ModelCreate(GRAPHICS_ModelPath, GRAPHICS_ModelPath_AnimPlayer)
+ModelCreate(_ModelPath, GRAPHICS_ModelPath_AnimPlayer)
 :Init-Graphics-Palette:
 ## Helper that sets the palette variables before creation
 _Category(Graphics)

@@ -176,6 +176,18 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		"Flags":["Advanced"],
 	})
 	
+	RegisterFunction("TargetSave", [0], null, {
+		"Description":"Saves the target, which can then be recalled with TargetRecall at will. This is used at regular intervals and should represent your main target.",
+		"Arguments":[],
+		"Flags":["Advanced"],
+	})
+	
+	RegisterFunction("TargetRecall", [0], null, {
+		"Description":"Recalls a previously set target. This is used at regular intervals and should represent your main target.",
+		"Arguments":[],
+		"Flags":["Advanced"],
+	})
+	
 	RegisterFunction("CopyFromTarget", [1,2], null, {
 		"Description":"Copies a variable from the target entity. This will however copy the variable value from the end of the last frame.",
 		"Arguments":["Variable name on current entity", "(Optional) Variable name on target entity"],
@@ -229,6 +241,10 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		})
 	RegisterVariableEntity("_TargetEID", -1, ["ResetEachFrame"], {
 		"Description":"Hold the current target EID, reset each frame.",
+		"Flags":["Advanced"],
+		})
+	RegisterVariableEntity("_TargetSavedEID", -1, null, {
+		"Description":"Hold the current saved target EID, persistent over frames. Should represent the main target.",
 		"Flags":["Advanced"],
 		})
 	
@@ -773,8 +789,13 @@ func TargetEntityByID(args, stateHandle):
 	stateHandle.SetTargetEntity(targetID)
 
 func TargetEntitySelf(_args, stateHandle):
-	stateHandle.EntitySet("_TargetEID", stateHandle.GetEntityID())
-	stateHandle.SetTargetEntity(stateHandle.GetEntityID())
+	TargetEntityByID([stateHandle.GetEntityID()], stateHandle)
+
+func TargetSave(_args, stateHandle):
+	stateHandle.EntitySet("_TargetSavedEID", stateHandle.EntityGet("_TargetEID"))
+
+func TargetRecall(_args, stateHandle):
+	TargetEntityByID([stateHandle.EntityGet("_TargetSavedEID")], stateHandle)
 
 func CopyFromTarget(args, stateHandle):
 	if(!stateHandle.GetTargetEntity() in stateHandle.GlobalGet("_ActiveEntities")):

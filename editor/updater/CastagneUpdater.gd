@@ -20,18 +20,9 @@ func _ready():
 	configData = $"../..".configData
 	originalBranch = "Main"
 	
-	var versionFilePath = configData.Get("Updater-VersionFilePath")
-	var file = File.new()
-	if(file.file_exists(versionFilePath)):
-		file.open(versionFilePath, File.READ)
-		var fileText = file.get_as_text()
-		file.close()
-		currentVersionData = parse_json(fileText)
-		if(currentVersionData.has("branch")):
-			originalBranch = currentVersionData["branch"]
-	else:
-		Castagne.Error("File " + versionFilePath + " does not exist.")
-		currentVersionData = null
+	currentVersionData = Castagne.versionInfo
+	if(currentVersionData.has("branch")):
+		originalBranch = currentVersionData["branch"]
 	
 	currentBranch = originalBranch
 	if(configData.Get("Updater-CheckOnStartup")):
@@ -68,6 +59,7 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, body):
 	print("[Updater] New version data: " + str(text))
 	nextVersionData = {
 		"version":null,
+		"version-name":"[No info]",
 		"changelog":"[Changelog missing]",
 		"tldr":"[TLDR missing]",
 		"warnings":"",
@@ -96,17 +88,14 @@ func UpdateDisplay():
 	
 	$Data/Branch/Current.set_text("Current Branch: ["+currentBranch+"]")
 	
-	var curVersion = Castagne.baseConfigData.Get("Updater-LastUpdate")
-	if(curVersion == null):
-		curVersion = "[Never updated]"
-	$Data/Versions/Current.set_text("Current Version: " + curVersion)
+	$Data/Versions/Current.set_text("Current Version: " + currentVersionData["version-name"])
 	var nextVersionText = "[Invalid]"
 	if(updateStatus == UPDATE_STATUS.NotStarted or updateStatus == UPDATE_STATUS.NetworkIssue):
 		nextVersionText = "[Unknown]"
 	elif(updateStatus == UPDATE_STATUS.Checking):
 		nextVersionText = "[Checking...]"
-	elif(nextVersionData != null and nextVersionData["version"] != null):
-		nextVersionText = nextVersionData["version"]
+	elif(nextVersionData != null and nextVersionData["version-name"] != null):
+		nextVersionText = nextVersionData["version-name"]
 	$Data/Versions/Next.set_text("Next Version: " + nextVersionText)
 	
 	if(updateStatus == UPDATE_STATUS.CanUpdate):

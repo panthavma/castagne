@@ -12,7 +12,7 @@ func SetupSpecblock(_argument):
 	
 	AddCategory("Models")
 	AddDefine("GRAPHICS_UseModel", true)
-	AddDefine("GRAPHICS_ModelPath", "res://castagne/assets/fighters/castagneur/CastagneurModel.tscn")
+	AddDefine("GRAPHICS_ModelPath", "res://castagne/assets/fighters/baston/model/BastonModel.tscn")
 	AddDefine("GRAPHICS_ModelPath_AnimPlayer", "AnimationPlayer")
 	
 	
@@ -26,19 +26,13 @@ func SetupSpecblock(_argument):
 	AddStructureDefine("SpritesY", 1, "Sprites Y")
 	AddStructureDefine("OriginX", 0, "Origin X")
 	AddStructureDefine("OriginY", 0, "Origin Y")
-	AddStructureDefine("PixelSize", 100, "Pixel Size")
-	AddStructureDefine("PaletteMode", 0, "Palette Mode")
-	
-	AddStructure("SpriteAnimations", "GRAPHICS_SPRITE_ANIMATIONS_", "Animations")
-	#AddStructureDefine("Path", "res://")
-	# Frame, Sprite, 
-	for i in range(10):
-		AddStructureDefine(str(i+1)+"_Duration", 0)
-		AddStructureDefine(str(i+1)+"_Spritesheet", "")
-		AddStructureDefine(str(i+1)+"_Frame", 0)
+	AddStructureDefine("PixelSize", 100, "3D Pixel Size")
+	AddStructureDefine("PaletteMode", 0, "Palette Mode", {
+		"Options": ["Raw", "Sprite Palette"]
+	})
 	
 	AddStructure("Palettes", "GRAPHICS_SPRITE_PALETTE_", "Palettes", 2)
-	AddStructureDefine("ModelPath", "res://castagne/assets/fighters/castagneur/CastagneurModel.tscn")
+	AddStructureDefine("ModelPath", "res://castagne/assets/fighters/baston/model/BastonModel.tscn")
 	AddStructureDefine("SpritePalettePath", "res://castagne/assets/helpers/palette/PaletteManual01.png")
 	AddStructureDefine("Extra", 0)
 

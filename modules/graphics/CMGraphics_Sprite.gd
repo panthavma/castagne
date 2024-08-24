@@ -80,7 +80,7 @@ func UpdateSpriteFromData(spriteData, displayData):
 var animations
 func _CreateSpriteAnims(stateHandle):
 	animations = {}
-	var spriteIData = stateHandle.IDEntityGet("TD_Graphics")
+	var spriteIData = stateHandle.IDEntityGet("TD_Anims")
 	var spriteAnims = spriteIData["SpriteAnimations"]
 	for animName in spriteAnims:
 		var animUserData = spriteAnims[animName]

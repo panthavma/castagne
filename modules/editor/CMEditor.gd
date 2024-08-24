@@ -43,7 +43,14 @@ func ModuleSetup():
 	RegisterCategory("Castagne Editor")
 	RegisterConfig("Editor-SelectedCharacter", 0, {"Flags":["Hidden"]})
 	RegisterConfig("Editor-DocumentationFolders", "res://castagne/docs", {"Flags":["Advanced"]})
-	RegisterConfig("Editor-Tools", "res://castagne/editor/tools/compile/CETool-Compile.tscn, res://castagne/editor/tools/inputs/CETool-Inputs.tscn, res://castagne/editor/tools/perf/CETool-Perf.tscn, res://castagne/editor/tools/sceneviewer/CETool-SceneViewer.tscn", {"Flags":["Advanced"]})
+	RegisterConfig("Editor-Tools", "")
+	RegisterConfig("Editor-ToolsCastagne",
+		"res://castagne/editor/tools/compile/CETool-Compile.tscn,"+
+		"res://castagne/editor/tools/inputs/CETool-Inputs.tscn,"+
+		"res://castagne/editor/tools/perf/CETool-Perf.tscn,"+
+		"res://castagne/editor/tools/sceneviewer/CETool-SceneViewer.tscn,"+
+		"res://castagne/editor/tools/debugoptions/CETool-DebugOptions.tscn,", {"Flags":["Advanced"]})
+	
 	RegisterConfig("Editor-LockCastagneFiles", true, {"Flags":["Advanced"]})
 	RegisterConfig("Editor-LockBaseSkeleton", false, {"Flags":["Advanced"]})
 	RegisterConfig("Editor-OnlyAllowCustomEditors", false)
@@ -55,13 +62,16 @@ func ModuleSetup():
 		"Flags":["Advanced"],
 		"Description":"Local marker for if this user has been through the first time launch, meaning the tutorial prompt.",
 		})
+	RegisterConfig("LocalConfig-Editor-LastSelectedTool", 0, {
+		"Flags":["Advanced"],
+		"Description":"Stores the last used tool in order to load it the next time the editor is started.",
+	})
 	
 	RegisterConfig("Updater-CheckOnStartup", true)
 	#RegisterConfig("Updater-BranchID", 0, {"Flags":["Hidden"]})
 	#RegisterConfig("Updater-Branch", "Main", {"Flags":["Hidden"]})
 	#RegisterConfig("Updater-LastUpdate", null, {"Flags":["Hidden"]})
 	RegisterConfig("Updater-Source", "http://castagneengine.com/builds/", {"Flags":["Advanced"]})
-	RegisterConfig("Updater-VersionFilePath", "res://castagne/castagne-version.json", {"Flags":["Hidden"]})
 	
 	RegisterConfig("EditorCharacterOrder", [], {"Flags":["Hidden"]})
 	

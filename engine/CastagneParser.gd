@@ -211,6 +211,10 @@ func _ParseFullFile():
 				v["Type"] = Castagne.VARIABLE_TYPE.Int
 			_specblockDefines[dName] = v
 	
+	for dName in _specblockDefines:
+		if(typeof(_specblockDefines[dName]["Type"]) == TYPE_INT):
+			_specblockDefines[dName]["Type"] = Castagne.VARIABLE_TYPE.Int
+	
 	# --- Transform defined data
 	for sbName in moduleSpecblocksMain:
 		var sb = moduleSpecblocksMain[sbName]
@@ -950,7 +954,6 @@ func _ParseStates(fileID):
 	var states = {}
 	while(_GetNextBlock(fileID) != null):
 		var s = _ParseBlockState(fileID)
-		var fp = _filePaths[fileID]
 		if(s == null or _aborting):
 			return null
 		states[s["Name"]] = s
@@ -967,7 +970,7 @@ func _ParseStates_OverwriteStates(newStates):
 
 func _GetParentStateName(stateName, levels = 1):
 	var parentText = ""
-	for i in range(levels):
+	for _i in range(levels):
 		parentText += "Parent:"
 	
 	var parentStateName = parentText+stateName
@@ -1870,6 +1873,13 @@ func _ExtractVariable(line, returnIncompleteType = false):
 		else:
 			variableValue = 0
 			_Error("Int variable but the value isn't a valid integer.")
+	
+	if(variableType == Castagne.VARIABLE_TYPE.Bool):
+		if(variableValue.is_valid_integer()):
+			variableValue = (1 if variableValue.to_int() > 0 else 0)
+		else:
+			variableValue = 0
+			_Error("Bool variable but the value isn't stored properly.")
 
 	return {
 		"Name": variableName,
@@ -1930,7 +1940,7 @@ func InstructionF(args, stateHandle):
 	
 	letterArgs = validFrames
 	InstructionBranch(args, stateHandle, frameID in validFrames)
-func InstructionS(args, stateHandle):
+func InstructionS(_args, stateHandle):
 	ModuleError("S Instructions shouldn't ever be executed.", stateHandle)
 
 func _Instruction_GetRange(letterArgs):

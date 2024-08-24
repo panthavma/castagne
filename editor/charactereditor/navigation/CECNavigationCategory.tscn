@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://castagne/editor/charactereditor/navigation/CECNavigationCategory.gd" type="Script" id=1]
+[ext_resource path="res://castagne/assets/editor/stateflags/EFError.png" type="Texture" id=2]
 
 [node name="Category" type="PanelContainer"]
 self_modulate = Color( 0, 0.247059, 0, 0.309804 )
@@ -22,6 +23,13 @@ margin_right = 20.0
 margin_bottom = 20.0
 action_mode = 0
 text = "+"
+
+[node name="SpecialIcon" type="TextureRect" parent="Contents/Header"]
+visible = false
+margin_left = 24.0
+margin_right = 56.0
+margin_bottom = 32.0
+texture = ExtResource( 2 )
 
 [node name="CategoryName" type="Label" parent="Contents/Header"]
 margin_left = 24.0

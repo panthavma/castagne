@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=23 format=2]
 
 [ext_resource path="res://castagne/editor/CastagneEditor.gd" type="Script" id=1]
 [ext_resource path="res://castagne/editor/CastagneEditorConfig.gd" type="Script" id=2]
@@ -21,6 +21,7 @@
 [ext_resource path="res://castagne/editor/submenus/character/CECharacterSet.tscn" type="PackedScene" id=19]
 [ext_resource path="res://castagne/editor/submenus/music/CEMusicSettings.tscn" type="PackedScene" id=20]
 [ext_resource path="res://castagne/editor/submenus/character/CECharacterAddNew.tscn" type="PackedScene" id=21]
+[ext_resource path="res://castagne/editor/submenus/input/CEInputMotionAliases.tscn" type="PackedScene" id=22]
 
 [node name="CastagneEditor" type="Control"]
 anchor_right = 1.0
@@ -1142,6 +1143,9 @@ size_flags_stretch_ratio = 0.3
 text = "Cancel"
 
 [node name="InputConfig" parent="." instance=ExtResource( 16 )]
+visible = false
+
+[node name="InputMotionAliases" parent="." instance=ExtResource( 22 )]
 visible = false
 
 [node name="CharacterSet" parent="." instance=ExtResource( 19 )]

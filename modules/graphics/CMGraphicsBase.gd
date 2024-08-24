@@ -12,6 +12,7 @@ func ModuleSetup():
 	RegisterBaseCaspFile("res://castagne/modules/graphics/Base-Graphics.casp")
 	RegisterSpecblock("Graphics", "res://castagne/modules/graphics/CMGraphicsSBGraphics.gd")
 	RegisterSpecblock("Anims", "res://castagne/modules/graphics/CMGraphicsSBAnims.gd")
+	RegisterSpecblock("UI", "res://castagne/modules/graphics/CMGraphicsSBUI.gd")
 	
 	
 	# -[CTG_MODEL]----------------------------------------------------------------------------------
@@ -243,9 +244,14 @@ Model functions affect the whole graphics side, so even sprites are affected her
 	# -[CTG_UI]-------------------------------------------------------------------------------------
 	RegisterCategory("UI")
 	
-	RegisterConfig("UIRootScene", "res://castagne/modules/graphics/ui/UISceneRoot.tscn")
-	RegisterConfig("UIPlayerRootScene", "res://castagne/modules/graphics/ui/UIPlayerRoot.tscn")
-	RegisterConfig("UIFlipSecondPlayerUI", true)
+	RegisterConfig("UIGlobalRootScene", "res://castagne/helpers/ui/roots/CUIGlobalRoot-Fighting.tscn")
+	RegisterConfig("UIPlayerRootScene", "res://castagne/helpers/ui/roots/CUIPlayerRoot-Fighting.tscn")
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Player, "uiplayerroot-path", null)
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Player, "uiplayerroot-use", true)
+	RegisterConfig("UIDefaultWidget_Bar", "res://castagne/helpers/ui/widgets/default/DefaultWidgetBar.tscn")
+	RegisterConfig("UIDefaultWidget_Icons", "res://castagne/helpers/ui/widgets/default/DefaultWidgetIcons.tscn")
+	RegisterConfig("UIDefaultWidget_IconSwitch", "res://castagne/helpers/ui/widgets/default/DefaultWidgetIconSwitch.tscn")
+	RegisterConfig("UIDefaultWidget_Text", "res://castagne/helpers/ui/widgets/default/DefaultWidgetText.tscn")
 	
 	# -[CTG_INTERNALS]------------------------------------------------------------------------------
 
@@ -272,17 +278,16 @@ func BattleInit(stateHandle, battleInitData):
 	
 	stateHandle.IDGlobalSet("VFXState", [])
 	
-	return # TODOUI
 	var uiRoot = null
-	var uiRootScenePath = config.Get("UIRootScene")
-	if(uiRootScenePath != null):
+	var uiRootScenePath = config.Get("UIGlobalRootScene")
+	if(!uiRootScenePath.empty()):
 		var uiRootScenePacked = Castagne.Loader.Load(uiRootScenePath)
 		if(uiRootScenePacked != null):
 			uiRoot = uiRootScenePacked.instance()
+			stateHandle.Engine().add_child(uiRoot)
+			uiRoot.UIInitialize(stateHandle, battleInitData)
 		else:
 			ModuleError("Graphics: Can't instance UI Root at path "+str(uiRootScenePath))
-		stateHandle.Engine().add_child(uiRoot)
-		uiRoot.UIInitialize(stateHandle, battleInitData)
 	stateHandle.IDGlobalSet("UIRoot", uiRoot)
 
 func FrameStart(stateHandle):
@@ -317,6 +322,16 @@ func InitPhaseStartEntity(stateHandle):
 			s["OriginX"], s["OriginY"],
 			s["PixelSize"], s["PaletteMode"]
 		], stateHandle)
+	
+	# UI
+	var uiData = stateHandle.IDEntityGet("TD_UI")
+	if(uiData["Defines"]["UI_UseWidgets"]):
+		var widgetsData = uiData["Widgets"]
+		for wName in widgetsData:
+			var w = widgetsData[wName]
+			if(!w["UseWidget"]):
+				continue
+			UI_SpawnWidgetFromData(stateHandle, w)
 
 
 func ActionPhaseStartEntity(stateHandle):
@@ -377,8 +392,6 @@ func UpdateGraphics(stateHandle):
 	for vfx in stateHandle.GlobalGet("_VFXList"):
 		_VFXUpdate_UpdateGraphics(stateHandle, vfx)
 	
-	
-	return # TODOUI
 	var uiRoot = stateHandle.IDGlobalGet("UIRoot")
 	if(uiRoot != null):
 		uiRoot.UIUpdate(stateHandle)
@@ -719,6 +732,41 @@ func PaletteSprite(args, stateHandle):
 
 
 
+
+
+
+
+
+
+# -[CTG_UI]----------------------------------------------------------------------------------
+var _UI_DefaultWidgetTypes = [
+	"UIDefaultWidget_Bar", "UIDefaultWidget_Icons",
+	"UIDefaultWidget_IconSwitch", "UIDefaultWidget_Text",
+]
+func UI_SpawnWidgetFromData(stateHandle, widgetData):
+	var scenePath = widgetData["ScenePath"]
+	var hookPoint = widgetData["HookPoint"]
+	var type = widgetData["Type"]
+	
+	var uiRoot = stateHandle.IDGlobalGet("UIRoot")
+	if(uiRoot == null):
+		Castagne.Error("Can't spawn UI Widget without UI Root.")
+		return
+	
+	if(type > 0 and type <= _UI_DefaultWidgetTypes.size()):
+		scenePath = stateHandle.ConfigData().Get(_UI_DefaultWidgetTypes[type-1])
+	
+	var packedScene = Castagne.Loader.Load(scenePath)
+	if(packedScene == null):
+		Castagne.Error("Couldn't spawn UI Widget at path " + str(scenePath))
+		return
+	
+	var widget = packedScene.instance()
+	
+	if(uiRoot.AddPlayerWidget(stateHandle.GetPlayer(), widget, hookPoint)):
+		widget.WidgetInitialize(stateHandle, null, widgetData)
+	else:
+		widget.queue_free()
 
 
 

@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/helpers/ui/CUIRoot.gd" type="Script" id=1]
+
+[node name="CUIGlobalRoot-Fighting" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="Players" type="HBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="TimerRoot" type="ColorRect" parent="."]
+anchor_left = 0.46
+anchor_right = 0.54
+anchor_bottom = 0.05
+grow_horizontal = 2
+rect_min_size = Vector2( 0, 40 )
+color = Color( 0.360784, 0.0352941, 0, 1 )
+
+[node name="ColorRect" type="ColorRect" parent="TimerRoot"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 4.0
+margin_right = -4.0
+margin_bottom = -4.0
+color = Color( 0.635294, 0.298039, 0.133333, 1 )

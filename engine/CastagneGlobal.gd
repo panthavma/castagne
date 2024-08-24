@@ -16,6 +16,7 @@ onready var Menus = $Menus
 const CONFIG_FILE_PATH = "res://castagne-config.json"
 const CONFIG_LOCAL_FILE_PATH = "user://castagne-local-config.json"
 const CONFIG_CORE_MODULE_PATH = "res://castagne/modules/core/CMCore.gd"
+const CONFIG_VERSION_FILE_PATH = "res://castagne/castagne-version.json"
 const INPUT_LOCAL = 0
 const INPUT_ONLINE = 1
 const INPUT_AI = 2
@@ -41,9 +42,12 @@ var _baseEnginePrefab
 var _baseEditorPrefab
 
 var modulesLoaded
+var versionInfo
 
 func _ready():
 	Log("Castagne Startup")
+	
+	LoadVersionInfo()
 	
 	baseConfigData = LoadModulesAndConfig()
 	if(baseConfigData == null):
@@ -89,6 +93,27 @@ func InstanceCastagneEditor(configData = null):
 	editor.configData = configData
 	
 	return editor
+
+# Loads the version dict from the file, if it exists.
+func LoadVersionInfo(versionFilePath = null):
+	if(versionFilePath == null):
+		versionFilePath = CONFIG_VERSION_FILE_PATH
+	
+	var file = File.new()
+	if(file.file_exists(versionFilePath)):
+		file.open(versionFilePath, File.READ)
+		var fileText = file.get_as_text()
+		file.close()
+		versionInfo = parse_json(fileText)
+	else:
+		Castagne.Error("Can't load version file at " + versionFilePath)
+		versionInfo = {
+			"version": null,
+			"version-name":"Unknown Castagne Version",
+			"tldr":"Version file can't be read",
+			"changelog":"Version file can't be read",
+			"branch":"Main",
+		}
 
 # Loads the modules and the config file to give to the engine. If no argument is given, it will
 # load the base config file, add it to the tree, and do additional module loading
@@ -425,3 +450,22 @@ func BattleInitData_GetEntity(battleInitData, pid, eid):
 	var e = p["entities"][0].duplicate(true)
 	Castagne.FuseDataOverwrite(e, p["entities"][eid+1].duplicate(true))
 	return e
+
+func BattleInitData_GetValue(battleInitData, value, pid = null, eid = null):
+	if(pid == null):
+		if(!battleInitData.has(value)):
+			Error("[BattleInitData_GetValue] Global value "+str(value)+" not found!")
+			return null
+		return battleInitData[value]
+	elif(eid == null):
+		var p = BattleInitData_GetPlayer(battleInitData, pid)
+		if(p == null or !p.has(value)):
+			Error("[BattleInitData_GetValue] Player value "+str(value)+" (PID:"+str(pid)+") not found!")
+			return null
+		return p[value]
+	else:
+		var e = BattleInitData_GetEntity(battleInitData, pid, eid)
+		if(e == null or !e.has(value)):
+			Error("[BattleInitData_GetValue] Entity value "+str(value)+" (PID:"+str(pid)+", EID:"+str(eid)+") not found!")
+			return null
+		return e[value]

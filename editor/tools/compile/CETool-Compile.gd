@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 extends "res://castagne/editor/tools/CastagneEditorTool.gd"
 
 var smallErrorWindow
@@ -5,12 +9,15 @@ var errorData = []
 var analyzer
 var phaseButtonsRoot
 var currentPhase = "Action"
+var compilStatusButton
 func SetupTool():
 	smallErrorWindow = $CompileSmall/Errors
 	toolName = "Compiler Output"
 	toolDescription = "Base tool that shows the results of compilation, especially errors."
 	Castagne.connect("castagne_error", self, "OnError")
 	Castagne.connect("castagne_log", self, "OnLog")
+	compilStatusButton = editor.get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/CompilStatus")
+	UpdateCompilStatusButton()
 	
 	analyzer = $Analyzer
 	phaseButtonsRoot = $Analyzer/Sidebar/Phases
@@ -24,11 +31,13 @@ var acceptRuntimeErrors = false
 func ResetErrorData():
 	smallErrorWindow.clear()
 	errorData = []
+	UpdateCompilStatusButton()
 
 func OnEngineRestarting(_engine, _battleInitData):
 	ResetErrorData()
 	acceptRuntimeErrors = false
 	RefreshState()
+	UpdateCompilStatusButton()
 
 func OnEngineRestarted(engine):
 	ResetErrorData()
@@ -37,6 +46,7 @@ func OnEngineRestarted(engine):
 	RefreshState()
 	
 	RefreshVariablesStats(engine._memory)
+	UpdateCompilStatusButton()
 
 func OnEngineInitError(_engine):
 	RefreshState()
@@ -77,19 +87,21 @@ func OnEngineInitError(_engine):
 			"State":state,
 			"Line":stateLine,
 			"Runtime":false,
+			"Error":true,
 		}
 		
 		errorData += [ed]
 		
 		var t = "["+str(e["Type"])+"] " + filePath +" - "+state+" l." + str(stateLine) + ": " + e["Text"]
 		smallErrorWindow.add_item(t)
+	UpdateCompilStatusButton()
 
 func OnError(message):
-	AddLogOrError("Error /!\\ " + message)
+	AddLogOrError("Error /!\\ " + message, true)
 func OnLog(message):
 	AddLogOrError(message)
 
-func AddLogOrError(message):
+func AddLogOrError(message, error = false):
 	if(errorData.size() == 0):
 		ResetErrorData()
 	
@@ -98,12 +110,25 @@ func AddLogOrError(message):
 	
 	var ed = {
 		"Runtime":true,
+		"Error":error,
 	}
 	errorData += [ed]
 	
 	smallErrorWindow.add_item(message)
 	smallErrorWindow.select(smallErrorWindow.get_item_count() - 1)
 	smallErrorWindow.ensure_current_is_visible()
+	UpdateCompilStatusButton()
+
+
+func UpdateCompilStatusButton():
+	var nbErrors = 0
+	for ed in errorData:
+		if(ed["Error"]):
+			nbErrors += 1
+	if(nbErrors == 0):
+		compilStatusButton.set_text("No errors")
+	else:
+		compilStatusButton.set_text(str(nbErrors)+" errors!")
 
 
 func _on_Errors_item_activated(index):
@@ -212,3 +237,4 @@ func RefreshVariablesStats(memory):
 	analyzer.get_node("Sidebar/VariablesTotal").set_text("Global: "+str(nbVarsGlobal)+
 		" / Players: "+str(nbVarsPlayers)+" / Entities: "+str(nbVarsEntities)+"\n"+
 		"Total: "+str(nbVarsGlobal+nbVarsPlayers+nbVarsEntities))
+

@@ -21,6 +21,9 @@ func _ready():
 	
 	EnterMenu()
 	
+	# Update version name
+	$MainMenu/Header/CastagneTitle.set_text(Castagne.versionInfo["version-name"])
+	
 	if(tutorialPath != null):
 		$TutorialSystem.StartTutorial(tutorialPath)
 
