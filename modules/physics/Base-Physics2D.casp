@@ -195,6 +195,7 @@ Call(AirborneState)
 Call(UseAirActionAtStart)
 Call(AnimAirdashB)
 Call(AirdashB-Movement)
+Call(AttackCancels-All)
 
 FMOVE_Airdash_AirdashB_Time+:
 	Call(TransitionToNeutralState)
@@ -214,6 +215,7 @@ Call(AirborneState)
 Call(UseAirActionAtStart)
 Call(AnimAirdashF)
 Call(AirdashF-Movement)
+Call(AttackCancels-All)
 
 FMOVE_Airdash_AirdashF_Time+:
 	Call(TransitionToNeutralState)
@@ -1022,6 +1024,7 @@ Call(AnimHighjumpB)
 Call(Airborne_StartDashHelper)
 Call(Airborne_AirjumpHelper)
 Call(HighjumpB-Movement)
+Call(AttackCancels-All)
 :HighjumpB-Movement:
 ## Helper for HighjumpB
 _Category(Movement/Dashes/Highjump)
@@ -1039,6 +1042,7 @@ Call(AnimHighjumpF)
 Call(Airborne_StartDashHelper)
 Call(Airborne_AirjumpHelper)
 Call(HighjumpF-Movement)
+Call(AttackCancels-All)
 :HighjumpF-Movement:
 ## Helper for HighjumpF
 _Category(Movement/Dashes/Highjump)
@@ -1056,6 +1060,7 @@ Call(AnimHighjumpN)
 Call(Airborne_StartDashHelper)
 Call(Airborne_AirjumpHelper)
 Call(HighjumpN-Movement)
+Call(AttackCancels-All)
 :HighjumpN-Movement:
 ## Helper for HighjumpN
 _Category(Movement/Dashes/Highjump)
@@ -1496,6 +1501,7 @@ Call(StandingState)
 Call(AnimRun)
 Call(Run-Movement)
 Call(Grounded_StartJumpHelper)
+Call(AttackCancels-All)
 
 IForward:
 else
