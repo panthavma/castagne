@@ -1,0 +1,71 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://castagne/assets/icons/DefaultIcon.png" type="Texture" id=1]
+[ext_resource path="res://castagne/helpers/menus/helpers/css/default/CMenu-CSS-Icon-Default.gd" type="Script" id=2]
+
+[node name="CMenu-CSS-Icon" type="Control"]
+margin_right = 64.0
+margin_bottom = 64.0
+rect_min_size = Vector2( 64, 64 )
+script = ExtResource( 2 )
+
+[node name="Icon" type="TextureRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 1 )
+expand = true
+stretch_mode = 6
+
+[node name="Select" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="P1" type="Label" parent="Select"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "P1"
+
+[node name="P2" type="Label" parent="Select"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "P2"
+align = 2
+
+[node name="P3" type="Label" parent="Select"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "P3"
+valign = 2
+
+[node name="P4" type="Label" parent="Select"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "P4"
+align = 2
+valign = 2
+
+[node name="P5" type="Label" parent="Select"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "P5"
+valign = 1
+
+[node name="P6" type="Label" parent="Select"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "P6"
+align = 2
+valign = 1
+
+[node name="P7" type="Label" parent="Select"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "P7"
+align = 1
+
+[node name="P8" type="Label" parent="Select"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "P8"
+align = 1
+valign = 2
