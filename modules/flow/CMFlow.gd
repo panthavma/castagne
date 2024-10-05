@@ -30,6 +30,11 @@ func ModuleSetup():
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "exitcallback", null, {
 		"Description":"Unsupported"
 		})
+	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "mode", Castagne.GAMEMODES.MODE_BATTLE, {
+		"Description":"The current gamemode."
+		})
+	
+	
 	
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Player, "entities", [], {
 		"Description":"List of entity BIDs to spawn by the player. The 0th one is the default, which the later ones may override."
@@ -41,12 +46,16 @@ func ModuleSetup():
 		"Description":"The name of the input device to associate to this player."
 		})
 	
+	
+	
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Entity, "overrides", {}, {
 		"Description":"List of entity variables to override at the beginning of the match."
 		})
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Entity, "scriptpath", 0, {
 		"Description":"Path to the casp file of the character."
 		})
+	
+	
 	
 	RegisterConfig("BID-Custom-Global", "", {"Description":"Additional fields for the global BID."})
 	RegisterConfig("BID-Custom-Player", "", {"Description":"Additional fields for the player BID."})
@@ -79,7 +88,23 @@ func GetBaseBattleInitData(configData):
 	
 	return battleInitData
 
+func GetBattleInitDataFromCSS(cssData):
+	var bid = GetBaseBattleInitData(cssData["ConfigData"])
+	for pid in range(cssData["Devices"].size()):
+		var device = cssData["Devices"][pid]
+		if(device == null):
+			device = "empty"
+		var selectData = cssData["SelectData"][pid]
+		var characters = selectData["Characters"]
+		
+		bid["players"][pid+1]["inputdevice"] = device
+		for eid in range(characters.size()):
+			var c = characters[eid]
+			bid["players"][pid+1]["entities"][eid+1]["scriptpath"] = c["Character"]["Filepath"]
+	return bid
+
 func BattleInit(stateHandle, battleInitData):
+	stateHandle.IDGlobalSet("BattleInitData", battleInitData)
 	_createEntities_parsedFighterScripts = {}
 	
 	_BattleInit_CreateEntities(stateHandle, battleInitData["entities"], -1)

@@ -6,7 +6,7 @@ extends HBoxContainer
 
 # Exports doc for the castagne website
 func ExportDocumentation():
-	var rootPath = "res://localcastagne/autodocs/"
+	var rootPath = "res://devcastagne/autodocs/"
 	
 	var modules = Castagne.GetLoadedModules()
 	var logText = ""

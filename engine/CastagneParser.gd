@@ -29,6 +29,11 @@ func GetCharacterMetadata(filePath, configData):
 		return r["Character"]
 	return null
 
+func GetCharacterInfo(filePath, configData):
+	_StartParsing(filePath, configData, true)
+	_ParseFullFile(true)
+	return _EndParsing()
+
 func CreateFullCharacter(filePath, configData, resetErrors = true):
 	_StartParsing(filePath, configData, resetErrors)
 	_ParseFullFile()
@@ -152,7 +157,7 @@ func _OpenFile(filePath):
 	else:
 		file.open(filePath, File.READ)
 
-func _ParseFullFile():
+func _ParseFullFile(stopAfterSpecblocks = false):
 	if(_aborting):
 		return
 
@@ -222,6 +227,9 @@ func _ParseFullFile():
 		if(tData != null):
 			_transformedData[sbName] = tData
 	
+	if(stopAfterSpecblocks):
+		return
+	
 	# 2. Parse the variables
 	profiling.push_back(OS.get_ticks_usec())
 	_Log(">>> Parsing the variables...")
@@ -272,14 +280,16 @@ func _ParseFullFile():
 	# 4-5. Optimize the code
 	profiling.push_back(OS.get_ticks_usec())
 	_Log(">>> Optimizing...")
-	_optimizedStates = []
+	_optimizedStates = {}
+	for p in PHASES:
+		_optimizedStates[p] = []
 	_optimizedStates_CallAfter = {}
 	_optimizeActionList_parentWarnings = []
 	_OptimizeActionListPhase0()
 	for sName in _states:
 		_OptimizeActionListPhase1(sName)
 	_OptimizeActionListPhase1_After()
-	_optimizedStates = []
+	_optimizedStates2 = []
 	profiling.push_back(OS.get_ticks_usec())
 	variablesList_OptimPhase2 = {}
 	for sName in _states:
@@ -444,10 +454,17 @@ func _OptimizeActionListPhase0_Variables(entity):
 
 var _optimizedStates
 var _optimizedStates_CallAfter
-func _OptimizeActionListPhase1(stateName):
-	if(stateName in _optimizedStates):
+func _OptimizeActionListPhase1(stateName, phasesToOptim = null):
+	if(phasesToOptim == null):
+		phasesToOptim = _OptimizeActionList_GetPhasesToOptimize(stateName)
+	
+	for p in phasesToOptim:
+		if(stateName in _optimizedStates[p]):
+			phasesToOptim.erase(p)
+		else:
+			_optimizedStates[p] += [stateName]
+	if(phasesToOptim.size() == 0):
 		return
-	_optimizedStates += [stateName]
 	var state = _states[stateName]
 
 	var subName = _GetPureStateNameFromStateName(stateName)
@@ -455,7 +472,7 @@ func _OptimizeActionListPhase1(stateName):
 	subName = np[0]
 	var parentLevel = np[1]
 
-	for p in PHASES:
+	for p in phasesToOptim:
 		var actionList = _OptimizeActionList_Sublist(state[p], parentLevel, p, state)
 		state[p] = actionList
 
@@ -539,7 +556,7 @@ func _OptimizeActionList_Sublist(actionList, baseParentLevel, p, state):
 					_Warning("CastagneParser: State " + calledState + " is calling itself. Recursion has a fair chance of not going well.")
 					continue
 
-				_OptimizeActionListPhase1(calledState)
+				_OptimizeActionListPhase1(calledState, [p])
 				var calledActionList = _states[calledState][p]
 				actionList.remove(i) # we keep attack register for registering attack properly
 				
@@ -566,7 +583,7 @@ func _OptimizeActionListPhase1_After():
 		var callAfters = _optimizedStates_CallAfter[stateName]
 		var state = _states[stateName]
 		for ca in callAfters:
-			for p in PHASES:
+			for p in _OptimizeActionList_GetPhasesToOptimize(stateName):
 				var actionList = state[p]
 				var caActionList = _states[ca][p]
 				for a in caActionList:
@@ -602,13 +619,14 @@ func _OptimizeActionList_Sublist_After(actionList, p, state):
 					break
 	return actionList
 
+var _optimizedStates2 = []
 var variablesList_OptimPhase2 = {}
 func _OptimizeActionListPhase2(stateName):
 	# Defines replace
 	# V branch compile time conditions
-	if(stateName in _optimizedStates):
+	if(stateName in _optimizedStates2):
 		return
-	_optimizedStates += [stateName]
+	_optimizedStates2 += [stateName]
 	var state = _states[stateName]
 
 	
@@ -622,7 +640,7 @@ func _OptimizeActionListPhase2(stateName):
 	#variablesList_OptimPhase2[entity] = newVariablesList
 	#var variablesList = variablesList_OptimPhase2[entity]
 
-	for p in PHASES:
+	for p in _OptimizeActionList_GetPhasesToOptimize(stateName):
 		var actionList = state[p]
 
 		actionList = _OptimizeActionList_Defines(actionList, state["Variables"], _variables[entity])
@@ -717,8 +735,22 @@ func _OptimizeActionList_StaticBranches(actionListToParse):
 			newActionList.push_back(a)
 		else:
 			newActionList.push_back(a)
-
+	
 	return newActionList
+
+func _OptimizeActionList_GetPhasesToOptimize(stateName):
+	#return ["Init", "Action", "Reaction", "Freeze", "Manual", "AI", "Subentity", "Halt"]
+	var subName = _ExtractParentFromPureStateName(_GetPureStateNameFromStateName(stateName))[0]
+	var entity = _GetEntityNameFromStateName(stateName)
+	
+	if(entity != null):
+		return ["Init", "Subentity", "Freeze", "AI", "Halt"]
+	if(subName == "Init" or subName.begins_with("Init-")):
+		return ["Init", "AI"]
+	if(subName.begins_with("CCB_")):
+		return ["Manual"]
+	return ["Action", "Reaction", "Freeze", "AI", "Halt"]
+	#return PHASES
 
 func _RuntimeStateTagging(stateName):
 	var state = _states[stateName]
@@ -1265,7 +1297,7 @@ func ParseForEditionPostProcess(fileID, stateName, result):
 		state["StateType"] = Castagne.STATE_TYPE.Special
 		if(state["Categories"].empty()):
 			state["Categories"] = ["Variables"]
-	if(stateName.begins_with("Init-")):
+	if(stateName.begins_with("Init-") or stateName == "Init"):
 		state["StateType"] = Castagne.STATE_TYPE.Special
 	if(stateName.begins_with("Specs-")):
 		state["StateType"] = Castagne.STATE_TYPE.Specblock

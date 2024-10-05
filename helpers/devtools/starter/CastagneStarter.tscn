@@ -1,0 +1,101 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/helpers/devtools/starter/CastagneStarter.gd" type="Script" id=1]
+
+[node name="CastagneStarter" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+
+[node name="Buttons" type="VBoxContainer" parent="."]
+anchor_left = 0.2
+anchor_top = 0.2
+anchor_right = 0.8
+anchor_bottom = 0.8
+alignment = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Editor" type="Button" parent="Buttons"]
+margin_top = 182.0
+margin_right = 768.0
+margin_bottom = 202.0
+text = "Castagne Editor"
+
+[node name="MainMenu" type="Button" parent="Buttons"]
+margin_top = 206.0
+margin_right = 768.0
+margin_bottom = 226.0
+text = "Start Game Normally"
+
+[node name="Training" type="Button" parent="Buttons"]
+visible = false
+margin_top = 98.0
+margin_right = 768.0
+margin_bottom = 118.0
+text = "Training"
+
+[node name="LocalBattle" type="Button" parent="Buttons"]
+visible = false
+margin_top = 110.0
+margin_right = 768.0
+margin_bottom = 130.0
+text = "Battle"
+
+[node name="DevTools" type="Button" parent="Buttons"]
+margin_top = 230.0
+margin_right = 768.0
+margin_bottom = 250.0
+text = "Dev Tools"
+
+[node name="Characters" type="Control" parent="."]
+visible = false
+anchor_left = 0.2
+anchor_top = 0.5
+anchor_right = 0.8
+anchor_bottom = 0.8
+
+[node name="0" type="ItemList" parent="Characters"]
+anchor_right = 0.5
+anchor_bottom = 1.0
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false ]
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="1" type="ItemList" parent="Characters"]
+anchor_left = 0.5
+anchor_right = 1.0
+anchor_bottom = 1.0
+items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false, "Item 4", null, false, "Item 5", null, false, "Item 6", null, false, "Item 7", null, false, "Item 8", null, false, "Item 9", null, false, "Item 10", null, false ]
+
+[node name="TitleLabel" type="Label" parent="."]
+anchor_left = 0.2
+anchor_top = 0.1
+anchor_right = 0.8
+anchor_bottom = 0.2
+margin_right = 40.0
+margin_bottom = 14.0
+text = "[Game Name]
+[Castagne Version]
+Press any key to stop the timer"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Hide" type="ColorRect" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}

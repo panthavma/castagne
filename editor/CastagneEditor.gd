@@ -26,6 +26,13 @@ func _ready():
 	
 	if(tutorialPath != null):
 		$TutorialSystem.StartTutorial(tutorialPath)
+	
+	# Temp: Change background color (useful if you have lots of projects)
+	var backgroundMaterial = $Background/ColorRect.get_material()
+	var backgroundColorAConfig = configData.Get("Editor-TmpBackgroundColor1")
+	var backgroundColorBConfig = configData.Get("Editor-TmpBackgroundColor2")
+	backgroundMaterial.set_shader_param("colorA", Color(backgroundColorAConfig[0]/255.0,backgroundColorAConfig[1]/255.0,backgroundColorAConfig[2]/255.0,1.0))
+	backgroundMaterial.set_shader_param("colorB", Color(backgroundColorBConfig[0]/255.0,backgroundColorBConfig[1]/255.0,backgroundColorBConfig[2]/255.0,1.0))
 
 func EnterMenu():
 	for c in get_children():
@@ -191,6 +198,7 @@ func StartCharacterEditor(safeMode = false, battleInitData = null):
 	$CharacterEdit.safeMode = safeMode
 	if(battleInitData == null):
 		battleInitData = GetCurrentlySelectedBattleInitData()
+	battleInitData["mode"] = Castagne.GAMEMODES.MODE_EDITOR
 	
 	$CharacterEdit.EnterMenu(battleInitData)
 
@@ -201,9 +209,10 @@ func GetCurrentlySelectedBattleInitData():
 	else:
 		return configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.FLOW).EditorGetCurrentBattleInitData(self, $MainMenu/FlowPanel/Custom/VBox)
 
-func StartBattle(battleInitData = null):
+func StartBattle(mode, battleInitData = null):
 	if(battleInitData == null):
 		battleInitData = GetCurrentlySelectedBattleInitData()
+	battleInitData["mode"] = mode
 	queue_free()
 	var ce = Castagne.InstanceCastagneEngine(battleInitData, configData)
 	get_tree().get_root().add_child(ce)
@@ -234,10 +243,12 @@ func _on_StartGame_pressed():
 	get_tree().get_root().add_child(menu)
 	queue_free()
 	#call_deferred("LoadLevel", configData.Get("PathMainMenu"))
+func _on_StartGameMainMenu_pressed():
+	_on_StartGame_pressed()
 func _on_StartGameMatch_pressed():
-	pass # Replace with function body.
+	StartBattle(Castagne.GAMEMODES.MODE_BATTLE)
 func _on_StartGameTraining_pressed():
-	StartBattle()
+	StartBattle(Castagne.GAMEMODES.MODE_TRAINING)
 func LoadLevel(path):
 	var ps = load(path)
 	var s = ps.instance()
@@ -266,6 +277,8 @@ func FlowCreateAdvancedWindow(flowRoot):
 
 func _on_FlowNewBID_pressed():
 	EnterSubmenu("FlowSetup")
+
+
 
 
 

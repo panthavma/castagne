@@ -128,44 +128,44 @@ margin_bottom = -8.0
 alignment = 1
 
 [node name="Label" type="Label" parent="MainMenu/Menu"]
-margin_top = 103.0
+margin_top = 85.0
 margin_right = 508.0
-margin_bottom = 117.0
+margin_bottom = 99.0
 text = "---- Castagne ----"
 align = 1
 
 [node name="Tutorials" type="Button" parent="MainMenu/Menu"]
-margin_top = 121.0
+margin_top = 103.0
 margin_right = 508.0
-margin_bottom = 139.0
+margin_bottom = 121.0
 text = "Castagne Tutorials"
 
 [node name="Documentation" type="Button" parent="MainMenu/Menu"]
-margin_top = 143.0
+margin_top = 125.0
 margin_right = 508.0
-margin_bottom = 161.0
+margin_bottom = 143.0
 size_flags_stretch_ratio = 0.5
 text = "Documentation"
 
 [node name="Updater" type="Button" parent="MainMenu/Menu"]
-margin_top = 165.0
+margin_top = 147.0
 margin_right = 508.0
-margin_bottom = 183.0
+margin_bottom = 165.0
 size_flags_horizontal = 3
 text = "Updater"
 
 [node name="Label2" type="Label" parent="MainMenu/Menu"]
-margin_top = 187.0
+margin_top = 169.0
 margin_right = 508.0
-margin_bottom = 218.0
+margin_bottom = 200.0
 text = "
 ---- Settings ----"
 align = 1
 
 [node name="Config" type="HBoxContainer" parent="MainMenu/Menu"]
-margin_top = 222.0
+margin_top = 204.0
 margin_right = 508.0
-margin_bottom = 240.0
+margin_bottom = 222.0
 size_flags_horizontal = 3
 alignment = 1
 
@@ -185,25 +185,25 @@ __meta__ = {
 }
 
 [node name="Label3" type="Label" parent="MainMenu/Menu"]
-margin_top = 244.0
+margin_top = 226.0
 margin_right = 508.0
-margin_bottom = 275.0
+margin_bottom = 257.0
 text = "
----- Game ----"
+---- Create ----"
 align = 1
 
 [node name="CharacterEdit" type="Button" parent="MainMenu/Menu"]
-margin_top = 279.0
+margin_top = 261.0
 margin_right = 508.0
-margin_bottom = 311.0
+margin_bottom = 293.0
 rect_min_size = Vector2( 0, 32 )
 size_flags_horizontal = 3
 text = "Character Editor"
 
 [node name="CharEditOptions" type="HBoxContainer" parent="MainMenu/Menu"]
-margin_top = 315.0
+margin_top = 297.0
 margin_right = 508.0
-margin_bottom = 333.0
+margin_bottom = 315.0
 
 [node name="CharacterEditNew" type="Button" parent="MainMenu/Menu/CharEditOptions"]
 margin_right = 252.0
@@ -218,10 +218,18 @@ margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Character Editor (Safemode)"
 
-[node name="StartGameModes" type="HBoxContainer" parent="MainMenu/Menu"]
-margin_top = 337.0
+[node name="Label4" type="Label" parent="MainMenu/Menu"]
+margin_top = 319.0
 margin_right = 508.0
-margin_bottom = 355.0
+margin_bottom = 350.0
+text = "
+---- Game ----"
+align = 1
+
+[node name="StartGameModes" type="HBoxContainer" parent="MainMenu/Menu"]
+margin_top = 354.0
+margin_right = 508.0
+margin_bottom = 372.0
 
 [node name="StartGameTraining" type="Button" parent="MainMenu/Menu/StartGameModes"]
 margin_right = 252.0
@@ -237,13 +245,24 @@ size_flags_horizontal = 3
 disabled = true
 text = "Start Normal Match"
 
-[node name="StartGame" type="Button" parent="MainMenu/Menu"]
-margin_top = 359.0
+[node name="StartGameModes2" type="HBoxContainer" parent="MainMenu/Menu"]
+margin_top = 376.0
 margin_right = 508.0
-margin_bottom = 377.0
+margin_bottom = 394.0
+
+[node name="StartGame" type="Button" parent="MainMenu/Menu/StartGameModes2"]
+margin_right = 508.0
+margin_bottom = 18.0
 size_flags_horizontal = 3
-disabled = true
-text = "Start Game Normally (Locked until v0.55)"
+text = "Start Game"
+
+[node name="StartGameMainMenu" type="Button" parent="MainMenu/Menu/StartGameModes2"]
+visible = false
+margin_left = 256.0
+margin_right = 508.0
+margin_bottom = 18.0
+size_flags_horizontal = 3
+text = "Main Menu"
 
 [node name="FlowPanel" type="VBoxContainer" parent="MainMenu"]
 anchor_left = 0.5
@@ -1310,7 +1329,8 @@ __meta__ = {
 [connection signal="pressed" from="MainMenu/Menu/CharEditOptions/CharacterEditSafe" to="." method="_on_CharacterEditSafe_pressed"]
 [connection signal="pressed" from="MainMenu/Menu/StartGameModes/StartGameTraining" to="." method="_on_StartGameTraining_pressed"]
 [connection signal="pressed" from="MainMenu/Menu/StartGameModes/StartGameMatch" to="." method="_on_StartGameMatch_pressed"]
-[connection signal="pressed" from="MainMenu/Menu/StartGame" to="." method="_on_StartGame_pressed"]
+[connection signal="pressed" from="MainMenu/Menu/StartGameModes2/StartGame" to="." method="_on_StartGame_pressed"]
+[connection signal="pressed" from="MainMenu/Menu/StartGameModes2/StartGameMainMenu" to="." method="_on_StartGameMainMenu_pressed"]
 [connection signal="pressed" from="MainMenu/FlowPanel/Generic/VBox/Setup/FlowNewBID" to="." method="_on_FlowNewBID_pressed"]
 [connection signal="toggled" from="MainMenu/FlowPanel/FlowAdvanced" to="." method="_on_FlowAdvanced_toggled"]
 [connection signal="pressed" from="Config/BackButton" to="Config" method="_on_BackButton_pressed"]

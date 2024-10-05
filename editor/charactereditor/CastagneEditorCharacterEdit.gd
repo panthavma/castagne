@@ -191,17 +191,6 @@ func EngineTick_AIStartEntity(stateHandle):
 			inputs[giName] = false
 		stateHandle.EntitySet("_Inputs", inputs)
 
-
-func EngineTick_ActionStartEntity(stateHandle):
-	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/Blocking").pressed):
-		stateHandle.EntitySetFlag("Blocking")
-	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/BlockingLow").pressed):
-		stateHandle.EntitySetFlag("Blocking-Low")
-	if(get_node("BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/BlockingOverhead").pressed):
-		stateHandle.EntitySetFlag("Blocking-Overhead")
-		
-		
-
 var _popupFunction = null
 func ShowPopup(popupName):
 	$Popups.show()
@@ -269,6 +258,16 @@ func _on_Reload_pressed():
 	ReloadEngine()
 	ReloadCodePanel(false)
 
+func _on_HotReload_pressed():
+	SaveFile()
+	engine.HotReloadFighterScript(character[character["NbFiles"]-1]["Path"], 0)
+	ReloadCodePanel(false)
+	FocusGame()
+
+func _on_QuickReset_pressed():
+	pass # Replace with function body.
+	
+	FocusGame()
 
 func _on_Code_text_changed():
 	SetCurrentStateCode($CodePanel/Code.get_text())
@@ -1480,11 +1479,11 @@ func BigToolPanelSetVisible(v):
 	if(v):
 		bigToolPanel.set_anchor_and_margin(MARGIN_TOP, -0.8, 32)
 		bigToolPanel.set_anchor_and_margin(MARGIN_BOTTOM, 0, 0)
-		$BottomPanel/BMiniPanel/HBox/Reload/BigToolExpand.set_text("vv")
+		$BottomPanel/BMiniPanel/HBox/Reload/Expand/BigToolExpand.set_text("vv")
 	else:
 		bigToolPanel.set_anchor_and_margin(MARGIN_TOP, 0.2, 0)
 		bigToolPanel.set_anchor_and_margin(MARGIN_BOTTOM, 1.0, 32)
-		$BottomPanel/BMiniPanel/HBox/Reload/BigToolExpand.set_text("^^")
+		$BottomPanel/BMiniPanel/HBox/Reload/Expand/BigToolExpand.set_text("^^")
 		
 
 
@@ -1672,7 +1671,7 @@ func _on_TutorialWindow_pressed():
 	ShowPopup("Tutorial")
 
 func _UpdateSpecblockMainWindowVisibility(shouldBeVisible):
-	$SpecblockMainWindowRoot.set_visible(shouldBeVisible and $BottomPanel/BMiniPanel/HBox/Reload/SpecblockExpand.is_pressed())
+	$SpecblockMainWindowRoot.set_visible(shouldBeVisible and $BottomPanel/BMiniPanel/HBox/Reload/Expand/SpecblockExpand.is_pressed())
 
 func _on_SpecblockExpand_pressed():
 	var curStatePureName = Castagne.Parser._GetPureStateNameFromStateName(curState)
@@ -1701,3 +1700,7 @@ func _on_Mute_toggled(button_pressed):
 
 func _on_CompilStatus_pressed():
 	ShowTool(0)
+
+
+
+

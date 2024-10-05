@@ -11,5 +11,5 @@ func _on_ButtonTuto_pressed():
 func _on_ButtonNoTuto_pressed():
 	editor.configData.Set("LocalConfig-Editor-FirstTimeLaunchDone", true)
 	editor.configData.SaveConfigFile()
-	#$"..".EnterMenu()
-	$"../TutorialSelect".EnterMenu()
+	$"..".EnterMenu()
+	#$"../TutorialSelect".Enter()

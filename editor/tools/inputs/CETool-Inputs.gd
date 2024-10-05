@@ -1,9 +1,13 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 extends "res://castagne/editor/tools/CastagneEditorTool.gd"
 
 var prefabInputButton = preload("res://castagne/editor/tools/inputs/CETool-Inputs-Button.tscn")
-var inputGrids = []
 var inputPlayerData = []
 var _inputGridRoot
+var _inputGrids = []
 var _inputOverrideButton
 var _inputControl
 var _nbPlayers
@@ -19,6 +23,7 @@ func SetupTool():
 func ClearInputPanel():
 	for c in _inputGridRoot.get_children():
 		c.queue_free()
+	_inputGrids = []
 
 func CreatePanelForPlayer(engine):
 	ClearInputPanel()
@@ -30,13 +35,18 @@ func CreatePanelForPlayer(engine):
 	var inputGridToShow = null
 	
 	for pid in range(_nbPlayers):
+		var inputGridScroll = ScrollContainer.new()
 		var inputGrid = GridContainer.new()
-		inputGrid.set_anchors_and_margins_preset(Control.PRESET_WIDE)
+		inputGrid.set_h_size_flags(SIZE_EXPAND_FILL)
+		inputGrid.set_v_size_flags(SIZE_EXPAND_FILL)
+		inputGridScroll.set_anchors_and_margins_preset(Control.PRESET_WIDE)
 		inputGrid.set_columns(4)
-		inputGrid.hide()
+		inputGridScroll.hide()
 		if(pid == pidToShow):
-			inputGridToShow = inputGrid
-		_inputGridRoot.add_child(inputGrid)
+			inputGridToShow = inputGridScroll
+		inputGridScroll.add_child(inputGrid)
+		_inputGridRoot.add_child(inputGridScroll)
+		_inputGrids.push_back(inputGrid)
 		for physicalInput in physInputs:
 			var gameInputNames = castagneInput.PhysicalInputGetGameInputNames(physicalInput)
 			for giName in gameInputNames:
@@ -98,7 +108,9 @@ func EngineTick_AIStartEntity(stateHandle):
 	if(inputs == null):
 		return
 	
-	var inputGrid = _inputGridRoot.get_child(pid)
+	if(_inputGrids.size() <= pid):
+		return
+	var inputGrid = _inputGrids[pid]
 	if(inputGrid == null):
 		return
 	
@@ -122,10 +134,9 @@ func EngineTick_InputEnd(stateHandle):
 		if(inputPlayerData[pid]["Override"]):
 			continue
 		
-		if(inputs["ForwardRelease"]):
-			pass
-		
-		var inputGrid = _inputGridRoot.get_child(pid)
+		if(_inputGrids.size() <= pid):
+			return
+		var inputGrid = _inputGrids[pid]
 		if(inputGrid == null):
 			return
 		

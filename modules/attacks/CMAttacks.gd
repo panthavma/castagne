@@ -37,13 +37,13 @@ func ModuleSetup():
 	RegisterFunction("AttackInternalRegister", [1,2], ["AllPhases"], {
 		"Description":"Internal trick to improve performance. Don't use it.",
 		"Arguments":["Type", "(Optional) Notation"],
-		"Flags":["Basic"],
+		"Flags":["Expert"],
 		"Types":["str", "str"],
 	})
 	RegisterFunction("AttackInternalRegisterNoNotation", [1], ["AllPhases"], {
 		"Description":"Internal trick to improve performance. Don't use it.",
 		"Arguments":["Type"],
-		"Flags":["Intermediate"],
+		"Flags":["Expert"],
 		"Types":["str"],
 	})
 	RegisterFunction("AttackInit", [0], ["AllPhases"], {

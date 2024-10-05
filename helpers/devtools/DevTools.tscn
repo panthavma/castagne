@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=2]
 
-[ext_resource path="res://castagne/devtools/PerfTest.gd" type="Script" id=1]
-[ext_resource path="res://castagne/devtools/Documentation.gd" type="Script" id=2]
+[ext_resource path="res://castagne/helpers/devtools/PerfTest.gd" type="Script" id=1]
+[ext_resource path="res://castagne/helpers/devtools/Documentation.gd" type="Script" id=2]
 
 [node name="DevTools" type="Control"]
 anchor_right = 1.0
@@ -26,9 +26,9 @@ __meta__ = {
 }
 
 [node name="Perf" type="HBoxContainer" parent="List"]
-margin_top = 464.0
-margin_right = 1728.0
-margin_bottom = 484.0
+margin_top = 302.0
+margin_right = 1152.0
+margin_bottom = 322.0
 script = ExtResource( 1 )
 
 [node name="Generic" type="Button" parent="List/Perf"]
@@ -54,14 +54,14 @@ __meta__ = {
 [node name="Result" type="Label" parent="List/Perf"]
 margin_left = 134.0
 margin_top = 3.0
-margin_right = 1728.0
+margin_right = 1152.0
 margin_bottom = 17.0
 size_flags_horizontal = 3
 
 [node name="Documentation" type="HBoxContainer" parent="List"]
-margin_top = 488.0
-margin_right = 1728.0
-margin_bottom = 508.0
+margin_top = 326.0
+margin_right = 1152.0
+margin_bottom = 346.0
 script = ExtResource( 2 )
 
 [node name="Button" type="Button" parent="List/Documentation"]
@@ -72,7 +72,7 @@ text = "Export Documentation"
 [node name="Label" type="Label" parent="List/Documentation"]
 margin_left = 159.0
 margin_top = 3.0
-margin_right = 1728.0
+margin_right = 1152.0
 margin_bottom = 17.0
 size_flags_horizontal = 3
 

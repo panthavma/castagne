@@ -1,0 +1,81 @@
+:Character:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+
+## Base-Training: Adds some behavior to manage training mode options
+##
+## To add new behavior, look into overriding the Training- callbacks
+:Common:
+CallParent()
+
+LTF_Training:
+	Call(Training-Common)
+endif
+:CommonAfter:
+CallParent()
+
+LTF_Training:
+	Call(Training-CommonAfter)
+endif
+:Init:
+CallParent()
+
+LTF_Training:
+	Call(Init-Training)
+endif
+:Init-Training:
+## Training callback for the Init state
+_Category(Custom/Training)
+_Helper()
+_Overridable(If you want to add training-specific behavior)
+:NeutralStateCommon:
+CallParent()
+
+LTF_Training:
+	Call(Training-NeutralStateCommon)
+endif
+:OnReturnToNeutral:
+CallParent()
+
+
+LTF_Training:
+	Call(Training-OnReturnToNeutral)
+endif
+:StandardState:
+CallParent()
+
+
+LTF_Training:
+	Call(Training-StandardState)
+endif
+:Training-Common:
+## Training callback for the Common state
+_Category(Custom/Training)
+_Helper()
+_Overridable(If you want to add training-specific behavior)
+:Training-CommonAfter:
+## Training callback for the CommonAfter state
+_Category(Custom/Training)
+_Helper()
+_Overridable(If you want to add training-specific behavior)
+:Training-NeutralStateCommon:
+## Training callback for the NeutralStateCommon state
+_Category(Custom/Training)
+_Helper()
+_Overridable(If you want to add training-specific behavior)
+
+LTF_HPRegen:
+	Set(HP, HPMax)
+endif
+:Training-OnReturnToNeutral:
+## Training callback for the OnReturnToNeutral state
+_Category(Custom/Training)
+_Helper()
+_Overridable(If you want to add training-specific behavior)
+:Training-StandardState:
+## Training callback for the StandardState state
+_Category(Custom/Training)
+_Helper()
+_Overridable(If you want to add training-specific behavior)
