@@ -481,6 +481,10 @@ func ArgRaw(args, argID, default = null):
 		return default
 	return args[argID]
 
+func ArgRawIfExists(args, argID):
+	if(args.size() <= argID):
+		return null
+	return args[argID]
 
 
 

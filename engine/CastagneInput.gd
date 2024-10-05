@@ -15,12 +15,14 @@ var _devices = {}
 var _devicesList = []
 
 var _inputLayout
+var _inputLayoutMenu
 var _inputSchema
 
 func InitializeFromConfigData(configData):
 	_configData = configData
 	
 	_inputLayout = _configData.Get("InputLayout").duplicate(true)
+	_inputLayoutMenu = _configData.Get("InputLayoutMenu").duplicate(true)
 	_inputSchema = CreateInputSchemaFromInputLayout(_inputLayout)
 	
 	AddDevice("empty", Castagne.INPUTDEVICE_TYPES.EMPTY)
@@ -58,17 +60,25 @@ func AddDevice(deviceName, deviceType, deviceParameter = null):
 		return
 	
 	var inputMap = CreateInputMapFromInputLayout(_inputLayout)
+	var inputMapMenu = CreateInputMapFromInputLayout(_inputLayoutMenu)
 	
 	deviceData["InputLayout"] = _inputLayout
+	deviceData["InputLayoutMenu"] = _inputLayoutMenu
 	deviceData["InputMap"] = inputMap
+	deviceData["InputMapMenu"] = inputMapMenu
 	
 	_devicesList.push_back(deviceName)
 	_devices[deviceName] = deviceData
 	
-	CreateGodotInputActionsFromDevice(deviceName)
+	CreateGodotInputActionsFromDevice(deviceName, inputMap)
+	CreateGodotInputActionsFromDevice(deviceName, inputMapMenu)
 
 func GetDevicesList():
-	return _devicesList
+	return _devicesList.duplicate()
+func GetConnectedDevices():
+	var d = GetDevicesList()
+	d.erase("empty")
+	return d
 
 func GetDevice(deviceName = null):
 	if(deviceName == null):
@@ -100,6 +110,28 @@ func PollDevice(deviceName = null):
 		inputRawData[iName] = value
 	
 	return inputRawData
+
+func PollDeviceMenu(deviceName = null):
+	var device = GetDevice(deviceName)
+	if(device == null):
+		return
+	
+	var inputMap = device["InputMapMenu"]
+	var actionPrefix = device["DeviceActionPrefix"]
+	var deviceType = device["Type"]
+	
+	var inputData = {}
+	
+	for iName in inputMap:
+		var im = inputMap[iName]
+		var iNameOut = iName.right(4)
+		var value = false
+		if(deviceType != Castagne.INPUTDEVICE_TYPES.EMPTY):
+			var actionName = actionPrefix + im["ActionName"]
+			value = Input.is_action_just_pressed(actionName)
+		inputData[iNameOut] = value
+	
+	return inputData
 
 
 
@@ -248,7 +280,7 @@ func CreateInputMapFromInputLayout(inputLayout):
 
 
 
-func CreateGodotInputActionsFromDevice(deviceName):
+func CreateGodotInputActionsFromDevice(deviceName, inputMap):
 	var device = GetDevice(deviceName)
 	if(device == null):
 		return
@@ -260,7 +292,7 @@ func CreateGodotInputActionsFromDevice(deviceName):
 	var actionNamePrefix = device["DeviceActionPrefix"]
 	
 	
-	var inputMap = device["InputMap"]
+	#var inputMap = device["InputMap"]
 	for iName in inputMap:
 		var im = inputMap[iName]
 		var actionName = actionNamePrefix + im["ActionName"]
@@ -432,6 +464,24 @@ func CreateInputDataFromRawInput(rawInput, schema = null):
 				inputData[combinationInputName] = value
 	
 	return inputData
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/helpers/menus/elements/default/CMED-Action.gd" type="Script" id=1]
+
+[node name="CMED_Action" type="Label"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+rect_min_size = Vector2( 0, 16 )
+size_flags_horizontal = 3
+text = "Text"
+valign = 1
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+show_behind_parent = true
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 1 )

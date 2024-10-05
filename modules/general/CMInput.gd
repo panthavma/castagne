@@ -34,6 +34,18 @@ func ModuleSetup():
 		{"Name":"TrainingButton1", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[]]], "ControllerInputs":[[[JOY_L3]]]},
 		{"Name":"TrainingButton2", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[]]], "ControllerInputs":[[[JOY_R3]]]},
 	], {"Flags":["Hidden"], "Description":"The complete InputLayout to use."})
+	
+	RegisterConfig("InputLayoutMenu", [
+		{"Name":"MenuUp", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_Z, KEY_W, KEY_SPACE, KEY_UP]]], "ControllerInputs":[[[JOY_DPAD_UP]]]},
+		{"Name":"MenuDown", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_S, KEY_DOWN]]], "ControllerInputs":[[[JOY_DPAD_DOWN]]]},
+		{"Name":"MenuLeft", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_A, KEY_Q, KEY_LEFT]]], "ControllerInputs":[[[JOY_DPAD_LEFT]]]},
+		{"Name":"MenuRight", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_D, KEY_RIGHT]]], "ControllerInputs":[[[JOY_DPAD_RIGHT]]]},
+		
+		{"Name":"MenuConfirm", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_N, KEY_KP_0]]], "ControllerInputs":[[[JOY_XBOX_A]]]},
+		{"Name":"MenuBack", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_K, KEY_KP_6]]], "ControllerInputs":[[[JOY_XBOX_B]]]},
+		{"Name":"MenuPrevious", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_Y, KEY_KP_1]]], "ControllerInputs":[[[JOY_L]]]},
+		{"Name":"MenuNext", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_U, KEY_KP_2]]], "ControllerInputs":[[[JOY_R]]]},
+	], {"Flags":["Hidden"], "Description":"The complete input layout for menus."})
 
 	RegisterCustomConfig("Define Input Layout", "InputConfig", {"Flags":["ReloadFull", "LockBack"]})
 
@@ -241,18 +253,23 @@ func ReactionPhaseStartEntity(stateHandle):
 		if inputTransition == null:
 			var itl = stateHandle.EntityGet("_InputTransitionList")
 			for input in itl:
-				if input["TargetState"] == frozenIT["TargetState"]:
-					inputTransition = frozenIT
-					break
+				if input["TargetState"] != frozenIT["TargetState"]:
+					continue
+				if input["TargetFlag"] != frozenIT["TargetFlag"]:
+					continue
+				if input["TargetFlagNext"] != frozenIT["TargetFlagNext"]:
+					continue
+				inputTransition = frozenIT
+				break
 		stateHandle.EntitySet("_FrozenInputTransition", null)
 	
 	if(inputTransition != null):
 		var coreModule = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.CORE)
-		if(inputTransition.has("TargetState")):
+		if(inputTransition["TargetState"] != null):
 			coreModule.Transition([inputTransition["TargetState"], inputTransition["Priority"]], stateHandle)
-		if(inputTransition.has("TargetFlag")):
+		if(inputTransition["TargetFlag"] != null):
 			coreModule.Flag([inputTransition["TargetFlag"]], stateHandle)
-		if(inputTransition.has("TargetFlagNext")):
+		if(inputTransition["TargetFlagNext"] != null):
 			coreModule.FlagNext([inputTransition["TargetFlagNext"]], stateHandle)
 
 func FindCorrectInputTransition(stateHandle):
@@ -488,13 +505,10 @@ func AddInputTransitionFlag(stateHandle, inputNotation, targetState = null, targ
 		"InputNotation":inputNotation,
 		"Priority":stateHandle.ConfigData().Get("InputTransitionDefaultPriority"),
 		"Callback":null,
+		"TargetState": targetState,
+		"TargetFlag": targetFlag,
+		"TargetFlagNext": targetFlagNext,
 	}
-	if(targetState != null):
-		itd["TargetState"] = targetState
-	if(targetFlag != null):
-		itd["TargetFlag"] = targetFlag
-	if(targetFlagNext != null):
-		itd["TargetFlagNext"] = targetFlagNext
 	
 	Castagne.FuseDataOverwrite(itd, data)
 	

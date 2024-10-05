@@ -1084,9 +1084,11 @@ _Category(States/Reacts/Hitstun)
 Flag(Hitstun)
 Call(Common)
 
-LAF_ForceLanding:
-	LPF_Grounded:
-		Flag(PFLanding)
+PReaction:
+	LAF_ForceLanding:
+		LPF_Grounded:
+			Flag(PF_Landing)
+		endif
 	endif
 endif
 
@@ -1146,6 +1148,15 @@ else
 		Call(StartGroundTech)
 	endif
 endif
+:Init:
+CallParent()
+
+Call(Init-Attacks)
+:Init-Attacks:
+## Init callback for the attack module
+_Helper()
+
+Set(HP, HPMax)
 :NeutralStateCommon:
 CallParent()
 
@@ -1457,9 +1468,6 @@ endif
 CallParent()
 
 Call(AttackPrefixSetup)
-
-## CASTDO Temporary
-Set(HP, HPMax)
 :StateTemplate-Attack-Normal:
 # Simple medium attack template
 AttackRegister(Medium)

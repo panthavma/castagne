@@ -5,4 +5,4 @@
 [resource]
 shader = ExtResource( 1 )
 shader_param/colorA = Color( 0.0470588, 0.0588235, 0.0509804, 1 )
-shader_param/colorB = Color( 0.055, 0.11, 0.0733333, 1 )
+shader_param/colorB = Color( 0.054902, 0.109804, 0.0745098, 1 )

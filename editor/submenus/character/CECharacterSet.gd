@@ -251,6 +251,9 @@ func CharacterIsAdded(path):
 	UpdateCharacterList()
 
 func CheckIfCaspFileIsValidOrCreateIt(path):
+	if(!path.ends_with(".casp")):
+		path += ".casp"
+	
 	var f = File.new()
 	var fileExists = f.file_exists(path)
 	

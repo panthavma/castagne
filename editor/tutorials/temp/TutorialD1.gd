@@ -55,7 +55,7 @@ These tutorials will be replaced in a few versions... Hang out with us while you
 		yield()
 		
 		system.ShowDialogue("""Finally, once you have made some progress on the game, you can start it from this button!""")
-		system.StencilNode(editor.get_node("MainMenu/Menu/StartGame"))
+		system.StencilNode(editor.get_node("MainMenu/Menu/StartGameModes2/StartGame"))
 		
 		yield()
 	

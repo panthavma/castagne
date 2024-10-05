@@ -450,6 +450,28 @@ func ParseFighterScript(characterPath):
 	fighterScripts.append(fighter["States"])
 	return id
 
+func HotReloadFighterScript(characterPath, fighterID):
+	# Meant for the editor only, as it doesn't go through init again so you can get weird places
+	var fighter = Castagne.Parser.CreateFullCharacter(characterPath, configData, false)
+	
+	if(fighter == null):
+		Castagne.Error("Character "+characterPath+" isn't initialized properly.")
+		initError = true
+		AbortWithError("Hot reloading failed.")
+		return -1
+	
+	var parsedFighterData = {
+		"ID": fighterID,
+		"File":characterPath,
+		"Character":fighter["Character"],
+		"Variables":fighter["Variables"],
+		"TransformedData":fighter["TransformedData"],
+	}
+	
+	instancedData["ParsedFighters"][fighterID] = parsedFighterData
+	fighterScripts[fighterID] = fighter["States"]
+	return fighterID
+
 # Adds the data needed for a new entity, and returns its ID. It will be initialized on the next frame
 func AddNewEntity(gameStateHandle, playerID, fighterID, entityName = null):
 	var initStateName = "Init"

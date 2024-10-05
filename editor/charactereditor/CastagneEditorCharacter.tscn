@@ -255,16 +255,16 @@ text = "Normal"
 
 [node name="Middle" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
 margin_left = 152.0
-margin_right = 793.0
+margin_right = 646.0
 margin_bottom = 128.0
 size_flags_horizontal = 3
 
 [node name="TopBar" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle"]
-margin_right = 641.0
+margin_right = 494.0
 margin_bottom = 18.0
 
 [node name="Flow" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_right = 220.0
+margin_right = 233.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 
@@ -296,8 +296,8 @@ margin_bottom = 18.0
 text = "Next Frame"
 
 [node name="VSeparator" type="VSeparator" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_left = 224.0
-margin_right = 228.0
+margin_left = 237.0
+margin_right = 241.0
 margin_bottom = 18.0
 
 [node name="Phase" type="Label" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
@@ -323,8 +323,8 @@ margin_bottom = 20.0
 text = "T"
 
 [node name="Other" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_left = 232.0
-margin_right = 641.0
+margin_left = 245.0
+margin_right = 494.0
 margin_bottom = 18.0
 
 [node name="CompilStatus" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
@@ -332,87 +332,88 @@ margin_right = 93.0
 margin_bottom = 18.0
 text = "Compilation"
 
-[node name="Blocking" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
-margin_left = 97.0
-margin_right = 167.0
-margin_bottom = 18.0
-toggle_mode = true
-text = "Blocking"
-
-[node name="BlockingLow" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
-margin_left = 171.0
-margin_right = 212.0
-margin_bottom = 18.0
-toggle_mode = true
-pressed = true
-text = "Low"
-
-[node name="BlockingOverhead" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
-margin_left = 216.0
-margin_right = 253.0
-margin_bottom = 18.0
-toggle_mode = true
-pressed = true
-text = "OH"
-
 [node name="HideGizmos" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
-margin_left = 257.0
-margin_right = 356.0
+margin_left = 97.0
+margin_right = 196.0
 margin_bottom = 18.0
+hint_tooltip = "Hide Gizmos"
 toggle_mode = true
 text = "Hide Gizmos"
 
 [node name="Mute" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
-margin_left = 360.0
-margin_right = 409.0
+margin_left = 200.0
+margin_right = 249.0
 margin_bottom = 18.0
 toggle_mode = true
 text = "Mute"
 
 [node name="MiniTool" type="Control" parent="BottomPanel/BMiniPanel/HBox/Middle"]
 margin_top = 22.0
-margin_right = 641.0
+margin_right = 494.0
 margin_bottom = 128.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Reload" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
-margin_left = 797.0
-margin_right = 856.0
+margin_left = 650.0
+margin_right = 736.0
 margin_bottom = 128.0
 
 [node name="Reload" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_right = 59.0
-margin_bottom = 62.0
+margin_right = 86.0
+margin_bottom = 61.0
 size_flags_vertical = 3
 shortcut = SubResource( 4 )
 text = "Reload"
 
-[node name="ChangeTool" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 66.0
-margin_right = 59.0
+[node name="QuickReset" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
+visible = false
+margin_top = 44.0
+margin_right = 86.0
+margin_bottom = 62.0
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.3
+shortcut = SubResource( 4 )
+text = "Reset"
+
+[node name="HotReload" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
+margin_top = 65.0
+margin_right = 86.0
 margin_bottom = 84.0
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.3
+shortcut = SubResource( 4 )
+text = "Hot Reload"
+
+[node name="ChangeTool" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
+margin_top = 88.0
+margin_right = 86.0
+margin_bottom = 106.0
 rect_pivot_offset = Vector2( 10, 10 )
 size_flags_horizontal = 3
 text = "Tools"
 
-[node name="BigToolExpand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 88.0
-margin_right = 59.0
-margin_bottom = 106.0
-rect_pivot_offset = Vector2( 10, 10 )
-size_flags_horizontal = 3
-text = "^^"
-
-[node name="SpecblockExpand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
+[node name="Expand" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Reload"]
 margin_top = 110.0
-margin_right = 59.0
+margin_right = 86.0
 margin_bottom = 128.0
+
+[node name="SpecblockExpand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload/Expand"]
+margin_right = 41.0
+margin_bottom = 18.0
 rect_pivot_offset = Vector2( 10, 10 )
 size_flags_horizontal = 3
 toggle_mode = true
 pressed = true
 text = "<<"
+
+[node name="BigToolExpand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload/Expand"]
+margin_left = 45.0
+margin_right = 86.0
+margin_bottom = 18.0
+rect_pivot_offset = Vector2( 10, 10 )
+size_flags_horizontal = 3
+text = "^^"
 
 [node name="Tools" type="HBoxContainer" parent="BottomPanel/BMiniPanel"]
 anchor_top = 1.0
@@ -812,7 +813,6 @@ __meta__ = {
 [node name="Scroll" type="ScrollContainer" parent="CodePanel/Navigation/ChooseState/StateList"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-scroll_horizontal_enabled = false
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -1740,9 +1740,11 @@ margin_bottom = -8.0
 [connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/HideGizmos" to="." method="_on_HideGizmos_toggled"]
 [connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/Mute" to="." method="_on_Mute_toggled"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/Reload" to="." method="_on_Reload_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/QuickReset" to="." method="_on_QuickReset_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/HotReload" to="." method="_on_HotReload_pressed"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/ChangeTool" to="." method="_on_ChangeTool_pressed"]
-[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/BigToolExpand" to="." method="_on_BigToolExpand_pressed"]
-[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/SpecblockExpand" to="." method="_on_SpecblockExpand_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/Expand/SpecblockExpand" to="." method="_on_SpecblockExpand_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Reload/Expand/BigToolExpand" to="." method="_on_BigToolExpand_pressed"]
 [connection signal="pressed" from="CodePanel/Documentation/FuncdocButton" to="." method="_on_FuncdocButton_pressed"]
 [connection signal="pressed" from="CodePanel/UseCustomEditor" to="." method="ChangeCodePanelState"]
 [connection signal="cursor_changed" from="CodePanel/Code" to="." method="_on_Code_cursor_changed"]
