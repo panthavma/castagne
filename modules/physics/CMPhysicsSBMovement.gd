@@ -32,6 +32,8 @@ func SetupSpecblock(_argument):
 	AddDefine("MOVE_Crawl_SpeedF", 0, "Crawl Speed (Forward)")
 	AddDefine("MOVE_Crawl_SpeedB", 0, "Crawl Speed (Back)")
 	
+	AddDefine("MOVE_Dashes_CanDashFromCrouch", false, "Can Dash from Crouching")
+	
 	AddCategory("Jumping")
 	AddDefine("MOVE_Jump_JumpsquatTime", 3, "Jumpsquat Duration")
 	AddDefine("MOVE_Jump_JumpN_InitialMomentumX", 0, "Neutral Jump: Horizontal Momentum")

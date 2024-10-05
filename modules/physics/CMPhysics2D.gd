@@ -691,9 +691,9 @@ func SetWorldPositionAbsolute(args, stateHandle):
 func SetWorldPositionX(args, stateHandle):
 	SetWorldPositionAbsoluteX([stateHandle.EntityGet("_FacingHPhysics")*ArgInt(args, stateHandle, 0)], stateHandle)
 func SetWorldPositionAbsoluteX(args, stateHandle):
-	stateHandle.EntityGet("_PositionX", ArgInt(args, stateHandle, 0))
+	stateHandle.EntitySet("_PositionX", ArgInt(args, stateHandle, 0))
 func SetWorldPositionY(args, stateHandle):
-	stateHandle.EntityGet("_PositionY", ArgInt(args, stateHandle, 0))
+	stateHandle.EntitySet("_PositionY", ArgInt(args, stateHandle, 0))
 
 
 
@@ -1077,13 +1077,13 @@ func _HitHurtboxMustHave(stateHandle, flag, array):
 	else:
 		stateHandle.EntityAdd(array, [flag])
 func HurtboxRequires(args, stateHandle):
-	_HitHurtboxMustHave(stateHandle, ArgRaw(args, 0, null), "_HurtboxMustHaves")
+	_HitHurtboxMustHave(stateHandle, ArgRawIfExists(args, 0), "_HurtboxMustHaves")
 func HurtboxAvoids(args, stateHandle):
-	_HitHurtboxMustHave(stateHandle, ArgRaw(args, 0, null), "_HurtboxMustNotHaves")
+	_HitHurtboxMustHave(stateHandle, ArgRawIfExists(args, 0), "_HurtboxMustNotHaves")
 func HitboxRequires(args, stateHandle):
-	_HitHurtboxMustHave(stateHandle, ArgRaw(args, 0, null), "_HitboxMustHaves")
+	_HitHurtboxMustHave(stateHandle, ArgRawIfExists(args, 0), "_HitboxMustHaves")
 func HitboxAvoids(args, stateHandle):
-	_HitHurtboxMustHave(stateHandle, ArgRaw(args, 0, null), "_HitboxMustNotHaves")
+	_HitHurtboxMustHave(stateHandle, ArgRawIfExists(args, 0), "_HitboxMustNotHaves")
 
 func GizmoBox(emodule, args, lineActive, _stateHandle, type):
 	var color = [Color(0.4, 0.4, 1.0), Color(1.0, 0.4, 0.4), Color(0.4, 1.0, 0.4)][type]

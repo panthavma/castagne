@@ -2,19 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+# CastagneMenu is the base script for a menu, and handles
+# - Setting up the menu
+# - Gathering menu input
+# - Handling menu logic
+
 extends Node
 
+var _menuData
 
-# Declare member variables here. Examples:
-# var a = 2
-# var b = "text"
-
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-#func _process(delta):
-#	pass
+func CreateMenu(menuData):
+	_menuData = menuData
+	

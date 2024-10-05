@@ -1,0 +1,209 @@
+[gd_resource type="Theme" load_steps=13 format=2]
+
+[sub_resource type="StyleBoxFlat" id=2]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color( 0.219608, 0.207843, 0.207843, 1 )
+border_width_left = 2
+border_width_bottom = 1
+border_color = Color( 0.258824, 0.172549, 0.172549, 1 )
+corner_radius_top_left = 4
+corner_radius_top_right = 8
+corner_radius_bottom_right = 2
+expand_margin_left = 2.0
+expand_margin_bottom = 1.0
+shadow_size = 1
+
+[sub_resource type="StyleBoxFlat" id=3]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color( 0.278431, 0.141176, 0.141176, 1 )
+border_width_left = 2
+border_width_bottom = 2
+border_color = Color( 0.435294, 0, 0, 1 )
+corner_radius_top_left = 4
+corner_radius_top_right = 8
+corner_radius_bottom_right = 4
+expand_margin_left = 2.0
+expand_margin_bottom = 1.0
+shadow_size = 3
+
+[sub_resource type="StyleBoxFlat" id=1]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color( 0.215686, 0.160784, 0.160784, 1 )
+border_width_left = 2
+border_width_bottom = 2
+border_color = Color( 0.435294, 0, 0, 1 )
+corner_radius_top_left = 4
+corner_radius_top_right = 8
+corner_radius_bottom_right = 2
+expand_margin_left = 2.0
+expand_margin_bottom = 1.0
+shadow_size = 1
+
+[sub_resource type="StyleBoxFlat" id=4]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color( 0.34, 0.291267, 0.0476, 1 )
+border_width_left = 2
+border_width_bottom = 2
+border_color = Color( 0.65, 0.541667, 0, 1 )
+corner_radius_top_left = 4
+corner_radius_top_right = 8
+corner_radius_bottom_right = 4
+expand_margin_left = 2.0
+expand_margin_bottom = 1.0
+shadow_size = 2
+
+[sub_resource type="StyleBoxEmpty" id=12]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id=11]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color( 0.145098, 0.113725, 0.113725, 1 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color( 0.435294, 0, 0, 1 )
+border_blend = true
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id=10]
+bg_color = Color( 0.341176, 0.290196, 0.0470588, 1 )
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color( 0.65098, 0.541176, 0, 1 )
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+expand_margin_left = 4.0
+expand_margin_right = 4.0
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id=5]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 4.0
+content_margin_bottom = 2.0
+bg_color = Color( 0.145098, 0.13799, 0.113725, 1 )
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color( 0.44, 0.366667, 0, 1 )
+border_blend = true
+corner_radius_top_left = 4
+corner_radius_top_right = 8
+corner_radius_bottom_right = 2
+expand_margin_left = 2.0
+expand_margin_bottom = 1.0
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id=7]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color( 0.145098, 0.113725, 0.113725, 1 )
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color( 0.435294, 0, 0, 1 )
+border_blend = true
+corner_radius_top_left = 4
+corner_radius_top_right = 8
+corner_radius_bottom_right = 2
+expand_margin_left = 2.0
+expand_margin_bottom = 1.0
+shadow_size = 1
+
+[sub_resource type="StyleBoxFlat" id=8]
+bg_color = Color( 0.121569, 0.105882, 0.105882, 1 )
+border_color = Color( 0.145098, 0.113725, 0.113725, 1 )
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id=6]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color( 0.145098, 0.137255, 0.113725, 1 )
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color( 0.439216, 0.368627, 0, 1 )
+corner_radius_top_left = 4
+corner_radius_top_right = 8
+corner_radius_bottom_right = 2
+expand_margin_left = 2.0
+expand_margin_bottom = 1.0
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id=9]
+content_margin_left = 8.0
+content_margin_right = 8.0
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+bg_color = Color( 0.145098, 0.113725, 0.113725, 1 )
+border_width_left = 3
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 3
+border_color = Color( 0.435294, 0, 0, 1 )
+corner_radius_top_left = 4
+corner_radius_top_right = 8
+corner_radius_bottom_right = 2
+expand_margin_left = 2.0
+expand_margin_bottom = 1.0
+shadow_size = 2
+
+[resource]
+Button/styles/disabled = SubResource( 2 )
+Button/styles/hover = SubResource( 3 )
+Button/styles/normal = SubResource( 1 )
+Button/styles/pressed = SubResource( 4 )
+CheckBox/styles/hover = SubResource( 12 )
+CheckBox/styles/normal = SubResource( 12 )
+CheckBox/styles/pressed = SubResource( 12 )
+CheckButton/styles/hover = SubResource( 12 )
+CheckButton/styles/normal = SubResource( 12 )
+CheckButton/styles/pressed = SubResource( 12 )
+ItemList/styles/bg = SubResource( 11 )
+ItemList/styles/selected = SubResource( 10 )
+ItemList/styles/selected_focus = SubResource( 10 )
+LineEdit/styles/normal = SubResource( 5 )
+LineEdit/styles/read_only = SubResource( 7 )
+Panel/styles/panel = SubResource( 8 )
+TextEdit/styles/normal = SubResource( 6 )
+TextEdit/styles/read_only = SubResource( 9 )
+Tree/styles/bg = SubResource( 11 )
+Tree/styles/selected = SubResource( 10 )
+Tree/styles/selected_focus = SubResource( 10 )

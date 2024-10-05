@@ -248,6 +248,18 @@ func _BaseCaspFilePathsSort(a, b):
 func GetBaseBattleInitData():
 	return GetModuleSlot(Castagne.MODULE_SLOTS_BASE.FLOW).GetBaseBattleInitData(self)
 
+func GetGameCharacterList(includeHiddenCharacters = false):
+	var charPaths = Castagne.SplitStringToArray(Get("CharacterPaths"))
+	var characters = []
+	for path in charPaths:
+		var c = Castagne.Parser.GetCharacterInfo(path, self)
+		if(c == null):
+			continue
+		if(!includeHiddenCharacters and c["TransformedData"]["MenuData"]["Defines"]["MENU_Hidden"] == 1):
+			continue
+		characters.push_back(c)
+	return characters
+
 func GetEditorCharacterList(sortByEditorOrder = false):
 	var charPaths = Castagne.SplitStringToArray(Get("CharacterPaths"))
 	var editorOrders = Get("EditorCharacterOrder")

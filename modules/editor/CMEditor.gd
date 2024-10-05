@@ -101,6 +101,9 @@ func ModuleSetup():
 	RegisterStateFlag("Marker2")
 	RegisterStateFlag("Marker3")
 	
+	RegisterConfig("Editor-TmpBackgroundColor1", [12, 15, 13], {"Flags":["Hidden"]})
+	RegisterConfig("Editor-TmpBackgroundColor2", [14, 28, 19], {"Flags":["Hidden"]})
+	
 	# Find a better way ?
 	var nbTutorials = 6
 	for i in range(nbTutorials):

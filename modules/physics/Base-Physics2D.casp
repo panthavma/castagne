@@ -195,6 +195,7 @@ Call(AirborneState)
 Call(UseAirActionAtStart)
 Call(AnimAirdashB)
 Call(AirdashB-Movement)
+Call(AttackCancels-All)
 
 FMOVE_Airdash_AirdashB_Time+:
 	Call(TransitionToNeutralState)
@@ -203,6 +204,7 @@ endif
 ## Helper state for AirdashB
 _Category(Movement/Dashes/Air)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 Flag(IgnoreGravity)
 SetMomentum(MOVE_Airdash_AirdashB_SpeedX, MOVE_Airdash_AirdashB_SpeedY)
@@ -214,6 +216,7 @@ Call(AirborneState)
 Call(UseAirActionAtStart)
 Call(AnimAirdashF)
 Call(AirdashF-Movement)
+Call(AttackCancels-All)
 
 FMOVE_Airdash_AirdashF_Time+:
 	Call(TransitionToNeutralState)
@@ -222,6 +225,7 @@ endif
 ## Helper state for AirdashF
 _Category(Movement/Dashes/Air)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 Flag(IgnoreGravity)
 SetMomentum(MOVE_Airdash_AirdashF_SpeedX, MOVE_Airdash_AirdashF_SpeedY)
@@ -239,6 +243,7 @@ Call(AirjumpB-Movement)
 ## Helper for AirjumpB
 _Category(Movement/Dashes/Airjump)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 F1:
 	SetMomentum(MOVE_Airjump_AirjumpB_InitialMomentumX, MOVE_Airjump_AirjumpB_InitialMomentumY)
@@ -257,6 +262,7 @@ Call(AirjumpF-Movement)
 ## Helper for AirjumpF
 _Category(Movement/Dashes/Airjump)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 F1:
 	SetMomentum(MOVE_Airjump_AirjumpF_InitialMomentumX, MOVE_Airjump_AirjumpF_InitialMomentumY)
@@ -275,6 +281,7 @@ Call(AirjumpN-Movement)
 ## Helper for AirjumpN
 _Category(Movement/Dashes/Airjump)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 F1:
 	SetMomentum(MOVE_Airjump_AirjumpN_InitialMomentumX, MOVE_Airjump_AirjumpN_InitialMomentumY)
@@ -634,6 +641,7 @@ endif
 ## Movement state for backdashes
 _Category(Movement/Dashes/Steps)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 Move(MOVE_Backdash_Speed)
 :Common:
@@ -689,6 +697,7 @@ endif
 ## Helper for the CrawlB state. Speed is given by MOVE_Crawl_SpeedB.
 _Category(Movement/Basic/Crouching)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 Move(MOVE_Crawl_SpeedB)
 :CrawlF:
@@ -719,6 +728,7 @@ endif
 ## Helper state for CrawlF. Speed is given by MOVE_Crawl_SpeedF.
 _Category(Movement/Basic/Crouching)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 Move(MOVE_Crawl_SpeedF)
 :CrouchToStand:
@@ -783,6 +793,11 @@ def SSTATE_CrouchingState bool() = 1
 Call(NeutralState)
 _StateFlag(Grounded)
 _BaseState()
+
+VMOVE_Dashes_CanDashFromCrouch:
+else
+	Flag(CantDash)
+endif
 :CrouchingState:
 ## Helper on top of StandardState, used for states where you are crouching.
 
@@ -922,21 +937,24 @@ endif
 _Category(Movement/Dashes/Helper)
 _Helper()
 
-IForwardPress:
-	VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:
-		VMOVE_Dashes_CanRun:
-			Transition(RunStart)
-		else
-			VMOVE_Dashes_CanStepDash:
-				Transition(StepDash)
+LCantDash:
+else
+	IForwardPress:
+		VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:
+			VMOVE_Dashes_CanRun:
+				Transition(RunStart)
+			else
+				VMOVE_Dashes_CanStepDash:
+					Transition(StepDash)
+				endif
 			endif
 		endif
-	endif
-else
-	IBackPress:
-		VMOVE_Dashes_CanBackdash:
-			VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:
-				Transition(Backdash)
+	else
+		IBackPress:
+			VMOVE_Dashes_CanBackdash:
+				VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:
+					Transition(Backdash)
+				endif
 			endif
 		endif
 	endif
@@ -1022,10 +1040,12 @@ Call(AnimHighjumpB)
 Call(Airborne_StartDashHelper)
 Call(Airborne_AirjumpHelper)
 Call(HighjumpB-Movement)
+Call(AttackCancels-All)
 :HighjumpB-Movement:
 ## Helper for HighjumpB
 _Category(Movement/Dashes/Highjump)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 F1:
 	SetMomentum(MOVE_Highjump_HighjumpB_InitialMomentumX, MOVE_Highjump_HighjumpB_InitialMomentumY)
@@ -1039,10 +1059,12 @@ Call(AnimHighjumpF)
 Call(Airborne_StartDashHelper)
 Call(Airborne_AirjumpHelper)
 Call(HighjumpF-Movement)
+Call(AttackCancels-All)
 :HighjumpF-Movement:
 ## Helper for HighjumpF
 _Category(Movement/Dashes/Highjump)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 F1:
 	SetMomentum(MOVE_Highjump_HighjumpF_InitialMomentumX, MOVE_Highjump_HighjumpF_InitialMomentumY)
@@ -1056,10 +1078,12 @@ Call(AnimHighjumpN)
 Call(Airborne_StartDashHelper)
 Call(Airborne_AirjumpHelper)
 Call(HighjumpN-Movement)
+Call(AttackCancels-All)
 :HighjumpN-Movement:
 ## Helper for HighjumpN
 _Category(Movement/Dashes/Highjump)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 F1:
 	SetMomentum(MOVE_Highjump_HighjumpN_InitialMomentumX, MOVE_Highjump_HighjumpN_InitialMomentumY)
@@ -1080,6 +1104,7 @@ Call(JumpB-Movement)
 ## Helper for the JumpB state.
 _Category(Movement/Basic/Air)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 F1:
 	AddMomentum(MOVE_Jump_JumpB_InitialMomentumX, MOVE_Jump_JumpB_InitialMomentumY)
@@ -1100,6 +1125,7 @@ Call(JumpF-Movement)
 ## Helper for the JumpF state.
 _Category(Movement/Basic/Air)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 F1:
 	AddMomentum(MOVE_Jump_JumpF_InitialMomentumX, MOVE_Jump_JumpF_InitialMomentumY)
@@ -1120,6 +1146,7 @@ Call(JumpN-Movement)
 ## Helper for the JumpN state
 _Category(Movement/Basic/Air)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 F1:
 	AddMomentum(MOVE_Jump_JumpN_InitialMomentumX, MOVE_Jump_JumpN_InitialMomentumY)
@@ -1382,10 +1409,10 @@ _Helper()
 
 Call(ApplyPhysics-Hitstun)
 
-
-LAF_ForceLanding:
-	FlagNext(PF_Landing)
-endif
+# Managed by hitstun ?
+#LAF_ForceLanding:
+#	FlagNext(PF_Landing)
+#endif
 
 LCrouching:
 	FlagNext(Crouching)
@@ -1496,6 +1523,7 @@ Call(StandingState)
 Call(AnimRun)
 Call(Run-Movement)
 Call(Grounded_StartJumpHelper)
+Call(AttackCancels-All)
 
 IForward:
 else
@@ -1505,6 +1533,8 @@ endif
 ## Helper state for the Run state.
 _Category(Movement/Dashes/Run)
 _Helper()
+_Overridable(If you want to use custom movement)
+
 SetMomentum(MOVE_Run_Speed, 0)
 :RunStart:
 ## Movement state for the start of a run.
@@ -1522,6 +1552,8 @@ endif
 ## Helper state for the RunStart state.
 _Category(Movement/Dashes/Run)
 _Helper()
+_Overridable(If you want to use custom movement)
+
 SetMomentum(MOVE_Run_SpeedStart, 0)
 :RunStop:
 ## Movement state for stopping a run.
@@ -1539,8 +1571,10 @@ endif
 ## Helper state for the RunStop state.
 _Category(Movement/Dashes/Run)
 _Helper()
+_Overridable(If you want to use custom movement)
+
 F1:
-SetMomentum(MOVE_Run_Speed, 0)
+	SetMomentum(MOVE_Run_Speed, 0)
 endif
 :Stand:
 ## The standing idle state, and default state of the character. This is a neutral state, and behavior can be finetuned from the Variables blocks.
@@ -1821,6 +1855,7 @@ endif
 ## Helper for the StepDash state
 _Category(Movement/Dashes/Steps)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 Move(MOVE_StepDash_Speed)
 :TechCommon:
@@ -1966,6 +2001,7 @@ endif
 ## Helper state for WalkB. Speed is given by MOVE_Walk_SpeedB
 _Category(Movement/Basic/Standing)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 Move(MOVE_Walk_SpeedB)
 :WalkF:
@@ -1996,6 +2032,7 @@ endif
 ## Helper function to handle the movement for WalkF. Speed is given by MOVE_Walk_SpeedF
 _Category(Movement/Basic/Standing)
 _Helper()
+_Overridable(If you want to use custom movement)
 
 Move(MOVE_Walk_SpeedF)
 :Base---Subentity:
