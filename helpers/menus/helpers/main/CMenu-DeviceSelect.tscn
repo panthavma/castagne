@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://castagne/helpers/menus/aux/main/CMenu-DeviceSelect.gd" type="Script" id=1]
+[ext_resource path="res://castagne/helpers/menus/helpers/main/CMenu-DeviceSelect.gd" type="Script" id=1]
 
 [node name="CMenu-DeviceSelect" type="Control"]
 anchor_right = 1.0

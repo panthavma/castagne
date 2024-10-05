@@ -208,7 +208,7 @@ func CreateCSSGridRow():
 	return nRow
 
 func CreateCharacterIcon(gridSlot):
-	var n = Castagne.Loader.Load("res://castagne/helpers/menus/aux/css/default/CMenu-CSS-Icon.tscn").instance()
+	var n = Castagne.Loader.Load("res://castagne/helpers/menus/helpers/css/default/CMenu-CSS-Icon.tscn").instance()
 	n.InitIcon(gridSlot[0], self, gridSlot[1])
 	return n
 
@@ -222,7 +222,7 @@ func CreatePlayerSlots():
 	var defaultCharacter = characterList[0]
 	playerSlots = []
 	for pid in range(2):
-		var n = Castagne.Loader.Load("res://castagne/helpers/menus/aux/css/default/CMenu-CSS-Player.tscn").instance()
+		var n = Castagne.Loader.Load("res://castagne/helpers/menus/helpers/css/default/CMenu-CSS-Player.tscn").instance()
 		n.InitPlayerSlot(self, devices[pid], pid, defaultCharacter)
 		playerSlotsRoot.add_child(n)
 		playerSlots.push_back(n)

@@ -125,7 +125,7 @@ func ReloadEngine():
 	editorModule = engine.configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.EDITOR)
 	
 	editorModule.connect("EngineTick_AIStartEntity", self, "EngineTick_AIStartEntity")
-	editorModule.connect("EngineTick_ActionStartEntity", self, "EngineTick_ActionStartEntity")
+	#editorModule.connect("EngineTick_ActionStartEntity", self, "EngineTick_ActionStartEntity")
 	
 	for t in _tools:
 		t["Tool"].OnEngineRestarting(engine, bid)
