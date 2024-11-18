@@ -154,10 +154,12 @@ func EditorGetCurrentBattleInitData(editor, root):
 		var inputDevice = editor.configData.Input().GetDevicesList()[inputDeviceID]
 		p["inputdevice"] = inputDevice
 		
+		var rememberCdbn = cdbn
+
 		for eid in range(editor.configData.Get("CharactersPerPlayer")):
 			var e = p["entities"][eid+1]
 			var eRoot = pRoot.get_child(pRoot.get_child_count()-1).get_child(eid*2)
-			cdbn += str(eid) + "-"
+			cdbn = rememberCdbn + str(eid) + "-"
 			e["scriptpath"] = eRoot.get_child(1).get_selected_id()
 			e["overrides"] = {}
 			e["overrides"]["_PaletteID"] = eRoot.get_child(2).get_value()-1
