@@ -1339,9 +1339,8 @@ _Helper()
 
 LPF_Grounded:
 	Call(ApplyPhysics-Regular)
+	Set(MOVE_AirActionsRemaining, MOVE_AirActionsMax)
 endif
-
-Set(MOVE_AirActionsRemaining, MOVE_AirActionsMax)
 :OnAttackTouched:
 CallParent()
 Call(OnAttackTouched-Physics)
