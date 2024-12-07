@@ -30,6 +30,7 @@ func ApplyMirror(node = null):
 		
 		node.set_anchor_and_margin(MARGIN_LEFT, 1.0 - anchorR, -marginR, false)
 		node.set_anchor_and_margin(MARGIN_RIGHT, 1.0 - anchorL, -marginL, false)
+		node.set_anchor_and_margin(MARGIN_LEFT, 1.0 - anchorR, -marginR, false)
 	else:
 		node = self
 	
