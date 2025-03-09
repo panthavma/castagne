@@ -874,6 +874,10 @@ func TransitionApply(stateHandle):
 func Call(args, stateHandle):
 	# should never get called
 	var stateName = ArgStr(args, stateHandle, 0)
+    
+	var entityName = stateHandle.EntityGet("_Entity")
+	if(entityName != null):
+		stateName = entityName+"---"+stateName
 	
 	var fighterScript = engine.GetFighterScript(stateHandle.EntityGet("_FighterID"), stateName)
 	if(fighterScript == null):
@@ -883,7 +887,14 @@ func Call(args, stateHandle):
 	engine.ExecuteFighterScript(fighterScript, stateHandle)
 
 func CallFromMain(_args, _stateHandle):
-	pass
+    var stateName = ArgStr(_args, _stateHandle, 0)
+        
+    var fighterScript = engine.GetFighterScript(_stateHandle.EntityGet("_FighterID"), stateName)
+    if(fighterScript == null):
+        Castagne.Error("Call: Calling undefined state " + str(stateName))
+        return
+    
+    engine.ExecuteFighterScript(fighterScript, _stateHandle)
 
 func CallParent(args, stateHandle):
 	# Should never get called in theory
