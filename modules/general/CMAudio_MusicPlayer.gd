@@ -10,7 +10,7 @@ var loopStart = 0
 func InitFromData(musicData):
 	var fp = musicData["Filepath"]
 	var f = File.new()
-	if(!f.file_exists(fp)):
+	if(!f.file_exists(fp+".import")):
 		Castagne.Error("CMAudio_MusicPlayer: Couldn't find file "+str(fp))
 		return
 	var audioStream = load(fp)
