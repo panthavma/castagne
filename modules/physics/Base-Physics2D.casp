@@ -1339,9 +1339,8 @@ _Helper()
 
 LPF_Grounded:
 	Call(ApplyPhysics-Regular)
+	Set(MOVE_AirActionsRemaining, MOVE_AirActionsMax)
 endif
-
-Set(MOVE_AirActionsRemaining, MOVE_AirActionsMax)
 :OnAttackTouched:
 CallParent()
 Call(OnAttackTouched-Physics)
@@ -2048,5 +2047,5 @@ AttackProrationDamage(ATTACK_Special_ProrationDamage, ATTACK_Special_ProrationDa
 CallParent()
 Call(SEAttackDefaults)
 :Base---SEOnAttackTouched:
-CallParent()
+#CallParent()
 CallFromMain(OnAttackTouched-Physics)

@@ -24,7 +24,7 @@ func InitFromData(musicData):
 var currentPos = 0.0
 func _process(delta):
 	if(loopEnd > 0):
-		currentPos += delta
+		currentPos = get_playback_position()
 		if(currentPos >= loopEnd):
 			currentPos -= loopEnd - loopStart
 			seek(currentPos)
