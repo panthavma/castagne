@@ -58,7 +58,7 @@ func _on_TemplateList_item_selected(index):
 func _on_TemplateList_item_activated(index):
 	SelectTemplate(index)
 	CreateState()
-func CreateState(override = false):
+func CreateState(override = false, overrideUseTemplate = false):
 	var sname = $StateName.get_text().strip_edges()
 	if(!IsTextValid(override)):
 		return
@@ -66,7 +66,7 @@ func CreateState(override = false):
 	
 	var stemplateCode = templates[templates.keys()[$TemplateList.get_selected_items()[0]]]
 	
-	if(override):
+	if(override and !overrideUseTemplate):
 		stemplateCode = "# Override\nCallParent()\n"
 	
 	var editor = $"../../.."
@@ -88,6 +88,7 @@ func CreateState(override = false):
 func _on_StateName_text_changed(new_text):
 	$Buttons/Create.set_disabled(!IsTextValid())
 	$Buttons/Override.set_disabled(!IsTextValid(true))
+	$Buttons/OverrideTemplate.set_disabled(!IsTextValid(true))
 	
 func IsTextValid(overrideOnly = false):
 	var sname = $StateName.get_text().strip_edges()
@@ -115,3 +116,7 @@ func _GetFinalStateName(stateName):
 
 func _on_Override_pressed():
 	CreateState(true)
+
+
+func _on_OverrideTemplate_pressed():
+	CreateState(true, true)

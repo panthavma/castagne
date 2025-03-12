@@ -339,6 +339,7 @@ func CreateInputSchemaFromInputLayout(inputLayout):
 			Castagne.GAMEINPUT_TYPES.DERIVED:[],
 		},
 		"_InputList":[],
+		"_SOCDs":[],
 	}
 	for physicalInput in inputLayout:
 		var piName = physicalInput["Name"]
@@ -366,11 +367,13 @@ func _AddPhysicalInputToInputSchema(inputSchema, piName, piType, gameInputNames,
 		_AddGameInputToInputSchema(inputSchema, gameInputNames[0]+"Release", Castagne.GAMEINPUT_TYPES.DERIVED,
 			{"DerivedType": Castagne.GAMEINPUT_DERIVED_TYPES.BUTTON_RELEASE, "Target": gameInputNames[0]})
 	elif(piType == Castagne.PHYSICALINPUT_TYPES.AXIS):
+		var socdType = (inputData["SOCD"] if (inputData != null and inputData.has("SOCD")) else Castagne.GAMEINPUT_SOCD_TYPE.NEUTRAL)
 		_AddPhysicalInputToInputSchema(inputSchema, piName, Castagne.PHYSICALINPUT_TYPES.BUTTON, [gameInputNames[0]])
 		_AddPhysicalInputToInputSchema(inputSchema, piName, Castagne.PHYSICALINPUT_TYPES.BUTTON, [gameInputNames[1]])
+		_AddSOCDToInputSchema(inputSchema, gameInputNames[0], gameInputNames[1], socdType)
 	elif(piType == Castagne.PHYSICALINPUT_TYPES.STICK):
 		_AddPhysicalInputToInputSchema(inputSchema, piName, Castagne.PHYSICALINPUT_TYPES.AXIS, [gameInputNames[0], gameInputNames[1]])
-		_AddPhysicalInputToInputSchema(inputSchema, piName, Castagne.PHYSICALINPUT_TYPES.AXIS, [gameInputNames[2], gameInputNames[3]])
+		_AddPhysicalInputToInputSchema(inputSchema, piName, Castagne.PHYSICALINPUT_TYPES.AXIS, [gameInputNames[2], gameInputNames[3]], {"SOCD":Castagne.GAMEINPUT_SOCD_TYPE.POSITIVE})
 		for i in range(4, gameInputNames.size()):
 			if(i >= 8):
 				var giBase = (0 if i == 8 else 2)
@@ -409,6 +412,9 @@ func _AddGameInputToInputSchema(inputSchema, inputName, inputType, inputData = {
 	inputSchema["_InputListByType"][inputType].push_back(inputName)
 	inputSchema["_InputList"].push_back(inputName)
 
+func _AddSOCDToInputSchema(inputSchema, negativeInput, positiveInput, socdType):
+	inputSchema["_SOCDs"].push_back([negativeInput, positiveInput, socdType])
+
 func GetInputSchema():
 	return _inputSchema
 
@@ -442,6 +448,21 @@ func CreateInputDataFromRawInput(rawInput, schema = null):
 				for c in combination:
 					inputData[c] = true
 			inputData[combinationInputName] = true
+	
+	# Check for SOCDs
+	for socd in schema["_SOCDs"]:
+		var negativeInput = socd[0]
+		var positiveInput = socd[1]
+		var socdType = socd[2]
+		
+		if(!inputData[negativeInput] or !inputData[positiveInput]):
+			continue
+		
+		if(socdType == Castagne.GAMEINPUT_SOCD_TYPE.NEUTRAL or socdType == Castagne.GAMEINPUT_SOCD_TYPE.NEGATIVE):
+			inputData[positiveInput] = false
+		if(socdType == Castagne.GAMEINPUT_SOCD_TYPE.NEUTRAL or socdType == Castagne.GAMEINPUT_SOCD_TYPE.POSITIVE):
+			inputData[negativeInput] = false
+	
 	
 	# Press the combination button if the conditions are there
 	for combinationInputName in schema["_InputListByType"][Castagne.GAMEINPUT_TYPES.MULTIPLE]:

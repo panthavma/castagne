@@ -186,4 +186,6 @@ func EditorCreateFlowWindow(editor, root):
 	trueRoot.get_node("Custom").hide()
 
 func EditorGetCurrentBattleInitData(editor, _root):
-	return editor.configData.GetBaseBattleInitData()
+	var bid = editor.configData.GetBaseBattleInitData()
+	bid["editor"] = true
+	return bid

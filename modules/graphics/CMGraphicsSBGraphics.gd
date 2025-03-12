@@ -36,3 +36,21 @@ func SetupSpecblock(_argument):
 	AddStructureDefine("SpritePalettePath", "res://castagne/assets/helpers/palette/PaletteManual01.png")
 	AddStructureDefine("Extra", 0)
 
+
+func StructEditorShow(structType = null, structInstance = null):
+	var root = .StructEditorShow(structType, structInstance)
+	if(structType == "Spritesheets"):
+		var visuPacked = preload("res://castagne/modules/graphics/CMGraphics-SpritesheetVisualizer.tscn")
+		var visu = visuPacked.instance()
+		var sD = _structureDefinitions[structType]
+		var prefix = sD["Prefix"] + structInstance["InstanceName"] + _struct_namevar_separator
+		connect("UpdateVisualizer", visu, "UpdateDisplay")
+		visu.InitDisplay(self, prefix)
+		
+		root.add_child(visu)
+
+signal UpdateVisualizer;
+func _FieldChangeCallback(defineValue, defineName):
+	._FieldChangeCallback(defineValue, defineName)
+	emit_signal("UpdateVisualizer")
+#	emit_signal("DefineValueChanged")

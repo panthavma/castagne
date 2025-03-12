@@ -1,0 +1,30 @@
+[gd_scene format=2]
+
+[node name="Default2DStage" type="Node2D"]
+
+[node name="Background" type="Polygon2D" parent="."]
+color = Color( 0.27451, 0.278431, 0.32549, 1 )
+polygon = PoolVector2Array( -3000, 0, 3000, 0, 3000, -2000, -3000, -2000 )
+
+[node name="MainBackground" type="Polygon2D" parent="."]
+color = Color( 0.396078, 0.388235, 0.368627, 1 )
+polygon = PoolVector2Array( -3000, 0, 3000, 0, 3000, 1000, -3000, 1000 )
+
+[node name="MainPlatform" type="Polygon2D" parent="."]
+color = Color( 0.631373, 0.623529, 0.6, 1 )
+polygon = PoolVector2Array( -3000, 0, 3000, 0, 3000, 100, -3000, 100 )
+
+[node name="MainTop" type="Polygon2D" parent="."]
+color = Color( 0.819608, 0.807843, 0.772549, 1 )
+offset = Vector2( 0, -10 )
+polygon = PoolVector2Array( -3000, 0, 3000, 0, 3000, 30, -3000, 30 )
+
+[node name="Topline" type="Polygon2D" parent="."]
+color = Color( 0.984375, 0.950729, 0.849792, 1 )
+antialiased = true
+polygon = PoolVector2Array( -100, 0, 100, 0, 0, 10 )
+
+[node name="Central" type="Polygon2D" parent="."]
+color = Color( 0.984375, 0.950729, 0.849792, 1 )
+antialiased = true
+polygon = PoolVector2Array( 0, 0, 0, 0, 25, 175, 0, 250, -25, 175 )

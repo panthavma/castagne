@@ -136,20 +136,52 @@ func _EditorCreateFlowWindow_Global(editor, root):
 	root.add_child(musicChoice)
 	musicChoice.select(editor.configData.Get(cdbn+"music", 0))
 	
+	var mirrorMatch = CheckButton.new()
+	mirrorMatch.set_text_align(Button.ALIGN_CENTER)
+	mirrorMatch.set_text("Mirror Match")
+	mirrorMatch.set_pressed_no_signal(editor.configData.Get(cdbn+"mirror", false))
+	mirrorMatch.connect("toggled", self, "_EditorFlowWindow_MirrorMatchToggle", [root, editor.configData.Get("AmountOfPlayers")])
+	_EditorFlowWindow_MirrorMatchToggle(mirrorMatch.is_pressed(), root, editor.configData.Get("AmountOfPlayers"))
+	root.add_child(mirrorMatch)
+
+func _EditorFlowWindow_MirrorMatchToggle(isMirrorMatch, root, nbPlayers):
+	for pid in range(1, nbPlayers):
+		var pRoot = root.get_child(pid*2)
+		_EditorFlowWindow_MirrorMatchToggle_RecursiveDisable(pRoot, isMirrorMatch)
+		pRoot.get_child(1).set_disabled(false)
+
+func _EditorFlowWindow_MirrorMatchToggle_RecursiveDisable(node, isDisabled):
+	if(node.has_method("set_disabled")):
+		node.set_disabled(isDisabled)
+	if(node.has_method("set_editable")):
+		node.set_editable(!isDisabled)
+	for c in node.get_children():
+		_EditorFlowWindow_MirrorMatchToggle_RecursiveDisable(c, isDisabled)
 
 
 func EditorGetCurrentBattleInitData(editor, root):
-	var bid = editor.configData.GetBaseBattleInitData()
+	var bid = .EditorGetCurrentBattleInitData(editor, root)
 	var nbPlayers = editor.configData.Get("AmountOfPlayers")
+	var cdbng = localConfigPrefixBase+"Global-"
+	var globalStart = nbPlayers*2
+	
+	var isMirrorMatch = root.get_child(globalStart+2).is_pressed()
+	editor.configData.Set(cdbng+"mirror", isMirrorMatch, true)
+	
+	var checkPalettes = true
+	var usedPalettes = {}
 	
 	var configDataBaseName = localConfigPrefixBase
 	
 	for pid in range(nbPlayers):
 		var p = bid["players"][pid+1]
 		var pRoot = root.get_child(pid*2)
+		var pRootNoMirror = pRoot
+		if(isMirrorMatch):
+			pRoot = root.get_child(0)
 		var cdbn = configDataBaseName + str(pid) + "-"
 		
-		var inputDeviceID = pRoot.get_child(1).get_selected_id()
+		var inputDeviceID = pRootNoMirror.get_child(1).get_selected_id()
 		editor.configData.Set(cdbn+"inputdevice", inputDeviceID, true)
 		var inputDevice = editor.configData.Input().GetDevicesList()[inputDeviceID]
 		p["inputdevice"] = inputDevice
@@ -160,14 +192,26 @@ func EditorGetCurrentBattleInitData(editor, root):
 			var e = p["entities"][eid+1]
 			var eRoot = pRoot.get_child(pRoot.get_child_count()-1).get_child(eid*2)
 			cdbn = rememberCdbn + str(eid) + "-"
-			e["scriptpath"] = eRoot.get_child(1).get_selected_id()
+			var scriptpath = eRoot.get_child(1).get_selected_id()
+			var paletteID = eRoot.get_child(2).get_value()-1
+			editor.configData.Set(cdbn+"scriptpath", scriptpath, true)
+			editor.configData.Set(cdbn+"palette", paletteID, true)
+			
+			# Palette duplication check, can make it more generic
+			if not scriptpath in usedPalettes:
+				# Probably misses if using both IDs and paths but shouldn't happen here
+				usedPalettes[scriptpath] = []
+			if checkPalettes and paletteID in usedPalettes[scriptpath]:
+				paletteID = 0
+				while paletteID in usedPalettes[scriptpath]:
+					paletteID += 1
+				
+			usedPalettes[scriptpath] += [paletteID]
+			
+			e["scriptpath"] = scriptpath
 			e["overrides"] = {}
-			e["overrides"]["_PaletteID"] = eRoot.get_child(2).get_value()-1
-			editor.configData.Set(cdbn+"scriptpath", e["scriptpath"], true)
-			editor.configData.Set(cdbn+"palette", e["overrides"]["_PaletteID"], true)
+			e["overrides"]["_PaletteID"] = paletteID
 	
-	var cdbng = localConfigPrefixBase+"Global-"
-	var globalStart = nbPlayers*2
 	bid["map"] = root.get_child(globalStart).get_selected_id()
 	bid["music"] = root.get_child(globalStart+1).get_selected_id()
 	editor.configData.Set(cdbng+"map", bid["map"], true)

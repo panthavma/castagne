@@ -600,10 +600,11 @@ func LocalStep():
 	var playerInputs = []
 	for deviceName in devicesToPoll:
 		playerInputs.push_back(castagneInputs.PollDevice(deviceName))
-	_memory = EngineTick(_memory, playerInputs)
-
+	LocalStepCustomInput(playerInputs)
 func LocalStepNoInput():
-	_memory = EngineTick(_memory, [])
+	LocalStepCustomInput([])
+func LocalStepCustomInput(playerInputs):
+	_memory = EngineTick(_memory, playerInputs)
 
 var _lastGraphicsFrameUpdate = -1
 func _process(_delta):

@@ -1,3 +1,7 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 extends Popup
 
 enum UPDATE_STATUS {
@@ -68,7 +72,7 @@ func _on_HTTPRequest_request_completed(result, response_code, headers, body):
 	var updateData = parse_json(text)
 	Castagne.FuseDataOverwrite(nextVersionData, updateData)
 	
-	var isNewVersion = (currentVersionData == null or !currentVersionData.has("version") or # Current version file is bad = update
+	var isNewVersion = (currentVersionData == null or !currentVersionData.has("version") or currentVersionData["version"] == null or # Current version file is bad = update
 		(nextVersionData["version"] != null and nextVersionData["version"] > currentVersionData["version"])) # New version
 	
 	if(isNewVersion):

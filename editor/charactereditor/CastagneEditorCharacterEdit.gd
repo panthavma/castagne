@@ -32,6 +32,12 @@ func EnterMenu(bid):
 	
 	$TopBar/HBoxContainer/Save.set_disabled(true)
 	
+	$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmoRate.clear()
+	for sr in slowmoRates:
+		var srT = str(int(float(100.0*sr[0]) / sr[1])) + "%"
+		$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmoRate.add_item(srT)
+	$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmoRate.select(slowmoRates_Default)
+	
 	_specblocks = editor.configData.GetModuleSpecblocks()
 	for sbName in _specblocks:
 		var sb = _specblocks[sbName]
@@ -101,6 +107,7 @@ var editorModule = null
 var engineErrorScreen = null
 var inputProvider = null
 func ReloadEngine():
+	_engineRunning_InternalStop = true
 	if(engine != null):
 		engine.runAutomatically = false
 		engine.renderGraphics = false
@@ -123,9 +130,6 @@ func ReloadEngine():
 	engine.renderGraphics = false
 	inputProvider = null
 	editorModule = engine.configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.EDITOR)
-	
-	editorModule.connect("EngineTick_AIStartEntity", self, "EngineTick_AIStartEntity")
-	#editorModule.connect("EngineTick_ActionStartEntity", self, "EngineTick_ActionStartEntity")
 	
 	for t in _tools:
 		t["Tool"].OnEngineRestarting(engine, bid)
@@ -157,6 +161,7 @@ func _input(event):
 			var vpRect = $EngineVP/FocusEngine.get_global_rect()
 			if(!vpRect.has_point(event.position)):
 				UnfocusGame()
+var lockInput = false
 func FocusGame():
 	if(engine == null):
 		return
@@ -183,13 +188,6 @@ func SetAllUIModulate(color):
 			continue
 		n.set_modulate(color)
 
-var lockInput = null
-func EngineTick_AIStartEntity(stateHandle):
-	if(lockInput):
-		var inputs = stateHandle.EntityGet("_Inputs")
-		for giName in inputs:
-			inputs[giName] = false
-		stateHandle.EntitySet("_Inputs", inputs)
 
 var _popupFunction = null
 func ShowPopup(popupName):
@@ -1354,6 +1352,10 @@ func UpdateDocumentation():
 
 # --------------------------------------------------------------------------------------------------
 # Flow
+var slowmoRates = [
+	[4,5], [2,3], [3,5], [1,2], [2,5], [1,3], [1,5], [1,10], [1,20]
+]
+var slowmoRates_Default = 5
 func _on_FlowPlay_toggled(button_pressed):
 	if(button_pressed):
 		$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo.set_pressed_no_signal(false)
@@ -1362,25 +1364,45 @@ func _on_FlowSlowmo_toggled(button_pressed):
 	if(button_pressed):
 		$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay.set_pressed_no_signal(false)
 	UpdateRunStatus()
+func _on_FlowSlowmoRate_item_selected(_index):
+	$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay.set_pressed_no_signal(false)
+	$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo.set_pressed_no_signal(true)
+	UpdateRunStatus()
 func _on_FlowNextFrame_pressed():
 	$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo.set_pressed_no_signal(false)
 	$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay.set_pressed_no_signal(false)
 	if(engine == null):
 		return
-	editorModule.runStop = false
-	editorModule.runSlowmo = 0
 	engine.LocalStepNoInput()
 	UpdateRunStatus()
 func UpdateRunStatus():
 	if(engine == null):
 		return
 	var slowmo = $BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo.is_pressed()
+	var slowmoID = $BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmoRate.get_selected_id()
 	var run = $BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay.is_pressed()
-	editorModule.runStop = !slowmo and !run
-	if(!editorModule.runStop):
+	_engineRunning_SlowmoNominator = slowmoRates[slowmoID][0]
+	_engineRunning_SlowmoDenominator = slowmoRates[slowmoID][1]
+	_engineRunning_StopGame = !slowmo and !run
+	if(!_engineRunning_StopGame):
 		FocusGame()
-	editorModule.runSlowmo = (3 if slowmo else 0)
-
+	if(!slowmo):
+		_engineRunning_SlowmoDenominator = 0
+var _engineRunning_InternalStop = true
+var _engineRunning_StopGame = false
+var _engineRunning_SlowmoNominator = 1
+var _engineRunning_SlowmoDenominator = 0
+var _engineRunning_SlowmoCounter = 0
+func _physics_process(_delta):
+	var shouldStep = !_engineRunning_InternalStop and !_engineRunning_StopGame
+	if(_engineRunning_SlowmoDenominator > 0):
+		_engineRunning_SlowmoCounter = (_engineRunning_SlowmoCounter + 1) % _engineRunning_SlowmoDenominator
+		shouldStep = shouldStep and _engineRunning_SlowmoCounter < _engineRunning_SlowmoNominator
+	if(engine != null and shouldStep):
+		if(lockInput):
+			engine.LocalStepNoInput()
+		else:
+			engine.LocalStep()
 
 
 
@@ -1409,14 +1431,14 @@ var restartBIDMode = "training"
 func RestartOptionsBID():
 	pass
 func RestartOptions():
-	editorModule.runStop = false
-	editorModule.runSlowmo = 0
+	_engineRunning_InternalStop = true
 	engine.LocalStepNoInput()
 	engine.LocalStepNoInput()
 	
 	engine.LocalStepNoInput()
 	engine.renderGraphics = true
-	engine.runAutomatically = true
+	#engine.runAutomatically = true
+	_engineRunning_InternalStop = false
 	UpdateRunStatus()
 
 

@@ -645,7 +645,7 @@ func StructEditorShow(structType = null, structInstance = null):
 	
 	if(structType == null or structInstance == null):
 		title.set_text("Please select an instance to edit.")
-		return
+		return root
 	
 	var sD = _structureDefinitions[structType]
 	title.set_text("-- "+sD["DisplayName"]+" --")
@@ -738,6 +738,7 @@ func StructEditorShow(structType = null, structInstance = null):
 				h.add_child(l)
 				h.add_child(sR)
 				root.add_child(h)
+	return root
 
 func StructEditor_Rename(structType, structInstance, renameBox):
 	var newStructName = renameBox.get_text()

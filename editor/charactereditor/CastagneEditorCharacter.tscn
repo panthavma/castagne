@@ -41,24 +41,24 @@ margin_top = 32.0
 ratio = 1.778
 
 [node name="EngineVPC" type="ViewportContainer" parent="EngineVP"]
-margin_top = 56.027
-margin_right = 768.0
-margin_bottom = 487.973
+margin_top = 92.0405
+margin_right = 1152.0
+margin_bottom = 739.959
 stretch = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Viewport" type="Viewport" parent="EngineVP/EngineVPC"]
-size = Vector2( 768, 431 )
+size = Vector2( 1152, 647 )
 handle_input_locally = false
 render_target_update_mode = 3
 gui_disable_input = true
 
 [node name="FocusEngine" type="ToolButton" parent="EngineVP"]
-margin_top = 56.027
-margin_right = 768.0
-margin_bottom = 487.973
+margin_top = 92.0405
+margin_right = 1152.0
+margin_bottom = 739.959
 action_mode = 0
 
 [node name="SpecblockMainWindowRoot" type="PanelContainer" parent="."]
@@ -88,7 +88,7 @@ text = "Save"
 
 [node name="Label" type="Label" parent="TopBar/HBoxContainer"]
 margin_left = 99.0
-margin_right = 768.0
+margin_right = 1152.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 1
@@ -143,19 +143,19 @@ __meta__ = {
 
 [node name="Match" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
 margin_right = 148.0
-margin_bottom = 128.0
+margin_bottom = 200.0
 
 [node name="ResetExecuteMove" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match"]
 margin_right = 148.0
-margin_bottom = 38.0
+margin_bottom = 110.0
 size_flags_vertical = 3
 disabled = true
 text = "Execute Move"
 
 [node name="ExecuteMoveData" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 42.0
+margin_top = 114.0
 margin_right = 148.0
-margin_bottom = 62.0
+margin_bottom = 134.0
 
 [node name="MoveToExec" type="LineEdit" parent="BottomPanel/BMiniPanel/HBox/Match/ExecuteMoveData"]
 margin_right = 64.0
@@ -175,9 +175,9 @@ allow_lesser = true
 editable = false
 
 [node name="Reset1" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 66.0
+margin_top = 138.0
 margin_right = 148.0
-margin_bottom = 84.0
+margin_bottom = 156.0
 
 [node name="ResetGround" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset1"]
 margin_right = 72.0
@@ -203,9 +203,9 @@ __meta__ = {
 }
 
 [node name="Reset2" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 88.0
+margin_top = 160.0
 margin_right = 148.0
-margin_bottom = 106.0
+margin_bottom = 178.0
 
 [node name="ResetCorner" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset2"]
 margin_right = 72.0
@@ -231,9 +231,9 @@ toggle_mode = true
 text = "Focus on character"
 
 [node name="MatchType" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 110.0
+margin_top = 182.0
 margin_right = 148.0
-margin_bottom = 128.0
+margin_bottom = 200.0
 
 [node name="ResetMatchTraining" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/MatchType"]
 margin_right = 148.0
@@ -255,16 +255,16 @@ text = "Normal"
 
 [node name="Middle" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
 margin_left = 152.0
-margin_right = 646.0
-margin_bottom = 128.0
+margin_right = 1030.0
+margin_bottom = 200.0
 size_flags_horizontal = 3
 
 [node name="TopBar" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle"]
-margin_right = 494.0
+margin_right = 878.0
 margin_bottom = 18.0
 
 [node name="Flow" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_right = 233.0
+margin_right = 617.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 
@@ -289,15 +289,20 @@ margin_bottom = 18.0
 toggle_mode = true
 text = "Slow"
 
-[node name="FlowNextFrame" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
+[node name="FlowSlowmoRate" type="OptionButton" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
 margin_left = 130.0
-margin_right = 220.0
+margin_right = 160.0
+margin_bottom = 18.0
+
+[node name="FlowNextFrame" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow"]
+margin_left = 164.0
+margin_right = 254.0
 margin_bottom = 18.0
 text = "Next Frame"
 
 [node name="VSeparator" type="VSeparator" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_left = 237.0
-margin_right = 241.0
+margin_left = 621.0
+margin_right = 625.0
 margin_bottom = 18.0
 
 [node name="Phase" type="Label" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
@@ -323,8 +328,8 @@ margin_bottom = 20.0
 text = "T"
 
 [node name="Other" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_left = 245.0
-margin_right = 494.0
+margin_left = 629.0
+margin_right = 878.0
 margin_bottom = 18.0
 
 [node name="CompilStatus" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
@@ -349,19 +354,19 @@ text = "Mute"
 
 [node name="MiniTool" type="Control" parent="BottomPanel/BMiniPanel/HBox/Middle"]
 margin_top = 22.0
-margin_right = 494.0
-margin_bottom = 128.0
+margin_right = 878.0
+margin_bottom = 200.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Reload" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
-margin_left = 650.0
-margin_right = 736.0
-margin_bottom = 128.0
+margin_left = 1034.0
+margin_right = 1120.0
+margin_bottom = 200.0
 
 [node name="Reload" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
 margin_right = 86.0
-margin_bottom = 61.0
+margin_bottom = 116.0
 size_flags_vertical = 3
 shortcut = SubResource( 4 )
 text = "Reload"
@@ -377,26 +382,26 @@ shortcut = SubResource( 4 )
 text = "Reset"
 
 [node name="HotReload" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 65.0
+margin_top = 120.0
 margin_right = 86.0
-margin_bottom = 84.0
+margin_bottom = 156.0
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.3
 shortcut = SubResource( 4 )
 text = "Hot Reload"
 
 [node name="ChangeTool" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 88.0
+margin_top = 160.0
 margin_right = 86.0
-margin_bottom = 106.0
+margin_bottom = 178.0
 rect_pivot_offset = Vector2( 10, 10 )
 size_flags_horizontal = 3
 text = "Tools"
 
 [node name="Expand" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 110.0
+margin_top = 182.0
 margin_right = 86.0
-margin_bottom = 128.0
+margin_bottom = 200.0
 
 [node name="SpecblockExpand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload/Expand"]
 margin_right = 41.0
@@ -516,8 +521,8 @@ scroll_horizontal_enabled = false
 
 [node name="PanelContainer" type="PanelContainer" parent="CodePanel/CustomEditor"]
 self_modulate = Color( 0.701961, 0.517647, 0.0235294, 1 )
-margin_right = 496.0
-margin_bottom = 424.0
+margin_right = 752.0
+margin_bottom = 676.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -689,8 +694,8 @@ scroll_horizontal_enabled = false
 
 [node name="PanelContainer" type="PanelContainer" parent="CodePanel/SpecblockCode"]
 self_modulate = Color( 0.701961, 0.517647, 0.0235294, 1 )
-margin_right = 496.0
-margin_bottom = 424.0
+margin_right = 752.0
+margin_bottom = 676.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -723,8 +728,8 @@ __meta__ = {
 }
 
 [node name="List" type="VBoxContainer" parent="CodePanel/WarningsList"]
-margin_right = 472.0
-margin_bottom = 324.0
+margin_right = 728.0
+margin_bottom = 522.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 2
@@ -818,7 +823,7 @@ __meta__ = {
 }
 
 [node name="List" type="VBoxContainer" parent="CodePanel/Navigation/ChooseState/StateList/Scroll"]
-margin_right = 724.0
+margin_right = 1108.0
 size_flags_horizontal = 3
 __meta__ = {
 "_edit_use_anchors_": false
@@ -830,14 +835,14 @@ anchor_right = 1.0
 anchor_bottom = 0.8
 
 [node name="Menu" type="VBoxContainer" parent="CodePanel/Navigation/ChooseState/MenuScroll"]
-margin_right = 244.0
-margin_bottom = 584.0
+margin_right = 372.0
+margin_bottom = 752.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 1
 
 [node name="Label" type="Label" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 14.0
 text = "--- State Management ---"
 align = 1
@@ -845,7 +850,7 @@ valign = 2
 
 [node name="OpenState" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 18.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 36.0
 text = "Open State"
 __meta__ = {
@@ -854,13 +859,13 @@ __meta__ = {
 
 [node name="NewState" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 40.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 58.0
 text = "New State"
 
 [node name="NewEntity" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 62.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 80.0
 text = "New Entity"
 __meta__ = {
@@ -869,7 +874,7 @@ __meta__ = {
 
 [node name="OverrideState" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 84.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 102.0
 disabled = true
 text = "Override State"
@@ -879,7 +884,7 @@ __meta__ = {
 
 [node name="RenameState" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 106.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 124.0
 disabled = true
 text = "Rename State"
@@ -889,14 +894,14 @@ __meta__ = {
 
 [node name="DeleteState" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 128.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 146.0
 disabled = true
 text = "Delete State"
 
 [node name="Space" type="Label" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 150.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 164.0
 size_flags_vertical = 9
 text = " "
@@ -905,7 +910,7 @@ valign = 2
 
 [node name="CatFiler" type="Label" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 168.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 182.0
 size_flags_vertical = 9
 text = "--- Filtering (X/Y) ---"
@@ -914,55 +919,55 @@ valign = 2
 
 [node name="FilterByName" type="HBoxContainer" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 186.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 206.0
 
 [node name="Name" type="LineEdit" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName"]
-margin_right = 77.0
+margin_right = 206.0
 margin_bottom = 20.0
 size_flags_horizontal = 3
 align = 1
 placeholder_text = "Filter by Name"
 
 [node name="Search" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName"]
-margin_left = 81.0
-margin_right = 139.0
+margin_left = 210.0
+margin_right = 268.0
 margin_bottom = 20.0
 text = "Search"
 
 [node name="SearchInStates" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName"]
-margin_left = 143.0
-margin_right = 215.0
+margin_left = 272.0
+margin_right = 344.0
 margin_bottom = 20.0
 text = "In States"
 
 [node name="Erase" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/FilterByName"]
-margin_left = 219.0
-margin_right = 243.0
+margin_left = 348.0
+margin_right = 372.0
 margin_bottom = 20.0
 text = "X"
 
 [node name="OpenCloseStates" type="HBoxContainer" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 210.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 228.0
 
 [node name="NavOpenCategories" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/OpenCloseStates"]
-margin_right = 122.0
+margin_right = 184.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Open Categories"
 
 [node name="NavCloseCategories" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/OpenCloseStates"]
-margin_left = 126.0
-margin_right = 243.0
+margin_left = 188.0
+margin_right = 372.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Close"
 
 [node name="ToggleSpecblocks" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 232.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 268.0
 pressed = true
 text = "Show all Specblocks"
@@ -973,7 +978,7 @@ __meta__ = {
 
 [node name="ToggleHelpers" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 272.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 308.0
 text = "Show helpers with states"
 align = 2
@@ -983,7 +988,7 @@ __meta__ = {
 
 [node name="ToggleSubentities" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 312.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 348.0
 text = "Show all Subentities"
 align = 2
@@ -993,7 +998,7 @@ __meta__ = {
 
 [node name="ToggleShowVariables" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 352.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 388.0
 text = "Show all variables"
 align = 2
@@ -1003,7 +1008,7 @@ __meta__ = {
 
 [node name="ToggleOverridableStates" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 392.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 428.0
 text = "Show overridable states"
 align = 2
@@ -1013,7 +1018,7 @@ __meta__ = {
 
 [node name="ToggleAllStates" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 432.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 468.0
 text = "Show from all files"
 align = 2
@@ -1023,7 +1028,7 @@ __meta__ = {
 
 [node name="FilterNumber" type="Label" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 472.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 486.0
 size_flags_vertical = 9
 text = "Filter by Flag"
@@ -1032,7 +1037,7 @@ valign = 2
 
 [node name="ToggleShowAllFlags" type="CheckButton" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 490.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 526.0
 text = "Show unused flags"
 align = 2
@@ -1042,12 +1047,12 @@ __meta__ = {
 
 [node name="Flags" type="GridContainer" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
 margin_top = 530.0
-margin_right = 243.0
+margin_right = 372.0
 margin_bottom = 566.0
 columns = 4
 
 [node name="Button2" type="Button" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu/Flags"]
-margin_right = 61.0
+margin_right = 93.0
 margin_bottom = 36.0
 rect_min_size = Vector2( 36, 36 )
 size_flags_horizontal = 3
@@ -1057,9 +1062,9 @@ clip_text = true
 expand_icon = true
 
 [node name="Spacer" type="Label" parent="CodePanel/Navigation/ChooseState/MenuScroll/Menu"]
-margin_top = 570.0
-margin_right = 243.0
-margin_bottom = 584.0
+margin_top = 738.0
+margin_right = 372.0
+margin_bottom = 752.0
 size_flags_vertical = 10
 align = 1
 valign = 2
@@ -1233,12 +1238,8 @@ anchor_left = 0.2
 anchor_top = 0.2
 anchor_right = 0.8
 anchor_bottom = 0.8
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="NewState" type="Panel" parent="Popups/Window"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 4 )
@@ -1303,7 +1304,7 @@ __meta__ = {
 }
 
 [node name="Create" type="Button" parent="Popups/Window/NewState/Buttons"]
-margin_right = 1010.0
+margin_right = 836.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -1311,12 +1312,20 @@ disabled = true
 text = "New State"
 
 [node name="Override" type="Button" parent="Popups/Window/NewState/Buttons"]
-margin_left = 1014.0
-margin_right = 1086.0
+margin_left = 840.0
+margin_right = 912.0
 margin_bottom = 32.0
 size_flags_vertical = 3
 disabled = true
 text = "Override"
+
+[node name="OverrideTemplate" type="Button" parent="Popups/Window/NewState/Buttons"]
+margin_left = 916.0
+margin_right = 1086.0
+margin_bottom = 32.0
+size_flags_vertical = 3
+disabled = true
+text = "Override With Template"
 
 [node name="Back" type="Button" parent="Popups/Window/NewState/Buttons"]
 margin_left = 1090.0
@@ -1391,6 +1400,7 @@ margin_bottom = 32.0
 text = "Back"
 
 [node name="NewEntity" type="Panel" parent="Popups/Window"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource( 14 )
@@ -1735,6 +1745,7 @@ margin_bottom = -8.0
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/MatchType/ResetMatchNormal" to="." method="_on_ResetMatchNormal_pressed"]
 [connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay" to="." method="_on_FlowPlay_toggled"]
 [connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo" to="." method="_on_FlowSlowmo_toggled"]
+[connection signal="item_selected" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmoRate" to="." method="_on_FlowSlowmoRate_item_selected"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowNextFrame" to="." method="_on_FlowNextFrame_pressed"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/CompilStatus" to="." method="_on_CompilStatus_pressed"]
 [connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/HideGizmos" to="." method="_on_HideGizmos_toggled"]
@@ -1786,6 +1797,7 @@ margin_bottom = -8.0
 [connection signal="text_changed" from="Popups/Window/NewState/StateName" to="Popups/Window/NewState" method="_on_StateName_text_changed"]
 [connection signal="pressed" from="Popups/Window/NewState/Buttons/Create" to="Popups/Window/NewState" method="_on_Create_pressed"]
 [connection signal="pressed" from="Popups/Window/NewState/Buttons/Override" to="Popups/Window/NewState" method="_on_Override_pressed"]
+[connection signal="pressed" from="Popups/Window/NewState/Buttons/OverrideTemplate" to="Popups/Window/NewState" method="_on_OverrideTemplate_pressed"]
 [connection signal="pressed" from="Popups/Window/NewState/Buttons/Back" to="." method="HidePopups"]
 [connection signal="text_changed" from="Popups/Window/RenameState/VBox/StateName" to="Popups/Window/RenameState" method="_on_StateName_text_changed"]
 [connection signal="pressed" from="Popups/Window/RenameState/VBox/Buttons/Create" to="Popups/Window/RenameState" method="_on_Create_pressed"]

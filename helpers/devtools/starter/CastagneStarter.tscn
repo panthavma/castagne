@@ -23,15 +23,15 @@ __meta__ = {
 }
 
 [node name="Editor" type="Button" parent="Buttons"]
-margin_top = 182.0
-margin_right = 768.0
-margin_bottom = 202.0
+margin_top = 290.0
+margin_right = 1152.0
+margin_bottom = 310.0
 text = "Castagne Editor"
 
 [node name="MainMenu" type="Button" parent="Buttons"]
-margin_top = 206.0
-margin_right = 768.0
-margin_bottom = 226.0
+margin_top = 314.0
+margin_right = 1152.0
+margin_bottom = 334.0
 text = "Start Game Normally"
 
 [node name="Training" type="Button" parent="Buttons"]
@@ -49,9 +49,9 @@ margin_bottom = 130.0
 text = "Battle"
 
 [node name="DevTools" type="Button" parent="Buttons"]
-margin_top = 230.0
-margin_right = 768.0
-margin_bottom = 250.0
+margin_top = 338.0
+margin_right = 1152.0
+margin_bottom = 358.0
 text = "Dev Tools"
 
 [node name="Characters" type="Control" parent="."]

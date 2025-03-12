@@ -109,25 +109,21 @@ func ModuleSetup():
 	for i in range(nbTutorials):
 		RegisterConfig("LocalConfig-TutorialDone-"+str(i), false, {"Flags":["Advanced"]})
 
-func BattleInit(stateHandle, _battleInitData):
-	gizmoDisplay = Control.new()
-	gizmoDisplay.set_script(gizmoDisplayScript)
-	gizmoDisplay.emodule = self
-	stateHandle._engine.add_child(gizmoDisplay)
-	gizmoDisplay.set_anchors_and_margins_preset(Control.PRESET_WIDE)
+func BattleInit(stateHandle, battleInitData):
+	currentGizmos = []
+	var useGizmos = battleInitData.has("editor") and battleInitData["editor"]
+	
+	if(useGizmos):
+		gizmoDisplay = Control.new()
+		gizmoDisplay.set_script(gizmoDisplayScript)
+		gizmoDisplay.emodule = self
+		stateHandle._engine.add_child(gizmoDisplay)
+		gizmoDisplay.set_anchors_and_margins_preset(Control.PRESET_WIDE)
 
 
-
-var runStop = false
-var runSlowmo = 0
 func FramePreStart(stateHandle):
 	emit_signal("EngineTick_FramePreStart", stateHandle)
 	UpdateGizmos(stateHandle)
-	
-	if(runStop):
-		stateHandle.GlobalSet("_SkipFrame", true)
-	elif(runSlowmo > 1):
-		stateHandle.GlobalSet("_SkipFrame", stateHandle.GlobalGet("_TrueFrameID") % runSlowmo > 0)
 
 func FrameStart(stateHandle):
 	emit_signal("EngineTick_FrameStart", stateHandle)
@@ -189,6 +185,9 @@ var currentLine = 0
 var mainEID = null
 var gizmosDraw = []
 func UpdateGizmos(stateHandle):
+	if(gizmoDisplay == null):
+		return
+	
 	mainEID = null
 	if(stateHandle.GlobalHas("_ActiveEntities")):
 		stateHandle.PointToPlayer(0)
@@ -208,16 +207,15 @@ func UpdateGizmos(stateHandle):
 		var lineActive = currentLine == g["Line"]
 		f.call_func(self, g["Args"], lineActive, stateHandle)
 	
-	if(gizmoDisplay != null):
-		var drawList = []
-		for g in gizmosDraw:
-			var d = g.duplicate(true)
-			if(g["Type"] == GIZMO_TYPE.Line || g["Type"] == GIZMO_TYPE.Rect):
-				d["A"] = TranslatePointToDraw(d["A"], stateHandle)
-				d["B"] = TranslatePointToDraw(d["B"], stateHandle)
-			drawList += [d]
-		gizmoDisplay.drawList = drawList
-		gizmoDisplay.update()
+	var drawList = []
+	for g in gizmosDraw:
+		var d = g.duplicate(true)
+		if(g["Type"] == GIZMO_TYPE.Line || g["Type"] == GIZMO_TYPE.Rect):
+			d["A"] = TranslatePointToDraw(d["A"], stateHandle)
+			d["B"] = TranslatePointToDraw(d["B"], stateHandle)
+		drawList += [d]
+	gizmoDisplay.drawList = drawList
+	gizmoDisplay.update()
 
 enum GIZMO_TYPE {
 	Line, Rect
