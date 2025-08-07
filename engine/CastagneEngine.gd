@@ -646,7 +646,9 @@ func CreateMemory(copyFrom = null):
 var _prefabStateHandle = preload("res://castagne/engine/CastagneStateHandle.gd")
 var _stateHandles = []
 var _currentStateHandle = 0
-func CreateStateHandle(memory, eid = -1):
+func CreateStateHandle(memory = null, eid = -1):
+	if(memory == null):
+		memory = _memory
 	var stateHandle = null
 	if(_currentStateHandle >= _stateHandles.size()):
 		stateHandle = Node.new()

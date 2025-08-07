@@ -9,6 +9,7 @@ shader_param/spritesheetDimensions = Vector2( 1, 1 )
 shader_param/spriteOrigin = Vector2( 0, 0 )
 shader_param/spriteIDToShow = 0
 shader_param/showOrigin = true
+shader_param/paletteMode = 0
 
 [node name="SpritesheetVisualizer" type="Control"]
 anchor_right = 1.0
@@ -21,17 +22,66 @@ script = ExtResource( 3 )
 [node name="AspectRatio" type="AspectRatioContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_bottom = -40.0
 
 [node name="ColorRect" type="ColorRect" parent="AspectRatio"]
-margin_left = 420.0
-margin_right = 1500.0
-margin_bottom = 1080.0
+margin_left = 440.0
+margin_right = 1480.0
+margin_bottom = 1040.0
 color = Color( 1, 1, 1, 0.0784314 )
 
 [node name="Sprite" type="TextureRect" parent="AspectRatio"]
 material = SubResource( 2 )
-margin_left = 420.0
-margin_right = 1500.0
-margin_bottom = 1080.0
+margin_left = 440.0
+margin_right = 1480.0
+margin_bottom = 1040.0
 rect_min_size = Vector2( 256, 256 )
 expand = true
+
+[node name="Controls" type="HBoxContainer" parent="."]
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_top = -32.0
+margin_bottom = -8.0
+alignment = 1
+
+[node name="Label" type="Label" parent="Controls"]
+margin_left = 834.0
+margin_top = 5.0
+margin_right = 894.0
+margin_bottom = 19.0
+text = "Sprite ID:"
+
+[node name="SpriteID" type="SpinBox" parent="Controls"]
+margin_left = 898.0
+margin_right = 972.0
+margin_bottom = 24.0
+align = 1
+prefix = "#"
+
+[node name="VSeparator" type="VSeparator" parent="Controls"]
+margin_left = 976.0
+margin_right = 980.0
+margin_bottom = 24.0
+
+[node name="UsePalette" type="CheckBox" parent="Controls"]
+margin_left = 984.0
+margin_right = 1086.0
+margin_bottom = 24.0
+pressed = true
+text = "Use Palette"
+
+[node name="PaletteID" type="SpinBox" parent="Controls"]
+visible = false
+margin_left = 1053.0
+margin_right = 1127.0
+margin_bottom = 24.0
+min_value = 1.0
+value = 1.0
+align = 1
+prefix = "#"
+
+[connection signal="value_changed" from="Controls/SpriteID" to="." method="_on_SpriteID_value_changed"]
+[connection signal="toggled" from="Controls/UsePalette" to="." method="_on_UsePalette_toggled"]
+[connection signal="value_changed" from="Controls/PaletteID" to="." method="_on_PaletteID_value_changed"]

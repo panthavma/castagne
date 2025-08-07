@@ -43,8 +43,11 @@ func SetupSpecblock(_argument):
 	AddStructureSeparator("Default Widgets Parameters")
 	
 	AddStructureDefine("Asset1", "", "Asset 1")
+	AddStructureDefine("Asset1Mirror", "", "Asset 1 (Mirrored)")
 	AddStructureDefine("Asset2", "", "Asset 2")
+	AddStructureDefine("Asset2Mirror", "", "Asset 2 (Mirrored)")
 	AddStructureDefine("Asset3", "", "Asset 3")
+	AddStructureDefine("Asset3Mirror", "", "Asset 3 (Mirrored)")
 	
 	AddStructureDefine("DefaultColor", 0, "Color", {
 		"Options":["White", "Red", "Orange", "Yellow", "Green", "Cyan", "Blue", "Purple", "Pink", "Gray", "Black"]

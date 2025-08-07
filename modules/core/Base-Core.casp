@@ -27,14 +27,33 @@ _BaseState()
 ## CASTDO Somewhat temporary, only works because of fighting flow forcing the main target opponent
 TargetSave()
 
+Call(Custom-Common)
+
 CallAfter(CommonAfter)
+
+:Custom-Common:
+## Custom override point for the Common helper, which is called in all states (apart from a few specific exceptions).
+## This happens at the beginning of the function.
+_Helper()
+_Category(Custom/Core)
+_Overridable(If you want to add behavior common to all regular states)
 :CommonAfter:
 ## This state is called after every script that links back to :Common:. It's purpose it to hold some helpers, like putting default hurtboxes on characters.
 
 _Helper()
 _Category(Internals)
 
+Call(Custom-CommonAfter)
+
 TargetRecall()
+
+
+:Custom-CommonAfter:
+## Custom override point for the CommonAfter helper, which is called in all states (apart from a few specific exceptions) and happens at the end.
+## This happens at the beginning of the function.
+_Helper()
+_Category(Custom/Core)
+_Overridable(If you want to add behavior common to all regular states at the end)
 :Custom-NeutralStateCommon:
 ## Custom override point for the NeutralStateCommon helper, which is called in all neutral states.
 ## This happens at the beginning of the function.

@@ -44,6 +44,10 @@ internal _SpritePalettePath
 internal _PaletteID
 internal _Tmp_DefaultModelPath
 internal _Tmp_DefaultSpritePalettePath
+
+def GRAPHICS_ZORDER_AUTOMATIC bool() = 1
+def GRAPHICS_ZORDER_DEFENDER int() = 0
+def GRAPHICS_ZORDER_ATTACKER int() = 1
 :AnimAirTechBackward:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
@@ -503,9 +507,26 @@ else
 endif
 
 ModelScale(Model_Scale)
+:OnAttackTouched:
+CallParent()
+Call(OnAttackTouched-Graphics)
+:OnAttackTouched-Graphics:
+## Handles graphics logic when an attacker touches
+_Category(Internals/Attacks/React/2_Attacker)
+_Helper()
+
+VGRAPHICS_ZORDER_AUTOMATIC:
+	ModelZOrder(GRAPHICS_ZORDER_ATTACKER)
+endif
+:OnAttackTouchedGraphics:
+
 :OnBlock:
 CallParent()
-
+Call(OnBlock-Graphics)
+:OnBlock-Graphics:
+## Handles graphics on block
+_Category(Internals/Attacks/React/3_Defender/Block)
+_Helper()
 Call(VFXBlock)
 :OnHit-Graphics:
 ## Handles graphics on hit
@@ -517,9 +538,24 @@ Call(AnimHitstun)
 
 ## TODO: VFX
 Call(VFXHit)
+
+## CASTDO: Configurable ?
+CameraShake()
 :OnHit-Hook:
 CallParent()
 Call(OnHit-Graphics)
+## CASTDO Needs to be done from OnHit, not OnHit-Hook
+:OnTouch:
+CallParent()
+Call(OnTouch-Graphics)
+:OnTouch-Graphics:
+## Handles graphics on touch
+_Category(Internals/Attacks/React/3_Defender)
+_Helper()
+
+VGRAPHICS_ZORDER_AUTOMATIC:
+	ModelZOrder(GRAPHICS_ZORDER_DEFENDER)
+endif
 :VFXBlock:
 ## Temporary block vfx function
 ## CASTDO

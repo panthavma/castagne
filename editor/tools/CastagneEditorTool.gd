@@ -32,6 +32,3 @@ func OnEngineRestarted(engine):
 
 func OnEngineInitError(engine):
 	pass
-
-func OnEngineTick(stateHandle):
-	pass

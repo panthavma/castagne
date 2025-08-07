@@ -1086,8 +1086,8 @@ func HitboxAvoids(args, stateHandle):
 	_HitHurtboxMustHave(stateHandle, ArgRawIfExists(args, 0), "_HitboxMustNotHaves")
 
 func GizmoBox(emodule, args, lineActive, _stateHandle, type):
-	var color = [Color(0.4, 0.4, 1.0), Color(1.0, 0.4, 0.4), Color(0.4, 1.0, 0.4)][type]
-	var colorBack = [Color(0.3, 0.3, 1.0, 0.45), Color(1.0, 0.3, 0.3, 0.45), Color(0.3, 1.0, 0.3, 0.45)][type]
+	var color = ["Blue", "Red", "Green"][type]
+	var colorBack = color#[Color(0.3, 0.3, 1.0, 0.45), Color(1.0, 0.3, 0.3, 0.45), Color(0.3, 1.0, 0.3, 0.45)][type]
 	var widthActive = [6,6,6][type]
 	var widthInactive = [2,2,2][type]
 	var l = 0
@@ -1124,14 +1124,12 @@ func GizmoBox(emodule, args, lineActive, _stateHandle, type):
 		emodule.GizmoBox([l,t,0], [r,b,0], color, width)
 	
 	if(drawRhombus):
-		emodule.GizmoLine([l, vc,0], [hc, t,0], color, width)
-		emodule.GizmoLine([hc, t,0], [r, vc,0], color, width)
-		emodule.GizmoLine([r, vc,0], [hc, b,0], color, width)
-		emodule.GizmoLine([hc, b,0], [l, vc,0], color, width)
+		emodule.GizmoRhombus([l,t,0], [r,b,0], color, width)
 
 func GizmoPoint(emodule, pos, color, lineActive):
 	var lineWidth = (4 if lineActive else 2)
 	var anchorSize = 2000
+	# TODO Change ?
 	emodule.GizmoLine([pos[0]-anchorSize,pos[1],pos[2]], [pos[0]+anchorSize,pos[1],pos[2]], color, lineWidth)
 	emodule.GizmoLine([pos[0],pos[1]-anchorSize,pos[2]], [pos[0],pos[1]+anchorSize,pos[2]], color, lineWidth)
 	emodule.GizmoLine([pos[0]-anchorSize,pos[1],pos[2]], [pos[0],pos[1]+anchorSize,pos[2]], color, lineWidth)
@@ -1719,7 +1717,8 @@ func SetFacingHV(stateHandle, facingH, facingV, facingType = FACING_TYPE.Physics
 
 func TransformPosEntityToAbsolute(pos, stateHandle, facingType = FACING_TYPE.Physics):
 	var facingHV = GetFacingHV(stateHandle, facingType)
-	return [pos[0] * (1 if facingHV[0] > 0 else -1), pos[1], 0]
+	var z = (pos[2] if pos.size() >= 2 else 0)
+	return [pos[0] * (1 if facingHV[0] > 0 else -1), pos[1], z]
 
 func TransformPosEntityToWorld(pos, stateHandle, facingType = FACING_TYPE.Physics):
 	var absolutePos = TransformPosEntityToAbsolute(pos, stateHandle, facingType)
@@ -1732,13 +1731,15 @@ func TransformPosEntityAbsoluteToWorld(absolutePos, stateHandle, facingType = FA
 		x = 0
 	if(y == null):
 		y = 0
+	var z = (absolutePos[2] if absolutePos.size() >= 2 else 0)
 	
-	return [x + absolutePos[0], y + absolutePos[1], 0]
+	return [x + absolutePos[0], y + absolutePos[1], z]
 
 func TransformWorldPosToEntityAbsolute(pos, stateHandle):
 	var x = stateHandle.EntityGet("_PositionX")
 	var y = stateHandle.EntityGet("_PositionY")
-	return [pos[0] - x, pos[1] - y, 0]
+	var z = (pos[2] if pos.size() >= 2 else 0)
+	return [pos[0] - x, pos[1] - y, z]
 
 func TransformWorldPosToEntity(pos, stateHandle, facingType = FACING_TYPE.Physics):
 	var absolutePos = TransformWorldPosToEntityAbsolute(pos, stateHandle)
@@ -1746,5 +1747,6 @@ func TransformWorldPosToEntity(pos, stateHandle, facingType = FACING_TYPE.Physic
 
 func TransformPosEntityAbsoluteToEntity(absolutePos, stateHandle, facingType = FACING_TYPE.Physics):
 	var facingHV = GetFacingHV(stateHandle, facingType)
-	return [absolutePos[0] * (1 if facingHV[0] > 0 else -1), absolutePos[1]]
+	var z = (absolutePos[2] if absolutePos.size() >= 2 else 0)
+	return [absolutePos[0] * (1 if facingHV[0] > 0 else -1), absolutePos[1], z]
 

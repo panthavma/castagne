@@ -806,6 +806,8 @@ _Category(Internals/Attacks/Types/Cancels)
 _Helper()
 _Overridable(If you want to change the default cancel rules for EX specials)
 
+Call(AttackTypeHelper-CancelRules-Common)
+
 VATTACK_EX_CanCancelIntoEX:
 	Call(AttackCancels-Specials-EX)
 endif
@@ -825,6 +827,8 @@ endif
 _Category(Internals/Attacks/Types/Cancels)
 _Helper()
 _Overridable(If you want to change the default cancel rules for heavy attacks)
+
+Call(AttackTypeHelper-CancelRules-Common)
 
 VATTACK_Heavy_CanCancelIntoLights:
 	Call(AttackCancels-Normals-Lights)
@@ -852,6 +856,8 @@ _Category(Internals/Attacks/Types/Cancels)
 _Helper()
 _Overridable(If you want to change the default cancel rules for light attacks)
 
+Call(AttackTypeHelper-CancelRules-Common)
+
 VATTACK_Light_CanCancelIntoLights:
 	Call(AttackCancels-Normals-Lights)
 endif
@@ -876,6 +882,8 @@ endif
 _Category(Internals/Attacks/Types/Cancels)
 _Helper()
 _Overridable(If you want to change the default cancel rules for medium attacks)
+
+Call(AttackTypeHelper-CancelRules-Common)
 
 VATTACK_Medium_CanCancelIntoLights:
 	Call(AttackCancels-Normals-Lights)
@@ -903,6 +911,8 @@ _Category(Internals/Attacks/Types/Cancels)
 _Helper()
 _Overridable(If you want to change the default cancel rules for specials)
 
+Call(AttackTypeHelper-CancelRules-Common)
+
 VATTACK_Special_CanCancelIntoEX:
 	Call(AttackCancels-Specials-EX)
 endif
@@ -922,12 +932,16 @@ endif
 _Category(Internals/Attacks/Types/Cancels)
 _Helper()
 _Overridable(If you want to change the default cancel rules for supers)
+
+Call(AttackTypeHelper-CancelRules-Common)
 :AttackTypeHelper-CancelRules-Throw:
 ## Defines default cancels for Throw / AirThrow attacks. Activate the NoDefaultCancels flag to disable.
 ## This is actually called by the Throw Followup state, since the Throw attack is meant for the start
 _Category(Internals/Attacks/Types/Cancels)
 _Helper()
 _Overridable(If you want to change the default cancel rules for throws)
+
+Call(AttackTypeHelper-CancelRules-Common)
 
 VATTACK_Throw_CanCancelIntoSpecials:
 	Call(AttackCancels-Specials-Specials)
@@ -1127,6 +1141,8 @@ endif
 ## Called when landing in hitstun, which will initiate a soft tech
 _Category(States/Reacts/Hitstun)
 _Helper()
+
+ModelShaderParamF(ModulationColor, 1000, 1000, 1000, 1000)
 
 # Check for groundbounces
 LAF_Groundbounce:
@@ -1475,7 +1491,7 @@ AttackRegister(Medium)
 # Adjust parameters here
 AttackDamage(1000)
 AttackDuration(60)
-# AttackFlag(Low)
+# AttackMustBlock(Low)
 
 # Put your animation here
 #Anim(5B)

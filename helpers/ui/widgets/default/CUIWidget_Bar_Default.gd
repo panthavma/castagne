@@ -11,6 +11,6 @@ func WidgetInitialize(stateHandle, battleInitData = null, caspData = null):
 	.WidgetInitialize(stateHandle, battleInitData, caspData)
 	
 	var c = _DefaultWidget_GetColor(caspData)
-	rootMain.set_progress_texture(_DefaultWidget_LoadPath("widgetbar-progress-"+str(c)+".png"))
+	rootMain.set_progress_texture(_DefaultWidget_LoadPath(caspData, "widgetbar-progress-"+str(c)+".png"))
 	if(rootSub != null):
-		rootSub.set_progress_texture(_DefaultWidget_LoadPath("widgetbar-progress-"+str(c)+"-second.png"))
+		rootSub.set_progress_texture(_DefaultWidget_LoadPath(caspData, "widgetbar-progress-"+str(c)+"-second.png", "Asset2"))

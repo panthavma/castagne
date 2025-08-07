@@ -1589,6 +1589,14 @@ func _ParseBlockState(fileID):
 				
 				if(branch["Letter"] == "S"):
 					# Translate the S blocks to F branches
+					# Check for undefined modulo
+					if(branch["S_Modulo"] == -1):
+						if(branch["S_Sum"] <= 0):
+							_Error("S Branch with dynamic modulo doesn't have a fixed sum! Did you use an S+ branch?")
+							line = _GetNextLine(fileID)
+							continue
+						branch["S_Modulo"] = branch["S_Sum"]
+					
 					var nbSBlocks = len(branch["S_Blocks_Start"])
 					for sbID in range(nbSBlocks):
 						var start = branch["S_Blocks_Start"][sbID]
@@ -1741,7 +1749,9 @@ func _ParseBlockState(fileID):
 					if(moduloSepID > 0):
 						var modulo = letterArgs.right(moduloSepID+1)
 						letterArgs = letterArgs.left(moduloSepID)
-						if(modulo.is_valid_integer()):
+						if(modulo.empty()):
+							currentSubblock["S_Modulo"] = -1
+						elif(modulo.is_valid_integer()):
 							currentSubblock["S_Modulo"] = int(modulo)
 						else:
 							_Error("S Branch modulo is not a static number: " + modulo)

@@ -198,7 +198,7 @@ This is very much a work in progress and team oriented feature for now, but you 
 		system.ShowTopDialogue("""For when you start coding, this small window will help you quite a bit! It shows the documentation of the currently highlighted function, as well as its parameters!
 
 This will help you understand what's going on when reading code!""")
-		system.StencilNode(editor.get_node("CharacterEdit/CodePanel/Documentation/Doc"))
+		system.StencilNode(editor.get_node("CharacterEdit/CodePanel/Documentation/DocZone"))
 		
 		yield()
 		

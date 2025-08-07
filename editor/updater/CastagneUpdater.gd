@@ -29,7 +29,7 @@ func _ready():
 		originalBranch = currentVersionData["branch"]
 	
 	currentBranch = originalBranch
-	if(configData.Get("Updater-CheckOnStartup")):
+	if(configData.Get("Updater-CheckOnStartup") and get_node("../..").tutorialPath == null):
 		CheckForUpdates()
 	UpdateDisplay()
 

@@ -8,6 +8,6 @@ extends "../CUIWidget_Icons.gd"
 
 func WidgetInitialize(stateHandle, battleInitData = null, caspData = null):
 	var c = _DefaultWidget_GetColor(caspData)
-	iconTexture = _DefaultWidget_LoadPath("widgetpoints-main-"+str(c)+".png")
+	iconTexture = _DefaultWidget_LoadPath(caspData, "widgetpoints-main-"+str(c)+".png")
 	
 	.WidgetInitialize(stateHandle, battleInitData, caspData)

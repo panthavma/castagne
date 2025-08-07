@@ -7,6 +7,10 @@ var animationData = {}
 
 var _nAnimList
 var _nAnimInfo
+var _nCurAnimName
+var _nCurAnimFrame
+var _nCurStateName
+var _nCurStateFrame
 
 func SetupTool():
 	toolName = "Animation Data"
@@ -16,6 +20,10 @@ func SetupTool():
 	# UnloadScene()
 	_nAnimList = $Small/Main/AnimList
 	_nAnimInfo = $Small/Main/AnimInfo
+	_nCurAnimName = $Small/Main/AnimCurName
+	_nCurAnimFrame = $Small/Main/AnimCurFrame
+	_nCurStateName = $Small/Main/StateCurName
+	_nCurStateFrame = $Small/Main/StateCurFrame
 
 func OnEngineRestarting(engine, battleInitData):
 	_nAnimList.clear()
@@ -28,14 +36,37 @@ func OnEngineRestarted(engine):
 	editorModule.connect("EngineTick_FrameEnd", self, "GetAnimationData")
 
 func GetAnimationData(stateHandle):
+	var canimName = "[None]"
+	var canimFrame = 0
+	var canimFrameMax = 0
+	stateHandle.PointToEntity(0)
+	if(stateHandle.EntityHas("_Anim")):
+		canimName = stateHandle.EntityGet("_Anim")
+		canimFrame = stateHandle.EntityGet("_AnimFrame")
+	
+	_nCurAnimName.set_text("Current Animation: "+str(canimName))
+	if(canimName in animationData):
+		canimFrameMax = animationData[canimName]["Length"]
+		_nCurAnimFrame.set_text("Frame: "+str(canimFrame)+" / "+str(canimFrameMax))
+	else:
+		_nCurAnimFrame.set_text("Frame: "+str(canimFrame))
+	
+	_nCurStateName.set_text("Current State: "+str(stateHandle.EntityGet("_State")))
+	_nCurStateFrame.set_text("Frame: "+str(stateHandle.EntityGet("_StateFrameID")))
+	
 	if(!checkAnimation):
 		return
 	checkAnimation = false
 	
-	stateHandle.PointToEntity(0)
+	
+	
+	
 	if(!stateHandle.IDEntityHas("AnimPlayer")):
 		_nAnimInfo.set_text("Can't access animation player.")
 		return
+	
+	
+	
 	
 	var animPlayer = stateHandle.IDEntityGet("AnimPlayer")
 	animationData = {}
@@ -77,6 +108,7 @@ func GetAnimationData(stateHandle):
 	
 	_nAnimList.select(0)
 	DisplayAnimationData(_nAnimList.get_item_text(0))
+	
 
 func DisplayAnimationData(animName):
 	_nAnimInfo.set_text("Length: " + str(animationData[animName]["Length"]))
@@ -86,3 +118,5 @@ func _on_AnimList_item_selected(index):
 	DisplayAnimationData(_nAnimList.get_item_text(index))
 func _on_AnimList_item_focused(index):
 	DisplayAnimationData(_nAnimList.get_item_text(index))
+
+

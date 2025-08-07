@@ -19,23 +19,67 @@ margin_right = -32.0
 alignment = 1
 
 [node name="Title" type="Label" parent="Small/Main"]
-margin_top = 332.0
-margin_right = 1216.0
-margin_bottom = 346.0
+margin_top = 441.0
+margin_right = 1856.0
+margin_bottom = 455.0
 text = "- Animation Data -"
 align = 1
 
 [node name="AnimList" type="OptionButton" parent="Small/Main"]
-margin_top = 350.0
-margin_right = 1216.0
-margin_bottom = 370.0
+margin_top = 459.0
+margin_right = 1856.0
+margin_bottom = 479.0
 align = 1
 
 [node name="AnimInfo" type="Label" parent="Small/Main"]
-margin_top = 374.0
-margin_right = 1216.0
-margin_bottom = 388.0
+margin_top = 483.0
+margin_right = 1856.0
+margin_bottom = 497.0
 text = "Animation Length: 0"
+align = 1
+
+[node name="Title2" type="Label" parent="Small/Main"]
+margin_top = 501.0
+margin_right = 1856.0
+margin_bottom = 532.0
+text = "
+- Current Animation Data -"
+align = 1
+
+[node name="AnimCurName" type="Label" parent="Small/Main"]
+margin_top = 536.0
+margin_right = 1856.0
+margin_bottom = 550.0
+text = "Name: "
+align = 1
+
+[node name="AnimCurFrame" type="Label" parent="Small/Main"]
+margin_top = 554.0
+margin_right = 1856.0
+margin_bottom = 568.0
+text = "Frame: 0/0"
+align = 1
+
+[node name="Title3" type="Label" parent="Small/Main"]
+margin_top = 572.0
+margin_right = 1856.0
+margin_bottom = 603.0
+text = "
+- Current State -"
+align = 1
+
+[node name="StateCurName" type="Label" parent="Small/Main"]
+margin_top = 607.0
+margin_right = 1856.0
+margin_bottom = 621.0
+text = "Name: "
+align = 1
+
+[node name="StateCurFrame" type="Label" parent="Small/Main"]
+margin_top = 625.0
+margin_right = 1856.0
+margin_bottom = 639.0
+text = "Frame: 0"
 align = 1
 
 [node name="FullScreen" type="Control" parent="."]

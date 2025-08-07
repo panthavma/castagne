@@ -12,6 +12,7 @@ var viewportContainer
 func ModuleSetup():
 	RegisterModule("Graphics 2D", Castagne.MODULE_SLOTS_BASE.GRAPHICS)
 	.ModuleSetup()
+	IS_2D = true
 	
 	RegisterCategory("2D Specific")
 	RegisterConfig("2DScreenSizeX", 1920)
@@ -49,19 +50,33 @@ func _InitCamera(_stateHandle, _battleInitData):
 	cam.make_current()
 	return cam
 
-func _CreateSprite_Instance():
+func _CreateSprite_Instance(stateHandle):
 	var s2D = Sprite.new()
-	s2D.set_script(Castagne.Loader.Load("res://castagne/modules/graphics/CMGraphics_Sprite.gd"))
+	var scriptPath = stateHandle.ConfigData().Get("SpriteScriptPath")
+	s2D.set_script(Castagne.Loader.Load(scriptPath))
 	s2D.is2D = true
 	s2D.graphicsModule = self
 	return s2D
 
-func _UpdateCamera(_stateHandle, camera, cameraPos):
+func _UpdateCamera(stateHandle, camera, cameraPos, cameraLookAt, cameraFOV, cameraRoll, cameraShake, cameraExtra):
 	# TODO Camera size isn't really consistent, needs design
 	if(pixelArtMode):
 		cameraPos = cameraPos.round()
 	
+	if(cameraFOV == 0.0):
+		cameraFOV = 1.0
+	
+	var cameraZoom = (float(stateHandle.ConfigData().Get("CameraFOV_ZoomBase")) / 100.0) / cameraFOV
+	
 	camera.set_position(cameraPos)
+	camera.set_zoom(Vector2(cameraZoom, cameraZoom))
+	#camera.rotate(cameraRoll)
+	
+	var cameraShakeBase = stateHandle.ConfigData().Get("CameraShake_BaseStrength") * POSITION_SCALE
+	cameraShake = (cameraShake / 1000.0) * cameraShakeBase
+	
+	var randomAngle = deg2rad(stateHandle.GlobalGet("_FrameID") * 67)
+	camera.translate(Vector2(cos(randomAngle), sin(randomAngle)) * cameraShake)
 
 func _ModelApplyTransformDirect(modelRoot, modelPosition, modelRotation, modelScale, facingH):
 	modelPosition = IngameToGodotPos(modelPosition)

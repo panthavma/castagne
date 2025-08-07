@@ -11,6 +11,6 @@ func WidgetInitialize(stateHandle, battleInitData = null, caspData = null):
 	
 	if(get_child_count() == 0):
 		var c = _DefaultWidget_GetColor(caspData)
-		AddIcon(_DefaultWidget_LoadPath("widgetpoints-back-gray.png"))
-		AddIcon(_DefaultWidget_LoadPath("widgetpoints-main-"+str(c)+".png"))
-		AddIcon(_DefaultWidget_LoadPath("widgetpoints-second-"+str(c)+".png"))
+		AddIcon(_DefaultWidget_LoadPath(caspData, "widgetpoints-back-gray.png", "Asset1"))
+		AddIcon(_DefaultWidget_LoadPath(caspData, "widgetpoints-main-"+str(c)+".png", "Asset2"))
+		AddIcon(_DefaultWidget_LoadPath(caspData, "widgetpoints-second-"+str(c)+".png", "Asset3"))

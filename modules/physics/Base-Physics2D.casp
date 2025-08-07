@@ -239,6 +239,7 @@ Call(AnimAirjumpB)
 Call(Airborne_StartDashHelper)
 Call(Airborne_AirjumpHelper)
 Call(AirjumpB-Movement)
+Call(AttackCancels-All)
 :AirjumpB-Movement:
 ## Helper for AirjumpB
 _Category(Movement/Dashes/Airjump)
@@ -258,6 +259,7 @@ Call(AnimAirjumpF)
 Call(Airborne_StartDashHelper)
 Call(Airborne_AirjumpHelper)
 Call(AirjumpF-Movement)
+Call(AttackCancels-All)
 :AirjumpF-Movement:
 ## Helper for AirjumpF
 _Category(Movement/Dashes/Airjump)
@@ -277,6 +279,7 @@ Call(AnimAirjumpN)
 Call(Airborne_StartDashHelper)
 Call(Airborne_AirjumpHelper)
 Call(AirjumpN-Movement)
+Call(AttackCancels-All)
 :AirjumpN-Movement:
 ## Helper for AirjumpN
 _Category(Movement/Dashes/Airjump)

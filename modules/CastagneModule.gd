@@ -142,6 +142,8 @@ func RegisterModule(_moduleName, _moduleSlot=null, _moduleDocumentation = null):
 # Call before declaring functions or variables to group them in a category
 func RegisterCategory(categoryName, categoryDocumentation = null):
 	currentCategory = categoryName
+	if(moduleDocumentationCategories.has(categoryName)):
+		return
 	if(categoryDocumentation == null):
 		categoryDocumentation = {}
 	Castagne.FuseDataNoOverwrite(categoryDocumentation, {
@@ -376,10 +378,10 @@ func CallFunction(functionName, args, stateHandle):
 
 func ModuleLog(text, stateHandle = null):
 	var eidName = ("Entity ["+str(stateHandle.EntityGet("_EID"))+"]" if stateHandle != null else "")
-	Castagne.Log("Module "+moduleName+" Log "+eidName+" : " + text)
+	Castagne.Log("Module "+moduleName+" Log "+eidName+" : " + str(text))
 func ModuleError(text, stateHandle = null):
 	var eidName = (" Entity ["+str(stateHandle.EntityGet("_EID"))+"]" if stateHandle != null else "")
-	Castagne.Error("Module "+moduleName+" Error"+eidName+": " + text)
+	Castagne.Error("Module "+moduleName+" Error"+eidName+": " + str(text))
 
 func ArgStr(args, stateHandle, argID, default = null):
 	if(args.size() <= argID):

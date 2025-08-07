@@ -49,8 +49,14 @@ func _FetchSingleValueFromState_PostProcess(v):
 func _HasAsset(caspData, key):
 	return caspData != null and caspData.has(key) and !caspData[key].empty()
 
-func _LoadAsset(caspData, key, default = null, errorOnEmpty = true):
+func _LoadAsset(caspData, key, default = null, errorOnEmpty = true, useMirrorIfPossible = true):
 	var asset = null
+	
+	if(useMirrorIfPossible and isMirrored and _HasAsset(caspData, key+"Mirror")):
+		asset = _LoadAsset(caspData, key+"Mirror", default, errorOnEmpty, false)
+		if(asset != null):
+			return asset
+	
 	var hasAsset = _HasAsset(caspData, key)
 	if(hasAsset):
 		asset = Castagne.Loader.Load(caspData[key])
@@ -77,7 +83,11 @@ func _DefaultWidget_GetColor(caspData):
 				return defaultColors[c]
 	return defaultColors[0]
 var _defaultWidgetAssetRoot = "res://castagne/assets/ui/widgets/"
-func _DefaultWidget_LoadPath(path):
+func _DefaultWidget_LoadPath(caspData, path, customAssetKey = "Asset1"):
+	var asset = _LoadAsset(caspData, customAssetKey, null, false)
+	if(asset != null):
+		return asset
+	
 	if(!path.begins_with("res://")):
 		path = _defaultWidgetAssetRoot + path
 	var texture = Castagne.Loader.Load(path)

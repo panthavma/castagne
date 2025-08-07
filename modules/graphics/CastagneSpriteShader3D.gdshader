@@ -1,4 +1,4 @@
-shader_type canvas_item;
+shader_type spatial;
 render_mode unshaded;
 
 uniform int paletteMode = 0;
@@ -12,10 +12,12 @@ const int PALETTEMODE_NUMBER = 2;
 // Open parameters
 uniform vec4 ModulationColor = vec4(1.0);
 
+uniform sampler2D spritesheet;
+
 void fragment() {
-	ivec2 spriteSize = textureSize(TEXTURE, 0);
+	ivec2 spriteSize = textureSize(spritesheet, 0);
 	ivec2 spritePixelCoord = ivec2(UV*vec2(spriteSize));
-	vec4 spriteColor = texelFetch(TEXTURE, spritePixelCoord, 0);
+	vec4 spriteColor = texelFetch(spritesheet, spritePixelCoord, 0);
 	
 	if(paletteMode > PALETTEMODE_NONE && paletteMode < PALETTEMODE_NUMBER) {
 		spriteColor = vec4(
@@ -40,13 +42,17 @@ void fragment() {
 	}
 	
 	spriteColor *= ModulationColor;
+	ALBEDO = spriteColor.rgb;
+	if(spriteColor.a < 0.2)
+		discard;
+	//ALPHA = spriteColor.a;
 	
+	/*
 	// SRGB correction
 	spriteColor = vec4(
 		pow(spriteColor.r, 1.0/2.2),
 		pow(spriteColor.g, 1.0/2.2),
 		pow(spriteColor.b, 1.0/2.2),
 		spriteColor.a);
-		
-	COLOR = spriteColor;
+		*/
 }

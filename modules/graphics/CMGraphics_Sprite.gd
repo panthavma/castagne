@@ -25,7 +25,7 @@ func UpdateSprite(stateHandle):
 	var spriteData = graphicsModule._GetCurrentSpriteData(stateHandle)
 	var displayData = {
 		"SpriteFrame": stateHandle.EntityGet("_SpriteFrame"),
-		"SpriteOrder": stateHandle.EntityGet("_SpriteOrder") + stateHandle.EntityGet("_SpriteOrderOffset"),
+		"ZOrder": stateHandle.EntityGet("_ModelZOrder"),
 	}
 	
 	UpdateSpriteFromData(spriteData, displayData)
@@ -53,7 +53,7 @@ func UpdateSpriteVFX(vfxData):
 	
 	var displayData = {
 		"SpriteFrame": spriteFrame,
-		"SpriteOrder": vfxData["SpriteOrder"],
+		"ZOrder": vfxData["ZOrder"],
 	}
 	
 	UpdateSpriteFromData(spritesheetData, displayData)
@@ -66,16 +66,18 @@ func UpdateSpriteFromData(spriteData, displayData):
 	sprite.set_frame(displayData["SpriteFrame"])
 	spriteMaterial.set_shader_param("paletteMode", spriteData["PaletteMode"])
 	
-	
 	if(is2D):
-		sprite.set_z_index(displayData["SpriteOrder"])
+		sprite.set_z_index(displayData["ZOrder"])
 		
 		var spriteSizeY = 0
 		var texture = spriteData["Spritesheet"]
 		if(texture != null):
 			spriteSizeY = texture.get_size().y / spriteData["SpritesY"]
 		sprite.set_offset(Vector2(-spriteData["OriginX"], spriteData["OriginY"] - spriteSizeY))
-	
+	else:
+		sprite.set_translation(Vector3.FORWARD*displayData["ZOrder"]*-0.0005)
+		spriteMaterial.set_shader_param("spritesheet", spriteData["Spritesheet"])
+		#sprite.set_material_override(spriteMaterial)
 
 var animations
 func _CreateSpriteAnims(stateHandle):
@@ -112,18 +114,27 @@ func _CreateSpriteAnims(stateHandle):
 			
 		animations[animName] = animData
 
-var spriteShaderRessource = preload("res://castagne/modules/graphics/CastagneSpriteShader.gdshader")
+var spriteShaderRessourceDefault = preload("res://castagne/modules/graphics/CastagneSpriteShader.gdshader")
+var spriteShader3DRessourceDefault = preload("res://castagne/modules/graphics/CastagneSpriteShader3D.gdshader")
 func ApplyMaterial(stateHandle):
 	var paletteTexturePath = stateHandle.EntityGet("_SpritePalettePath")
 	paletteTexture = Castagne.Loader.Load(paletteTexturePath)
 	spriteMaterial = ShaderMaterial.new()
-	spriteMaterial.set_shader(spriteShaderRessource)
+	var spriteShader = (spriteShaderRessourceDefault if is2D else spriteShaderRessourceDefault)
+	var shaderPath = stateHandle.ConfigData().Get("SpriteShaderPath")
+	if(!shaderPath.empty()):
+		var shaderCustom = Castagne.Loader.Load(shaderPath)
+		if(shaderCustom != null):
+			spriteShader = shaderCustom
+	spriteMaterial.set_shader(spriteShader)
+	if(!is2D):
+		var spriteData = graphicsModule._GetCurrentSpriteData(stateHandle)
+		spriteMaterial.set_shader_param("spritesheet", spriteData["Spritesheet"])
 	spriteMaterial.set_shader_param("paletteTexture", paletteTexture)
 	if(is2D):
 		sprite.set_material(spriteMaterial)
 	else:
-		pass # TODO
-		#sprite.set_material_override(spriteMaterial)
+		sprite.set_material_override(spriteMaterial)
 
 func HandleAnimation(animName, animFrame):
 	#var animName = stateHandle.EntityGet("_Anim")

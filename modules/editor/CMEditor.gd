@@ -34,6 +34,7 @@ signal EngineTick_FreezeStart
 signal EngineTick_FreezeStartEntity
 signal EngineTick_FreezeEndEntity
 signal EngineTick_FreezeEnd
+signal EngineTick_UpdateGraphics
 
 func ModuleSetup():
 	RegisterModule("Editor", Castagne.MODULE_SLOTS_BASE.EDITOR, {
@@ -49,6 +50,7 @@ func ModuleSetup():
 		"res://castagne/editor/tools/inputs/CETool-Inputs.tscn,"+
 		"res://castagne/editor/tools/perf/CETool-Perf.tscn,"+
 		"res://castagne/editor/tools/sceneviewer/CETool-SceneViewer.tscn,"+
+		"res://castagne/editor/tools/freecam/CETool-Freecam.tscn,"+
 		"res://castagne/editor/tools/debugoptions/CETool-DebugOptions.tscn,", {"Flags":["Advanced"]})
 	
 	RegisterConfig("Editor-LockCastagneFiles", true, {"Flags":["Advanced"]})
@@ -65,6 +67,10 @@ func ModuleSetup():
 	RegisterConfig("LocalConfig-Editor-LastSelectedTool", 0, {
 		"Flags":["Advanced"],
 		"Description":"Stores the last used tool in order to load it the next time the editor is started.",
+	})
+	RegisterConfig("LocalConfig-Editor-LastOpenedStatePerFile", {}, {
+		"Flags":["Hidden"],
+		"Description":"Stores the last opened state in each file, which is then read on startup."
 	})
 	
 	RegisterConfig("Updater-CheckOnStartup", true)
@@ -121,9 +127,14 @@ func BattleInit(stateHandle, battleInitData):
 		gizmoDisplay.set_anchors_and_margins_preset(Control.PRESET_WIDE)
 
 
+
+func UpdateGraphics(stateHandle):
+	emit_signal("EngineTick_UpdateGraphics", stateHandle)
+#	UpdateGizmos(stateHandle)
+
 func FramePreStart(stateHandle):
 	emit_signal("EngineTick_FramePreStart", stateHandle)
-	UpdateGizmos(stateHandle)
+#	UpdateGizmos(stateHandle)
 
 func FrameStart(stateHandle):
 	emit_signal("EngineTick_FrameStart", stateHandle)
@@ -220,12 +231,38 @@ func UpdateGizmos(stateHandle):
 enum GIZMO_TYPE {
 	Line, Rect
 }
+func GizmoGetColor(colorName, context = "Standard"):
+	var standardColors = {
+		"White": Color(1.0, 1.0, 1.0),
+		"Red": Color(1.0, 0.4, 0.4),
+		"Green": Color(0.4, 1.0, 0.4),
+		"Blue": Color(0.4, 0.4, 1.0),
+		"Pink": Color(1.0, 0.4, 1.0),
+	}
+	var backgroundColors = {
+		"White": Color(1.0, 1.0, 1.0, 0.45),
+		"Red": Color(1.0, 0.3, 0.3, 0.45),
+		"Green": Color(0.3, 1.0, 0.3, 0.45),
+		"Blue": Color(0.3, 0.3, 1.0, 0.45),
+		"Pink": Color(1.0, 0.3, 1.0, 0.45),
+	}
+	var d = {"Standard": standardColors, "Background": backgroundColors}
+	if (context in d) and (colorName in d[context]):
+		return d[context][colorName]
+	return standardColors["White"]
+func _GizmoSolveColor(c, context = "Standard"):
+	if(typeof(c) == TYPE_STRING):
+		return GizmoGetColor(c, context)
+	return c
+	
 func GizmoLineGlobal(startPoint, endPoint, color, width=3, referenceEID=null):
+	color = _GizmoSolveColor(color)
 	gizmosDraw += [{"Type":GIZMO_TYPE.Line, "A":startPoint, "B":endPoint, "Color":color, "Width":width, "EID":referenceEID}]
 func GizmoLine(startPoint, endPoint, color, width=3):
 	GizmoLineGlobal(startPoint, endPoint, color, width, mainEID)
 
 func GizmoBoxGlobal(corner1, corner2, color, width=3, referenceEID = null):
+	color = _GizmoSolveColor(color)
 	var tl = [corner1[0], corner1[1], 0]
 	var tr = [corner2[0], corner1[1], 0]
 	var br = [corner2[0], corner2[1], 0]
@@ -237,11 +274,54 @@ func GizmoBoxGlobal(corner1, corner2, color, width=3, referenceEID = null):
 	GizmoLineGlobal(bl, tl, color, width, referenceEID)
 func GizmoBox(corner1, corner2, color, width=3, _referenceEID = null):
 	GizmoBoxGlobal(corner1, corner2, color, width, mainEID)
+func GizmoRhombusGlobal(corner1, corner2, color, width = 3, referenceEID = null):
+	color = _GizmoSolveColor(color)
+	var hc = 0.5 * (corner1[0] + corner2[0])
+	var vc = 0.5 * (corner1[1] + corner2[1])
+	var l = [corner1[0], vc, 0]
+	var r = [corner2[0], vc, 0]
+	var t = [hc, corner1[1], 0]
+	var b = [hc, corner2[1], 0]
+	
+	GizmoLineGlobal(l, t, color, width, referenceEID)
+	GizmoLineGlobal(t, r, color, width, referenceEID)
+	GizmoLineGlobal(r, b, color, width, referenceEID)
+	GizmoLineGlobal(b, l, color, width, referenceEID)
+func GizmoRhombus(corner1, corner2, color, width = 3):
+	GizmoRhombusGlobal(corner1, corner2, color, width, mainEID)
 
 func GizmoRectGlobal(corner1, corner2, color, referenceEID = null):
+	color = _GizmoSolveColor(color, "Background")
 	gizmosDraw += [{"Type":GIZMO_TYPE.Rect, "A":corner1, "B":corner2, "Color":color, "EID":referenceEID}]
 func GizmoRect(corner1, corner2, color):
 	GizmoRectGlobal(corner1, corner2, color, mainEID)
+
+func GizmoPointGlobal(point, color, width = 3, radius = 2000, referenceEID = null):
+	color = _GizmoSolveColor(color)
+	GizmoLineGlobal([point[0]-radius, point[1], point[2]], [point[0]+radius, point[1], point[2]], color, width, referenceEID)
+	GizmoLineGlobal([point[0], point[1]-radius, point[2]], [point[0], point[1]+radius, point[2]], color, width, referenceEID)
+func GizmoPoint(point, color, width = 3, radius = 2000):
+	GizmoPointGlobal(point, color, width, radius, mainEID)
+
+func GizmoCircleGlobal(point, color, width = 3, radius = 2000, circlePoints = 8, circleOffset = 0.0, referenceEID = null):
+	color = _GizmoSolveColor(color)
+	var p = []
+	var angle = 2*PI/float(circlePoints)
+	for i in range(circlePoints):
+		var a = angle*i + circleOffset
+		p += [[point[0] + int(cos(a) * radius), point[1]+int(sin(a) * radius), point[2]]]
+		if(i >= 1):
+			GizmoLineGlobal(p[i-1], p[i], color, width, referenceEID)
+	GizmoLineGlobal(p[circlePoints-1], p[0], color, width, referenceEID)
+func GizmoCircle(point, color, width = 3, radius = 2000, circlePoints = 8, circleOffset = 0.0):
+	GizmoCircleGlobal(point, color, width, radius, circlePoints, circleOffset, mainEID)
+
+func GizmoCrosshairGlobal(point, color, width = 3, innerRadius = 2000, outerRadius = 3500, circlePoints = 4, circleOffset = 0.0, referenceEID = null):
+	color = _GizmoSolveColor(color)
+	GizmoPointGlobal(point, color, width, innerRadius, referenceEID)
+	GizmoCircleGlobal(point, color, width, outerRadius, circlePoints, circleOffset, referenceEID)
+func GizmoCrosshair(point, color, width = 3, innerRadius = 2000, outerRadius = 3500, circlePoints = 4, circleOffset = 0.0):
+	GizmoCrosshairGlobal(point, color, width, innerRadius, outerRadius, circlePoints, circleOffset, mainEID)
 
 func GizmoFilledBoxGlobal(corner1, corner2, colorBack, colorBorder, width=3, referenceEID = null):
 	GizmoBoxGlobal(corner1, corner2, colorBorder, width, referenceEID)

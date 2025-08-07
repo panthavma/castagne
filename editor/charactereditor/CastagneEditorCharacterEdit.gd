@@ -63,7 +63,13 @@ func EnterMenu(bid):
 	
 	$TopBar/HBoxContainer/TutorialWindow.set_visible(editor.tutorialPath != null)
 	
+	var lastFiles = editor.configData.Get("LocalConfig-Editor-LastOpenedStatePerFile").duplicate()
+	
 	ReloadCodePanel()
+	var filePath = character[character["NbFiles"]-1]["Path"]
+	var lastState = null
+	if(filePath in lastFiles):
+		ChangeCodePanelState(lastFiles[filePath])
 	ReloadEngine()
 	
 	$Popups.hide()
@@ -402,15 +408,27 @@ func ChangeCodePanelState(newState = null, newFile = -1, newLine = 1):
 	
 	
 	$CodePanel/Header/File.set_text(filePath + (" [LOCKED]" if lockedFile else ""))
+	
+	
 	$CodePanel/Header/State.set_text(curState)
 	$CodePanel/Header/CalledScripts.set_text(str(calledStatesList.size())+" Called Scripts")
 	var code = $CodePanel/Code
+	var saveCursorPosition = !changedState
+	var saveCursorPosition_Line = code.cursor_get_line()
+	var saveCursorPosition_Column = code.cursor_get_column()
 	code.set_text(state["Text"])
-	code.cursor_set_line(newLine-1)
-	code.cursor_set_column(0)
+	if(saveCursorPosition):
+		code.cursor_set_line(saveCursorPosition_Line)
+		code.cursor_set_column(saveCursorPosition_Column)
+	else:
+		code.cursor_set_line(newLine-1)
+		code.cursor_set_column(0)
 	code.set_readonly(lockedCode)
 	if(changedState):
 		code.clear_undo_history()
+	var lastFiles = editor.configData.Get("LocalConfig-Editor-LastOpenedStatePerFile")
+	lastFiles[filePath] = curState
+	editor.configData.Set("LocalConfig-Editor-LastOpenedStatePerFile", lastFiles)
 	
 	$CodePanel/Warnings.set_pressed_no_signal(false)
 	$CodePanel/WarningsList.hide()
@@ -1308,34 +1326,69 @@ func UpdateGizmos():
 
 func UpdateDocumentation():
 	documentationPath = null
-	$CodePanel/Documentation/Title.set_text("")
-	$CodePanel/Documentation/Doc.set_text("")
+	var nDocTitle = $CodePanel/Documentation/Title
+	var nDocText = $CodePanel/Documentation/DocZone/Doc
+	var nDocArgsRoot = $CodePanel/Documentation/DocZone/Arguments
+	var nDocArgs = $CodePanel/Documentation/DocZone/Arguments/ArgList
+	nDocTitle.set_text("")
+	nDocText.set_text("")
+	nDocArgsRoot.hide()
 	
 	var lineID = codeWindow.cursor_get_line()
 	var line = codeWindow.get_line(lineID)
 	line = line.strip_edges()
-	if(line.empty() || line.begins_with("#") || !Castagne.Parser._IsLineFunction(line)):
+	if(line.empty() || line.begins_with("#")):
 		return
 	
-	var funcName = Castagne.Parser._ExtractFunction(line)[0]
+	var funcName = line
+	if(Castagne.Parser._IsLineFunction(line)):
+		funcName = Castagne.Parser._ExtractFunction(line)[0]
 	var functions = editor.configData.GetModuleFunctions()
 	
 	if(!functions.has(funcName)):
+		var potentialMatches = []
+		var potentialMatchesFuzzy = []
+		for f in functions.keys():
+			if(f.begins_with(funcName)):
+				potentialMatches += [f]
+			elif(f.find(funcName) >= 0):
+				potentialMatchesFuzzy += [f]
+		potentialMatches.sort()
+		potentialMatchesFuzzy.sort()
+		
+		
+		var t = funcName+" not found. Potential matches ("+str(potentialMatches.size() + potentialMatchesFuzzy.size())+"):\n"
+		for f in potentialMatches:
+			t += f + "\n"
+		if(potentialMatches.size() > 0 and potentialMatchesFuzzy.size() > 0):
+			t += "---\n"
+		for f in potentialMatchesFuzzy:
+			t += f + "\n"
+		nDocText.set_text(t)
 		return
 	
 	var f = functions[funcName]
 	var fDoc = f["Documentation"]
 	
-	var fSignature = fDoc["Name"] + "("
-	var i = 0
-	for a in fDoc["Arguments"]:
-		fSignature += (", " if i > 0 else "") + a
-		i += 1
-	fSignature += ")"
+	var fArgs = fDoc["Arguments"]
+	var fSignature = fDoc["Name"] #+ " : " + str(fArgs.size()) + " argument"
+	while nDocArgs.get_child_count() < fArgs.size():
+		var a = LineEdit.new()
+		a.set_editable(false)
+		nDocArgs.add_child(a)
+	for c in nDocArgs.get_children():
+		c.hide()
+	for i in range(fArgs.size()):
+		var a = nDocArgs.get_child(i)
+		a.set_text(str(i+1)+". "+fArgs[i])
+		a.show()
+	if(fArgs.size() > 0):
+		nDocArgsRoot.show()
+	
 	var fDescription = fDoc["Description"]
 	
-	$CodePanel/Documentation/Title.set_text(fSignature)
-	$CodePanel/Documentation/Doc.set_text(fDescription)
+	nDocTitle.set_text(fSignature)
+	nDocText.set_text(fDescription)
 
 
 
@@ -1403,6 +1456,9 @@ func _physics_process(_delta):
 			engine.LocalStepNoInput()
 		else:
 			engine.LocalStep()
+	if(engine != null):
+		var stateHandle = engine.CreateStateHandle()
+		editorModule.UpdateGizmos(stateHandle)
 
 
 

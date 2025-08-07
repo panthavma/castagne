@@ -460,10 +460,28 @@ margin_top = 24.0
 text = "Docs"
 clip_text = true
 
-[node name="Doc" type="TextEdit" parent="CodePanel/Documentation"]
+[node name="DocZone" type="HBoxContainer" parent="CodePanel/Documentation"]
 anchor_right = 0.8
 anchor_bottom = 1.0
 margin_top = 24.0
+
+[node name="Arguments" type="ScrollContainer" parent="CodePanel/Documentation/DocZone"]
+margin_right = 201.0
+margin_bottom = 184.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.5
+
+[node name="ArgList" type="VBoxContainer" parent="CodePanel/Documentation/DocZone/Arguments"]
+margin_right = 201.0
+margin_bottom = 184.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Doc" type="TextEdit" parent="CodePanel/Documentation/DocZone"]
+margin_left = 205.0
+margin_right = 608.0
+margin_bottom = 184.0
+size_flags_horizontal = 3
 text = "Function description
 
 Or Argument description

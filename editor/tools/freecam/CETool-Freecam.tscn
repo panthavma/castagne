@@ -1,0 +1,209 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://castagne/editor/tools/freecam/CETool-Freecam.gd" type="Script" id=1]
+
+[node name="CETool-Freecam" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="FreecamSmall" type="VBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Override" type="Button" parent="FreecamSmall"]
+margin_right = 1920.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 0, 32 )
+toggle_mode = true
+text = "Override Camera"
+
+[node name="Speed" type="HSlider" parent="FreecamSmall"]
+margin_top = 36.0
+margin_right = 1920.0
+margin_bottom = 52.0
+min_value = 1.0
+max_value = 10000.0
+value = 100.0
+
+[node name="Controls" type="GridContainer" parent="FreecamSmall"]
+margin_top = 56.0
+margin_right = 1920.0
+margin_bottom = 1056.0
+size_flags_vertical = 3
+columns = 9
+
+[node name="VSeparator2" type="VSeparator" parent="FreecamSmall/Controls"]
+margin_right = 210.0
+margin_bottom = 498.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MoveY-" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 214.0
+margin_right = 424.0
+margin_bottom = 498.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Down"
+
+[node name="MoveZ-" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 428.0
+margin_right = 638.0
+margin_bottom = 498.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Forward"
+
+[node name="MoveY+" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 642.0
+margin_right = 852.0
+margin_bottom = 498.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Up"
+
+[node name="VSeparator" type="VSeparator" parent="FreecamSmall/Controls"]
+margin_left = 856.0
+margin_right = 1066.0
+margin_bottom = 498.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="RotaZ+" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 1070.0
+margin_right = 1280.0
+margin_bottom = 498.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Roll Left"
+
+[node name="RotaX+" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 1284.0
+margin_right = 1494.0
+margin_bottom = 498.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Pitch Up"
+
+[node name="RotaZ-" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 1498.0
+margin_right = 1707.0
+margin_bottom = 498.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Roll Right"
+
+[node name="VSeparator3" type="VSeparator" parent="FreecamSmall/Controls"]
+margin_left = 1711.0
+margin_right = 1920.0
+margin_bottom = 498.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VSeparator4" type="VSeparator" parent="FreecamSmall/Controls"]
+margin_top = 502.0
+margin_right = 210.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MoveX-" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 214.0
+margin_top = 502.0
+margin_right = 424.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Left"
+
+[node name="MoveZ+" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 428.0
+margin_top = 502.0
+margin_right = 638.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Back"
+
+[node name="MoveX+" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 642.0
+margin_top = 502.0
+margin_right = 852.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Right"
+
+[node name="VSeparator5" type="VSeparator" parent="FreecamSmall/Controls"]
+margin_left = 856.0
+margin_top = 502.0
+margin_right = 1066.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="RotaY+" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 1070.0
+margin_top = 502.0
+margin_right = 1280.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Yaw Left"
+
+[node name="RotaX-" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 1284.0
+margin_top = 502.0
+margin_right = 1494.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Pitch Down"
+
+[node name="RotaY-" type="Button" parent="FreecamSmall/Controls"]
+margin_left = 1498.0
+margin_top = 502.0
+margin_right = 1707.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Yaw Right"
+
+[node name="VSeparator6" type="VSeparator" parent="FreecamSmall/Controls"]
+margin_left = 1711.0
+margin_top = 502.0
+margin_right = 1920.0
+margin_bottom = 1000.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Params" type="HBoxContainer" parent="FreecamSmall"]
+margin_top = 1060.0
+margin_right = 1920.0
+margin_bottom = 1080.0
+
+[node name="Save" type="Button" parent="FreecamSmall/Params"]
+margin_right = 637.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Save Position"
+
+[node name="Load" type="Button" parent="FreecamSmall/Params"]
+margin_left = 641.0
+margin_right = 1278.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+text = "Recall"
+
+[node name="Orbit" type="Button" parent="FreecamSmall/Params"]
+margin_left = 1282.0
+margin_right = 1920.0
+margin_bottom = 20.0
+size_flags_horizontal = 3
+toggle_mode = true
+text = "Orbit Mode"
+
+[node name="Empty" type="Control" parent="."]
+margin_right = 40.0
+margin_bottom = 40.0
