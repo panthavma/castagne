@@ -120,7 +120,7 @@ func ApplyMaterial(stateHandle):
 	var paletteTexturePath = stateHandle.EntityGet("_SpritePalettePath")
 	paletteTexture = Castagne.Loader.Load(paletteTexturePath)
 	spriteMaterial = ShaderMaterial.new()
-	var spriteShader = (spriteShaderRessourceDefault if is2D else spriteShaderRessourceDefault)
+	var spriteShader = (spriteShaderRessourceDefault if is2D else spriteShader3DRessourceDefault)
 	var shaderPath = stateHandle.ConfigData().Get("SpriteShaderPath")
 	if(!shaderPath.empty()):
 		var shaderCustom = Castagne.Loader.Load(shaderPath)
