@@ -672,7 +672,7 @@ func UpdateGraphics(stateHandle):
 		cameraRoll = lerp_angle(cameraRoll, coRoll, coStrength)
 		cameraExtra = _CameraOverrides_OverrideMergeExtra(cameraExtra, co)
 		
-	if((cameraPos-cameraLookAtPoint).length_squared() <= 2.0*POSITION_SCALE):
+	if(!IS_2D and (cameraPos-cameraLookAtPoint).length_squared() <= 2.0*POSITION_SCALE):
 		cameraLookAtPoint = cameraPos - Vector3(0,0,_CAMERA_DIRECTION_LOOKAT_DISTANCE*POSITION_SCALE)
 	
 	_UpdateCamera(stateHandle, camera, cameraPos, cameraLookAtPoint, cameraFOV, cameraRoll, cameraShakeStrength, cameraExtra)

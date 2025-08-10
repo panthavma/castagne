@@ -1717,7 +1717,7 @@ func SetFacingHV(stateHandle, facingH, facingV, facingType = FACING_TYPE.Physics
 
 func TransformPosEntityToAbsolute(pos, stateHandle, facingType = FACING_TYPE.Physics):
 	var facingHV = GetFacingHV(stateHandle, facingType)
-	var z = (pos[2] if pos.size() >= 2 else 0)
+	var z = (pos[2] if pos.size() >= 3 else 0)
 	return [pos[0] * (1 if facingHV[0] > 0 else -1), pos[1], z]
 
 func TransformPosEntityToWorld(pos, stateHandle, facingType = FACING_TYPE.Physics):
@@ -1731,14 +1731,14 @@ func TransformPosEntityAbsoluteToWorld(absolutePos, stateHandle, facingType = FA
 		x = 0
 	if(y == null):
 		y = 0
-	var z = (absolutePos[2] if absolutePos.size() >= 2 else 0)
+	var z = (absolutePos[2] if absolutePos.size() >= 3 else 0)
 	
 	return [x + absolutePos[0], y + absolutePos[1], z]
 
 func TransformWorldPosToEntityAbsolute(pos, stateHandle):
 	var x = stateHandle.EntityGet("_PositionX")
 	var y = stateHandle.EntityGet("_PositionY")
-	var z = (pos[2] if pos.size() >= 2 else 0)
+	var z = (pos[2] if pos.size() >= 3 else 0)
 	return [pos[0] - x, pos[1] - y, z]
 
 func TransformWorldPosToEntity(pos, stateHandle, facingType = FACING_TYPE.Physics):
@@ -1747,6 +1747,6 @@ func TransformWorldPosToEntity(pos, stateHandle, facingType = FACING_TYPE.Physic
 
 func TransformPosEntityAbsoluteToEntity(absolutePos, stateHandle, facingType = FACING_TYPE.Physics):
 	var facingHV = GetFacingHV(stateHandle, facingType)
-	var z = (absolutePos[2] if absolutePos.size() >= 2 else 0)
+	var z = (absolutePos[2] if absolutePos.size() >= 3 else 0)
 	return [absolutePos[0] * (1 if facingHV[0] > 0 else -1), absolutePos[1], z]
 

@@ -1589,6 +1589,16 @@ func _ParseBlockState(fileID):
 				
 				if(branch["Letter"] == "S"):
 					# Translate the S blocks to F branches
+					
+					if(branch["S_AttackAutoDuration"]):
+						if(branch["S_Modulo"] != 0):
+							_Error("S Branch with modulo can't use an SATK helper!")
+							line = _GetNextLine(fileID)
+							continue
+						if(branch["S_Sum"] <= 0):
+							_Error("S Branch with an S+ ender can't use an SATK helper!")
+							line = _GetNextLine(fileID)
+							continue
 					# Check for undefined modulo
 					if(branch["S_Modulo"] == -1):
 						if(branch["S_Sum"] <= 0):
@@ -1597,15 +1607,21 @@ func _ParseBlockState(fileID):
 							continue
 						branch["S_Modulo"] = branch["S_Sum"]
 					
+					if(branch["S_AttackAutoDuration"]):
+						stateActions["Action"] += [[_configData.GetModuleFunctions()["AttackDuration"]["ActionFunc"], [branch["S_Sum"]]]]
+					
 					var nbSBlocks = len(branch["S_Blocks_Start"])
 					for sbID in range(nbSBlocks):
 						var start = branch["S_Blocks_Start"][sbID]
 						var end = branch["S_Blocks_End"][sbID]
 						var regularActions = branch["S_"+str(sbID)]
-						var starActions = branch["S_"+str(sbID)+"*"]
+						var startActions = branch["S_"+str(sbID)+"*"]
+						var endActions = branch["S_"+str(sbID)+"**"]
+						
 						
 						var fLetterArgsRegular = str(start)
 						var fLetterArgsStar = str(start)
+						var fLetterArgsEnd = str(end)
 						if(typeof(end) == TYPE_STRING): # it's "+"
 							fLetterArgsRegular += "+"
 						else:
@@ -1613,11 +1629,12 @@ func _ParseBlockState(fileID):
 						if(branch["S_Modulo"] > 0):
 							fLetterArgsRegular += "%"+str(branch["S_Modulo"])
 							fLetterArgsStar += "%"+str(branch["S_Modulo"])
+							fLetterArgsEnd += "%"+str(branch["S_Modulo"])
 						
 						for p in PHASES:
 							# Star before regular
-							if(!starActions[p].empty()):
-								var argsStar = [starActions[p], [], fLetterArgsStar]
+							if(!startActions[p].empty()):
+								var argsStar = [startActions[p], [], fLetterArgsStar]
 								var dStar = [_branchFunctions["F"], argsStar]
 								
 								if(currentSubblock == null):
@@ -1632,6 +1649,14 @@ func _ParseBlockState(fileID):
 									stateActions[p] += [dReg]
 								else:
 									currentSubblock[currentSubblockList][p] += [dReg]
+							if(!endActions[p].empty()):
+								var argsEnd = [endActions[p], [], fLetterArgsEnd]
+								var dEnd = [_branchFunctions["F"], argsEnd]
+								
+								if(currentSubblock == null):
+									stateActions[p] += [dEnd]
+								else:
+									currentSubblock[currentSubblockList][p] += [dEnd]
 				else:
 					for p in PHASES:
 						var phaseToGet = p
@@ -1667,11 +1692,14 @@ func _ParseBlockState(fileID):
 					_Error("'then' found without an S branch!")
 					line = _GetNextLine(fileID)
 					continue
-				if(!currentSubblockList.ends_with("*")):
-					_Error("'then' found in a non-'*' S branch!")
+				if(currentSubblockList.ends_with("**")):
+					_Error("'then' found in the end section of an S branch! Did you forget a '*' before?")
 					line = _GetNextLine(fileID)
 					continue
-				currentSubblockList = currentSubblockList.left(currentSubblockList.length() - 1)
+				if(currentSubblockList.ends_with("*")):
+					currentSubblockList = currentSubblockList.left(currentSubblockList.length() - 1)
+				else:
+					currentSubblockList = currentSubblockList + "**"
 			elif(line.begins_with("S") and !line.ends_with(":")):
 				if(currentSubblock == null or currentSubblock["Letter"] != "S"):
 					_Error("S followup found without an S branch!")
@@ -1686,9 +1714,11 @@ func _ParseBlockState(fileID):
 				currentSubblockList = "S_"+str(len(currentSubblock["S_Blocks_Start"]))
 				currentSubblock[currentSubblockList] = {}
 				currentSubblock[currentSubblockList+"*"] = {}
+				currentSubblock[currentSubblockList+"**"] = {}
 				for p in PHASES:
 					currentSubblock[currentSubblockList][p] = []
 					currentSubblock[currentSubblockList+"*"][p] = []
+					currentSubblock[currentSubblockList+"**"][p] = []
 				
 				if(letterArgs.ends_with("*")):
 					letterArgs = letterArgs.left(letterArgs.length()-1)
@@ -1736,15 +1766,21 @@ func _ParseBlockState(fileID):
 						_Error("S Branches can't exist from within another branch.")
 					
 					currentSubblock["S_Modulo"] = 0
+					currentSubblock["S_AttackAutoDuration"] = false
 					currentSubblock["S_Blocks_Start"] = [1]
 					currentSubblock["S_Blocks_End"] = []
 					currentSubblockList = "S_0"
 					currentSubblock["S_0"] = {}
 					currentSubblock["S_0*"] = {}
+					currentSubblock["S_0**"] = {}
 					currentSubblock["S_Sum"] = 0
 					for p in PHASES:
 						currentSubblock["S_0"][p] = []
 						currentSubblock["S_0*"][p] = []
+						currentSubblock["S_0**"][p] = []
+					if(letterArgs.begins_with("ATK")):
+						letterArgs = letterArgs.right(3)
+						currentSubblock["S_AttackAutoDuration"] = true
 					var moduloSepID = letterArgs.find("%")
 					if(moduloSepID > 0):
 						var modulo = letterArgs.right(moduloSepID+1)
