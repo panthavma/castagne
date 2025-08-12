@@ -83,11 +83,14 @@ var _errors
 
 var _configData
 
-var PHASES = ["Init", "Action", "Reaction", "Freeze", "Manual", "AI", "Subentity", "Halt"]
+var PHASES_WITH_EVENTS
+var PHASES_BASE = ["Init", "Action", "Reaction", "Freeze", "Manual", "AI", "Subentity", "Halt"]
+var PHASES_EVENTS
 
 var _moduleVariables
-var _letters = ["I", "F", "L", "V", "P", "S"]
+var _letters = ["I", "F", "L", "V", "P", "S", "E"]
 var _branchFunctions
+var _caspEvents
 func _StartParsing(filePath, configData, resetErrors = true):
 	_configData = configData
 	_currentLines = []
@@ -111,14 +114,22 @@ func _StartParsing(filePath, configData, resetErrors = true):
 		ResetErrors()
 
 	# Helpers
+	_caspEvents = _configData.GetModuleCASPEvents()
 	_moduleVariables = {}
 	for m in _configData.GetModules():
 		m.CopyVariablesEntityParsing(_moduleVariables)
+	
+	PHASES_WITH_EVENTS = PHASES_BASE.duplicate()
+	PHASES_EVENTS = []
+	for e in _caspEvents:
+		var eventPhaseName = "Event_"+e
+		PHASES_WITH_EVENTS.push_back(eventPhaseName)
+		PHASES_EVENTS.push_back(eventPhaseName)
 
 	_branchFunctions = {}
 	for l in _letters:
 		_branchFunctions[l] = funcref(self, "Instruction"+l)
-
+	
 	_OpenFile(filePath)
 
 func _AbortParsing():
@@ -281,7 +292,7 @@ func _ParseFullFile(stopAfterSpecblocks = false):
 	profiling.push_back(OS.get_ticks_usec())
 	_Log(">>> Optimizing...")
 	_optimizedStates = {}
-	for p in PHASES:
+	for p in PHASES_WITH_EVENTS:
 		_optimizedStates[p] = []
 	_optimizedStates_CallAfter = {}
 	_optimizeActionList_parentWarnings = []
@@ -743,13 +754,17 @@ func _OptimizeActionList_GetPhasesToOptimize(stateName):
 	var subName = _ExtractParentFromPureStateName(_GetPureStateNameFromStateName(stateName))[0]
 	var entity = _GetEntityNameFromStateName(stateName)
 	
+	var phasesToOptimize = ["Action", "Reaction", "Freeze", "AI", "Halt"]
+	
 	if(entity != null):
-		return ["Init", "Subentity", "Freeze", "AI", "Halt"]
-	if(subName == "Init" or subName.begins_with("Init-")):
-		return ["Init", "AI"]
-	if(subName.begins_with("CCB_")):
-		return ["Manual"]
-	return ["Action", "Reaction", "Freeze", "AI", "Halt"]
+		phasesToOptimize = ["Init", "Subentity", "Freeze", "AI", "Halt"]
+	elif(subName == "Init" or subName.begins_with("Init-")):
+		phasesToOptimize = ["Init", "AI"]
+	elif(subName.begins_with("CCB_")):
+		phasesToOptimize = ["Manual"]
+	phasesToOptimize.append_array(PHASES_EVENTS)
+	
+	return phasesToOptimize
 	#return PHASES
 
 func _RuntimeStateTagging(stateName):
@@ -767,7 +782,7 @@ func _RuntimeStateTagging(stateName):
 	}
 	var flags = []
 
-	for p in PHASES:
+	for p in PHASES_WITH_EVENTS:
 		var actionList = state[p]
 		var newFlags = _ExtractFlagsFromActionList(actionList, metadata)
 		for f in newFlags:
@@ -1502,13 +1517,14 @@ func _ParseBlockState(fileID):
 		"Tag": null, "TagLocal":false,
 		"Entity":entity,
 		"Variables":{},
+		"Events":{},
 	}
 
 
 	var line = _GetNextLine(fileID)
 
 	var stateActions = {}
-	for p in PHASES:
+	for p in PHASES_WITH_EVENTS:
 		stateActions[p] = []
 	var reserveSubblocks = []
 	var reserveSubblocksList = []
@@ -1549,8 +1565,8 @@ func _ParseBlockState(fileID):
 
 						if(action != null):
 							var d = [action["Func"], action["Args"]]
-							for p in PHASES:
-								if(p in action["Flags"]):
+							for p in PHASES_WITH_EVENTS:
+								if(p in action["Flags"] or (p.begins_with("Event_") and "Events" in action["Flags"])):
 									if(currentSubblock == null):
 										stateActions[p] += [d]
 									else:
@@ -1631,7 +1647,7 @@ func _ParseBlockState(fileID):
 							fLetterArgsStar += "%"+str(branch["S_Modulo"])
 							fLetterArgsEnd += "%"+str(branch["S_Modulo"])
 						
-						for p in PHASES:
+						for p in PHASES_WITH_EVENTS:
 							# Star before regular
 							if(!startActions[p].empty()):
 								var argsStar = [startActions[p], [], fLetterArgsStar]
@@ -1657,13 +1673,36 @@ func _ParseBlockState(fileID):
 									stateActions[p] += [dEnd]
 								else:
 									currentSubblock[currentSubblockList][p] += [dEnd]
-				else:
-					for p in PHASES:
-						var phaseToGet = p
-						if(branch["Letter"] == "P"):
-							phaseToGet = "Manual"
+				elif(branch["Letter"] == "E"):
+					var actions = branch["True"]["Manual"]
+					if(actions.empty()):
+						continue
+					
+					for eventName in branch["LetterArgs"].split(","):
+						var eventPhaseName = "Event_"+eventName
 						
-						var args = [branch["True"][phaseToGet], branch["False"][phaseToGet], branch["LetterArgs"]]
+						if(eventPhaseName in stateActions):
+							stateActions[eventPhaseName].append_array(actions)
+						else:
+							_Error("Event "+str(eventName)+" doesn't exist!")
+				elif(branch["Letter"] == "P"):
+					var phaseToGet = "Manual"
+					var actionsInPhase = branch["True"][phaseToGet]
+					var actionsOutPhase = branch["False"][phaseToGet]
+					
+					var inPhases = branch["LetterArgs"].split(",")
+					
+					for p in PHASES_BASE:
+						var a = (actionsInPhase if (p in inPhases) else actionsOutPhase)
+						if(currentSubblock == null):
+							stateActions[p].append_array(a)
+						else:
+							currentSubblock[currentSubblockList][p].append_array(a)
+				else:
+					for p in PHASES_BASE:
+						var phaseToGet = p
+						
+						var args = [branch["True"][p], branch["False"][p], branch["LetterArgs"]]
 						var d = [branch["Func"], args]
 						
 						if(args[0].empty() and args[1].empty()):
@@ -1680,6 +1719,10 @@ func _ParseBlockState(fileID):
 					continue
 				if(currentSubblock["Letter"] == "S"):
 					_Error("Else found in an S branch!")
+					line = _GetNextLine(fileID)
+					continue
+				if(currentSubblock["Letter"] == "E"):
+					_Error("Else found in an E branch!")
 					line = _GetNextLine(fileID)
 					continue
 				if(currentSubblockList == "False"):
@@ -1715,7 +1758,7 @@ func _ParseBlockState(fileID):
 				currentSubblock[currentSubblockList] = {}
 				currentSubblock[currentSubblockList+"*"] = {}
 				currentSubblock[currentSubblockList+"**"] = {}
-				for p in PHASES:
+				for p in PHASES_WITH_EVENTS:
 					currentSubblock[currentSubblockList][p] = []
 					currentSubblock[currentSubblockList+"*"][p] = []
 					currentSubblock[currentSubblockList+"**"][p] = []
@@ -1756,9 +1799,13 @@ func _ParseBlockState(fileID):
 					"True": {}, "False":{},
 					"Flags":["Init", "Action", "Reaction", "Freeze", "Manual"],
 				}
-				for p in PHASES:
+				for p in PHASES_WITH_EVENTS:
 					currentSubblock["True"][p] = []
 					currentSubblock["False"][p] = []
+				
+				if(letter == "E"):
+					if(reserveSubblocks.size() > 1):
+						_Error("E Branches can't exist from within another branch.")
 				
 				if(letter == "S"):
 					# S Branch is static only, and can't exist from another branch
@@ -1774,7 +1821,7 @@ func _ParseBlockState(fileID):
 					currentSubblock["S_0*"] = {}
 					currentSubblock["S_0**"] = {}
 					currentSubblock["S_Sum"] = 0
-					for p in PHASES:
+					for p in PHASES_WITH_EVENTS:
 						currentSubblock["S_0"][p] = []
 						currentSubblock["S_0*"][p] = []
 						currentSubblock["S_0**"][p] = []
@@ -1814,7 +1861,7 @@ func _ParseBlockState(fileID):
 
 		if(_aborting):
 			return null
-	for p in PHASES:
+	for p in PHASES_WITH_EVENTS:
 		_currentState[p] = stateActions[p]
 	return _currentState
 

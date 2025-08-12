@@ -554,17 +554,21 @@ _Category(Animations/Movement/Basic)
 _Category(Internals/Physics)
 _Helper()
 
-Set(CurrentFrictionGround, MOVE_Blockstun_Friction_Ground)
-Set(CurrentFrictionAir, MOVE_Blockstun_Friction_Air)
-Set(CurrentGravity, MOVE_Blockstun_Gravity)
+EOnBlocking:
+	Set(CurrentFrictionGround, MOVE_Blockstun_Friction_Ground)
+	Set(CurrentFrictionAir, MOVE_Blockstun_Friction_Air)
+	Set(CurrentGravity, MOVE_Blockstun_Gravity)
+endif
 :ApplyPhysics-Hitstun:
 ## Sets physics variables (gravity, friction, etc) to their hitstun state. These can be overriden by the attacks recieved.
 _Category(Internals/Physics)
 _Helper()
 
-Set(CurrentFrictionGround, MOVE_Hitstun_Friction_Ground)
-Set(CurrentFrictionAir, MOVE_Hitstun_Friction_Air)
-Set(CurrentGravity, MOVE_Hitstun_Gravity)
+EOnGetHit:
+	Set(CurrentFrictionGround, MOVE_Hitstun_Friction_Ground)
+	Set(CurrentFrictionAir, MOVE_Hitstun_Friction_Air)
+	Set(CurrentGravity, MOVE_Hitstun_Gravity)
+endif
 :ApplyPhysics-Regular:
 ## Resets physics variables (gravity, friction, etc) to their regular state. These can be overriden for single moves, and will reset when in a neutral state on the ground, or exiting hitstun/blockstun states.
 _Category(Internals/Physics)
@@ -594,18 +598,103 @@ LCanJumpCancel:
 		Call(Airborne_StartAirjumpHelper)
 	endif
 endif
-:AttackOverrides-OnTouch-Hook:
+:AttackReactEvents-Attacker:
+CallParent()
+Call(AttackReactEvents-Attacker-Physics)
+:AttackReactEvents-Attacker-Physics:
+## Prepares hit data from the attacker side, mostly momentum
+_Category(Internals/Attacks/React)
+_Helper()
+
+EOnAttackHit,OnAttackBlocked:
+	# Transform momentum to absolute
+	AttackInflictedGetParam(MomentumX, CAST_REG_A)
+	AttackInflictedGetParam(MomentumY, CAST_REG_B)
+	AttackInflictedGetParam(MomentumZ, CAST_REG_C)
+	TransformLocalToAbsolute(CAST_REG_A, CAST_REG_B, CAST_REG_C)
+
+	# Inherit momentum if needed
+	def ATTACK_InheritMomentumBase int() = 1000
+	AttackInflictedGetParam(InheritMomentumX, CAST_REG_D)
+	Mul(CAST_REG_D, _MomentumX)
+	Div(CAST_REG_D, ATTACK_InheritMomentumBase)
+	Add(CAST_REG_A, CAST_REG_D)
+	AttackInflictedGetParam(InheritMomentumY, CAST_REG_D)
+	Mul(CAST_REG_D, _MomentumY)
+	Div(CAST_REG_D, ATTACK_InheritMomentumBase)
+	Add(CAST_REG_B, CAST_REG_D)
+	AttackInflictedGetParam(InheritMomentumZ, CAST_REG_D)
+	Mul(CAST_REG_D, _MomentumZ)
+	Div(CAST_REG_D, ATTACK_InheritMomentumBase)
+	Add(CAST_REG_C, CAST_REG_D)
+
+	# Set it back
+	AttackInflictedSetParam(MomentumX, CAST_REG_A)
+	AttackInflictedSetParam(MomentumY, CAST_REG_B)
+	AttackInflictedSetParam(MomentumZ, CAST_REG_C)
+endif
+:AttackReactEvents-Defender:
+CallParent()
+Call(AttackReactEvents-Defender-Physics)
+:AttackReactEvents-Defender-Physics:
+## Helper, handles physics after an attack including facing change
+_Category(Internals/Attacks/React)
+_Helper()
+
+
+EOnGetHit,OnBlocking:
+	# Or improve the facing and position techniques, might be better
+	FaceTowardsTarget()
+	AttackRecievedGetParam(MomentumX, CAST_REG_A)
+	AttackRecievedGetParam(MomentumY, CAST_REG_B)
+	SetMomentumAbsolute(CAST_REG_A, CAST_REG_B)
+	#SetMomentum(_AttackMomentumX, _AttackMomentumY)
+endif
+
+EOnGetHit:
+	## TODO: Float
+	## TODO: Progressive gravity
+	## TODO: Knockdown
+
+	## TODO: Momentum
+
+	## TODO: Landing
+	## TODO: Force Landing
+
+	## TODO: Force Crouch
+
+	Call(ApplyPhysics-Hitstun)
+
+	# Managed by hitstun ?
+	#LAF_ForceLanding:
+	#	FlagNext(PF_Landing)
+	#endif
+
+	LCrouching:
+		FlagNext(Crouching)
+	endif
+
+
+	LAF_Float:
+		AttackRecievedGetParam(FloatGravity, CurrentGravity)
+		#Set(CurrentGravity, _HitstunGravityFloat)
+	endif
+endif
+
+
+
+EOnBlocking:
+	Call(ApplyPhysics-Blockstun)
+endif
+:AttackReactEvents-Overrides:
 CallParent()
 
-Call(AttackOverrides-OnTouch-Physics)
-:AttackOverrides-OnTouch-Physics:
-## Activates physics-based overrides
-_Category(Internals/Attacks/React/Overrides)
-_Helper()
-LAirborne:
-	AttackRecievedOverride(Airborne)
-else
-	AttackRecievedOverride(Grounded)
+EDefenderAttackOverrides:
+	LAirborne:
+		AttackRecievedOverride(Airborne)
+	else
+		AttackRecievedOverride(Grounded)
+	endif
 endif
 :AttackState:
 CallParent()
@@ -1344,105 +1433,12 @@ LPF_Grounded:
 	Call(ApplyPhysics-Regular)
 	Set(MOVE_AirActionsRemaining, MOVE_AirActionsMax)
 endif
-:OnAttackTouched:
-CallParent()
-Call(OnAttackTouched-Physics)
-:OnAttackTouched-Physics:
-## Prepares hit data from the attacker side, mostly momentum
-_Category(Internals/Attacks/React/2_Attacker)
-_Helper()
-
-
-# Transform momentum to absolute
-AttackInflictedGetParam(MomentumX, CAST_REG_A)
-AttackInflictedGetParam(MomentumY, CAST_REG_B)
-AttackInflictedGetParam(MomentumZ, CAST_REG_C)
-TransformLocalToAbsolute(CAST_REG_A, CAST_REG_B, CAST_REG_C)
-
-# Inherit momentum if needed
-def ATTACK_InheritMomentumBase int() = 1000
-AttackInflictedGetParam(InheritMomentumX, CAST_REG_D)
-Mul(CAST_REG_D, _MomentumX)
-Div(CAST_REG_D, ATTACK_InheritMomentumBase)
-Add(CAST_REG_A, CAST_REG_D)
-AttackInflictedGetParam(InheritMomentumY, CAST_REG_D)
-Mul(CAST_REG_D, _MomentumY)
-Div(CAST_REG_D, ATTACK_InheritMomentumBase)
-Add(CAST_REG_B, CAST_REG_D)
-AttackInflictedGetParam(InheritMomentumZ, CAST_REG_D)
-Mul(CAST_REG_D, _MomentumZ)
-Div(CAST_REG_D, ATTACK_InheritMomentumBase)
-Add(CAST_REG_C, CAST_REG_D)
-
-# Set it back
-AttackInflictedSetParam(MomentumX, CAST_REG_A)
-AttackInflictedSetParam(MomentumY, CAST_REG_B)
-AttackInflictedSetParam(MomentumZ, CAST_REG_C)
-:OnBlock-Hook:
-CallParent()
-
-Call(OnBlock-Physics)
-:OnBlock-Physics:
-## Handles physics on block
-_Category(Internals/Attacks/React/3_Defender/Block)
-_Helper()
-
-Call(ApplyPhysics-Blockstun)
-
-Call(OnTouch-MomentumFacing)
-:OnHit-Hook:
-CallParent()
-Call(OnHit-Physics)
-:OnHit-Physics:
-## Handles physics on hit
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-
-## TODO: Float
-## TODO: Progressive gravity
-## TODO: Knockdown
-
-## TODO: Momentum
-
-## TODO: Landing
-## TODO: Force Landing
-
-## TODO: Force Crouch
-
-Call(ApplyPhysics-Hitstun)
-
-# Managed by hitstun ?
-#LAF_ForceLanding:
-#	FlagNext(PF_Landing)
-#endif
-
-LCrouching:
-	FlagNext(Crouching)
-endif
-
-Call(OnTouch-MomentumFacing)
-
-
-LAF_Float:
-	AttackRecievedGetParam(FloatGravity, CurrentGravity)
-	#Set(CurrentGravity, _HitstunGravityFloat)
-endif
 :OnLanding:
 ## Callback function that happens whenever the characters lands on the ground.
 _Category(Internals/Physics)
 _Helper()
 
 Call(Custom-OnLanding)
-:OnTouch-MomentumFacing:
-## Helper, handles the momentum and facing change
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-# Or improve the facing and position techniques, might be better
-FaceTowardsTarget()
-AttackRecievedGetParam(MomentumX, CAST_REG_A)
-AttackRecievedGetParam(MomentumY, CAST_REG_B)
-SetMomentumAbsolute(CAST_REG_A, CAST_REG_B)
-#SetMomentum(_AttackMomentumX, _AttackMomentumY)
 :PhysicsAfter-CollidersManagement:
 ## Physics helper to add colliders (hurtbox and colbox) automatically, so you don't get weird behavior or invincible moves by accident. Can be configured through constants.
 ##
@@ -2046,9 +2042,10 @@ Move(MOVE_Walk_SpeedF)
 ## Inherits default proration from the special attack type
 AttackProrationHitstun(ATTACK_Special_ProrationHitstun, ATTACK_Special_ProrationHitstunStarter)
 AttackProrationDamage(ATTACK_Special_ProrationDamage, ATTACK_Special_ProrationDamageStarter)
+:Base---SEAttackReactEvents-Attacker:
+CallParent()
+
+CallFromMain(AttackReactEvents-Attacker-Physics)
 :Base---SECommon:
 CallParent()
 Call(SEAttackDefaults)
-:Base---SEOnAttackTouched:
-#CallParent()
-CallFromMain(OnAttackTouched-Physics)

@@ -352,6 +352,24 @@ func ExecuteCASPCallback(callbackName, gameStateHandle, customTarget = null, cus
 		gameStateHandle.SetPhase(previousPhase)
 
 
+func ExecuteCASPEvent(eventName, gameStateHandle, customTarget = null):
+	var fighterScript = GetCurrentFighterScriptOfEntity(gameStateHandle)
+	if(fighterScript == null):
+		Castagne.Error("ExecuteCASPEvent: No fighter script!")
+		return
+	
+	var previousTarget = gameStateHandle.GetTargetEntity() if customTarget != null else null
+	var previousPhase = gameStateHandle.GetPhase()
+	if(customTarget != null):
+		gameStateHandle.SetTargetEntity(customTarget)
+	
+	gameStateHandle.SetPhase("Event_"+eventName)
+	ExecuteFighterScript(fighterScript, gameStateHandle)
+	gameStateHandle.SetPhase(previousPhase)
+	
+	if(customTarget != null):
+		gameStateHandle.SetTargetEntity(previousTarget)
+
 
 func UpdateGraphics(memory):
 	_castProfilingGraphicsStart = OS.get_ticks_usec()

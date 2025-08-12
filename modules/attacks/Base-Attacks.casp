@@ -373,65 +373,6 @@ _Overridable(If you want to manually add or remove attacks)
 
 AttackAddRegisteredCancels(Throw, ATTACK_CancelFlags)
 AttackAddRegisteredCancels(AirThrow, ATTACK_CancelFlags)
-:AttackOverrides-OnBlock:
-## Activates attack overrides on block
-_Category(Internals/Attacks/React/Overrides)
-_Helper()
-
-AttackRecievedOverride(Block)
-Call(AttackOverrides-OnBlock-Hook)
-Call(Custom-AttackOverrides-OnBlock)
-:AttackOverrides-OnBlock-Hook:
-## Internal hook point to add attack overrides
-_Category(Internals/Attacks/React/Overrides)
-_Helper()
-_Overridable()
-:AttackOverrides-OnHit:
-## Activates attack overrides on hit
-_Category(Internals/Attacks/React/Overrides)
-_Helper()
-
-AttackRecievedOverride(Hit)
-Call(AttackOverrides-OnHit-FirstHit)
-Call(AttackOverrides-OnHit-Hook)
-Call(Custom-AttackOverrides-OnHit)
-:AttackOverrides-OnHit-FirstHit:
-## Handles overrides related to the first hit: FirstHit, CounterHit, Punish...
-_Category(Internals/Attacks/React/Overrides)
-_Helper()
-
-## TODO
-LHitstun:
-else
-	AttackRecievedFlag(FirstHit)
-	AttackRecievedOverride(FirstHit)
-	
-	LAttackStartup:
-		AttackRecievedFlag(CounterHit)
-		AttackRecievedOverride(CounterHit)
-	endif
-	LAttackWasActive:
-		AttackRecievedFlag(Punish)
-		AttackRecievedOverride(Punish)
-	endif
-endif
-:AttackOverrides-OnHit-Hook:
-## Internal hook point to add attack overrides
-_Category(Internals/Attacks/React/Overrides)
-_Helper()
-_Overridable()
-:AttackOverrides-OnTouch:
-## Activates attack overrides on hit and block
-_Category(Internals/Attacks/React/Overrides)
-_Helper()
-
-Call(AttackOverrides-OnTouch-Hook)
-Call(Custom-AttackOverrides-OnTouch)
-:AttackOverrides-OnTouch-Hook:
-## Internal hook point to add attack overrides
-_Category(Internals/Attacks/React/Overrides)
-_Helper()
-_Overridable()
 :AttackPrefixSetup:
 ## Internal helper that handles switching between airborne and grounded attacks.
 _Category(Internals/Attacks/Helpers)
@@ -441,6 +382,195 @@ LAirborne:
 	AttackCancelPrefix(j)
 else
 	AttackCancelPrefix()
+endif
+:AttackReactEvents:
+## Helper state that will call the other helper states related to attack events
+_Category(Internals/Attacks/React)
+_Helper()
+
+Call(AttackReactEvents-Overrides)
+Call(AttackReactEvents-Attacker)
+Call(AttackReactEvents-Defender)
+:AttackReactEvents-Attacker:
+## Helper state that reacts to attacking
+_Category(Internals/Attacks/React)
+_Helper()
+_Overridable(To add behavior when an attack connects from the attacker side. Don't forget to use E branches)
+
+Call(AttackReactEvents-Attacker-Stuns)
+:AttackReactEvents-Attacker-Stuns:
+## Handles hitstop for the attacker
+_Category(Internals/Attacks/React)
+_Helper()
+
+EOnAttackHit:
+	AttackInflictedGetParam(Hitstop, CAST_REG_A)
+	FreezeFrames(CAST_REG_A)
+endif
+EOnAttackBlocked:
+	AttackInflictedGetParam(Blockstop, CAST_REG_A)
+	FreezeFrames(CAST_REG_A)
+endif
+:AttackReactEvents-Defender:
+## Helper state that reacts to getting attacked
+_Category(Internals/Attacks/React)
+_Helper()
+_Overridable(To add behavior when an attack connects from the defender side. Don't forget to use E branches)
+
+LAF_FirstHit:
+	Call(AttackReactEvents-Defender-FirstHit)
+endif
+
+Call(AttackReactEvents-Defender-Damage)
+Call(AttackReactEvents-Defender-Stun)
+Call(AttackReactEvents-Defender-Proration)
+Call(AttackReactEvents-Defender-Transition)
+:AttackReactEvents-Defender-Damage:
+## Handles damage computations
+_Category(Internals/Attacks/React)
+_Helper()
+
+EOnGetHit:
+	AttackRecievedGetParam(Damage, CAST_REG_A)
+
+	LAF_IgnoreProration:
+	else
+		LAF_IgnoreProrationDamage:
+		else
+			Mul(CAST_REG_A, ATTACK_ProrationDamage)
+			Div(CAST_REG_A, ATTACK_Proration_Scale)
+		endif
+	endif
+
+	AttackRecievedGetParam(MinDamage, CAST_REG_B)
+	Max(CAST_REG_A, CAST_REG_B)
+
+	Sub(HP, CAST_REG_A)
+endif
+
+## CASTDO Chip damage
+:AttackReactEvents-Defender-FirstHit:
+## Helper called on the first hit of a combo
+_Category(Internals/Attacks/React)
+_Helper()
+
+EOnGetHit:
+	Set(ATTACK_ComboCounter, 0)
+	Set(ATTACK_ProrationDamage, 1000)
+	Set(ATTACK_ProrationHitstun, 1000)
+	#Set(ATTACK_GroundbouncesRemaining, ATTACK_GroundbouncesMaxPerCombo)
+endif
+:AttackReactEvents-Defender-Misc:
+## Handles miscellaneous effects on hit, like combo count
+_Category(Internals/Attacks/React)
+_Helper()
+
+EOnGetHit:
+	LAF_ComboCounterStatic:
+	else
+		Add(ATTACK_ComboCounter, 1)
+	endif
+endif
+:AttackReactEvents-Defender-Proration:
+## Handles increasing proration when recieving an attack
+_Category(Internals/Attacks/React)
+_Helper()
+
+EOnGetHit:
+	LAF_IgnoreProration:
+	else
+		LAF_IgnoreProrationHitstun:
+		else
+			AttackRecievedGetParam(ProrationHitstun, CAST_REG_A)
+			Mul(ATTACK_ProrationHitstun, CAST_REG_A)
+			Div(ATTACK_ProrationHitstun, ATTACK_Proration_Scale)
+		endif
+		
+		LAF_IgnoreProrationDamage:
+		else
+			AttackRecievedGetParam(ProrationDamage, CAST_REG_A)
+			Mul(ATTACK_ProrationDamage, CAST_REG_A)
+			Div(ATTACK_ProrationDamage, ATTACK_Proration_Scale)
+		endif
+	endif
+endif
+:AttackReactEvents-Defender-Stun:
+## Handles setting the stun correctly
+_Category(Internals/Attacks/React)
+_Helper()
+
+
+EOnGetHit:
+	AttackRecievedGetParam(Hitstun, CAST_REG_A)
+
+	LAF_IgnoreProration:
+	else
+		LAF_IgnoreProrationHitstun:
+		else
+			Mul(CAST_REG_A, ATTACK_ProrationHitstun)
+			Div(CAST_REG_A, ATTACK_Proration_Scale)
+		endif
+	endif
+
+	AttackRecievedGetParam(MinHitstun, CAST_REG_B)
+	Max(CAST_REG_A, CAST_REG_B)
+
+	Set(ATTACK_HitstunDuration, CAST_REG_A)
+
+	AttackRecievedGetParam(Hitstop, CAST_REG_A)
+	FreezeFrames(CAST_REG_A)
+endif
+
+EOnBlocking:
+	#F_BlockstunDuration
+	AttackRecievedGetParam(Blockstun, ATTACK_BlockstunDuration)
+
+	## TODO new freeze
+	AttackRecievedGetParam(Blockstop, CAST_REG_A)
+	FreezeFrames(CAST_REG_A)
+endif
+:AttackReactEvents-Defender-Transition:
+## Handles going to the hitstun state or a custom one
+## TODO
+_Category(Internals/Attacks/React)
+_Helper()
+
+EOnGetHit:
+	AttackRecievedGetParam(TransitionTo, CAST_REG_A_STR)
+	Transition(CAST_REG_A_STR, ATK_HITSTUN_PRIORITY, 1)
+endif
+
+EOnBlocking:
+	Transition(Blockstun, ATK_BLOCKSTUN_PRIORITY, 1)
+endif
+:AttackReactEvents-Overrides:
+## Helper state that will activate attack overrides
+_Category(Internals/Attacks/React)
+_Helper()
+_Overridable(To add behavior on an attack connecting -mainly overrides. Don't forget to use E branches)
+
+EDefenderAttackOverrides:
+	LAF_Blocked:
+		AttackRecievedOverride(Block)
+	else
+		AttackRecievedOverride(Hit)
+		
+		LHitstun:
+		else
+			AttackRecievedFlag(FirstHit)
+			AttackRecievedOverride(FirstHit)
+			
+			LAttackStartup:
+				AttackRecievedFlag(CounterHit)
+				AttackRecievedOverride(CounterHit)
+			endif
+			LAttackWasActive:
+				AttackRecievedFlag(Punish)
+				AttackRecievedOverride(Punish)
+			endif
+			
+		endif
+	endif
 endif
 :AttackState:
 ## Base behavior for attacks. You wont usually call it directly, it is instead called by the AttackType- states through AttackRegister
@@ -983,114 +1113,16 @@ FATTACK_BlockstunDuration+:
 endif
 
 Call(AnimBlockstun)
-:CCB_OnAttackBlocked:
-## Internal callback for when your attack is blocked.
-_Category(Internals/Attacks/React/2_Attacker/Callbacks)
-_Helper()
-
-Call(OnAttackTouched)
-Call(OnAttackBlocked)
-:CCB_OnAttackClashed:
-## Internal callback for when your attack has clashed.
-_Category(Internals/Attacks/React/2_Attacker/Callbacks)
-_Helper()
-:CCB_OnAttackHit:
-## Internal callback for when you successfuly hit an opponent.
-_Category(Internals/Attacks/React/2_Attacker/Callbacks)
-_Helper()
-
-Call(OnAttackTouched)
-Call(OnAttackHit)
-:CCB_OnBlock:
-## Internal callback that happens when you block an attack.
-
-_Category(Internals/Attacks/React/3_Defender/Callbacks)
-_Helper()
-
-LGuarded:
-
-else
-	Call(OnBlock)
-endif
-
-## TODO: Need guard ?
-:CCB_OnBlock_Initial:
-## Internal callback for when you block, before attacker can see it
-_Category(Internals/Attacks/React/1_Initial/Callbacks)
-_Helper()
-
-Call(OnBlock_Initial)
-:CCB_OnHitRecieved:
-## Internal callback that happens when you get hit or thrown, and dispatches to the correct behaviors.
-_Category(Internals/Attacks/React/3_Defender/Callbacks)
-_Helper()
-
-Call(OnHit)
-:CCB_OnHitRecieved_Initial:
-## Internal callback for when you get hit, before attacker can see it
-_Category(Internals/Attacks/React/1_Initial/Callbacks)
-_Helper()
-
-Call(OnHitRecieved_Initial)
 :Common:
 CallParent()
 
 Call(Attack-ThrowTechingManagement)
 Call(Attack-BlockingLogic)
+Call(AttackReactEvents)
 :CommonAfter:
 CallParent()
 
 Call(AttackState-After)
-:Custom-AttackOverrides-OnBlock:
-## Custom override point for attack overrides on block
-_Category(Custom/Attacks/Overrides)
-_Helper()
-_Overridable(If you want to add a new override behavior)
-:Custom-AttackOverrides-OnHit:
-## Custom override point for attack overrides on hit
-_Category(Custom/Attacks/Overrides)
-_Helper()
-_Overridable(If you want to add a new override behavior)
-:Custom-AttackOverrides-OnTouch:
-## Custom override point for attack overrides on hit and block
-_Category(Custom/Attacks/Overrides)
-_Helper()
-_Overridable(If you want to add a new override behavior)
-:Custom-OnAttackBlocked:
-## Custom override point for when your attack was blocked
-_Helper()
-_Category(Custom/Attacks)
-_Overridable(If you want to add behavior when your attack is blocked)
-:Custom-OnAttackClashed:
-## Custom override point for when your attack clashes with the opponent
-_Helper()
-_Category(Custom/Attacks)
-_Overridable(If you want to add behavior when your attack clashes)
-:Custom-OnAttackHit:
-## Custom override point for when your attack hits the opponent
-_Helper()
-_Category(Custom/Attacks)
-_Overridable(If you want to add behavior when your attack hits)
-:Custom-OnBlock:
-## Custom override point for when you block an attack
-_Helper()
-_Category(Custom/Attacks)
-_Overridable(If you want to add behavior when you block an attack)
-:Custom-OnFirstHit:
-## Custom override point for when you're hit by the first hit of a combo
-_Helper()
-_Category(Custom/Attacks)
-_Overridable(If you want to add behavior when you are hit by the first attack of a combo)
-:Custom-OnHit:
-## Custom override point for when you get hit
-_Helper()
-_Category(Custom/Attacks)
-_Overridable(If you want to add behavior when you are hit by an attack)
-:Custom-OnTouch:
-## Custom override point for when you get hit or you block
-_Helper()
-_Category(Custom/Attacks)
-_Overridable(If you want to add behavior when you are hit by or block an attack)
 :Hitstun:
 ## Hitstun state, for when you have been hit by an attack.
 
@@ -1179,257 +1211,11 @@ CallParent()
 Call(Attack-CanBlock)
 
 Call(AttackCancels-All)
-:OnAttackBlocked:
-## Called when your attack is blocked
-_Category(Internals/Attacks/React/2_Attacker/Block)
-_Helper()
-
-Call(OnAttackBlocked-Stuns)
-Call(Custom-OnAttackBlocked)
-:OnAttackBlocked-Stuns:
-## Handles blockstop for the attacker
-_Category(Internals/Attacks/React/2_Attacker/Block)
-_Helper()
-
-AttackInflictedGetParam(Blockstop, CAST_REG_A)
-FreezeFrames(CAST_REG_A)
-:OnAttackClashed:
-## Called when you clash with an opponent.
-_Category(Internals/Attacks/React/2_Attacker/Clash)
-_Helper()
-
-AttackInflictedOverride(Clash)
-
-Call(OnAttackHit)
-
-Call(Custom-OnAttackClashed)
-:OnAttackHit:
-## Called when you successfuly hit an opponent.
-_Category(Internals/Attacks/React/2_Attacker/Hit)
-_Helper()
-
-Call(OnAttackHit-Stuns)
-Call(Custom-OnAttackHit)
-:OnAttackHit-Stuns:
-## Handles hitstop for the attacker
-_Category(Internals/Attacks/React/2_Attacker/Hit)
-_Helper()
-
-AttackInflictedGetParam(Hitstop, CAST_REG_A)
-FreezeFrames(CAST_REG_A)
-:OnAttackTouched:
-## Called when you successfuly hit or are blocked by an opponent.
-_Category(Internals/Attacks/React/2_Attacker)
-_Helper()
-:OnBlock:
-## Helper called when you successfully defend an attack
-_Category(Internals/Attacks/React/3_Defender/Block)
-_Helper()
-
-Call(OnTouch)
-Call(OnBlock-Stuns)
-Call(OnBlock-Hook)
-Call(OnBlock-Transition)
-
-Call(Custom-OnBlock)
-
-
-## TODO: handle this mess
-
-LAF_MustBlock-Low:
-	Flag(Crouching)
-endif
-LAF_MustBlock-Overhead:
-	Unflag(Crouching)
-endif
-
-## TODO: Crouching could be common
-LAF_ForceCrouching:
-	Flag(Crouching)
-endif
-LAF_ForceStanding:
-	Unflag(Crouching)
-endif
-
-LCrouching:
-	FlagNext(Crouching)
-endif
-
-Call(AnimBlockstun)
-
-
-## TODO: Should have more things in common ? not super interesting
-:OnBlock-Hook:
-## Internal hook to add behavior on block
-_Category(Internals/Attacks/React/3_Defender/Block)
-_Helper()
-_Overridable()
-:OnBlock-Stuns:
-## Handles blockstun, blockstop
-_Category(Internals/Attacks/React/3_Defender/Block)
-_Helper()
-#F_BlockstunDuration
-AttackRecievedGetParam(Blockstun, ATTACK_BlockstunDuration)
-
-## TODO new freeze
-AttackRecievedGetParam(Blockstop, CAST_REG_A)
-FreezeFrames(CAST_REG_A)
-:OnBlock-Transition:
-## Handles transition to blocking
-_Category(Internals/Attacks/React/3_Defender/Block)
-_Helper()
-Transition(Blockstun, ATK_BLOCKSTUN_PRIORITY, 1)
-:OnBlock_Initial:
-## Called when you block, before attacker phase
-_Category(Internals/Attacks/React/1_Initial/Block)
-_Helper()
-
-Call(AttackOverrides-OnTouch)
-Call(AttackOverrides-OnBlock)
-:OnHit:
-## Helper that happens when you get hit.
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-
-## TODO: Move the check only earlier, maybe make it in attack flag, along with punish and counter hit
-LHitstun:
-else
-	Call(OnHit-FirstHit)
-endif
-
-Call(OnTouch)
-Call(OnHit-Damage)
-Call(OnHit-Stun)
-Call(OnHit-Proration)
-Call(OnHit-Hook)
-Call(OnHit-Transition)
-
-Call(Custom-OnHit)
-
-## TODO: Throw (previous behavior)
-#LAirThrow:
-#	Transition(ATTACK_Throw_Air_HeldState, ATTACK_Throw_GoToHoldingPriority)
-#else
-#	Transition(ATTACK_Throw_Ground_HeldState, ATTACK_Throw_GoToHoldingPriority)
-#endif
-:OnHit-Damage:
-## Handles damage computations
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-AttackRecievedGetParam(Damage, CAST_REG_A)
-
-LAF_IgnoreProration:
-else
-	LAF_IgnoreProrationDamage:
-	else
-		Mul(CAST_REG_A, ATTACK_ProrationDamage)
-		Div(CAST_REG_A, ATTACK_Proration_Scale)
-	endif
-endif
-
-AttackRecievedGetParam(MinDamage, CAST_REG_B)
-Max(CAST_REG_A, CAST_REG_B)
-
-Sub(HP, CAST_REG_A)
-:OnHit-FirstHit:
-## Helper called on the first hit of a combo
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-
-Set(ATTACK_ComboCounter, 0)
-Set(ATTACK_ProrationDamage, 1000)
-Set(ATTACK_ProrationHitstun, 1000)
-#Set(ATTACK_GroundbouncesRemaining, ATTACK_GroundbouncesMaxPerCombo)
-
-Call(Custom-OnFirstHit)
-:OnHit-Hook:
-## Internal hook point for on hit behavior
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-_Overridable(Add a hook)
-:OnHit-Misc:
-## Handles miscellaneous effects on hit, like combo count
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-LAF_ComboCounterStatic:
-else
-	Add(ATTACK_ComboCounter, 1)
-endif
-:OnHit-Proration:
-## Handles increasing proration when recieving an attack
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-
-LAF_IgnoreProration:
-else
-	LAF_IgnoreProrationHitstun:
-	else
-		AttackRecievedGetParam(ProrationHitstun, CAST_REG_A)
-		Mul(ATTACK_ProrationHitstun, CAST_REG_A)
-		Div(ATTACK_ProrationHitstun, ATTACK_Proration_Scale)
-	endif
-	
-	LAF_IgnoreProrationDamage:
-	else
-		AttackRecievedGetParam(ProrationDamage, CAST_REG_A)
-		Mul(ATTACK_ProrationDamage, CAST_REG_A)
-		Div(ATTACK_ProrationDamage, ATTACK_Proration_Scale)
-	endif
-endif
-:OnHit-Stun:
-## Handles setting the stun correctly
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-
-AttackRecievedGetParam(Hitstun, CAST_REG_A)
-
-LAF_IgnoreProration:
-else
-	LAF_IgnoreProrationHitstun:
-	else
-		Mul(CAST_REG_A, ATTACK_ProrationHitstun)
-		Div(CAST_REG_A, ATTACK_Proration_Scale)
-	endif
-endif
-
-AttackRecievedGetParam(MinHitstun, CAST_REG_B)
-Max(CAST_REG_A, CAST_REG_B)
-
-Set(ATTACK_HitstunDuration, CAST_REG_A)
-
-AttackRecievedGetParam(Hitstop, CAST_REG_A)
-FreezeFrames(CAST_REG_A)
-:OnHit-Transition:
-## Handles going to the hitstun state or a custom one
-## TODO
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-AttackRecievedGetParam(TransitionTo, CAST_REG_A_STR)
-Transition(CAST_REG_A_STR, ATK_HITSTUN_PRIORITY, 1)
-:OnHitRecieved_Initial:
-## Called when you get hit, before attacker phase
-_Category(Internals/Attacks/React/1_Initial/Hit)
-_Helper()
-
-Call(AttackOverrides-OnTouch)
-Call(AttackOverrides-OnHit)
 :OnReturnToNeutral:
 _Helper()
 CallParent()
 
 AttackResetDoneCancels()
-:OnTouch:
-## Helper that happens when you get hit or you block
-_Category(Internals/Attacks/React/3_Defender)
-_Helper()
-
-Call(OnTouch-Hook)
-Call(Custom-OnTouch)
-:OnTouch-Hook:
-## Internal hook to add behavior on hit or block
-_Category(Internals/Attacks/React/3_Defender)
-_Helper()
-_Overridable()
 :SimpleAttack-Standard:
 ## Helper for the simple attack system, which allows edition of attacks through custom editors easily.
 ## CASTDO
@@ -1677,65 +1463,45 @@ endif
 Call(AnimGroundThrowTeching)
 :Base---Subentity:
 # Autogenerated
-:Base---CCB_OnAttackBlocked:
+:Base---SEAttackReactEvents:
+## Helper state that handles attack reaction events for subentities
 _Helper()
-Call(SEOnAttackTouched)
-Call(SEOnAttackBlocked)
-:Base---CCB_OnAttackClashed:
-_Helper()
-Call(CCB_OnAttackHit)
-:Base---CCB_OnAttackHit:
-_Helper()
-Call(SEOnAttackTouched)
-Call(SEOnAttackHit)
-:Base---CCB_OnBlock:
-_Helper()
-Call(SEOnBlock)
-:Base---CCB_OnBlock_Initial:
-_Helper()
-Call(SEAttackOverridesOnTouch)
-Call(SEAttackOverridesOnBlock)
-:Base---CCB_OnHitRecieved:
-_Helper()
-Call(SEOnHit)
-:Base---CCB_OnHitRecieved_Initial:
-_Helper()
-Call(SEAttackOverridesOnTouch)
-Call(SEAttackOverridesOnHit)
-:Base---SEAttackOverridesOnBlock:
-_Helper()
-_Overridable()
-:Base---SEAttackOverridesOnHit:
-_Helper()
-_Overridable()
-:Base---SEAttackOverridesOnTouch:
-_Helper()
-_Overridable()
-:Base---SEOnAttackBlocked:
-_Helper()
-_Overridable()
 
-VSUBENTITY_DestroyOnBlock:
-	DestroyEntity()
+# Overrides
+Call(SEAttackReactEvents-Overrides)
+
+# Attacker
+Call(SEAttackReactEvents-Attacker)
+
+# Defender
+Call(SEAttackReactEvents-Defender)
+:Base---SEAttackReactEvents-Attacker:
+## Helper state that handles attack overrides for subentities
+_Helper()
+
+EOnAttackHit:
+	VSUBENTITY_DestroyOnHit:
+		DestroyEntity()
+	endif
 endif
-:Base---SEOnAttackHit:
-_Helper()
-_Overridable()
 
-VSUBENTITY_DestroyOnHit:
-	DestroyEntity()
+EOnAttackBlocked:
+	VSUBENTITY_DestroyOnBlock:
+		DestroyEntity()
+	endif
 endif
-:Base---SEOnAttackTouched:
+:Base---SEAttackReactEvents-Defender:
+## Helper state that handles attack overrides for subentities
 _Helper()
-_Overridable()
-:Base---SEOnBlock:
-_Helper()
-_Overridable()
-:Base---SEOnHit:
-_Helper()
-_Overridable()
 
-
-VSUBENTITY_DestroyWhenHit:
-	DestroyEntity()
+EOnGetHit:
+	VSUBENTITY_DestroyWhenHit:
+		DestroyEntity()
+	endif
 endif
+:Base---SEAttackReactEvents-Overrides:
+## Helper state that handles attack overrides for subentities
+_Helper()
+:Base---SECommon:
+CallParent()
+Call(SEAttackReactEvents)

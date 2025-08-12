@@ -354,6 +354,11 @@ func RegisterStateFlag(flagName, documentation=null):
 		documentation = {}
 	_moduleStateFlags[flagName] = documentation
 
+func RegisterCASPEvent(eventName, documentation = null):
+	if(documentation == null):
+		documentation = {}
+	_moduleEvents[eventName] = documentation
+
 
 var baseCaspFilePath = null
 func RegisterBaseCaspFile(filePaths = null, order=0):
@@ -386,7 +391,7 @@ func ModuleError(text, stateHandle = null):
 func ArgStr(args, stateHandle, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgStr ("+argID+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgStr ("+str(argID)+"): This argument needs a default but doesn't have one")
 		return str(default)
 	var value = args[argID]
 	if(stateHandle == null):
@@ -398,7 +403,7 @@ func ArgStr(args, stateHandle, argID, default = null):
 func ArgVar(args, _stateHandle, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgVar ("+argID+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgVar ("+str(argID)+"): This argument needs a default but doesn't have one")
 		return default
 	return args[argID]
 
@@ -429,14 +434,14 @@ func ArgInt(args, stateHandle, argID, default = null):
 func ArgBool(args, stateHandle, argID, default = null):
 	if(args.size() <= argID):
 		if(default == null):
-			Castagne.Error("ArgBool ("+argID+"): This argument needs a default but doesn't have one")
+			Castagne.Error("ArgBool ("+str(argID)+"): This argument needs a default but doesn't have one")
 		return default
 	var value = str(args[argID])
 	if(value.is_valid_integer()):
 		return int(value) > 0
 	if(stateHandle.EntityHas(value)):
 		return int(stateHandle.EntityGet(value)) > 0
-	Castagne.Error("ArgBool ("+argID+"): Couldn't find variable " + value)
+	Castagne.Error("ArgBool ("+str(argID)+"): Couldn't find variable " + value)
 	return default
 
 
@@ -475,6 +480,7 @@ var configDefault = {}
 var _battleInitDataDefault = {}
 var _moduleFunctions = {}
 var _moduleStateFlags = {}
+var _moduleEvents = {}
 
 func ArgRaw(args, argID, default = null):
 	if(args.size() <= argID):

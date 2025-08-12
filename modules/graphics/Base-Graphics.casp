@@ -427,6 +427,47 @@ VANIMS_UseStandardAnims:
 	Anim(ANIM_Movement_Basic_WalkF)
 	AnimLoop(ANIM_Movement_Basic_WalkF_Loop)
 endif
+:AttackReactEvents-Attacker:
+CallParent()
+Call(AttackReactEvents-Attacker-Graphics)
+:AttackReactEvents-Attacker-Graphics:
+## Handles graphics logic when an attacker touches
+_Category(Internals/Attacks/React)
+_Helper()
+
+EOnAttackHit,OnAttackBlocked:
+	VGRAPHICS_ZORDER_AUTOMATIC:
+		ModelZOrder(GRAPHICS_ZORDER_ATTACKER)
+	endif
+endif
+:AttackReactEvents-Defender:
+CallParent()
+Call(AttackReactEvents-Defender-Graphics)
+:AttackReactEvents-Defender-Graphics:
+## Handles graphics on touch
+_Category(Internals/Attacks/React)
+_Helper()
+
+EOnGetHit,OnBlocking:
+	VGRAPHICS_ZORDER_AUTOMATIC:
+		ModelZOrder(GRAPHICS_ZORDER_DEFENDER)
+	endif
+endif
+
+EOnGetHit:
+	Call(AnimHitstun)
+	## TODO: Update anim system since it won't need frame zero anymore with the transition. Plus new freeze system
+
+	## TODO: VFX
+	Call(VFXHit)
+
+	## CASTDO: Configurable ?
+	CameraShake()
+endif
+
+EOnBlocking:
+	Call(VFXBlock)
+endif
 :Init:
 CallParent()
 Call(Init-Graphics)
@@ -507,55 +548,6 @@ else
 endif
 
 ModelScale(Model_Scale)
-:OnAttackTouched:
-CallParent()
-Call(OnAttackTouched-Graphics)
-:OnAttackTouched-Graphics:
-## Handles graphics logic when an attacker touches
-_Category(Internals/Attacks/React/2_Attacker)
-_Helper()
-
-VGRAPHICS_ZORDER_AUTOMATIC:
-	ModelZOrder(GRAPHICS_ZORDER_ATTACKER)
-endif
-:OnAttackTouchedGraphics:
-
-:OnBlock:
-CallParent()
-Call(OnBlock-Graphics)
-:OnBlock-Graphics:
-## Handles graphics on block
-_Category(Internals/Attacks/React/3_Defender/Block)
-_Helper()
-Call(VFXBlock)
-:OnHit-Graphics:
-## Handles graphics on hit
-_Category(Internals/Attacks/React/3_Defender/Hit)
-_Helper()
-
-Call(AnimHitstun)
-## TODO: Update anim system since it won't need frame zero anymore with the transition. Plus new freeze system
-
-## TODO: VFX
-Call(VFXHit)
-
-## CASTDO: Configurable ?
-CameraShake()
-:OnHit-Hook:
-CallParent()
-Call(OnHit-Graphics)
-## CASTDO Needs to be done from OnHit, not OnHit-Hook
-:OnTouch:
-CallParent()
-Call(OnTouch-Graphics)
-:OnTouch-Graphics:
-## Handles graphics on touch
-_Category(Internals/Attacks/React/3_Defender)
-_Helper()
-
-VGRAPHICS_ZORDER_AUTOMATIC:
-	ModelZOrder(GRAPHICS_ZORDER_DEFENDER)
-endif
 :VFXBlock:
 ## Temporary block vfx function
 ## CASTDO

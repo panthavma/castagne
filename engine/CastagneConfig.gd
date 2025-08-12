@@ -202,6 +202,14 @@ func GetModuleSpecblocksSubEntity():
 				specblocks[sbName] = sb
 	return specblocks
 
+func GetModuleCASPEvents():
+	var events = []
+	for m in GetModules():
+		for e in m._moduleEvents.keys():
+			if not (e in events):
+				events.push_back(e)
+	return events
+
 func GetModuleSlot(slot):
 	if(_modulesSlots.has(slot)):
 		return _modulesSlots[slot]

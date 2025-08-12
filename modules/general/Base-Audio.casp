@@ -4,12 +4,13 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 # Sound
-:OnHit-Audio:
+:AttackReactEvents-Defender:
+CallParent()
+
+Call(AttackReactEvents-Defender-Audio)
+:AttackReactEvents-Defender-Audio:
 ## Handles audio on hit
-_Category(Internals/Attacks/React/3_Defender/Hit)
+_Category(Internals/Attacks/React)
 _Helper()
 
 ## TODO
-:OnHit-Hook:
-CallParent()
-Call(OnHit-Audio)

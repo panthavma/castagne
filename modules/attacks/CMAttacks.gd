@@ -12,41 +12,46 @@ func ModuleSetup():
 	RegisterSpecblock("AttacksTypes", "res://castagne/modules/attacks/CMAttacksSBTypes.gd")
 	RegisterSpecblock("AttacksThrows", "res://castagne/modules/attacks/CMAttacksSBThrows.gd")
 	RegisterSpecblock("AttacksMechanics", "res://castagne/modules/attacks/CMAttacksSBMechanics.gd")
-	
+	RegisterCASPEvent("DefenderAttackOverrides")
+	RegisterCASPEvent("OnAttackHit")
+	RegisterCASPEvent("OnAttackBlocked")
+	#RegisterCASPEvent("OnAttackClashed")
+	RegisterCASPEvent("OnGetHit")
+	RegisterCASPEvent("OnBlocking")
 	
 	# [F_BASICS] -----------------------------------------------------------------------------------
 	RegisterCategory("Attack Basics")
-	RegisterFunction("AttackRegister", [1,2], ["AllPhases"], {
+	RegisterFunction("AttackRegister", [1,2], ["AllPhases", "Events"], {
 		"Description":"Initiates an attack with default parameters. This should be the first function called for a new attack, then you use other Attack functions to customize it, and finally you use Hitbox to apply it.",
 		"Arguments":["Type", "(Optional) Notation"],
 		"Flags":["Basic"],
 		"Types":["str", "str"],
 	})
-	RegisterFunction("AttackRegisterNoNotation", [1], ["AllPhases"], {
+	RegisterFunction("AttackRegisterNoNotation", [1], ["AllPhases", "Events"], {
 		"Description":"Same as AttackRegister, but won't actually add the attack to the list of cancels, which you'll have to do manually.",
 		"Arguments":["Type"],
 		"Flags":["Intermediate"],
 		"Types":["str"],
 	})
-	RegisterFunction("AttackAddNotation", [1], ["AllPhases"], {
+	RegisterFunction("AttackAddNotation", [1], ["AllPhases", "Events"], {
 		"Description":"Registers the attack under an additional notation input. This will still count as the same attack.",
 		"Arguments":["Notation"],
 		"Flags":["Intermediate"],
 		"Types":["str"],
 	})
-	RegisterFunction("AttackInternalRegister", [1,2], ["AllPhases"], {
+	RegisterFunction("AttackInternalRegister", [1,2], ["AllPhases", "Events"], {
 		"Description":"Internal trick to improve performance. Don't use it.",
 		"Arguments":["Type", "(Optional) Notation"],
 		"Flags":["Expert"],
 		"Types":["str", "str"],
 	})
-	RegisterFunction("AttackInternalRegisterNoNotation", [1], ["AllPhases"], {
+	RegisterFunction("AttackInternalRegisterNoNotation", [1], ["AllPhases", "Events"], {
 		"Description":"Internal trick to improve performance. Don't use it.",
 		"Arguments":["Type"],
 		"Flags":["Expert"],
 		"Types":["str"],
 	})
-	RegisterFunction("AttackInit", [0], ["AllPhases"], {
+	RegisterFunction("AttackInit", [0], ["AllPhases", "Events"], {
 		"Description":"Internal call for various data set.",
 		"Arguments":[],
 		"Flags":["Expert"],
@@ -721,8 +726,9 @@ func ApplyAttackToEntities(hitconfirm, attackData, attackerHandle, hitbox, defen
 	
 	# Clash has a different flow, with just one call
 	if(clashed):
+		attackData["_Flags"].push_back("Clashing")
 		attackerHandle.EntitySet("_InflictedAttackData", attackData)
-		engine.ExecuteCASPCallback("CCB_OnAttackClashed", attackerHandle, defenderEID, "Manual")
+		engine.ExecuteCASPEvent("OnAttackHit", attackerHandle, defenderEID)
 		return
 	
 	# Multihit test
@@ -732,24 +738,25 @@ func ApplyAttackToEntities(hitconfirm, attackData, attackerHandle, hitbox, defen
 		attackerHandle.EntityAdd("_AttackHitEntitiesMultihit", [defenderEID])
 	
 	# Initial call: helps to apply overrides mostly before attacker gets to it
-	var initialCallback = "CCB_OnHitRecieved_Initial" if hit else "CCB_OnBlock_Initial"
 	_HandleAttackFlagUnset(defenderHandle)
+	if(!hit):
+		attackData["_Flags"].push_back("Blocked")
 	defenderHandle.EntitySet("_RecievedAttackData", attackData)
 	_HandleAttackFlagSet(defenderHandle)
-	engine.ExecuteCASPCallback(initialCallback, defenderHandle, attackerEID, "Manual")
+	engine.ExecuteCASPEvent("DefenderAttackOverrides", defenderHandle, attackerEID)
 	
 	# Attacker call: So he can read back data for the hit
-	var attackerCallback = "CCB_OnAttackHit" if hit else "CCB_OnAttackBlocked"
+	var attackerCallback = "OnAttackHit" if hit else "OnAttackBlocked"
 	attackerHandle.EntitySet("_InflictedAttackData", defenderHandle.EntityGet("_RecievedAttackData"))
-	engine.ExecuteCASPCallback(attackerCallback, attackerHandle, defenderEID, "Manual")
+	engine.ExecuteCASPEvent(attackerCallback, attackerHandle, defenderEID)
 	attackData = attackerHandle.EntityGet("_InflictedAttackData").duplicate()
 	
 	# Defender call: finally, apply attack to the defender, main part
-	var defenderCallback = "CCB_OnHitRecieved" if hit else "CCB_OnBlock"
+	var defenderCallback = "OnGetHit" if hit else "OnBlocking"
 	_HandleAttackFlagUnset(defenderHandle)
 	defenderHandle.EntitySet("_RecievedAttackData", attackData)
 	_HandleAttackFlagSet(defenderHandle)
-	engine.ExecuteCASPCallback(defenderCallback, defenderHandle, attackerEID, "Manual")
+	engine.ExecuteCASPEvent(defenderCallback, defenderHandle, attackerEID)
 
 
 

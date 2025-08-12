@@ -10,6 +10,8 @@ var analyzer
 var phaseButtonsRoot
 var currentPhase = "Action"
 var compilStatusButton
+var NOEVENT_TEXT = "No Events!"
+var eventNameBox
 func SetupTool():
 	smallErrorWindow = $CompileSmall/Errors
 	toolName = "Compiler Output"
@@ -22,8 +24,18 @@ func SetupTool():
 	analyzer = $Analyzer
 	phaseButtonsRoot = $Analyzer/Sidebar/Phases
 	for b in phaseButtonsRoot.get_children():
-		b.connect("pressed", self, "ChangePhase", [b.get_name()])
-		b.set_toggle_mode(true)
+		if(b.get_name() != "EventName"):
+			b.connect("pressed", self, "ChangePhase", [b.get_name()])
+			b.set_toggle_mode(true)
+	eventNameBox = $Analyzer/Sidebar/Phases/EventName
+	eventNameBox.clear()
+	var caspEvents = editor.editor.configData.GetModuleCASPEvents()
+	if(caspEvents.size() == 0):
+		eventNameBox.add_item("No Events!")
+	else:
+		caspEvents.sort()
+		for e in caspEvents:
+			eventNameBox.add_item(e)
 	ChangePhase("Action")
 
 var acceptRuntimeErrors = false
@@ -161,6 +173,8 @@ func RefreshState():
 			bytecodeText = "State not found!"
 			if(fighterScripts.has(stateName)):
 				bytecodeText = "Phase not found!"
+				if(currentPhase == "Event"):
+					currentPhase += "_"+eventNameBox.get_item_text(eventNameBox.get_selected())
 				if(fighterScripts[stateName].has(currentPhase)):
 					bytecodeText = ParseFighterScript(fighterScripts[stateName][currentPhase])
 	
@@ -213,7 +227,8 @@ func ChangePhase(newPhase):
 	currentPhase = newPhase
 	
 	for b in phaseButtonsRoot.get_children():
-		b.set_pressed_no_signal(b.get_name() == newPhase)
+		if(b.has_method("set_pressed_no_signal")):
+			b.set_pressed_no_signal(b.get_name() == newPhase)
 	
 	RefreshState()
 
@@ -238,3 +253,12 @@ func RefreshVariablesStats(memory):
 		" / Players: "+str(nbVarsPlayers)+" / Entities: "+str(nbVarsEntities)+"\n"+
 		"Total: "+str(nbVarsGlobal+nbVarsPlayers+nbVarsEntities))
 
+
+
+func _on_LoadCurrentState_pressed():
+	analyzer.get_node("Sidebar/StateName").set_text(editor.curState)
+	RefreshState()
+
+
+func _on_EventName_item_selected(index):
+	ChangePhase("Event")

@@ -292,26 +292,26 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		"Flags":["Expert"],
 		})
 	
-	RegisterFunction("Call", [1], ["Init", "Action", "Reaction", "Freeze"], {
+	RegisterFunction("Call", [1], ["Init", "Action", "Reaction", "Freeze", "Events"], {
 		"Description": "Executes another script/state. Script must be known at compile time.",
 		"Arguments": ["Name of the state to call"],
 		"Flags":["Basic"],
 		"Types": ["str"],
 		})
-	RegisterFunction("CallParent", [0], ["Init", "Action", "Reaction", "Freeze"], {
+	RegisterFunction("CallParent", [0], ["Init", "Action", "Reaction", "Freeze", "Events"], {
 		"Description": "Execute the same script on the parent skeleton.",
 		"Arguments": [],
 		"Flags":["Intermediate"],
 		"Types": ["str"],
 		})
-	RegisterFunction("CallFromMain", [1], ["Init", "Subentity"], {
+	RegisterFunction("CallFromMain", [1], ["Init", "Subentity", "Events"], {
 		"Description": "Executes another script/state from the main entity. Script must be known at compile time.",
 		"Arguments": ["Name of the state to call"],
 		"Flags":["Basic"],
 		"Types": ["str"],
 		})
 		
-	RegisterFunction("CallAfter", [1], ["Init", "Action", "Reaction", "Freeze"], {
+	RegisterFunction("CallAfter", [1], ["Init", "Action", "Reaction", "Freeze", "Events"], {
 		"Description": "Adds a static call at the end of the state.",
 		"Arguments":["Name of state to call"],
 		"Flags":["Intermediate"],
