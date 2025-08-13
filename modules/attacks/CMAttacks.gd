@@ -15,7 +15,6 @@ func ModuleSetup():
 	RegisterCASPEvent("DefenderAttackOverrides")
 	RegisterCASPEvent("OnAttackHit")
 	RegisterCASPEvent("OnAttackBlocked")
-	#RegisterCASPEvent("OnAttackClashed")
 	RegisterCASPEvent("OnGetHit")
 	RegisterCASPEvent("OnBlocking")
 	

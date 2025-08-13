@@ -417,9 +417,7 @@ _Category(Internals/Attacks/React)
 _Helper()
 _Overridable(To add behavior when an attack connects from the defender side. Don't forget to use E branches)
 
-LAF_FirstHit:
-	Call(AttackReactEvents-Defender-FirstHit)
-endif
+Call(AttackReactEvents-Defender-FirstHit)
 
 Call(AttackReactEvents-Defender-Damage)
 Call(AttackReactEvents-Defender-Stun)
@@ -455,10 +453,12 @@ _Category(Internals/Attacks/React)
 _Helper()
 
 EOnGetHit:
-	Set(ATTACK_ComboCounter, 0)
-	Set(ATTACK_ProrationDamage, 1000)
-	Set(ATTACK_ProrationHitstun, 1000)
-	#Set(ATTACK_GroundbouncesRemaining, ATTACK_GroundbouncesMaxPerCombo)
+	LAF_FirstHit:
+		Set(ATTACK_ComboCounter, 0)
+		Set(ATTACK_ProrationDamage, 1000)
+		Set(ATTACK_ProrationHitstun, 1000)
+		#Set(ATTACK_GroundbouncesRemaining, ATTACK_GroundbouncesMaxPerCombo)
+	endif
 endif
 :AttackReactEvents-Defender-Misc:
 ## Handles miscellaneous effects on hit, like combo count
@@ -582,7 +582,7 @@ _BaseState()
 AttackInit()
 Flag(Attacking)
 
-F1:
+EEnter:
 	Set(_AttackDuration, 180)
 	AttackRearm()
 	Set(_AttackAnimInterruptableFrames, 0)

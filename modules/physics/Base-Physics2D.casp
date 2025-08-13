@@ -1721,7 +1721,7 @@ endif
 
 #--- Behaviors
 
-LPF_Landing:
+ELanding:
 	LCancelOnLanding:
 		Transition(Landing, PHYSICS_Landing_Priority)
 	endif

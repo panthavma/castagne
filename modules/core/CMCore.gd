@@ -14,6 +14,8 @@ func ModuleSetup():
 		})
 	RegisterBaseCaspFile("res://castagne/modules/core/Base-Core.casp", -9000)
 	RegisterSpecblock("Subentity", "res://castagne/modules/core/CMCoreSBSubentity.gd")
+	RegisterCASPEvent("Enter")
+	RegisterCASPEvent("Exit")
 	
 	# Category : Variables -------------------------------------------------------------------------
 	RegisterCategory("Variables", {
@@ -265,6 +267,12 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		"Flags":["Basic"],
 		"Types": ["str", "int", "bool"],
 		})
+	RegisterFunction("TransitionToFrame", [2,3,4], ["Init", "Reaction"], {
+		"Description": "Changes the current script/state directly at the specified frame. Aiming for frame 1 is the same as Transition.",
+		"Arguments": ["State name", "Frame (1 is equivalent to Transition)", "(Optional) Priority", "(Optional) Allow self-transition"],
+		"Flags":["Intermediate"],
+		"Types": ["str", "int", "int", "bool"],
+		})
 	RegisterFunction("TransitionBuffer", [0,1,2,3], ["Init", "Action", "Reaction"], {
 		"Description": "Same as Transition, but also works during the action phase. This can make some code simpler, and is separated because some confusing logic may happen when buffering all the time.",
 		"Arguments": ["State name", "(Optional) Priority", "(Optional) Allow self-transition"],
@@ -277,6 +285,10 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		})
 	RegisterVariableEntity("_StateTarget", null, ["ResetEachFrame"], {
 		"Description":"The name of the state we want to transition to.",
+		"Flags":["Advanced"],
+		})
+	RegisterVariableEntity("_StateTargetFrame", 1, ["ResetEachFrame"], {
+		"Description":"The frame of the state we want to transition to.",
 		"Flags":["Advanced"],
 		})
 	RegisterVariableEntity("_StateFrameID", 0, null, {
@@ -842,12 +854,23 @@ func Transition(args, stateHandle):
 	if(args.size() == 0):
 		stateHandle.EntitySet("_StateChangePriority", -100000)
 		stateHandle.EntitySet("_StateTarget", null)
+		stateHandle.EntitySet("_StateTargetFrame", 1)
 		return
 	
 	var newStateName = ArgStr(args, stateHandle, 0)
 	var priority = ArgInt(args, stateHandle, 1, 0)
 	var allowSelfTransition = ArgBool(args, stateHandle, 2, false)
 	
+	_TransitionInternal(stateHandle, newStateName, priority, allowSelfTransition)
+func TransitionBuffer(args, stateHandle):
+	Transition(args, stateHandle)
+func TransitionToFrame(args, stateHandle):
+	var newStateName = ArgStr(args, stateHandle, 0)
+	var newStateFrame = ArgInt(args, stateHandle, 1)
+	var priority = ArgInt(args, stateHandle, 2, 0)
+	var allowSelfTransition = ArgBool(args, stateHandle, 3, false)
+	_TransitionInternal(stateHandle, newStateName, priority, allowSelfTransition, newStateFrame)
+func _TransitionInternal(stateHandle, newStateName, priority=0, allowSelfTransition=false, newStateFrame=1):
 	if(stateHandle.EntityGet("_StateChangePriority") >= priority):
 		return
 	if(newStateName == stateHandle.EntityGet("_State") and !allowSelfTransition):
@@ -855,20 +878,25 @@ func Transition(args, stateHandle):
 	
 	stateHandle.EntitySet("_StateChangePriority", priority)
 	stateHandle.EntitySet("_StateTarget", newStateName)
-func TransitionBuffer(args, stateHandle):
-	Transition(args, stateHandle)
+	stateHandle.EntitySet("_StateTargetFrame", newStateFrame)
+
 func TransitionApply(stateHandle):
 	if(stateHandle.EntityGet("_StateTarget") != null):
+		
+		engine.ExecuteCASPEvent("Exit", stateHandle)
 		var prevStateName = stateHandle.EntityGet("_State")
 		var newStateName = stateHandle.EntityGet("_StateTarget")
+		var frameOffset = stateHandle.EntityGet("_StateTargetFrame") - 1
 		stateHandle.EntitySet("_State", newStateName)
 		stateHandle.EntitySet("_StateStartFrame", stateHandle.GlobalGet("_FrameID"))
-		stateHandle.EntitySet("_StateFrameID", 0)
+		stateHandle.EntitySet("_StateFrameID", frameOffset)
 		stateHandle.EntitySet("_StateChangePriority", -100000)
 		stateHandle.EntitySet("_StateTarget", null)
 		
 		for m in stateHandle.ConfigData().GetModules():
 			m.OnStateTransitionEntity(stateHandle, prevStateName, newStateName)
+		
+		engine.ExecuteCASPEvent("Enter", stateHandle)
 
 
 func Call(args, stateHandle):

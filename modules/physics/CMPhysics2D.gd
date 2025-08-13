@@ -35,6 +35,8 @@ func ModuleSetup():
 	RegisterSpecblock("PhysicsMovement", "res://castagne/modules/physics/CMPhysicsSBMovement.gd")
 	RegisterSpecblock("PhysicsTeching", "res://castagne/modules/physics/CMPhysicsSBTeching.gd")
 	RegisterSpecblock("PhysicsSystem", "res://castagne/modules/physics/CMPhysicsSBSystem.gd")
+	RegisterCASPEvent("Landing")
+	RegisterCASPEvent("Liftoff")
 	
 	RegisterCategory("Position and Movement", {"Description":"These functions allow basic movement and positioning for entities."})
 	RegisterFunction("Move", [1,2], null, {
@@ -563,6 +565,10 @@ func PhysicsPhaseEndEntity(stateHandle):
 		stateHandle.EntitySetFlag(PHYSICS_FLAG_PREFIX + "Airborne")
 	if(prevPhysicsFlags.has(PHYSICS_FLAG_PREFIX + "Airborne") and stateHandle.EntityHasFlag(PHYSICS_FLAG_PREFIX + "Grounded")):
 		stateHandle.EntitySetFlag(PHYSICS_FLAG_PREFIX + "Landing")
+		engine.ExecuteCASPEvent("Landing", stateHandle)
+	if(prevPhysicsFlags.has(PHYSICS_FLAG_PREFIX + "Grounded") and stateHandle.EntityHasFlag(PHYSICS_FLAG_PREFIX + "Airborne")):
+		stateHandle.EntitySetFlag(PHYSICS_FLAG_PREFIX + "Liftoff")
+		engine.ExecuteCASPEvent("Liftoff", stateHandle)
 	
 	var coreModule = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.CORE)
 	for pf in _physicsFlagList:
@@ -1588,9 +1594,10 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 func PhysicsAtk_HandleAttackDefend(attackerHandle, defenderHandle, attackerHitboxes, defenderHurtboxes):
 	for hitbox in attackerHitboxes:
 		for hurtbox in defenderHurtboxes:
-			if(AreBoxesOverlapping(hitbox, hurtbox) and PhysicsAtk_ShouldBoxesConnect(defenderHandle, hitbox, hurtbox)):
-				if(ppAttackModule.HandleHit(attackerHandle, defenderHandle, hitbox, hurtbox)):
-					return true
+			if(AreBoxesOverlapping(hitbox, hurtbox)):
+				if(PhysicsAtk_ShouldBoxesConnect(defenderHandle, hitbox, hurtbox)):
+					if(ppAttackModule.HandleHit(attackerHandle, defenderHandle, hitbox, hurtbox)):
+						return true
 	return false
 
 func PhysicsAtk_ShouldBoxesConnect(defenderHandle, hitbox, hurtbox):

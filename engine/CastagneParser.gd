@@ -1679,9 +1679,16 @@ func _ParseBlockState(fileID):
 						continue
 					
 					for eventName in branch["LetterArgs"].split(","):
+						var overrideAllEventCode = false
+						if(eventName.ends_with('*')):
+							overrideAllEventCode = true
+							eventName = eventName.left(eventName.length()-1)
+						
 						var eventPhaseName = "Event_"+eventName
 						
 						if(eventPhaseName in stateActions):
+							if(overrideAllEventCode):
+								stateActions[eventPhaseName] = []
 							stateActions[eventPhaseName].append_array(actions)
 						else:
 							_Error("Event "+str(eventName)+" doesn't exist!")
