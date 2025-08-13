@@ -22,7 +22,9 @@ func _ready():
 	EnterMenu()
 	
 	# Update version name
-	$MainMenu/Header/CastagneTitle.set_text(Castagne.versionInfo["version-name"])
+	$MainMenu/Header/CastagneTitle.set_text(str(Castagne.versionInfo["version-name"])
+		+ "\nBuild Date: "+str(Castagne.versionInfo["version"])
+		+ "\nBranch: ["+str(Castagne.versionInfo["branch"])+"]")
 	
 	if(tutorialPath != null):
 		$TutorialSystem.StartTutorial(tutorialPath)
@@ -42,9 +44,9 @@ func EnterMenu():
 	
 	# Header
 	var gameTitle = configData.Get("GameTitle")+"\n"+configData.Get("GameVersion")
-	var castagneTitle = configData.Get("CastagneVersion")
+	#var castagneTitle = configData.Get("CastagneVersion")
 	$MainMenu/Header/GameTitle.set_text(gameTitle)
-	$MainMenu/Header/CastagneTitle.set_text(castagneTitle)
+	#$MainMenu/Header/CastagneTitle.set_text(castagneTitle)
 	
 	var flowModule = configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.FLOW)
 	var flowRoot = $MainMenu/FlowPanel

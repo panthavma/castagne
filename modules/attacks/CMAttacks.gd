@@ -403,6 +403,10 @@ func ModuleSetup():
 	RegisterAttackDefault("InheritMomentumY", 0)
 	RegisterAttackDefault("InheritMomentumZ", 0)
 	
+	#RegisterFunction("AttackPushblock", [1,2], null, {
+	#	"Description": "Adds pushblock"
+	#})
+	
 	RegisterFunction("AttackFloat", [1], null, {
 		"Description":"Sets the opponent's gravity on hit to the specified value until the next attack.",
 		"Arguments":["New Gravity"],

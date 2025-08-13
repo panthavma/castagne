@@ -584,8 +584,12 @@ Flag(Attacking)
 
 EEnter:
 	Set(_AttackDuration, 180)
-	AttackRearm()
+	FlagNext(_AttackStartRearm)
 	Set(_AttackAnimInterruptableFrames, 0)
+endif
+
+L_AttackStartRearm:
+	AttackRearm()
 endif
 
 # Counter hit / punish management

@@ -32,15 +32,17 @@ func CUPError(t):
 	lErrors.show()
 	hadErrors = true
 	$Progress/RestartButton.set_text("Update failed, click to close")
+	$Progress/Retry.show()
 func _ready():
 	# Temp since I didn't figure out the process lol
 	#Castagne.baseConfigData.Set("Updater-Branch", branch)
 	#Castagne.baseConfigData.Set("Updater-LastUpdate", nextVersionData["version"])
 	#Castagne.baseConfigData.SaveConfigFile()
 	lErrors.hide()
+	$Progress/Retry.hide()
 	
-	$Progress/Data.set_text("New Version: "+str(nextVersionData["version-name"])+" / ["+str(branch)+"]"+
-		"\nPrevious Version: "+str(Castagne.versionInfo["version-name"])+" / ["+str(Castagne.baseConfigData.Get("Updater-Branch"))+"]")
+	$Progress/Data.set_text("New Version: "+str(nextVersionData["version-name"])+" ("+str(nextVersionData["version"])+") / ["+str(branch)+"]"+
+		"\nPrevious Version: "+str(Castagne.versionInfo["version-name"])+" ("+str(Castagne.versionInfo["version"])+") / ["+str(Castagne.baseConfigData.Get("Updater-Branch"))+"]")
 	
 	downloadAddress = Castagne.baseConfigData.Get("Updater-Source") + "castagne-patch-"+branch.to_lower()+".zip"
 	$Progress/DownloadFrom.set_text("Downloading "+str(downloadAddress))
@@ -63,7 +65,28 @@ func EndButton():
 
 func _on_HTTPRequest_request_completed(result, response_code, headers, body):
 	if(result != HTTPRequest.RESULT_SUCCESS or response_code != 200):
-		CUPError("HTTP Request error: " + str(result) + " / Code " + str(response_code))
+		var resultCodes = {
+			HTTPRequest.RESULT_CHUNKED_BODY_SIZE_MISMATCH: "Chunked Body Size Mismatch",
+			HTTPRequest.RESULT_CANT_CONNECT: "Can't connect",
+			HTTPRequest.RESULT_CANT_RESOLVE: "Can't resolve",
+			HTTPRequest.RESULT_CONNECTION_ERROR: "Connection Read/Write error",
+			HTTPRequest.RESULT_SSL_HANDSHAKE_ERROR: "SSL Handshake Error",
+			HTTPRequest.RESULT_NO_RESPONSE: "No Response",
+			HTTPRequest.RESULT_BODY_SIZE_LIMIT_EXCEEDED: "Body Size Limit Exceeded",
+			HTTPRequest.RESULT_REQUEST_FAILED: "Request Failed",
+			HTTPRequest.RESULT_DOWNLOAD_FILE_CANT_OPEN: "Can't open file",
+			HTTPRequest.RESULT_DOWNLOAD_FILE_WRITE_ERROR: "File write error",
+			HTTPRequest.RESULT_REDIRECT_LIMIT_REACHED: "Redirect limit reached",
+			HTTPRequest.RESULT_TIMEOUT: "Timeout",
+		}
+		
+		var errorText = "HTTP Request error: " + str(result)
+		if(result in resultCodes):
+			errorText += " ("+resultCodes[result]+")"
+		errorText += " / Code " + str(response_code)
+		errorText += "\nPlease retry later! The problem might be temporary."
+		
+		CUPError(errorText)
 		return
 	
 	CUPLog("File obtained!")
@@ -111,3 +134,11 @@ func _progress(delta):
 
 func _on_LinkButton_pressed():
 	OS.shell_open("http://castagneengine.com/builds/Castagne-"+str(branch)+"-Patch.zip")
+
+
+func _on_Retry_pressed():
+	queue_free()
+	var patcher = load("res://castagne/helpers/devtools/updater/CastagneUpdatePatcher.tscn").instance()
+	patcher.nextVersionData = nextVersionData
+	patcher.branch = branch
+	get_node("/root").add_child(patcher)

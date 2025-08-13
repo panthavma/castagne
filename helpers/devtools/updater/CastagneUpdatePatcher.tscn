@@ -24,81 +24,87 @@ anchor_bottom = 0.8
 alignment = 1
 
 [node name="Label" type="Label" parent="Progress"]
-margin_top = 97.0
+margin_top = 85.0
 margin_right = 768.0
-margin_bottom = 111.0
+margin_bottom = 99.0
 text = "Castagne Updater"
 align = 1
 valign = 1
 
 [node name="Data" type="Label" parent="Progress"]
-margin_top = 115.0
+margin_top = 103.0
 margin_right = 768.0
-margin_bottom = 146.0
+margin_bottom = 134.0
 text = "New Version: 20XX-XX-XX / [BRANCH]
 Previous Version: 20XX-XX-XX / [BRANCH]"
 align = 1
 valign = 1
 
 [node name="HSeparator" type="HSeparator" parent="Progress"]
-margin_top = 150.0
+margin_top = 138.0
 margin_right = 768.0
-margin_bottom = 154.0
+margin_bottom = 142.0
 
 [node name="Label2" type="Label" parent="Progress"]
-margin_top = 158.0
+margin_top = 146.0
 margin_right = 768.0
-margin_bottom = 189.0
+margin_bottom = 177.0
 text = "Please make sure you have done a backup of your project before updating! You might need to alter your code or settings after the update is done."
 align = 1
 autowrap = true
 
 [node name="StartUpdate" type="Button" parent="Progress"]
-margin_top = 193.0
+margin_top = 181.0
 margin_right = 768.0
-margin_bottom = 213.0
+margin_bottom = 201.0
 text = "Start update!"
 
 [node name="HSeparator2" type="HSeparator" parent="Progress"]
-margin_top = 217.0
+margin_top = 205.0
 margin_right = 768.0
-margin_bottom = 221.0
+margin_bottom = 209.0
 
 [node name="DownloadFrom" type="Label" parent="Progress"]
-margin_top = 225.0
+margin_top = 213.0
 margin_right = 768.0
-margin_bottom = 239.0
+margin_bottom = 227.0
 text = "Downloading update from: https://address"
 align = 1
 
 [node name="ProgressBarDownload" type="ProgressBar" parent="Progress"]
-margin_top = 243.0
+margin_top = 231.0
 margin_right = 768.0
-margin_bottom = 257.0
+margin_bottom = 245.0
 
 [node name="ApplyLabel" type="Label" parent="Progress"]
-margin_top = 261.0
+margin_top = 249.0
 margin_right = 768.0
-margin_bottom = 275.0
+margin_bottom = 263.0
 text = "Applying update"
 align = 1
 
 [node name="ProgressBarApply" type="ProgressBar" parent="Progress"]
-margin_top = 279.0
+margin_top = 267.0
 margin_right = 768.0
-margin_bottom = 293.0
+margin_bottom = 281.0
 
 [node name="RestartButton" type="Button" parent="Progress"]
-margin_top = 297.0
+margin_top = 285.0
 margin_right = 768.0
-margin_bottom = 317.0
+margin_bottom = 305.0
 disabled = true
-text = "Update complete, click to close!"
+text = "Update complete, click to close! (If prompted by Godot, choose 'Reload')"
+
+[node name="Retry" type="Button" parent="Progress"]
+margin_top = 309.0
+margin_right = 768.0
+margin_bottom = 329.0
+text = "Retry Update"
 
 [node name="Error" type="Label" parent="Progress"]
-margin_top = 321.0
+margin_top = 333.0
 margin_right = 768.0
-margin_bottom = 335.0
+margin_bottom = 347.0
 text = "Error log:"
 align = 1
 autowrap = true
@@ -106,3 +112,4 @@ autowrap = true
 [connection signal="request_completed" from="HTTPRequest" to="." method="_on_HTTPRequest_request_completed"]
 [connection signal="pressed" from="Progress/StartUpdate" to="." method="StartUpdate"]
 [connection signal="pressed" from="Progress/RestartButton" to="." method="EndButton"]
+[connection signal="pressed" from="Progress/Retry" to="." method="_on_Retry_pressed"]

@@ -88,7 +88,7 @@ var PHASES_BASE = ["Init", "Action", "Reaction", "Freeze", "Manual", "AI", "Sube
 var PHASES_EVENTS
 
 var _moduleVariables
-var _letters = ["I", "F", "L", "V", "P", "S", "E"]
+var _letters = ["I", "F", "L", "V", "P", "S", "E", "R"]
 var _branchFunctions
 var _caspEvents
 func _StartParsing(filePath, configData, resetErrors = true):
@@ -550,13 +550,25 @@ func _OptimizeActionList_Sublist(actionList, baseParentLevel, p, state):
 				calledState = "AttackType-"+a[1][0]
 
 			elif(a[0] in branchFuncrefs):
-				a[1][0] = _OptimizeActionList_Sublist(a[1][0], parentLevel, p, state)
-				a[1][1] = _OptimizeActionList_Sublist(a[1][1], parentLevel, p, state)
+				if(a[0] == _branchFunctions["R"]):
+					var nbBlocks = len(a[1][0])
+					var allEmpty = true
+					for j in nbBlocks:
+						a[1][0][j] = _OptimizeActionList_Sublist(a[1][0][j], parentLevel, p, state)
+						if(!a[1][0][j].empty()):
+							allEmpty = false
+					if(allEmpty):
+						actionList.remove(i)
+						loopAgain = true
+						break
+				else:
+					a[1][0] = _OptimizeActionList_Sublist(a[1][0], parentLevel, p, state)
+					a[1][1] = _OptimizeActionList_Sublist(a[1][1], parentLevel, p, state)
 
-				if(a[1][0].empty() and a[1][1].empty()):
-					actionList.remove(i)
-					loopAgain = true
-					break
+					if(a[1][0].empty() and a[1][1].empty()):
+						actionList.remove(i)
+						loopAgain = true
+						break
 
 			#if(calledState != null and calledState in _states):
 			if(calledState != null):
@@ -676,9 +688,14 @@ func _OptimizeActionList_Defines(actionList, variablesList, entityVariablesList)
 		var a = actionList[i]
 		var arguments = a[1]
 		if(a[0] in branchFuncrefs):
-			a[1][0] = _OptimizeActionList_Defines(a[1][0], variablesList, entityVariablesList)
-			a[1][1] = _OptimizeActionList_Defines(a[1][1], variablesList, entityVariablesList)
-			a[1][2] = _OptimizeActionList_Defines_BranchArgs(a[0], a[1][2], variablesList, entityVariablesList)
+			if(a[0] == _branchFunctions["R"]):
+				var nbBlocks = len(a[1][0])
+				for j in range(nbBlocks):
+					a[1][0][j] = _OptimizeActionList_Defines(a[1][0][j], variablesList, entityVariablesList)
+			else:
+				a[1][0] = _OptimizeActionList_Defines(a[1][0], variablesList, entityVariablesList)
+				a[1][1] = _OptimizeActionList_Defines(a[1][1], variablesList, entityVariablesList)
+				a[1][2] = _OptimizeActionList_Defines_BranchArgs(a[0], a[1][2], variablesList, entityVariablesList)
 
 		for j in range(arguments.size()):
 			arguments[j] = _OptimizeActionList_Defines_ReplaceSymbol(arguments[j], variablesList, entityVariablesList)
@@ -741,8 +758,13 @@ func _OptimizeActionList_StaticBranches(actionListToParse):
 			else:
 				newActionList.push_back(a)
 		elif a[0] in branchFuncrefs:
-			a[1][0] = _OptimizeActionList_StaticBranches(a[1][0])
-			a[1][1] = _OptimizeActionList_StaticBranches(a[1][1])
+			if(a[0] == _branchFunctions["R"]):
+				var nbBlocks = len(a[1][0])
+				for j in range(nbBlocks):
+					a[1][0][j] = _OptimizeActionList_StaticBranches(a[1][0][j])
+			else:
+				a[1][0] = _OptimizeActionList_StaticBranches(a[1][0])
+				a[1][1] = _OptimizeActionList_StaticBranches(a[1][1])
 			newActionList.push_back(a)
 		else:
 			newActionList.push_back(a)
@@ -807,12 +829,19 @@ func _ExtractFlagsFromActionList(actionList, metadata, level = 0):
 		var a = actionList[i]
 		var arguments = a[1]
 		if(a[0] in branchFuncrefs):
-			var nft = _ExtractFlagsFromActionList(arguments[0], metadata, level+1)
-			for flag in nft:
-				f.push_back(flag)
-			var nff = _ExtractFlagsFromActionList(arguments[1], metadata, level+1)
-			for flag in nff:
-				f.push_back(flag)
+			if(a[0] == _branchFunctions["R"]):
+				var nbBlocks = len(a[1][0])
+				for j in range(nbBlocks):
+					var rf = _ExtractFlagsFromActionList(a[1][0][j], metadata, level+1)
+					for flag in rf:
+						f.push_back(flag)
+			else:
+				var nft = _ExtractFlagsFromActionList(arguments[0], metadata, level+1)
+				for flag in nft:
+					f.push_back(flag)
+				var nff = _ExtractFlagsFromActionList(arguments[1], metadata, level+1)
+				for flag in nff:
+					f.push_back(flag)
 
 		elif(a[0] in attackRegisterFuncrefs and level == 0):
 			var atkType = null
@@ -1692,6 +1721,22 @@ func _ParseBlockState(fileID):
 							stateActions[eventPhaseName].append_array(actions)
 						else:
 							_Error("Event "+str(eventName)+" doesn't exist!")
+				elif(branch["Letter"] == "R"):
+					var nbRBlocks = len(branch["R_Thresholds"])
+					var actions = {}
+					for p in PHASES_BASE:
+						actions[p] = []
+					for rbID in range(nbRBlocks):
+						var actionLists = branch["R_"+str(rbID)]
+						for p in PHASES_BASE:
+							actions[p] += [actionLists[p]]
+					for p in PHASES_BASE:
+						var args = [actions[p], branch["R_Thresholds"], branch["R_Sum"]]
+						var d = [branch["Func"], args]
+						if(currentSubblock == null):
+							stateActions[p] += [d]
+						else:
+							currentSubblock[currentSubblockList][p] += [d]
 				elif(branch["Letter"] == "P"):
 					var phaseToGet = "Manual"
 					var actionsInPhase = branch["True"][phaseToGet]
@@ -1732,6 +1777,10 @@ func _ParseBlockState(fileID):
 					_Error("Else found in an E branch!")
 					line = _GetNextLine(fileID)
 					continue
+				if(currentSubblock["Letter"] == "R"):
+					_Error("Else found in an R branch!")
+					line = _GetNextLine(fileID)
+					continue
 				if(currentSubblockList == "False"):
 					_Error("Else found while already in an else block!")
 					line = _GetNextLine(fileID)
@@ -1750,6 +1799,25 @@ func _ParseBlockState(fileID):
 					currentSubblockList = currentSubblockList.left(currentSubblockList.length() - 1)
 				else:
 					currentSubblockList = currentSubblockList + "**"
+			elif(line.begins_with("R") and !line.ends_with(":")):
+				if(currentSubblock == null or currentSubblock["Letter"] != "R"):
+					_Error("R followup found without an R branch!")
+					line = _GetNextLine(fileID)
+					continue
+				
+				letterArgs = line.left(line.length()).right(1)
+				if(!letterArgs.is_valid_integer()):
+					_Error("R followup with a non-static weight: "+letterArgs)
+					line = _GetNextLine(fileID)
+					continue
+				
+				var weight = int(letterArgs)
+				currentSubblockList = "R_"+str(len(currentSubblock["R_Thresholds"]))
+				currentSubblock["R_Sum"] += weight
+				currentSubblock["R_Thresholds"] += [currentSubblock["R_Sum"]]
+				currentSubblock[currentSubblockList] = {}
+				for p in PHASES_WITH_EVENTS:
+					currentSubblock[currentSubblockList][p] = []
 			elif(line.begins_with("S") and !line.ends_with(":")):
 				if(currentSubblock == null or currentSubblock["Letter"] != "S"):
 					_Error("S followup found without an S branch!")
@@ -1813,6 +1881,22 @@ func _ParseBlockState(fileID):
 				if(letter == "E"):
 					if(reserveSubblocks.size() > 1):
 						_Error("E Branches can't exist from within another branch.")
+				
+				if(letter == "R"):
+					if(!letterArgs.is_valid_integer()):
+						_Error("R branch with a non-static weight: "+letterArgs)
+						line = _GetNextLine(fileID)
+						continue
+					
+					
+					var weight = int(letterArgs)
+					currentSubblock["R_Sum"] = weight
+					currentSubblock["R_Thresholds"] = [weight]
+					currentSubblockList = "R_0"
+					currentSubblock["R_0"] = {}
+					for p in PHASES_WITH_EVENTS:
+						currentSubblock["R_0"][p] = []
+					
 				
 				if(letter == "S"):
 					# S Branch is static only, and can't exist from another branch
@@ -2112,6 +2196,21 @@ func InstructionP(args, stateHandle):
 	stateHandle.SetPhase("Manual")
 	InstructionBranch(args, stateHandle, cond)
 	stateHandle.SetPhase(initPhaseName)
+
+func InstructionR(args, stateHandle):
+	var actionLists = args[0]
+	var thresholds = args[1]
+	var sum = args[2]
+	
+	# Not deterministic, but it's okay for now.
+	var randomNumber = randi() % sum
+	var chosenBranch = 0
+	while(randomNumber >= thresholds[chosenBranch]):
+		chosenBranch += 1
+	print(randomNumber)
+	
+	var phase = stateHandle.GetPhase()
+	stateHandle.Engine().ExecuteFighterScript({"Name":"Branch", phase:actionLists[chosenBranch]}, stateHandle)
 
 func InstructionBranch(args, stateHandle, condition):
 	var actionListTrue = args[0]

@@ -28,7 +28,9 @@ func EnterMenu(bid):
 	
 	if(typeof(characterPath) == TYPE_INT):
 		characterPath = Castagne.SplitStringToArray(editor.configData.Get("CharacterPaths"))[characterPath]
-	$TopBar/HBoxContainer/Label.set_text(Castagne.versionInfo["version-name"]+" | Editing " + characterPath)
+	$TopBar/HBoxContainer/Label.set_text(str(Castagne.versionInfo["version-name"])+" ("
+		+str(Castagne.versionInfo["version"])+") ["+str(Castagne.versionInfo["branch"])
+		+"] | Editing " + characterPath)
 	
 	$TopBar/HBoxContainer/Save.set_disabled(true)
 	
@@ -1244,12 +1246,27 @@ func _on_DeleteState_pressed():
 	if(_navigationSelected == null or _navigationSelected.GetStateData()["Name"] == "Character"):
 		return
 	
-	ShowConfirmPopup(funcref(self, "DeleteStateCallback"), "Delete state "+str(_navigationSelected.GetStateData()["Name"])+" ?")
+	var stateName = _navigationSelected.GetStateData()["Name"]
+	
+	# Special behavior ENTITY
+	if(stateName.ends_with("---Subentity")):
+		var entityName = stateName.left(stateName.length() - 12)
+		ShowConfirmPopup(funcref(self, "DeleteStateCallback"), "Delete entity "+str(entityName)+" ?\n(CAUTION: This will delete all its states!)")
+	else:
+		ShowConfirmPopup(funcref(self, "DeleteStateCallback"), "Delete state "+str(stateName)+" ?")
 
 func DeleteStateCallback(confirmed = false):
 	if(_navigationSelected != null and confirmed):
 		var fileID = _navigationSelected.GetFileID()
-		character[fileID]["States"].erase(_navigationSelected.GetStateData()["Name"])
+		var stateName = _navigationSelected.GetStateData()["Name"]
+		if(stateName.ends_with("---Subentity")):
+			var stateNames = character[fileID]["States"].keys()
+			var entityPrefix = stateName.left(stateName.length()-9)
+			for sn in stateNames:
+				if(sn.begins_with(entityPrefix)):
+					character[fileID]["States"].erase(sn)
+		else:
+			character[fileID]["States"].erase(stateName)
 		character[fileID]["Modified"] = true
 		var cf = curFile
 		SaveFile()

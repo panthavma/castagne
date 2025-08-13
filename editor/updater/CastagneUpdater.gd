@@ -93,14 +93,18 @@ func UpdateDisplay():
 	$Data/Branch/Current.set_text("Current Branch: ["+currentBranch+"]")
 	
 	$Data/Versions/Current.set_text("Current Version: " + currentVersionData["version-name"])
+	$Data/BuildDate/Current.set_text("Build Date: " + str(currentVersionData["version"]))
 	var nextVersionText = "[Invalid]"
+	var nextBuildDateText = ""
 	if(updateStatus == UPDATE_STATUS.NotStarted or updateStatus == UPDATE_STATUS.NetworkIssue):
 		nextVersionText = "[Unknown]"
 	elif(updateStatus == UPDATE_STATUS.Checking):
 		nextVersionText = "[Checking...]"
-	elif(nextVersionData != null and nextVersionData["version-name"] != null):
+	elif(nextVersionData != null and nextVersionData["version-name"] != null and nextVersionData["version"] != null):
 		nextVersionText = nextVersionData["version-name"]
+		nextBuildDateText = "Build Date: "+str(nextVersionData["version"])
 	$Data/Versions/Next.set_text("Next Version: " + nextVersionText)
+	$Data/BuildDate/Next.set_text(nextBuildDateText)
 	
 	if(updateStatus == UPDATE_STATUS.CanUpdate):
 		$Data/Changelog.set_text(nextVersionData["changelog"])
@@ -119,17 +123,20 @@ func UpdateDisplay():
 		else:
 			$UpdaterUpdate.set_text(statusTexts[updateStatus])
 			$UpdaterUpdate.set_disabled(true)
+	
+	if(updateStatus == UPDATE_STATUS.CanUpdate or updateStatus == UPDATE_STATUS.NoNewUpdate):
+		$UpdaterForceUpdate.set_text("Force Update / Reinstall")
+		$UpdaterForceUpdate.set_disabled(false)
+	else:
+		$UpdaterForceUpdate.set_text("Can't reinstall without server check-in.")
+		$UpdaterForceUpdate.set_disabled(true)
 
 
 
 
 func _on_UpdaterUpdate_pressed():
 	if(updateStatus == UPDATE_STATUS.CanUpdate):
-		get_node("../../").queue_free()
-		var patcher = load("res://castagne/helpers/devtools/updater/CastagneUpdatePatcher.tscn").instance()
-		patcher.nextVersionData = nextVersionData
-		patcher.branch = currentBranch
-		get_node("/root").add_child(patcher)
+		StartUpdate()
 	else:
 		CheckForUpdates(true)
 
@@ -137,3 +144,17 @@ func _on_UpdaterUpdate_pressed():
 func _on_ChosenBranch_item_selected(index):
 	currentBranch = BRANCHES[index]
 	CheckForUpdates(true)
+
+func StartUpdate():
+	get_node("../../").queue_free()
+	var patcher = load("res://castagne/helpers/devtools/updater/CastagneUpdatePatcher.tscn").instance()
+	patcher.nextVersionData = nextVersionData
+	patcher.branch = currentBranch
+	get_node("/root").add_child(patcher)
+
+
+func _on_UpdaterForceUpdate_pressed():
+	if(updateStatus == UPDATE_STATUS.CanUpdate or updateStatus == UPDATE_STATUS.NoNewUpdate):
+		StartUpdate()
+	else:
+		CheckForUpdates(true)
