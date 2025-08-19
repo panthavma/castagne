@@ -232,6 +232,8 @@ SetMomentum(MOVE_Airdash_AirdashF_SpeedX, MOVE_Airdash_AirdashF_SpeedY)
 :AirjumpB:
 ## Movement state for backward air jumps.
 _Category(Movement/Dashes/Airjump)
+
+def SSTATE_CanBlock bool() = 1
 Call(AirborneState)
 
 Call(UseAirActionAtStart)
@@ -252,6 +254,8 @@ endif
 :AirjumpF:
 ## Movement state for forward air jumps.
 _Category(Movement/Dashes/Airjump)
+
+def SSTATE_CanBlock bool() = 1
 Call(AirborneState)
 
 Call(UseAirActionAtStart)
@@ -272,6 +276,8 @@ endif
 :AirjumpN:
 ## Movement state for neutral air jumps.
 _Category(Movement/Dashes/Airjump)
+
+def SSTATE_CanBlock bool() = 1
 Call(AirborneState)
 
 Call(UseAirActionAtStart)
@@ -1690,7 +1696,7 @@ def SSTATE_CancelOnLanding bool() = 0
 def SSTATE_CanBlock bool() = 0
 
 VSSTATE_CanBlock:
-	Flag(CanBlock)
+	Call(Attack-CanBlock)
 endif
 
 VSSTATE_CrouchingState:

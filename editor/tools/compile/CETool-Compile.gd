@@ -123,10 +123,11 @@ func AddLogOrError(message, error = false):
 	var ed = {
 		"Runtime":true,
 		"Error":error,
+		"Message":str(message),
 	}
 	errorData += [ed]
 	
-	smallErrorWindow.add_item(message)
+	smallErrorWindow.add_item(str(message))
 	smallErrorWindow.select(smallErrorWindow.get_item_count() - 1)
 	smallErrorWindow.ensure_current_is_visible()
 	UpdateCompilStatusButton()

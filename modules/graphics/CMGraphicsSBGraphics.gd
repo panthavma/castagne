@@ -8,8 +8,11 @@ func SetupSpecblock(_argument):
 	SetDisplayName("Graphics Settings")
 	SetForMainEntitySubEntity(true, true)
 	
-	AddDefine("GRAPHICS_Scale", 1000, "Scale")
 	
+	AddCategory("General")
+	AddDefine("GRAPHICS_Scale", 1000, "Scale")
+	AddDefine("GRAPHICS_PauseAttackerVFXOnHitstop", true, "Pause Attacker VFX during Hitstop")
+	AddDefine("GRAPHICS_AutomaticZOrder", true, "Use Automatic Z-Order")
 	AddCategory("Models")
 	AddDefine("GRAPHICS_UseModel", true)
 	AddDefine("GRAPHICS_ModelPath", "res://castagne/assets/fighters/baston/model/BastonModel.tscn")
@@ -19,6 +22,7 @@ func SetupSpecblock(_argument):
 	AddCategory("Sprites")
 	AddDefine("GRAPHICS_UseSprites", false)
 	AddDefine("GRAPHICS_SpritePalette", "res://castagne/assets/helpers/palette/PaletteManual01.png")
+	
 	
 	AddStructure("Spritesheets", "GRAPHICS_SPRITESHEET_")
 	AddStructureDefine("Path", "res://")

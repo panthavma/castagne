@@ -1430,6 +1430,10 @@ func _Warning(text):
 	_ErrorCommon("Warning", text, false, false)
 func _Error(text):
 	_ErrorCommon("Error", text, true, false)
+func _Error_PreviousLine(text):
+	_lineIDs[_curFile] -= 1
+	_ErrorCommon("Error", text, true, false)
+	_lineIDs[_curFile] += 1
 func _FatalError(text):
 	_ErrorCommon("Fatal Error", text, true, true)
 func _ErrorCommon(type, text, invalidFile, abortParsing):
@@ -1865,6 +1869,9 @@ func _ParseBlockState(fileID):
 				reserveSubblocks.push_back(currentSubblock)
 				reserveSubblocksList.push_back(currentSubblockList)
 				currentSubblockList = "True"
+				
+				if(!line.ends_with(":")):
+					_Error("Branch start lacks the ':' ender")
 
 				currentSubblock = {
 					"Func": _branchFunctions[letter],
@@ -1940,6 +1947,8 @@ func _ParseBlockState(fileID):
 						currentSubblock["S_Blocks_End"] += [la]
 						currentSubblock["S_Sum"] = la
 					else:
+						currentSubblock["S_Blocks_End"] += [1]
+						currentSubblock["S_Sum"] = 1
 						_Error("S Branch is not a static number: " + letterArgs)
 
 			else:
@@ -1952,6 +1961,9 @@ func _ParseBlockState(fileID):
 
 		if(_aborting):
 			return null
+	if(currentSubblock != null):
+		_Error_PreviousLine("One branch is still open, did you forget an endif?")
+		return null
 	for p in PHASES_WITH_EVENTS:
 		_currentState[p] = stateActions[p]
 	return _currentState

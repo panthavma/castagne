@@ -45,7 +45,6 @@ internal _PaletteID
 internal _Tmp_DefaultModelPath
 internal _Tmp_DefaultSpritePalettePath
 
-def GRAPHICS_ZORDER_AUTOMATIC bool() = 1
 def GRAPHICS_ZORDER_DEFENDER int() = 0
 def GRAPHICS_ZORDER_ATTACKER int() = 1
 :AnimAirTechBackward:
@@ -436,8 +435,12 @@ _Category(Internals/Attacks/React)
 _Helper()
 
 EOnAttackHit,OnAttackBlocked:
-	VGRAPHICS_ZORDER_AUTOMATIC:
+	VGRAPHICS_AutomaticZOrder:
 		ModelZOrder(GRAPHICS_ZORDER_ATTACKER)
+	endif
+	
+	VGRAPHICS_PauseAttackerVFXOnHitstop:
+		Flag(VFXPause)
 	endif
 endif
 :AttackReactEvents-Defender:
@@ -449,8 +452,12 @@ _Category(Internals/Attacks/React)
 _Helper()
 
 EOnGetHit,OnBlocking:
-	VGRAPHICS_ZORDER_AUTOMATIC:
+	VGRAPHICS_AutomaticZOrder:
 		ModelZOrder(GRAPHICS_ZORDER_DEFENDER)
+	endif
+	
+	VGRAPHICS_PauseAttackerVFXOnHitstop:
+		Flag(VFXPause)
 	endif
 endif
 
@@ -467,6 +474,13 @@ endif
 
 EOnBlocking:
 	Call(VFXBlock)
+endif
+:Common:
+CallParent()
+Call(Common-Graphics)
+:Common-Graphics:
+PFreeze:
+#	Unflag(VFXPause)
 endif
 :Init:
 CallParent()
@@ -552,31 +566,39 @@ ModelScale(Model_Scale)
 ## Temporary block vfx function
 ## CASTDO
 
-def VFXPath str() = res://castagne/assets/fx/TempBlockVFX.tscn
-def VFXPosX int() = 3000
-def VFXPosY int() = 10000
-def VFXScale int() = 1000
-def VFXTime int() = 10
-def VFXAnimation str() = default
-def VFXAnimPlayer str() = AnimationPlayer
+def VFXBlockPath str() = res://castagne/assets/fx/TempBlockVFX.tscn
+def VFXBlockPosX int() = 3000
+def VFXBlockPosY int() = 10000
+def VFXBlockScale int() = 1000
+def VFXBlockTime int() = 10
+def VFXBlockAnimation str() = default
+def VFXBlockAnimPlayer str() = AnimationPlayer
 
-#VFXPrepare(VFXPath, VFXTime, VFXPosX, VFXPosY)
-#VFXScale(VFXScale)
-#VFXAnimation(VFXAnimation, VFXAnimPlayer)
-#VFXCreate()
+EOnBlocking:
+	VFXModel(VFXBlockPath)
+	VFXTime(VFXBlockTime)
+	VFXPosition(VFXBlockPosX, VFXBlockPosY)
+	VFXScale(VFXBlockScale)
+	VFXAnimation(VFXBlockAnimation, VFXBlockAnimPlayer)
+	VFXCreate()
+endif
 :VFXHit:
 ## Temporary hit vfx function
 ## CASTDO
 
-def VFXPath str() = res://castagne/assets/fx/TempHitVFX.tscn
-def VFXPosX int() = 5000
-def VFXPosY int() = 10000
-def VFXScale int() = 600
-def VFXTime int() = 10
-def VFXAnimation str() = default
-def VFXAnimPlayer str() = AnimationPlayer
+def VFXHitPath str() = res://castagne/assets/fx/TempHitVFX.tscn
+def VFXHitPosX int() = 1000
+def VFXHitPosY int() = 10000
+def VFXHitScale int() = 400
+def VFXHitTime int() = 10
+def VFXHitAnimation str() = default
+def VFXHitAnimPlayer str() = AnimationPlayer
 
-#VFXPrepare(VFXPath, VFXTime, VFXPosX, VFXPosY)
-#VFXScale(VFXScale)
-#VFXAnimation(VFXAnimation, VFXAnimPlayer)
-#VFXCreate()
+EOnGetHit:
+	VFXModel(VFXHitPath)
+	VFXTime(VFXHitTime)
+	VFXPosition(VFXHitPosX, VFXHitPosY)
+	VFXScale(VFXHitScale)
+	VFXAnimation(VFXHitAnimation, VFXHitAnimPlayer)
+	VFXCreate()
+endif

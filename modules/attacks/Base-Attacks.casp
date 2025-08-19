@@ -582,15 +582,12 @@ _BaseState()
 AttackInit()
 Flag(Attacking)
 
-EEnter:
+F1:
 	Set(_AttackDuration, 180)
-	FlagNext(_AttackStartRearm)
+	AttackRearm()
 	Set(_AttackAnimInterruptableFrames, 0)
 endif
-
-L_AttackStartRearm:
-	AttackRearm()
-endif
+## CASTDO EEnter causes issues here ? Leaving it at F1 breaks TranstitionToFrame but less important than base behavior
 
 # Counter hit / punish management
 LAttackHasTouched:
@@ -1289,6 +1286,27 @@ AttackDuration(60)
 # Active frames and hitboxes
 F10-12:
 	Hitbox(0, 15000, 5000, 15000)
+endif
+
+
+:StateTemplate-Attack-Sequential:
+# Simple medium attack template using an S branch (sequential)
+AttackRegister(Medium)
+
+# Adjust parameters here
+AttackDamage(1000)
+# AttackMustBlock(Low)
+
+# Put your animation here
+#Anim(5B)
+
+SATK9:
+	# Startup
+S3
+	# Active
+	Hitbox(0, 15000, 5000, 15000)
+S50
+	# Recovery
 endif
 :StateTemplate-Attack-Projectile:
 # Projectile-throwing move template. Needs a separate entity you'll have to create!

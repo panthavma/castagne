@@ -1156,7 +1156,12 @@ func VFXSpriteCreate(args, stateHandle):
 	VFXPosition([args[paramsStart+1], args[paramsStart+2]], stateHandle)
 	VFXCreate(null, stateHandle)
 func GizmoVFXSpriteCreate(emodule, args, lineActive, stateHandle):
-	GizmoVFXPosition(emodule, args, lineActive, stateHandle)
+	if(args.size() == 4):
+		var argsPos = [args[2], args[3]]
+		GizmoVFXPosition(emodule, argsPos, lineActive, stateHandle)
+	elif(args.size() >= 5):
+		var argsPos = [args[3], args[4]]
+		GizmoVFXPosition(emodule, argsPos, lineActive, stateHandle)
 func VFXModelCreate(args, stateHandle):
 	var paramsStart = 1
 	if(args.size() == 5):
@@ -1169,7 +1174,9 @@ func VFXModelCreate(args, stateHandle):
 	VFXPosition([args[paramsStart+1], args[paramsStart+2]], stateHandle)
 	VFXCreate(null, stateHandle)
 func GizmoVFXModelCreate(emodule, args, lineActive, stateHandle):
-	GizmoVFXPosition(emodule, args, lineActive, stateHandle)
+	if(args.size() >= 4):
+		var argsPos = [args[2], args[3]]
+		GizmoVFXPosition(emodule, argsPos, lineActive, stateHandle)
 func VFXCreate(args, stateHandle):
 	var data = stateHandle.EntityGet("_PreparingVFX").duplicate(true)
 	
@@ -1187,7 +1194,7 @@ func VFXCreate(args, stateHandle):
 	graphicsRoot.add_child(vfxNode)
 	if(data["AnimationPlayer"] != null):
 		var animPlayer = vfxNode.get_node(data["AnimationPlayer"])
-		animPlayer.play(data["Animation"])
+		animPlayer.play(data["Animation"], -1, 0.0)
 	
 	data["ID"] = stateHandle.IDGlobalGet("VFXState").size()
 	var idData = {"VFXNode": vfxNode, "IsSprite": isSprite}
@@ -1231,17 +1238,23 @@ func _ResetVFXData(stateHandle):
 
 func _VFXUpdate_FrameStart(stateHandle, vfxData):
 	var idData = stateHandle.IDGlobalGet("VFXState")[vfxData["ID"]]
-	vfxData["TimeAlive"] += 1
+	
 	var deleteVFX = false
 	
-	if(vfxData["TimeRemaining"] != null):
-		vfxData["TimeRemaining"] -= 1
-		if(vfxData["TimeRemaining"] <= 0):
-			deleteVFX = true
-	
+	var timeScale = 1
 	var parentAlive = stateHandle.PointToEntity(vfxData["ParentEID"])
 	if(!parentAlive):
 		deleteVFX = true
+	else:
+		if(stateHandle.EntityHasFlag("VFXPause")):
+			timeScale = 0
+	
+	vfxData["TimeAlive"] += 1 * timeScale
+	
+	if(vfxData["TimeRemaining"] != null):
+		vfxData["TimeRemaining"] -= 1 * timeScale
+		if(vfxData["TimeRemaining"] <= 0):
+			deleteVFX = true
 	
 	if(deleteVFX):
 		var vfxNode = idData["VFXNode"]
@@ -1260,7 +1273,10 @@ func _VFXUpdate_UpdateGraphics(stateHandle, vfxData):
 	
 	if(isSprite):
 		vfxNode.UpdateSpriteVFX(vfxData)
-	## TODO : Actual animation support
+	
+	if(vfxData["AnimationPlayer"] != null):
+		var animPlayer = vfxNode.get_node(vfxData["AnimationPlayer"])
+		animPlayer.seek((vfxData["TimeAlive"]+1.0)/60.0, true)
 	
 	_ModelApplyTransformDirect(vfxNode, [vfxData["PosX"], vfxData["PosY"], vfxData["PosZ"]], vfxData["Rotation"], vfxData["Scale"], vfxData["Facing"])
 	if(vfxNode.has_method("VFXUpdate")):
