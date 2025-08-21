@@ -523,7 +523,7 @@ func LogDirectionalInputs(stateHandle):
 	
 	if inputLog.empty():
 		inputLog.resize(buffer)
-		inputLog.fill(5)
+		inputLog.fill("5")
 	
 	if(inputs["Up"]):
 		direction += 3

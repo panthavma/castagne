@@ -861,7 +861,7 @@ func _CreateSpriteData():
 		"Spritesheet":null,
 		"SpritesX":1, "SpritesY":1,
 		"OriginX":1, "OriginY":1,
-		"PixelSize":100, "PaletteMode": 0,
+		"PixelSize":100000, "PaletteMode": 0,
 	}
 
 func _GetCurrentSpriteData(stateHandle):

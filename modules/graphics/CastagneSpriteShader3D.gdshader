@@ -43,11 +43,11 @@ void fragment() {
 	
 	spriteColor *= ModulationColor;
 	// SRGB correction
-	spriteColor = vec4(
+	/*spriteColor = vec4(
 		pow(spriteColor.r, 2.2),
 		pow(spriteColor.g, 2.2),
 		pow(spriteColor.b, 2.2),
-		spriteColor.a);
+		spriteColor.a);*/
 	ALBEDO = spriteColor.rgb;
 	if(spriteColor.a < 0.2)
 		discard;

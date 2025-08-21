@@ -77,6 +77,8 @@ func UpdateSpriteFromData(spriteData, displayData):
 	else:
 		sprite.set_translation(Vector3.FORWARD*displayData["ZOrder"]*-0.0005)
 		spriteMaterial.set_shader_param("spritesheet", spriteData["Spritesheet"])
+		sprite.set_offset(Vector2(-spriteData["OriginX"], -spriteData["OriginY"]))
+		sprite.set_pixel_size(spriteData["PixelSize"]/1000)
 		#sprite.set_material_override(spriteMaterial)
 
 var animations

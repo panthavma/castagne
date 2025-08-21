@@ -61,6 +61,10 @@ func AddEntity():
 func RemoveEntity(eid):
 	_memoryEntities[eid] = null
 
+
+func IsEIDValid(eid):
+	return eid >= 0 and eid < _memoryEntities.size() and _memoryEntities[eid] != null
+
 func EntityGet(eid, keyName):
 	if(_memoryEntities[eid].has(keyName)):
 		return _memoryEntities[eid][keyName]

@@ -35,10 +35,11 @@ func CloneStateHandle():
 	return sh
 
 
+
 # Global entity / player management
 func PointToEntity(eid):
 	_eid = eid
-	var validEID = eid >= 0 and eid < _memory._memoryEntities.size()
+	var validEID = _memory.IsEIDValid(eid)
 	if(!validEID):
 		return false
 	

@@ -30,7 +30,7 @@ func SetupSpecblock(_argument):
 	AddStructureDefine("SpritesY", 1, "Sprites Y")
 	AddStructureDefine("OriginX", 0, "Origin X")
 	AddStructureDefine("OriginY", 0, "Origin Y")
-	AddStructureDefine("PixelSize", 100, "3D Pixel Size")
+	AddStructureDefine("PixelSize", 100000, "3D Pixel Size")
 	AddStructureDefine("PaletteMode", 0, "Palette Mode", {
 		"Options": ["Raw", "Sprite Palette"]
 	})
