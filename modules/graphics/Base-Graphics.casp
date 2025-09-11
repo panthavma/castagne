@@ -276,6 +276,16 @@ VANIMS_UseStandardAnims:
 		AnimFrame(ANIM_Reacts_Hitstun_Airborne, 0)
 	endif
 endif
+
+EEnter:
+	VANIMS_UseStandardAnims:
+		Anim(ANIM_Reacts_Hitstun_Airborne)
+		
+		PFreeze:
+			AnimFrame(ANIM_Reacts_Hitstun_Airborne, 0)
+		endif
+	endif
+endif
 :AnimHitstunCrouching:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
@@ -286,6 +296,16 @@ VANIMS_UseStandardAnims:
 		AnimFrame(ANIM_Reacts_Hitstun_Crouching, 0)
 	endif
 endif
+
+EEnter:
+	VANIMS_UseStandardAnims:
+		Anim(ANIM_Reacts_Hitstun_Crouching)
+		
+		PFreeze:
+			AnimFrame(ANIM_Reacts_Hitstun_Crouching, 0)
+		endif
+	endif
+endif
 :AnimHitstunStanding:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
@@ -294,6 +314,16 @@ VANIMS_UseStandardAnims:
 	
 	PFreeze:
 		AnimFrame(ANIM_Reacts_Hitstun_Standing, 0)
+	endif
+endif
+
+EEnter:
+	VANIMS_UseStandardAnims:
+		Anim(ANIM_Reacts_Hitstun_Standing)
+		
+		PFreeze:
+			AnimFrame(ANIM_Reacts_Hitstun_Standing, 0)
+		endif
 	endif
 endif
 :AnimJumpB:

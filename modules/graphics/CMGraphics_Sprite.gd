@@ -118,16 +118,17 @@ func _CreateSpriteAnims(stateHandle):
 
 var spriteShaderRessourceDefault = preload("res://castagne/modules/graphics/CastagneSpriteShader.gdshader")
 var spriteShader3DRessourceDefault = preload("res://castagne/modules/graphics/CastagneSpriteShader3D.gdshader")
-func ApplyMaterial(stateHandle):
+func ApplyMaterial(stateHandle, spriteShader = null):
 	var paletteTexturePath = stateHandle.EntityGet("_SpritePalettePath")
 	paletteTexture = Castagne.Loader.Load(paletteTexturePath)
 	spriteMaterial = ShaderMaterial.new()
-	var spriteShader = (spriteShaderRessourceDefault if is2D else spriteShader3DRessourceDefault)
-	var shaderPath = stateHandle.ConfigData().Get("SpriteShaderPath")
-	if(!shaderPath.empty()):
-		var shaderCustom = Castagne.Loader.Load(shaderPath)
-		if(shaderCustom != null):
-			spriteShader = shaderCustom
+	if(spriteShader == null):
+		spriteShader = (spriteShaderRessourceDefault if is2D else spriteShader3DRessourceDefault)
+		var shaderPath = stateHandle.ConfigData().Get("SpriteShaderPath")
+		if(!shaderPath.empty()):
+			var shaderCustom = Castagne.Loader.Load(shaderPath)
+			if(shaderCustom != null):
+				spriteShader = shaderCustom
 	spriteMaterial.set_shader(spriteShader)
 	if(!is2D):
 		var spriteData = graphicsModule._GetCurrentSpriteData(stateHandle)

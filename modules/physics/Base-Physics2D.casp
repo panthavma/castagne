@@ -638,6 +638,10 @@ EOnAttackHit,OnAttackBlocked:
 	AttackInflictedSetParam(MomentumX, CAST_REG_A)
 	AttackInflictedSetParam(MomentumY, CAST_REG_B)
 	AttackInflictedSetParam(MomentumZ, CAST_REG_C)
+	
+	VCAST_REG_B>0:
+		AttackInflictedFlag(Launcher)
+	endif
 endif
 :AttackReactEvents-Defender:
 CallParent()
@@ -1331,6 +1335,10 @@ endif
 
 HurtboxRequires(OTG)
 Call(Knockdown-Hurtbox)
+
+EDefenderAttackOverrides:
+	AttackRecievedOverride(OTG)
+endif
 :Knockdown-Hurtbox:
 ## Helper function to add a hurtbox to knockdown states. Can be disabled in general, or for one frame with the NoHurtbox flag (useful for reversals).
 _Category(Custom/Physics)

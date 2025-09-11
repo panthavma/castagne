@@ -417,6 +417,13 @@ Model functions affect the whole graphics side, so even sprites are affected her
 	RegisterFunction("VFXFlipFacing", [0], null, {
 		"Description": "Flips the horizontal facing of the VFX.",
 	})
+	RegisterFunction("VFXLockToEntity", [0,1], null, {
+		"Description": "Makes the VFX locked to the entity. Use the argument to reverse.",
+		"Arguments": ["Should lock to the entity (default: 1)"],
+	})
+	RegisterFunction("VFXUnlockFromEntity", [0], null, {
+		"Description": "Unlocks the VFX from the entity.",
+	})
 	
 	RegisterFunction("VFXParam", [2,3,4], null, {
 		"Description": "Sets a parameter function of the form c+bt+at², with t as the number of frames since spawning.",
@@ -1050,8 +1057,10 @@ func VFXReset(_args, stateHandle):
 func VFXModel(args, stateHandle):
 	var vfxName = ArgStr(args, stateHandle, 0)
 	_VFXSetSingle(stateHandle, "ScenePath", vfxName)
+	_VFXSetSingle(stateHandle, "IsSprite", false)
 func VFXSprite(args, stateHandle):
 	_VFXSetSingle(stateHandle, "ScenePath", null)
+	_VFXSetSingle(stateHandle, "IsSprite", true)
 	var spriteFrame = 0
 	var spriteSheet = null
 	var spriteAnim = null
@@ -1134,7 +1143,10 @@ func VFXFacingAbsolute(args, stateHandle):
 	_VFXSetSingle(stateHandle, "Facing", f)
 func VFXFlipFacing(_args, stateHandle):
 	_VFXSetSingle(stateHandle, "Facing", -stateHandle.EntityGet("_PreparingVFX")["Facing"])
-
+func VFXLockToEntity(args, stateHandle):
+	_VFXSetSingle(stateHandle, "LockToEntity", ArgBool(args, stateHandle, 0, true))
+func VFXUnlockFromEntity(_args, stateHandle):
+	_VFXSetSingle(stateHandle, "LockToEntity", false)
 
 func VFXParam(args, stateHandle):
 	_VFXSetFunc(stateHandle, "_"+ArgRaw(args, 0), ArgInt(args, stateHandle, 1, 0), ArgInt(args, stateHandle, 2, 0), ArgInt(args, stateHandle, 3, 0))
@@ -1178,34 +1190,41 @@ func GizmoVFXModelCreate(emodule, args, lineActive, stateHandle):
 		var argsPos = [args[2], args[3]]
 		GizmoVFXPosition(emodule, argsPos, lineActive, stateHandle)
 func VFXCreate(args, stateHandle):
-	var data = stateHandle.EntityGet("_PreparingVFX").duplicate(true)
+	var vfxData = stateHandle.EntityGet("_PreparingVFX").duplicate(true)
 	
-	var isSprite = (data["ScenePath"] == null)
+	var isSprite = (vfxData["IsSprite"])
 	var vfxNode = null
 	
-	if(isSprite):
+	if(vfxData["ScenePath"] == null):
 		vfxNode = _CreateSprite_Instance(stateHandle)
-		vfxNode.Initialize(stateHandle, vfxNode)
-		data["SpritesheetDataHolder"] = stateHandle.IDEntityGet("SpriteData")
 	else:
-		var modelPS = Castagne.Loader.Load(data["ScenePath"])
+		var modelPS = Castagne.Loader.Load(vfxData["ScenePath"])
 		vfxNode = modelPS.instance()
 	
-	graphicsRoot.add_child(vfxNode)
-	if(data["AnimationPlayer"] != null):
-		var animPlayer = vfxNode.get_node(data["AnimationPlayer"])
-		animPlayer.play(data["Animation"], -1, 0.0)
+	if(isSprite):
+		vfxNode.Initialize(stateHandle, vfxNode)
+		vfxData["SpritesheetDataHolder"] = stateHandle.IDEntityGet("SpriteData")
 	
-	data["ID"] = stateHandle.IDGlobalGet("VFXState").size()
+	vfxData["EntityInitialPos"] = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.PHYSICS).TransformPosEntityAbsoluteToWorld([0,0,0], stateHandle)
+	
+	graphicsRoot.add_child(vfxNode)
+	if(vfxData["AnimationPlayer"] != null):
+		var animPlayer = vfxNode.get_node(vfxData["AnimationPlayer"])
+		if(animPlayer == null):
+			ModuleError("VFXCreate: Animation player path is wrong! ("+str(vfxData["AnimationPlayer"])+")")
+		else:
+			animPlayer.play(vfxData["Animation"], -1, 0.0)
+	
+	vfxData["ID"] = stateHandle.IDGlobalGet("VFXState").size()
 	var idData = {"VFXNode": vfxNode, "IsSprite": isSprite}
 	
 	stateHandle.IDGlobalAdd("VFXState", [idData])
-	stateHandle.GlobalAdd("_VFXList", [data])
+	stateHandle.GlobalAdd("_VFXList", [vfxData])
 	
 	if(vfxNode.has_method("VFXCreate")):
-		vfxNode.VFXCreate(data)
+		vfxNode.VFXCreate(vfxData)
 	
-	_VFXUpdate_UpdateGraphics(stateHandle, data)
+	_VFXUpdate_UpdateGraphics(stateHandle, vfxData)
 
 # Internal helper to set VFX values in VFX functions
 func _VFXSetSingle(stateHandle, field, value):
@@ -1214,11 +1233,13 @@ func _VFXSetFunc(stateHandle, field, valueA, valueB, valueC):
 	stateHandle.EntityGet("_PreparingVFX")[field] = [valueA, valueB, valueC]
 func _VFXSetFuncSingle(stateHandle, field, value, id):
 	stateHandle.EntityGet("_PreparingVFX")[field][id] = value
+func _VFXHas(stateHandle, field):
+	return stateHandle.EntityGet("_PreparingVFX").has(field)
 
 var VFXDATA_FUNCTION = ["PosX", "PosY", "PosZ", "Rotation", "Scale", "ZOrderFine", "ZOrderCoarse"]
 func _ResetVFXData(stateHandle):
 	var defaultVFXData = {
-		"ScenePath":null, # Path to scene, if null use sprites
+		"ScenePath":null, "IsSprite":false,
 		"TimeRemaining":60, "TimeAlive": 0,
 		"_PosX": [0,0,0], "_PosY": [0,0,0], "_PosZ": [0,0,0],
 		"Facing": stateHandle.EntityGet("_FacingHPhysics"),
@@ -1229,6 +1250,8 @@ func _ResetVFXData(stateHandle):
 		"_ZOrderFine": [((stateHandle.EntityGet("_ModelZOrder")+49)%100)-49, 0, 0],
 		"_ZOrderCoarse": [((stateHandle.EntityGet("_ModelZOrder")+49)/100), 0, 0],
 		"ZOrder": stateHandle.EntityGet("_ModelZOrder"),
+		"LockToEntity":true,
+		"EntityInitialPos":[0,0,0],
 		"Overrides":[],
 		"ParentEID": stateHandle.EntityGet("_EID"),
 	}
@@ -1267,9 +1290,11 @@ func _VFXUpdate_FrameStart(stateHandle, vfxData):
 	
 func _VFXUpdate_UpdateGraphics(stateHandle, vfxData):
 	var idData = stateHandle.IDGlobalGet("VFXState")[vfxData["ID"]]
-	var isSprite = (vfxData["ScenePath"] == null)
+	var isSprite = (vfxData["IsSprite"])
 	var vfxNode = idData["VFXNode"]
 	_VFXUpdate_UpdateVFXData(stateHandle, vfxData)
+	var parentAlive = stateHandle.PointToEntity(vfxData["ParentEID"])
+	
 	
 	if(isSprite):
 		vfxNode.UpdateSpriteVFX(vfxData)
@@ -1278,7 +1303,15 @@ func _VFXUpdate_UpdateGraphics(stateHandle, vfxData):
 		var animPlayer = vfxNode.get_node(vfxData["AnimationPlayer"])
 		animPlayer.seek((vfxData["TimeAlive"]+1.0)/60.0, true)
 	
-	_ModelApplyTransformDirect(vfxNode, [vfxData["PosX"], vfxData["PosY"], vfxData["PosZ"]], vfxData["Rotation"], vfxData["Scale"], vfxData["Facing"])
+	var vfxPos = [vfxData["PosX"], vfxData["PosY"], vfxData["PosZ"]]
+	if(parentAlive and vfxData["LockToEntity"]):
+		var initPos = vfxData["EntityInitialPos"]
+		var curPos = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.PHYSICS).TransformPosEntityAbsoluteToWorld([0,0,0], stateHandle)
+		vfxPos[0] += curPos[0] - initPos[0]
+		vfxPos[1] += curPos[1] - initPos[1]
+		vfxPos[2] += curPos[2] - initPos[2]
+	
+	_ModelApplyTransformDirect(vfxNode, vfxPos, vfxData["Rotation"], vfxData["Scale"], vfxData["Facing"])
 	if(vfxNode.has_method("VFXUpdate")):
 		vfxNode.VFXUpdate(vfxData)
 	

@@ -1575,7 +1575,13 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 				phantomHitbox["AttackData"] = inflictedAttacksA[eidB]
 				phantomHitbox["Hitbox"] = true
 				phantomHurtbox["Hitbox"] = false
-				ppAttackModule.HandleHit(handleA, handleB, phantomHitbox, phantomHurtbox)
+				var phantomHitData = {}
+				if(aaBoxesB[0] != null):
+					phantomHitData["Overlap"] = aaBoxesB[0]
+				else:
+					var p = [handleB.EntityGet("_PositionX"), handleB.EntityGet("_PositionY")]
+					phantomHitData["Overlap"] = [p[0], p[0], p[1], p[1]]
+				ppAttackModule.HandleHit(handleA, handleB, phantomHitbox, phantomHurtbox, phantomHitData)
 			elif(aaBoxesB[0] != null and aaBoxesA[aaHitboxID] != null and AreBoxesOverlapping(aaBoxesB[0], aaBoxesA[aaHitboxID])):
 				var atkH = (friendlyFireHitboxes[eidA] if sameTeam else hitboxes[eidA])
 				PhysicsAtk_HandleAttackDefend(handleA, handleB, atkH, hurtboxes[eidB])
@@ -1586,7 +1592,13 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 				phantomHitbox["AttackData"] = inflictedAttacksB[eidA]
 				phantomHitbox["Hitbox"] = true
 				phantomHurtbox["Hitbox"] = false
-				ppAttackModule.HandleHit(handleB, handleA, phantomHitbox, phantomHurtbox)
+				var phantomHitData = {}
+				if(aaBoxesB[0] != null):
+					phantomHitData["Overlap"] = aaBoxesB[0]
+				else:
+					var p = [handleA.EntityGet("_PositionX"), handleA.EntityGet("_PositionY")]
+					phantomHitData["Overlap"] = [p[0], p[0], p[1], p[1]]
+				ppAttackModule.HandleHit(handleB, handleA, phantomHitbox, phantomHurtbox, phantomHitData)
 			elif(aaBoxesA[0] != null and aaBoxesB[aaHitboxID] != null and AreBoxesOverlapping(aaBoxesA[0], aaBoxesB[aaHitboxID])):
 				var atkH = (friendlyFireHitboxes[eidB] if sameTeam else hitboxes[eidB])
 				PhysicsAtk_HandleAttackDefend(handleB, handleA, atkH, hurtboxes[eidA])
@@ -1596,7 +1608,10 @@ func PhysicsAtk_HandleAttackDefend(attackerHandle, defenderHandle, attackerHitbo
 		for hurtbox in defenderHurtboxes:
 			if(AreBoxesOverlapping(hitbox, hurtbox)):
 				if(PhysicsAtk_ShouldBoxesConnect(defenderHandle, hitbox, hurtbox)):
-					if(ppAttackModule.HandleHit(attackerHandle, defenderHandle, hitbox, hurtbox)):
+					var hitData = {
+						"Overlap": GetBoxesOverlap(hitbox, hurtbox)
+					}
+					if(ppAttackModule.HandleHit(attackerHandle, defenderHandle, hitbox, hurtbox, hitData)):
 						return true
 	return false
 
@@ -1701,6 +1716,14 @@ func AreBoxesOverlapping(boxA, boxB):
 		and boxA[0] < boxB[1]
 		and boxA[3] > boxB[2]
 		and boxA[2] < boxB[3])
+
+func GetBoxesOverlap(boxA, boxB):
+	return [
+		max(boxA[0], boxB[0]),
+		min(boxA[1], boxB[1]),
+		max(boxA[2], boxB[2]),
+		min(boxA[3], boxB[3])
+	]
 
 func ExpandAABox(aabox, newBox):
 	aabox[0] = min(aabox[0], newBox[0])

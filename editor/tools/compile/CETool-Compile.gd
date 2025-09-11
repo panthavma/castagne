@@ -206,6 +206,9 @@ func ParseFighterScript(script, linePrefix = ""):
 		
 		if(fref.get_function() in branchFunctionsFuncrefsNames):
 			fname = fref.get_function().right(11) # InstructionX
+			if(fname == "R"):
+				t += "# R branch - not currently supported in the compiler tool.\n"
+				continue
 			t += linePrefix+fname + str(a[1][2]) + ":\n"
 			t += ParseFighterScript(a[1][0], linePrefix + "    ")
 			var elseT = ParseFighterScript(a[1][1], linePrefix + "    ")

@@ -285,3 +285,7 @@ func _on_FlowNewBID_pressed():
 
 
 
+
+
+func _on_Discord_pressed():
+	OS.shell_open("https://discord.gg/CWjWfC9K9T")

@@ -154,12 +154,41 @@ _Overridable(If you want custom logic to select your blockstun animation)
 _Helper()
 
 LPF_Airborne:
+	Flag(_AirStunAnim)
+endif
+
+LAF_Launcher:
+	Flag(_AirStunAnim)
+endif
+
+L_AirStunAnim:
 	Call(AnimBlockstunAirborne)
 else
 	LCrouching:
 		Call(AnimBlockstunCrouching)
 	else
 		Call(AnimBlockstunStanding)
+	endif
+endif
+
+
+EEnter:
+	LPF_Airborne:
+		Flag(_AirStunAnim)
+	endif
+
+	LAF_Launcher:
+		Flag(_AirStunAnim)
+	endif
+
+	L_AirStunAnim:
+		Call(AnimBlockstunAirborne)
+	else
+		LCrouching:
+			Call(AnimBlockstunCrouching)
+		else
+			Call(AnimBlockstunStanding)
+		endif
 	endif
 endif
 :AnimBlockstunAirborne:
@@ -182,13 +211,42 @@ _Category(Animations/Reacts/Blockstun)
 _Category(Animations/Reacts/Hitstun)
 _Helper()
 _Overridable(If you want custom logic for how hitstun's animation works)
+
 LPF_Airborne:
+	Flag(_AirStunAnim)
+endif
+
+LAF_Launcher:
+	Flag(_AirStunAnim)
+endif
+
+L_AirStunAnim:
 	Call(AnimHitstunAirborne)
 else
 	LCrouching:
 		Call(AnimHitstunCrouching)
 	else
 		Call(AnimHitstunStanding)
+	endif
+endif
+
+EEnter:
+	LPF_Airborne:
+		Flag(_AirStunAnim)
+	endif
+
+	LAF_Launcher:
+		Flag(_AirStunAnim)
+	endif
+
+	L_AirStunAnim:
+		Call(AnimHitstunAirborne)
+	else
+		LCrouching:
+			Call(AnimHitstunCrouching)
+		else
+			Call(AnimHitstunStanding)
+		endif
 	endif
 endif
 :AnimHitstunAirborne:
@@ -1095,6 +1153,7 @@ endif
 ## Blockstun state behavior, which happens when you block an attack.
 _Category(States/Reacts/Blockstun)
 _BaseState()
+
 Call(Common)
 
 Call(Attack-CanBlock)
@@ -1287,27 +1346,6 @@ AttackDuration(60)
 F10-12:
 	Hitbox(0, 15000, 5000, 15000)
 endif
-
-
-:StateTemplate-Attack-Sequential:
-# Simple medium attack template using an S branch (sequential)
-AttackRegister(Medium)
-
-# Adjust parameters here
-AttackDamage(1000)
-# AttackMustBlock(Low)
-
-# Put your animation here
-#Anim(5B)
-
-SATK9:
-	# Startup
-S3
-	# Active
-	Hitbox(0, 15000, 5000, 15000)
-S50
-	# Recovery
-endif
 :StateTemplate-Attack-Projectile:
 # Projectile-throwing move template. Needs a separate entity you'll have to create!
 
@@ -1326,6 +1364,25 @@ AttackDuration(AttackDuration)
 FProjectileStartup:
 	CreateEntity(ProjectileName)
 	SetTargetPosition(ProjectileStartX, ProjectileStartY)
+endif
+:StateTemplate-Attack-Sequential:
+# Simple medium attack template using an S branch (sequential)
+AttackRegister(Medium)
+
+# Adjust parameters here
+AttackDamage(1000)
+# AttackMustBlock(Low)
+
+# Put your animation here
+#Anim(5B)
+
+SATK9:
+	# Startup
+S3
+	# Active
+	Hitbox(0, 15000, 5000, 15000)
+S50
+	# Recovery
 endif
 :StateTemplate-Attack-Simple:
 # Template for attacks you can customize through custom editors.

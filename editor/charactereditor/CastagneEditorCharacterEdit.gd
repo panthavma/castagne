@@ -1232,9 +1232,11 @@ func _on_OverrideState_pressed():
 	var fileID = curFile
 	
 	if(!character[fileID]["States"].has(stateName)):
-		var defaultText = "CallParent()\n"
-		if(stateName.begins_with("Variables")):
-			defaultText = "# Overriden\n"
+		var defaultText = "#Overriden from "+str(stateName)+"\n"
+		if(!stateName.begins_with("Variables")):
+			defaultText += "# CallParent() allows you to extend the overriden state by adding your behavior."
+			defaultText += "\n# Remove it to replace the default behavior with yours instead"
+			defaultText += "\nCallParent()\n"
 		character[fileID]["States"][stateName] = {"Text":defaultText}
 		character[fileID]["Modified"] = true
 		SaveFile()
@@ -1443,7 +1445,7 @@ func _on_FlowNextFrame_pressed():
 	$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay.set_pressed_no_signal(false)
 	if(engine == null):
 		return
-	engine.LocalStepNoInput()
+	engine.LocalStep() # LocalStepNoInput()
 	UpdateRunStatus()
 func UpdateRunStatus():
 	if(engine == null):

@@ -1178,8 +1178,8 @@ func _ParseForEdition():
 						fscs["TagLocal"] = true
 					if(f[0] == "Call" and f[1].size() > 0):
 						fscs["CalledStates"] += [[f[1][0].strip_edges(),0]]
-					if(f[0] == "CallParent" and f[1].size() > 0):
-						fscs["CalledStates"] += [[f[1][0].strip_edges(),1]]
+					if(f[0] == "CallParent"):
+						fscs["CalledStates"] += [[curState,1]]
 					if(f[0] == "_Category" and f[1].size() > 0):
 						fscs["Categories"] += [f[1][0].strip_edges()]
 					if(f[0] == "_Overridable"):

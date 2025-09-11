@@ -549,6 +549,10 @@ func ModuleSetup():
 	RegisterFlag("AttackHasTouched")
 	RegisterFlag("AttackStartup")
 	RegisterFlag("AttackWasActive")
+	
+	RegisterVariableEntity("_AttackOverlapCenterX", 0, ["ResetEachFrame"])
+	RegisterVariableEntity("_AttackOverlapCenterY", 0, ["ResetEachFrame"])
+	RegisterVariableEntity("_AttackOverlapCenterZ", 0, ["ResetEachFrame"])
 
 
 func RegisterAttackFlag(flagName, data = null):
@@ -656,19 +660,18 @@ func _UpdateAttackHitFlags(stateHandle):
 
 
 # Returns true if the hit is confirmed and search should stop
-func HandleHit(attackerHandle, defenderHandle, hitbox, hurtbox):
+func HandleHit(attackerHandle, defenderHandle, hitbox, hurtbox, hitData):
 	var attackData = hitbox["AttackData"]
 	
-	var attackHit = IsAttackHitting(attackData, attackerHandle, hitbox, defenderHandle, hurtbox)
+	var attackHit = IsAttackHitting(attackData, attackerHandle, hitbox, defenderHandle, hurtbox, hitData)
 	if(attackHit == Castagne.HITCONFIRMED.NONE):
 		return false
 	
-	ApplyAttackToEntities(attackHit, attackData, attackerHandle, hitbox, defenderHandle, hurtbox)
-	
+	ApplyAttackToEntities(attackHit, attackData, attackerHandle, hitbox, defenderHandle, hurtbox, hitData)
 	return true
 
 
-func IsAttackHitting(attackData, attackerHandle, hitbox, defenderHandle, hurtbox):
+func IsAttackHitting(attackData, attackerHandle, hitbox, defenderHandle, hurtbox, hitData):
 	# Preliminary check: can we still hit with that attack or are we clashing ?
 	if(attackerHandle.EntityGet("_AttackHitEntities").has(defenderHandle.EntityGet("_EID"))):
 		return Castagne.HITCONFIRMED.NONE
@@ -713,7 +716,7 @@ func IsAttackHitting(attackData, attackerHandle, hitbox, defenderHandle, hurtbox
 
 
 # Does the actual attack behavior by calling the given callbacks
-func ApplyAttackToEntities(hitconfirm, attackData, attackerHandle, hitbox, defenderHandle, hurtbox):
+func ApplyAttackToEntities(hitconfirm, attackData, attackerHandle, hitbox, defenderHandle, hurtbox, hitData):
 	var hit = (hitconfirm != Castagne.HITCONFIRMED.BLOCK)
 	var clashed = (hitconfirm == Castagne.HITCONFIRMED.CLASH)
 	
@@ -726,6 +729,12 @@ func ApplyAttackToEntities(hitconfirm, attackData, attackerHandle, hitbox, defen
 	
 	var engine = defenderHandle.Engine()
 	attackData = attackData.duplicate()
+	
+	# Hit overlap (kinda janky in this architecture)
+	for h in [attackerHandle, defenderHandle]:
+		h.EntitySet("_AttackOverlapCenterX", (hitData["Overlap"][0] + hitData["Overlap"][1])/2)
+		h.EntitySet("_AttackOverlapCenterY", (hitData["Overlap"][2] + hitData["Overlap"][3])/2)
+		h.EntitySet("_AttackOverlapCenterZ", 0)
 	
 	# Clash has a different flow, with just one call
 	if(clashed):
