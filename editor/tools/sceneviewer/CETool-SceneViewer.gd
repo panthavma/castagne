@@ -25,7 +25,7 @@ func SetupTool():
 	_nCurStateName = $Small/Main/StateCurName
 	_nCurStateFrame = $Small/Main/StateCurFrame
 
-func OnEngineRestarting(engine, battleInitData):
+func OnEngineRestarting(_engine, _battleInitData):
 	_nAnimList.clear()
 	_nAnimList.set_disabled(true)
 	_nAnimInfo.set_text("Engine is not running.")

@@ -30,9 +30,9 @@ func ModuleSetup():
 			"KeyboardInputs":[[]], "ControllerInputs":[[]],
 			"Combination":[[1, 0], [2, 0], [3, 0]]},
 		{"Name":"Pause", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_ENTER, KEY_ESCAPE]]], "ControllerInputs":[[[JOY_START]]]},
-		{"Name":"Reset", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_BACK]]], "ControllerInputs":[[[JOY_SELECT]]]},
-		{"Name":"TrainingButton1", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[]]], "ControllerInputs":[[[JOY_L3]]]},
-		{"Name":"TrainingButton2", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[]]], "ControllerInputs":[[[JOY_R3]]]},
+		{"Name":"Reset", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_BACKSPACE, KEY_KP_SUBTRACT]]], "ControllerInputs":[[[JOY_SELECT]]]},
+		{"Name":"TrainingButton1", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_KP_DIVIDE]]], "ControllerInputs":[[[JOY_L3]]]},
+		{"Name":"TrainingButton2", "Type":Castagne.PHYSICALINPUT_TYPES.BUTTON, "KeyboardInputs":[[[KEY_KP_MULTIPLY]]], "ControllerInputs":[[[JOY_R3]]]},
 	], {"Flags":["Hidden"], "Description":"The complete InputLayout to use."})
 	
 	RegisterConfig("InputLayoutMenu", [
@@ -109,7 +109,12 @@ func ModuleSetup():
 		"Flags":["Intermediate"],
 		"Types":["str", "str", "str", "int"],
 		})
+	RegisterFunction("InputTransitionManual", [1], ["AI", "Input"], {
+		"Description": "Manually triggers an input transition if possible",
+		"Arguments":["The input transition to trigger"],
+	})
 	RegisterVariableEntity("_InputTransitionList", [], ["ResetEachFrame"], {"Description":"List of the input transitions to watch for."})
+	RegisterVariableEntity("_InputTransitionManual", null, null, {"Description":"Hold a manual input transition."})
 	RegisterVariableEntity("_FrozenInputTransition", null, {"Description":"Holds the input transition data during the freeze phase."})
 	RegisterConfig("InputTransitionDefaultPriority", 1000, {"Description":"The default Transition priority for InputTransition."})
 
@@ -276,11 +281,13 @@ func FindCorrectInputTransition(stateHandle):
 	var inputTransitionList = stateHandle.EntityGet("_InputTransitionList")
 	var inputs = stateHandle.EntityGet("_Inputs")
 	var inputLayout = stateHandle.ConfigData().Get("InputLayout")
+	var manualTransition = stateHandle.EntityGet("_InputTransitionManual")
+	stateHandle.EntitySet("_InputTransitionManual", null)
 
 	if(inputs.empty() or inputTransitionList.empty()):
 		return null
 
-	var prefix = ""
+	#var prefix = ""
 	#var alwaysAllowNeutralV = (prefix != "") # Prevents cancels to 5x when crouching
 	var alwaysAllowNeutralV = stateHandle.EntityHasFlag("Airborne")
 	# :TODO:Panthavma:20230606:Temporary for neutralV, need an actual system
@@ -370,6 +377,13 @@ func FindCorrectInputTransition(stateHandle):
 			}
 			possibleCancels[notation] = notationData
 	var possibleCancelsNotations = possibleCancels.keys()
+	
+	# If using a manual transition, add it
+	if(manualTransition != null):
+		possibleCancels[manualTransition] = {
+			"Notation": manualTransition
+		}
+		possibleCancelsNotations.push_front(manualTransition)
 
 
 	# Find which we are using
@@ -424,14 +438,15 @@ func InputRelease(args, stateHandle):
 func _InputSet(args, stateHandle, press):
 	var castagneInput = stateHandle.Input()
 	var inputSchema = castagneInput.GetInputSchema()
-	var buttonName = ArgStr(args, 0, stateHandle)
+	var buttonName = ArgRaw(args, 0)
 
 	if(buttonName in inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.DIRECT]):
 		var inputs = stateHandle.EntityGet("_Inputs")
 		inputs[buttonName] = press
 
 		# Update the combination buttons the button is part of
-		var multipleInputs = inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.COMBINATION] + inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.ANY]
+		#var multipleInputs = inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.COMBINATION] + inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.ANY]
+		var multipleInputs = inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.MULTIPLE]
 		for combiName in multipleInputs:
 			var combiButtons = inputSchema[combiName]["Combination"]
 			var combiAny = inputSchema[combiName]["CombinationAny"]
@@ -447,8 +462,9 @@ func _InputSet(args, stateHandle, press):
 						shouldPress = false
 			inputs[combiName] = shouldPress
 		stateHandle.EntitySet("_Inputs", inputs)
-	elif(buttonName in inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.COMBINATION] or
-		buttonName in inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.ANY]):
+	elif(buttonName in inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.MULTIPLE]):
+	#elif(buttonName in inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.COMBINATION] or
+	#	buttonName in inputSchema["_InputListByType"][Castagne.GAMEINPUT_TYPES.ANY]):
 		var combiButtons = inputSchema[buttonName]["Combination"]
 		var combiAny = inputSchema[buttonName]["CombinationAny"]
 		if(combiAny):
@@ -499,6 +515,9 @@ func InputTransitionFlagNext(args, stateHandle):
 	var targetFlag = ArgStr(args, stateHandle, 2, inputNotation)
 	var priority = ArgInt(args, stateHandle, 3, stateHandle.ConfigData().Get("InputTransitionDefaultPriority"))
 	AddInputTransitionFlag(stateHandle, inputNotation, targetState, null, targetFlag, {"Priority":priority})
+
+func InputTransitionManual(args, stateHandle):
+	stateHandle.EntitySet("_InputTransitionManual", ArgRaw(args, 0))
 
 func AddInputTransitionFlag(stateHandle, inputNotation, targetState = null, targetFlag = null, targetFlagNext = null, data = {}):
 	var itd = {

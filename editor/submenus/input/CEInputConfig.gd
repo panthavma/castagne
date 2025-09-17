@@ -287,7 +287,10 @@ func _Callback_NewBindings(gameInputID, layoutID, isController):
 		if isController else castagneInput.PhysicalInputGetKeyboardBindings(physicalInput))
 	var bindingsField = ("ControllerInputs" if isController else "KeyboardInputs")
 	
-	bindings[gameInputID][layoutID] += [(0 if isController else null)]
+	if(isController):
+		bindings[gameInputID][layoutID] += [0]
+	else:
+		bindings[gameInputID][layoutID] += [null]
 	layout[inputID][bindingsField] = bindings
 	
 	ShowConfigPanel()

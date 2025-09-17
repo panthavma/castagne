@@ -19,7 +19,7 @@ func Setup(menuData, menuParams):
 	_mode = _battleInitData["mode"]
 	CloseMenu()
 
-func OpenMenu(device):
+func OpenMenu(_device):
 	get_node(".").show()
 	_active = true
 	_shouldResume = false

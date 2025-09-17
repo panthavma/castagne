@@ -9,7 +9,7 @@ var entity
 var originalName
 func InitPopup():
 	var editor = $"../../.."
-	var character = editor.character
+	#var character = editor.character
 	
 	originalName = editor._navigationSelected.GetStateData()["Name"]
 	
@@ -52,8 +52,8 @@ func CreateState():
 	editor.ReloadEngine()
 	editor.ChangeCodePanelState(sname, curFile)
 
-func _on_StateName_text_changed(new_text):
-	var t = $VBox/StateName.get_text().strip_edges()
+func _on_StateName_text_changed(_new_text):
+	var _t = $VBox/StateName.get_text().strip_edges()
 	$VBox/Buttons/Create.set_disabled(!IsTextValid())
 	
 func IsTextValid():

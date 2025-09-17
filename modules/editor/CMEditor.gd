@@ -10,6 +10,10 @@ var gizmoDisplay = null
 signal EngineTick_FramePreStart
 signal EngineTick_FrameStart
 signal EngineTick_FrameEnd
+signal EngineTick_InitStart
+signal EngineTick_InitStartEntity
+signal EngineTick_InitEndEntity
+signal EngineTick_InitEnd
 signal EngineTick_AIStart
 signal EngineTick_AIStartEntity
 signal EngineTick_AIEndEntity
@@ -114,6 +118,14 @@ func ModuleSetup():
 	var nbTutorials = 6
 	for i in range(nbTutorials):
 		RegisterConfig("LocalConfig-TutorialDone-"+str(i), false, {"Flags":["Advanced"]})
+		
+	
+	RegisterCategory("Editor Helpers")
+	
+	RegisterFunction("_GizmoPoint", [0,1,2,3], ["NoFunc"], {
+		"Description": "Displays a point in the editor itself",
+		"Arguments": ["X", "Y", "Z"]
+	})
 
 func BattleInit(stateHandle, battleInitData):
 	currentGizmos = []
@@ -141,6 +153,14 @@ func FrameStart(stateHandle):
 func FrameEnd(stateHandle):
 	emit_signal("EngineTick_FrameEnd", stateHandle)
 
+func InitPhaseStart(stateHandle):
+	emit_signal("EngineTick_InitStart", stateHandle)
+func InitPhaseStartEntity(stateHandle):
+	emit_signal("EngineTick_InitStartEntity", stateHandle)
+func InitPhaseEndEntity(stateHandle):
+	emit_signal("EngineTick_InitEndEntity", stateHandle)
+func InitPhaseEnd(stateHandle):
+	emit_signal("EngineTick_InitEnd", stateHandle)
 func AIPhaseStart(stateHandle):
 	emit_signal("EngineTick_AIStart", stateHandle)
 func AIPhaseStartEntity(stateHandle):
@@ -238,6 +258,7 @@ func GizmoGetColor(colorName, context = "Standard"):
 		"Green": Color(0.4, 1.0, 0.4),
 		"Blue": Color(0.4, 0.4, 1.0),
 		"Pink": Color(1.0, 0.4, 1.0),
+		"Yellow": Color(1.0, 1.0, 0.4),
 	}
 	var backgroundColors = {
 		"White": Color(1.0, 1.0, 1.0, 0.45),
@@ -245,6 +266,7 @@ func GizmoGetColor(colorName, context = "Standard"):
 		"Green": Color(0.3, 1.0, 0.3, 0.45),
 		"Blue": Color(0.3, 0.3, 1.0, 0.45),
 		"Pink": Color(1.0, 0.3, 1.0, 0.45),
+		"Yellow": Color(1.0, 1.0, 0.3, 0.45),
 	}
 	var d = {"Standard": standardColors, "Background": backgroundColors}
 	if (context in d) and (colorName in d[context]):
@@ -333,3 +355,17 @@ func GizmoFilledBox(corner1, corner2, colorBack, colorBorder, width=3):
 func TranslatePointToDraw(point, stateHandle):
 	point = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.PHYSICS).TransformPosEntityToWorld(point, stateHandle)
 	return stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.GRAPHICS).TranslateIngamePosToScreen(point)
+
+
+var GIZMO_MANUAL_COLOR = "Yellow"
+var GIZMO_MANUAL_LINEWIDTH_INACTIVE = 2
+var GIZMO_MANUAL_LINEWIDTH_ACTIVE = 4
+func Gizmo_GizmoPoint(emodule, args, lineActive, stateHandle):
+	var pos = [
+		ArgInt(args, stateHandle, 0, 0),
+		ArgInt(args, stateHandle, 1, 0),
+		ArgInt(args, stateHandle, 2, 0),
+	]
+	var lineWidth = GIZMO_MANUAL_LINEWIDTH_ACTIVE if lineActive else GIZMO_MANUAL_LINEWIDTH_INACTIVE
+	emodule.GizmoCircle(pos, GIZMO_MANUAL_COLOR, lineWidth)
+	emodule.GizmoPoint(pos, GIZMO_MANUAL_COLOR, lineWidth)

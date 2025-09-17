@@ -7,10 +7,22 @@ extends "../CMenu-CSS-Player.gd"
 func Setup():
 	pass
 
-func OnCharacterChange():
+func UpdateDisplay():
 	var t = "---\n"
-	var charName = (selectedCharacter["Character"]["Name"] if selectedCharacter["Character"].has("Name") else selectedCharacter["Character"]["Filepath"])
-	t += charName
 	t += "\nDevice: "+str(device)
+	var charData = selectedCharacter["TransformedData"]["MenuData"]["Defines"]
+	#var charName = (selectedCharacter["Character"]["Name"] if selectedCharacter["Character"].has("Name") else selectedCharacter["Character"]["Filepath"])
+	var charName = charData["MENU_Name"]
+	t += "\n"+charName
+	if(menuState != MENUSTATE.CHARACTER):
+		var palette = "Palette: "+str(selectedPalette+1)
+		if(menuState == MENUSTATE.PALETTE):
+			palette = "< "+palette+" >"
+		t += "\n"+palette
+	if(css.stageSelectPlayer == self):
+		var stage = "Stage: "+str(css.stageSelected+1)
+		if(menuState == MENUSTATE.STAGE):
+			stage = "< "+stage+" >"
+		t += "\n"+stage
 	
 	$Label.set_text(t)

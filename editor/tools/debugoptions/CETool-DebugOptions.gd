@@ -17,7 +17,7 @@ func SetupTool():
 				buttons.push_back(b)
 				b.connect("toggled", self, bn, [true])
 
-func OnEngineRestarting(engine, battleInitData):
+func OnEngineRestarting(__engine, _battleInitData):
 	pass
 
 func OnEngineRestarted(engine):

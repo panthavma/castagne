@@ -104,5 +104,5 @@ func SetupSpecblock(_argument):
 
 
 
-func Gizmos(emodule, stateHandle):
+func Gizmos(_emodule, _stateHandle):
 	pass

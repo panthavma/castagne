@@ -49,7 +49,7 @@ func UIInitialize(stateHandle, battleInitData):
 		playerWidgets.push_back(widgets)
 		playerRoots.push_back(playerUIRoot)
 
-func _AddPlayerRoot(node, pid):
+func _AddPlayerRoot(node, _pid):
 	# :TODO: Custom player root placement
 	var playersRoot = get_node(PlayersPath)
 	playersRoot.add_child(node)

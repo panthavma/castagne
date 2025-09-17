@@ -505,6 +505,14 @@ func ModuleSetup():
 		"Flags":["Intermediate"],
 		"Types":["str"],
 	})
+	RegisterFunction("AttackCancelDoneListAdd", [1], null, {
+		"Description":"Adds an attack to the done cancels list as if it had been used.",
+		"Arguments":["Name of the attack"],
+	})
+	RegisterFunction("AttackCancelDoneListRemove", [1], null, {
+		"Description":"Removes an attack to the done cancels list as if it not had been used yet.",
+		"Arguments":["Name of the attack"],
+	})
 	RegisterFunction("AttackResetDoneCancels", [0], null, {
 		"Description":"Resets the list of used attacks in cancels, meaning you can use them again. Mostly used when returning to neutral.",
 		"Flags":["Advanced"],
@@ -514,7 +522,7 @@ func ModuleSetup():
 	for value in range(pow(attackCancelConstants.size(), 2)):
 		var flags = []
 		var i = value
-		for j in range(attackCancelConstants.size()):
+		for _j in range(attackCancelConstants.size()):
 			flags.push_back(i%2)
 			i /= 2
 		var text = ""
@@ -641,7 +649,7 @@ func PhysicsPhaseEndEntity(stateHandle):
 		var notation = rawNotation.right(attackCancelPrefixLength)
 		var cancelData = cancelList[rawNotation]
 		var attackName = cancelData["State"]
-		var attackPriority = cancelData["Priority"]
+		#var attackPriority = cancelData["Priority"]
 
 		if(stateHandle.EntityGet("_AttackDoneCancels").has(attackName)):
 			continue
@@ -671,7 +679,7 @@ func HandleHit(attackerHandle, defenderHandle, hitbox, hurtbox, hitData):
 	return true
 
 
-func IsAttackHitting(attackData, attackerHandle, hitbox, defenderHandle, hurtbox, hitData):
+func IsAttackHitting(attackData, attackerHandle, _hitbox, defenderHandle, hurtbox, _hitData):
 	# Preliminary check: can we still hit with that attack or are we clashing ?
 	if(attackerHandle.EntityGet("_AttackHitEntities").has(defenderHandle.EntityGet("_EID"))):
 		return Castagne.HITCONFIRMED.NONE
@@ -716,7 +724,7 @@ func IsAttackHitting(attackData, attackerHandle, hitbox, defenderHandle, hurtbox
 
 
 # Does the actual attack behavior by calling the given callbacks
-func ApplyAttackToEntities(hitconfirm, attackData, attackerHandle, hitbox, defenderHandle, hurtbox, hitData):
+func ApplyAttackToEntities(hitconfirm, attackData, attackerHandle, _hitbox, defenderHandle, _hurtbox, hitData):
 	var hit = (hitconfirm != Castagne.HITCONFIRMED.BLOCK)
 	var clashed = (hitconfirm == Castagne.HITCONFIRMED.CLASH)
 	
@@ -808,9 +816,12 @@ func AttackInternalRegister(_args, _stateHandle):
 	pass
 func AttackInternalRegisterNoNotation(_args, _stateHandle):
 	pass
-func AttackInit(args, stateHandle):
+func AttackInit(_args, stateHandle):
 	if(stateHandle.EntityGet("_StateFrameID") == 1):
-		stateHandle.EntityAdd("_AttackDoneCancels", [stateHandle.EntityGet("_State")])
+		var adc = stateHandle.EntityGet("_AttackDoneCancels")
+		var curState = stateHandle.EntityGet("_State")
+		if(!adc.has(curState)):
+			adc.push_back(curState)
 
 func AttackDuration(args, stateHandle):
 	stateHandle.EntitySet("_AttackDuration", ArgInt(args, stateHandle, 0))
@@ -819,13 +830,13 @@ func AttackDuration(args, stateHandle):
 	if(stateHandle.EntityGet("_AttackData")["Blockstun"] <= 0):
 		AttackFrameAdvantageBlock([0], stateHandle) # TODO: fix
 
-func AttackRearm(args, stateHandle):
+func AttackRearm(_args, stateHandle):
 	stateHandle.EntitySet("_AttackInitialOutFrame", -1)
 	stateHandle.EntitySet("_AttackHitEntitiesMultihit", [])
 	stateHandle.EntitySet("_AttackHitEntities", [])
 	stateHandle.EntitySet("_AttackHitconfirm_State", null)
 	_UpdateAttackHitFlags(stateHandle)
-func AttackMultihit(args, stateHandle):
+func AttackMultihit(_args, stateHandle):
 	stateHandle.EntitySet("_AttackHitEntities", [])
 	stateHandle.EntitySet("_AttackInitialOutFrame", -1)
 
@@ -1108,6 +1119,12 @@ func _AttackCancelRegister(args, stateHandle, lists):
 func AttackCancelPrefix(args, stateHandle):
 	var acp = ArgStr(args, stateHandle, 0, "")
 	stateHandle.EntitySet("_AttackCancelPrefix", acp)
+func AttackCancelDoneListAdd(args, stateHandle):
+	var atkName = ArgStr(args, stateHandle, 0)
+	stateHandle.EntityGet("_AttackDoneCancels").push_back(atkName)
+func AttackCancelDoneListRemove(args, stateHandle):
+	var atkName = ArgStr(args, stateHandle, 0)
+	stateHandle.EntityGet("_AttackDoneCancels").erase(atkName)
 func AttackResetDoneCancels(_args, stateHandle):
 	stateHandle.EntitySet("_AttackDoneCancels", [])
 

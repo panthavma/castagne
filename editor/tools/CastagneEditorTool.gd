@@ -24,11 +24,11 @@ func AddTool(rootSmallView, rootExpandedView):
 	rootSmallView.add_child(smallView)
 	rootExpandedView.add_child(self)
 
-func OnEngineRestarting(engine, battleInitData):
+func OnEngineRestarting(_engine, _battleInitData):
 	pass
 
-func OnEngineRestarted(engine):
+func OnEngineRestarted(_engine):
 	pass
 
-func OnEngineInitError(engine):
+func OnEngineInitError(_engine):
 	pass

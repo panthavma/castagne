@@ -26,12 +26,15 @@ func InitializeFromConfigData(configData):
 	_inputSchema = CreateInputSchemaFromInputLayout(_inputLayout)
 	
 	AddDevice("empty", Castagne.INPUTDEVICE_TYPES.EMPTY)
+	AddDevice("ai", Castagne.INPUTDEVICE_TYPES.AI)
 	
 	for i in range(configData.Get("NumberOfKeyboardPlayers")):
 		AddDevice("k"+str(i+1), Castagne.INPUTDEVICE_TYPES.KEYBOARD, i)
 	for i in range(configData.Get("NumberOfControllerPlayers")):
 		AddDevice("c"+str(i+1), Castagne.INPUTDEVICE_TYPES.CONTROLLER, i)
 
+func IsNullDeviceType(deviceType):
+	return deviceType == Castagne.INPUTDEVICE_TYPES.EMPTY or deviceType == Castagne.INPUTDEVICE_TYPES.AI
 
 func AddDevice(deviceName, deviceType, deviceParameter = null):
 	if(_devices.has(deviceName)):
@@ -48,6 +51,8 @@ func AddDevice(deviceName, deviceType, deviceParameter = null):
 	
 	if(deviceType == Castagne.INPUTDEVICE_TYPES.EMPTY):
 		deviceData["DisplayName"] = "No Input Device"
+	elif(deviceType == Castagne.INPUTDEVICE_TYPES.AI):
+		deviceData["DisplayName"] = "AI Controlled"
 	elif(deviceType == Castagne.INPUTDEVICE_TYPES.KEYBOARD):
 		deviceData["DisplayName"] = "Keyboard " + str(deviceParameter+1)
 		if(deviceParameter != null):
@@ -78,6 +83,7 @@ func GetDevicesList():
 func GetConnectedDevices():
 	var d = GetDevicesList()
 	d.erase("empty")
+	d.erase("ai")
 	return d
 
 func GetDevice(deviceName = null):
@@ -104,7 +110,7 @@ func PollDevice(deviceName = null):
 	for iName in inputMap:
 		var im = inputMap[iName]
 		var value = false
-		if(deviceType != Castagne.INPUTDEVICE_TYPES.EMPTY):
+		if(!IsNullDeviceType(deviceType)):
 			var actionName = actionPrefix + im["ActionName"]
 			value = Input.is_action_pressed(actionName)
 		inputRawData[iName] = value
@@ -126,7 +132,7 @@ func PollDeviceMenu(deviceName = null):
 		var im = inputMap[iName]
 		var iNameOut = iName.right(4)
 		var value = false
-		if(deviceType != Castagne.INPUTDEVICE_TYPES.EMPTY):
+		if(!IsNullDeviceType(deviceType)):
 			var actionName = actionPrefix + im["ActionName"]
 			value = Input.is_action_just_pressed(actionName)
 		inputData[iNameOut] = value
@@ -169,10 +175,10 @@ func PhysicalInputGetBindableGameInputNames(physicalInput):
 	var giNames = PhysicalInputGetGameInputNames(physicalInput)
 	
 	if(piType == Castagne.PHYSICALINPUT_TYPES.AXIS):
-		for i in range(2, giNames.size()):
+		for _i in range(2, giNames.size()):
 			giNames.pop_back()
 	if(piType == Castagne.PHYSICALINPUT_TYPES.STICK):
-		for i in range(4, giNames.size()):
+		for _i in range(4, giNames.size()):
 			giNames.pop_back()
 	
 	return giNames
@@ -286,7 +292,7 @@ func CreateGodotInputActionsFromDevice(deviceName, inputMap):
 		return
 	
 	var deviceType = device["Type"]
-	if(deviceType == Castagne.INPUTDEVICE_TYPES.EMPTY):
+	if(IsNullDeviceType(deviceType)):
 		return
 	
 	var actionNamePrefix = device["DeviceActionPrefix"]

@@ -23,7 +23,7 @@ func InitMenu(menuData, menuParams):
 	
 	Setup(menuData, menuParams)
 
-func Setup(menuData, menuParams):
+func Setup(menuData, __menuParams):
 	for o in menuData["Options"]:
 		_menuOptions.push_back(AddToMenu(CreateMenuOption(o)))
 	if(_menuOptions.empty()):

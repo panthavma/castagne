@@ -65,6 +65,7 @@ func SetupSpecblock(_argument):
 	AddDefine("ANIM_Reacts_Hitstun_Airborne", "ANIM_Reacts_Hitstun_Airborne", "Hitstun (Airborne)")
 	
 	AddDefine("ANIM_Reacts_Knockdown", "ANIM_Reacts_Knockdown", "Knockdown")
+	AddDefine("ANIM_Reacts_Dead", "ANIM_Reacts_Dead", "Dead")
 	
 	AddDefine("ANIM_Reacts_Blockstun_Standing", "ANIM_Reacts_Blockstun_Standing", "Blockstun (Standing)")
 	AddDefine("ANIM_Reacts_Blockstun_Crouching", "ANIM_Reacts_Blockstun_Crouching", "Blockstun (Crouching)")

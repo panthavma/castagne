@@ -120,7 +120,7 @@ func SetCode(code):
 	var filePath = fileData["Path"]
 	
 	var file = File.new()
-	file.open(fileData["Path"], File.WRITE)
+	file.open(filePath, File.WRITE)
 	file.store_string(code)
 	file.close()
 	editor.get_node("CharacterEdit")._on_Reload_pressed()

@@ -22,7 +22,7 @@ func SetupTool():
 	perfPhysics = $PerfSmall/Physics
 	ResetTimer()
 
-func OnEngineRestarting(engine, _battleInitData):
+func OnEngineRestarting(_engine, _battleInitData):
 	ResetTimer()
 
 func OnEngineRestarted(engine):

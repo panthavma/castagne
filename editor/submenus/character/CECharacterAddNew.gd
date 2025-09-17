@@ -8,7 +8,7 @@ extends "../CastagneEditorSubmenu.gd"
 var presets = []
 
 func _ready():
-	AddPreset("Empty", null, "res://castagne/assets/icons/editor/genres/Custom-icon.png", null,
+	AddPreset("Empty", null, "res://castagne/assets/editor/genres/Custom-icon.png", null,
 	"""Basic empty file, for when you already have your model and animations and want to set them right away.
 If you are trying the engine for the first time, it will be probably more fun for you to use another preset to get your bearings.""")
 	AddPreset("Baston Labatte", "res://castagne/examples/fighters/baston/Baston-Model.casp",

@@ -122,7 +122,7 @@ func _tools_ready():
 func PrintStateActions(actions, indentLevel = 1):
 	for action in actions:
 		var indent = ""
-		for i in range(indentLevel):
+		for _i in range(indentLevel):
 			indent += "    "
 		var t = indent + action["FuncName"]
 		print(t)

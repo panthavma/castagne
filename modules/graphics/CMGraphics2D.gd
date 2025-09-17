@@ -58,7 +58,7 @@ func _CreateSprite_Instance(stateHandle):
 	s2D.graphicsModule = self
 	return s2D
 
-func _UpdateCamera(stateHandle, camera, cameraPos, cameraLookAt, cameraFOV, cameraRoll, cameraShake, cameraExtra):
+func _UpdateCamera(stateHandle, camera, cameraPos, _cameraLookAt, cameraFOV, _cameraRoll, cameraShake, _cameraExtra):
 	# TODO Camera size isn't really consistent, needs design
 	if(pixelArtMode):
 		cameraPos = cameraPos.round()

@@ -21,7 +21,7 @@ __meta__ = {
 }
 
 [node name="Label" type="Label" parent="CheckWindow" index="0"]
-margin_right = 299.0
+margin_right = 452.0
 margin_bottom = 14.0
 text = "Modules Loaded List:"
 align = 1
@@ -29,28 +29,28 @@ valign = 1
 
 [node name="ModuleList" type="ItemList" parent="CheckWindow" index="1"]
 margin_top = 18.0
-margin_right = 299.0
-margin_bottom = 253.0
+margin_right = 452.0
+margin_bottom = 413.0
 size_flags_vertical = 3
 items = [ "Item 0", null, false, "Item 1", null, false, "Item 2", null, false, "Item 3", null, false ]
 
 [node name="Label2" type="Label" parent="CheckWindow" index="2"]
-margin_top = 257.0
-margin_right = 299.0
-margin_bottom = 271.0
+margin_top = 417.0
+margin_right = 452.0
+margin_bottom = 431.0
 text = "Log:"
 align = 1
 valign = 1
 
 [node name="Log" type="ScrollContainer" parent="CheckWindow" index="3"]
-margin_top = 275.0
-margin_right = 299.0
-margin_bottom = 464.0
+margin_top = 435.0
+margin_right = 452.0
+margin_bottom = 752.0
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.8
 
 [node name="Label" type="Label" parent="CheckWindow/Log" index="0"]
-margin_right = 287.0
+margin_right = 440.0
 margin_bottom = 320.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -76,9 +76,9 @@ a
 valign = 1
 
 [node name="ButtonReload" type="Button" parent="CheckWindow" index="4"]
-margin_top = 468.0
-margin_right = 299.0
-margin_bottom = 488.0
+margin_top = 756.0
+margin_right = 452.0
+margin_bottom = 776.0
 text = "Reload Modules"
 
 [node name="ModulesSet" type="VBoxContainer" parent="." index="3"]
@@ -95,137 +95,144 @@ __meta__ = {
 }
 
 [node name="Standard" type="GridContainer" parent="ModulesSet" index="0"]
-margin_top = 61.0
-margin_right = 700.0
-margin_bottom = 297.0
+margin_top = 205.0
+margin_right = 1059.0
+margin_bottom = 441.0
 columns = 2
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Module" parent="ModulesSet/Standard" index="0" instance=ExtResource( 3 )]
-margin_right = 348.0
+margin_right = 528.0
 margin_bottom = 76.0
 
 [node name="Module2" parent="ModulesSet/Standard" index="1" instance=ExtResource( 3 )]
-margin_left = 352.0
-margin_right = 700.0
+margin_left = 532.0
+margin_right = 1059.0
 margin_bottom = 76.0
 
 [node name="Module3" parent="ModulesSet/Standard" index="2" instance=ExtResource( 3 )]
 margin_top = 80.0
-margin_right = 348.0
+margin_right = 528.0
 margin_bottom = 156.0
 
 [node name="Module4" parent="ModulesSet/Standard" index="3" instance=ExtResource( 3 )]
-margin_left = 352.0
+margin_left = 532.0
 margin_top = 80.0
-margin_right = 700.0
+margin_right = 1059.0
 margin_bottom = 156.0
 
 [node name="Module5" parent="ModulesSet/Standard" index="4" instance=ExtResource( 3 )]
 margin_top = 160.0
-margin_right = 348.0
+margin_right = 528.0
 margin_bottom = 236.0
 
 [node name="Module6" parent="ModulesSet/Standard" index="5" instance=ExtResource( 3 )]
-margin_left = 352.0
+margin_left = 532.0
 margin_top = 160.0
-margin_right = 700.0
+margin_right = 1059.0
 margin_bottom = 236.0
 
 [node name="HSeparator" type="HSeparator" parent="ModulesSet" index="1"]
-margin_top = 301.0
-margin_right = 700.0
-margin_bottom = 325.0
+margin_top = 445.0
+margin_right = 1059.0
+margin_bottom = 469.0
 rect_min_size = Vector2( 0, 24 )
 
 [node name="Base" type="HBoxContainer" parent="ModulesSet" index="2"]
-margin_top = 329.0
-margin_right = 700.0
-margin_bottom = 399.0
+margin_top = 473.0
+margin_right = 1059.0
+margin_bottom = 543.0
 
 [node name="Coreset" type="VBoxContainer" parent="ModulesSet/Base" index="0"]
-margin_right = 348.0
+margin_right = 527.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="ModulesSet/Base/Coreset" index="0"]
-margin_right = 348.0
+margin_right = 527.0
 margin_bottom = 14.0
 text = "Core Set:"
 
 [node name="Modules" type="GridContainer" parent="ModulesSet/Base/Coreset" index="1"]
 margin_top = 18.0
-margin_right = 348.0
+margin_right = 527.0
 margin_bottom = 70.0
 columns = 3
 
 [node name="CheckBox" type="CheckBox" parent="ModulesSet/Base/Coreset/Modules" index="0"]
-margin_right = 113.0
+margin_right = 173.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "CS Module"
 
 [node name="CheckBox2" type="CheckBox" parent="ModulesSet/Base/Coreset/Modules" index="1"]
-margin_left = 117.0
-margin_right = 230.0
+margin_left = 177.0
+margin_right = 350.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "CS Module"
 
 [node name="CheckBox3" type="CheckBox" parent="ModulesSet/Base/Coreset/Modules" index="2"]
-margin_left = 234.0
-margin_right = 347.0
+margin_left = 354.0
+margin_right = 527.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "CS Module"
 
 [node name="CheckBox4" type="CheckBox" parent="ModulesSet/Base/Coreset/Modules" index="3"]
 margin_top = 28.0
-margin_right = 113.0
+margin_right = 173.0
 margin_bottom = 52.0
 size_flags_horizontal = 3
 text = "CS Module"
 
 [node name="CheckBox5" type="CheckBox" parent="ModulesSet/Base/Coreset/Modules" index="4"]
-margin_left = 117.0
+margin_left = 177.0
 margin_top = 28.0
-margin_right = 230.0
+margin_right = 350.0
 margin_bottom = 52.0
 size_flags_horizontal = 3
 text = "CS Module"
 
 [node name="CheckBox6" type="CheckBox" parent="ModulesSet/Base/Coreset/Modules" index="5"]
-margin_left = 234.0
+margin_left = 354.0
 margin_top = 28.0
-margin_right = 347.0
+margin_right = 527.0
 margin_bottom = 52.0
 size_flags_horizontal = 3
 text = "CS Module"
 
 [node name="User" type="VBoxContainer" parent="ModulesSet/Base" index="1"]
-margin_left = 352.0
-margin_right = 700.0
+margin_left = 531.0
+margin_right = 1059.0
 margin_bottom = 70.0
 size_flags_horizontal = 3
 alignment = 1
 
 [node name="Label" type="Label" parent="ModulesSet/Base/User" index="0"]
 margin_top = 14.0
-margin_right = 348.0
+margin_right = 528.0
 margin_bottom = 28.0
 text = "User Modules:"
 
 [node name="UserModules" type="LineEdit" parent="ModulesSet/Base/User" index="1"]
 margin_top = 32.0
-margin_right = 348.0
+margin_right = 528.0
 margin_bottom = 56.0
 
 [node name="HSeparator2" type="HSeparator" parent="ModulesSet" index="3"]
-margin_top = 403.0
-margin_right = 700.0
-margin_bottom = 427.0
+margin_top = 547.0
+margin_right = 1059.0
+margin_bottom = 571.0
 rect_min_size = Vector2( 0, 24 )
+
+[node name="Confirm" parent="DefaultWindowButtons" index="0"]
+margin_right = 1010.0
+
+[node name="Cancel" parent="DefaultWindowButtons" index="1"]
+margin_left = 1014.0
+margin_right = 1520.0
 
 [connection signal="pressed" from="CheckWindow/ButtonReload" to="." method="_on_ButtonReload_pressed"]

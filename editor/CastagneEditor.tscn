@@ -75,7 +75,7 @@ alignment = 1
 
 [node name="GameIcon" type="TextureRect" parent="MainMenu/Header"]
 margin_right = 128.0
-margin_bottom = 71.0
+margin_bottom = 120.0
 rect_min_size = Vector2( 128, 0 )
 texture = ExtResource( 7 )
 expand = true
@@ -86,19 +86,19 @@ __meta__ = {
 
 [node name="GameTitle" type="Label" parent="MainMenu/Header"]
 margin_left = 132.0
-margin_top = 20.0
-margin_right = 470.0
-margin_bottom = 51.0
+margin_top = 44.0
+margin_right = 758.0
+margin_bottom = 75.0
 size_flags_horizontal = 3
 text = "GAME NAME
 GAME VERSION"
 valign = 1
 
 [node name="CastagneTitle" type="Label" parent="MainMenu/Header"]
-margin_left = 474.0
-margin_top = 20.0
-margin_right = 812.0
-margin_bottom = 51.0
+margin_left = 762.0
+margin_top = 44.0
+margin_right = 1388.0
+margin_bottom = 75.0
 size_flags_horizontal = 3
 text = "Castagne v0.0
 2022-00-00 [MAIN]"
@@ -106,9 +106,9 @@ align = 2
 valign = 1
 
 [node name="CastagneLogo" type="TextureRect" parent="MainMenu/Header"]
-margin_left = 816.0
-margin_right = 1072.0
-margin_bottom = 71.0
+margin_left = 1392.0
+margin_right = 1648.0
+margin_bottom = 120.0
 rect_min_size = Vector2( 256, 0 )
 texture = ExtResource( 8 )
 expand = true
@@ -128,56 +128,56 @@ margin_bottom = -72.0
 alignment = 1
 
 [node name="Label" type="Label" parent="MainMenu/Menu"]
-margin_top = 53.0
-margin_right = 508.0
-margin_bottom = 67.0
+margin_top = 191.0
+margin_right = 796.0
+margin_bottom = 205.0
 text = "---- Castagne ----"
 align = 1
 
 [node name="Tutorials" type="Button" parent="MainMenu/Menu"]
-margin_top = 71.0
-margin_right = 508.0
-margin_bottom = 89.0
+margin_top = 209.0
+margin_right = 796.0
+margin_bottom = 227.0
 text = "Castagne Tutorials"
 
 [node name="Documentation" type="Button" parent="MainMenu/Menu"]
-margin_top = 93.0
-margin_right = 508.0
-margin_bottom = 111.0
+margin_top = 231.0
+margin_right = 796.0
+margin_bottom = 249.0
 size_flags_stretch_ratio = 0.5
 text = "Documentation"
 
 [node name="Updater" type="Button" parent="MainMenu/Menu"]
-margin_top = 115.0
-margin_right = 508.0
-margin_bottom = 133.0
+margin_top = 253.0
+margin_right = 796.0
+margin_bottom = 271.0
 size_flags_horizontal = 3
 text = "Updater"
 
 [node name="Label2" type="Label" parent="MainMenu/Menu"]
-margin_top = 137.0
-margin_right = 508.0
-margin_bottom = 168.0
+margin_top = 275.0
+margin_right = 796.0
+margin_bottom = 306.0
 text = "
 ---- Settings ----"
 align = 1
 
 [node name="Config" type="HBoxContainer" parent="MainMenu/Menu"]
-margin_top = 172.0
-margin_right = 508.0
-margin_bottom = 190.0
+margin_top = 310.0
+margin_right = 796.0
+margin_bottom = 328.0
 size_flags_horizontal = 3
 alignment = 1
 
 [node name="Config" type="Button" parent="MainMenu/Menu/Config"]
-margin_right = 426.0
+margin_right = 714.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Config Editor"
 
 [node name="ConfigAdv" type="Button" parent="MainMenu/Menu/Config"]
-margin_left = 430.0
-margin_right = 508.0
+margin_left = 718.0
+margin_right = 796.0
 margin_bottom = 18.0
 text = "Advanced"
 __meta__ = {
@@ -185,73 +185,73 @@ __meta__ = {
 }
 
 [node name="Label3" type="Label" parent="MainMenu/Menu"]
-margin_top = 194.0
-margin_right = 508.0
-margin_bottom = 225.0
+margin_top = 332.0
+margin_right = 796.0
+margin_bottom = 363.0
 text = "
 ---- Create ----"
 align = 1
 
 [node name="CharacterEdit" type="Button" parent="MainMenu/Menu"]
-margin_top = 229.0
-margin_right = 508.0
-margin_bottom = 261.0
+margin_top = 367.0
+margin_right = 796.0
+margin_bottom = 399.0
 rect_min_size = Vector2( 0, 32 )
 size_flags_horizontal = 3
 text = "Character Editor"
 
 [node name="CharEditOptions" type="HBoxContainer" parent="MainMenu/Menu"]
-margin_top = 265.0
-margin_right = 508.0
-margin_bottom = 283.0
+margin_top = 403.0
+margin_right = 796.0
+margin_bottom = 421.0
 
 [node name="CharacterEditNew" type="Button" parent="MainMenu/Menu/CharEditOptions"]
-margin_right = 252.0
+margin_right = 396.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "New Character"
 
 [node name="CharacterEditSafe" type="Button" parent="MainMenu/Menu/CharEditOptions"]
-margin_left = 256.0
-margin_right = 508.0
+margin_left = 400.0
+margin_right = 796.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Character Editor (Safemode)"
 
 [node name="Label4" type="Label" parent="MainMenu/Menu"]
-margin_top = 287.0
-margin_right = 508.0
-margin_bottom = 318.0
+margin_top = 425.0
+margin_right = 796.0
+margin_bottom = 456.0
 text = "
 ---- Game ----"
 align = 1
 
 [node name="StartGameModes" type="HBoxContainer" parent="MainMenu/Menu"]
-margin_top = 322.0
-margin_right = 508.0
-margin_bottom = 340.0
+margin_top = 460.0
+margin_right = 796.0
+margin_bottom = 478.0
 
 [node name="StartGameTraining" type="Button" parent="MainMenu/Menu/StartGameModes"]
-margin_right = 252.0
+margin_right = 396.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Start Training Mode"
 
 [node name="StartGameMatch" type="Button" parent="MainMenu/Menu/StartGameModes"]
-margin_left = 256.0
-margin_right = 508.0
+margin_left = 400.0
+margin_right = 796.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 disabled = true
 text = "Start Normal Match"
 
 [node name="StartGameModes2" type="HBoxContainer" parent="MainMenu/Menu"]
-margin_top = 344.0
-margin_right = 508.0
-margin_bottom = 362.0
+margin_top = 482.0
+margin_right = 796.0
+margin_bottom = 500.0
 
 [node name="StartGame" type="Button" parent="MainMenu/Menu/StartGameModes2"]
-margin_right = 508.0
+margin_right = 796.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 text = "Start Game"
@@ -402,9 +402,9 @@ align = 1
 valign = 1
 
 [node name="TmpOut" type="Label" parent="MainMenu/FlowPanel"]
-margin_top = 179.0
-margin_right = 508.0
-margin_bottom = 193.0
+margin_top = 316.0
+margin_right = 796.0
+margin_bottom = 330.0
 size_flags_horizontal = 3
 size_flags_vertical = 6
 text = "Disabled at the moment."
@@ -412,17 +412,17 @@ align = 1
 valign = 1
 
 [node name="HSeparator" type="HSeparator" parent="MainMenu/FlowPanel"]
-margin_top = 376.0
-margin_right = 508.0
-margin_bottom = 380.0
+margin_top = 651.0
+margin_right = 796.0
+margin_bottom = 655.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="FlowAdvanced" type="Button" parent="MainMenu/FlowPanel"]
-margin_top = 384.0
-margin_right = 508.0
-margin_bottom = 416.0
+margin_top = 659.0
+margin_right = 796.0
+margin_bottom = 691.0
 rect_min_size = Vector2( 0, 32 )
 toggle_mode = true
 text = "Advanced Flow Setup"
@@ -437,14 +437,14 @@ margin_right = -16.0
 margin_bottom = -8.0
 
 [node name="Discord" type="Button" parent="MainMenu/Comms"]
-margin_right = 526.0
+margin_right = 814.0
 margin_bottom = 56.0
 size_flags_horizontal = 3
 text = "Join the community on Discord!"
 
 [node name="Survey" type="Button" parent="MainMenu/Comms"]
-margin_left = 530.0
-margin_right = 1056.0
+margin_left = 818.0
+margin_right = 1632.0
 margin_bottom = 56.0
 size_flags_horizontal = 3
 disabled = true
@@ -1100,8 +1100,8 @@ margin_right = -8.0
 margin_bottom = -8.0
 
 [node name="VBox" type="VBoxContainer" parent="FlowSetup/BID"]
-margin_right = 598.4
-margin_bottom = 528.0
+margin_right = 905.6
+margin_bottom = 816.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 

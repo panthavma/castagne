@@ -23,6 +23,8 @@ var LandingTime = 6
 internal _HitstunGravityFloat
 internal _GroundbounceTime
 internal _GroundbounceMomentum
+internal _PositionX
+internal _PositionY
 
 var ATTACK_Tech_Time int() = 0
 var ATTACK_Tech_MomentumX int() = 0
@@ -48,6 +50,9 @@ def PHYSICS_Jumping_Priority int() = 12000
 internal _MomentumX
 internal _MomentumY
 internal _MomentumZ
+
+
+var _PhysicsStartPosX int() = 0
 :AirTech-Backward:
 ## Airborne backward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
 _Category(States/Reacts/Techs)
@@ -1453,6 +1458,14 @@ _Category(Internals/Physics)
 _Helper()
 
 Call(Custom-OnLanding)
+:OnRoundStart:
+CallParent()
+Call(OnRoundStart-Physics)
+:OnRoundStart-Physics:
+_Helper()
+Set(_PositionX, _PhysicsStartPosX)
+Set(_PositionY, 0)
+SetMomentum(0,0)
 :PhysicsAfter-CollidersManagement:
 ## Physics helper to add colliders (hurtbox and colbox) automatically, so you don't get weird behavior or invincible moves by accident. Can be configured through constants.
 ##

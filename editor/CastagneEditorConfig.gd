@@ -86,7 +86,7 @@ func CreateStandardPage(module):
 	
 	if(nbCategories == 0):
 		var panel = CreateStandardPagePanel("This module has no configuration parameters.")
-		var categoryRoot = panel.get_child(0)
+		#var categoryRoot = panel.get_child(0)
 		root.add_child(panel)
 	
 	return pageRoot
@@ -120,7 +120,7 @@ func _ExecuteCustomConfigCallback(idx = null):
 	editor.get_node(_customConfigCalled["SubmenuName"]).hide()
 	show()
 
-func CreateConfigOption(module, config):
+func CreateConfigOption(_module, config):
 	var root = HBoxContainer.new()
 	root.set_name(str(config["Name"]))
 	
@@ -140,7 +140,7 @@ func CreateConfigOption(module, config):
 	root.add_child(title)
 	
 	var param = null
-	var paramSignalName = null
+	#var paramSignalName = null
 	var paramKey = config["Key"]
 	var defaultValue = config["Default"]
 	var currentValue = editor.configData.Get(paramKey)

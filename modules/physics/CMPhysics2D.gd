@@ -675,7 +675,7 @@ func SetTargetPosition(args, stateHandle, useAbsolute=false):
 func SetTargetPositionAbsolute(args, stateHandle):
 	SetTargetPosition(args, stateHandle, true)
 
-func GizmoSetTargetPosition(emodule, args, lineActive, stateHandle):
+func GizmoSetTargetPosition(emodule, args, lineActive, _stateHandle):
 	if(args.size() >= 2):
 		var color = Color(1.0, 0.4, 1.0)
 		var pos = [int(args[0]),int(args[1]),0]
@@ -854,7 +854,7 @@ func SetFacingWithType(args, stateHandle):
 
 func FlipFacing(args, stateHandle):
 	var facingType = ArgInt(args, stateHandle, 0, FACING_TYPE.Physics)
-	var alsoAdjustV = ArgBool(args, stateHandle, 1, false)
+	var _alsoAdjustV = ArgBool(args, stateHandle, 1, false)
 	var facing = GetFacingHV(stateHandle, facingType)
 	
 	facing[0] *= -1
@@ -864,7 +864,7 @@ func FlipFacing(args, stateHandle):
 
 func FaceTowardsTarget(args, stateHandle):
 	var facingType = ArgInt(args, stateHandle, 0, FACING_TYPE.Physics)
-	var alsoAdjustV = ArgBool(args, stateHandle, 1, false)
+	var _alsoAdjustV = ArgBool(args, stateHandle, 1, false)
 	var selfPosX = stateHandle.EntityGet("_PositionX")
 	var targetPosX = stateHandle.TargetEntityGet("_PositionX")
 	# [TODO FACING V]
@@ -875,7 +875,7 @@ func FaceTowardsTarget(args, stateHandle):
 	SetFacingHV(stateHandle, facing[0], facing[1], facingType)
 func TargetFaceTowardsSelf(args, stateHandle):
 	var facingType = ArgInt(args, stateHandle, 0, FACING_TYPE.Physics)
-	var alsoAdjustV = ArgBool(args, stateHandle, 1, false)
+	var _alsoAdjustV = ArgBool(args, stateHandle, 1, false)
 	var selfPosX = stateHandle.EntityGet("_PositionX")
 	var targetPosX = stateHandle.TargetEntityGet("_PositionX")
 	# [TODO FACING V]
@@ -1119,8 +1119,8 @@ func GizmoBox(emodule, args, lineActive, _stateHandle, type):
 		r = l
 	if(t < b):
 		t = b
-	var hc = (l+r)/2
-	var vc = (b+t)/2
+	var _hc = (l+r)/2
+	var _vc = (b+t)/2
 	var drawRhombus = (type == 2)
 	var width = (widthActive if lineActive else widthInactive)
 	
@@ -1162,9 +1162,9 @@ func GizmoMoveLine(emodule, args, lineActive, _stateHandle, type):
 	
 	emodule.GizmoLine([0,0,0], [h,v,0], color, width)
 
-func GizmoMove(emodule, args, lineActive, stateHandle):
-	return
-	GizmoMoveLine(emodule, args, lineActive, stateHandle, 0)
+#func GizmoMove(emodule, args, lineActive, stateHandle):
+#	return
+#	GizmoMoveLine(emodule, args, lineActive, stateHandle, 0)
 
 
 
@@ -1178,13 +1178,13 @@ func SetColboxLayer(args, stateHandle):
 	var layer = ArgInt(args, stateHandle, 0, stateHandle.EntityGet("_Player")+1)
 	stateHandle.EntitySet("_ColboxLayer", layer)
 
-func ResetColbox(args, stateHandle):
+func ResetColbox(_args, stateHandle):
 	stateHandle.EntitySet("_Colbox", null)
 	stateHandle.EntitySetFlag("NoColboxSet")
-func ResetHurtboxes(args, stateHandle):
+func ResetHurtboxes(_args, stateHandle):
 	stateHandle.EntitySet("_Hurtboxes", [])
 	stateHandle.EntitySetFlag("NoHurtboxSet")
-func ResetHitboxes(args, stateHandle):
+func ResetHitboxes(_args, stateHandle):
 	stateHandle.EntitySet("_Hitboxes", [])
 	stateHandle.EntitySetFlag("NoHitboxSet")
 
@@ -1321,7 +1321,7 @@ func PhysicsPhaseEnvironment(stateHandle, activeEIDs):
 		var movement = [entityStateHandle.EntityGet("_MovementX"), entityStateHandle.EntityGet("_MovementY")]
 		var bucketMovement = [movement[0]/nbBuckets, movement[1]/nbBuckets]
 		var buckets = []
-		for i in range(nbBuckets):
+		for _i in range(nbBuckets):
 			buckets.push_back(bucketMovement.duplicate())
 		buckets[0][0] += movement[0]%nbBuckets
 		buckets[0][1] += movement[1]%nbBuckets
@@ -1350,10 +1350,10 @@ func PhysicsPhaseEnvironment(stateHandle, activeEIDs):
 		for envCol in validEnvironmentCollisions:
 			var colbox = colboxes[envCol[0]]
 			var envConstraint = envConstraints[envCol[1]]
-			var movement = PhysicsEnv_ApplyEnvConstraint(colbox, envConstraint)
+			var _movement = PhysicsEnv_ApplyEnvConstraint(colbox, envConstraint)
 
 func PhysicsEnv_ApplyEnvConstraint(colbox, envc):
-	var movement = [0,0]
+	#var movement = [0,0]
 	var envcType = envc["Type"]
 	
 	var entityStateHandle = ppStateHandlesByEID[colbox["Owner"]]
@@ -1426,9 +1426,9 @@ func PhysicsEnv_ColboxColbox(colboxA, colboxB):
 		overlap = colposB[1] - colposA[0]
 	
 	var centerHA = (colposA[1] + colposA[0])/2
-	var centerVA = (colposA[3] + colposA[2])/2
+	var _centerVA = (colposA[3] + colposA[2])/2
 	var centerHB = (colposB[1] + colposB[0])/2
-	var centerVB = (colposB[3] + colposB[2])/2
+	var _centerVB = (colposB[3] + colposB[2])/2
 	
 	var pushbackDirA = (-1 if prevXB > prevXA else 1)
 	if(prevXA == prevXB):
@@ -1467,7 +1467,7 @@ func PhysicsPhaseAttack(stateHandle, activeEIDs):
 	var aaBoxes = {} # [hurtbox, hitbox, friendlyfire], if null ignore collision
 	
 	# Build EID List
-	var posKeys = ["Left", "Right", "Down", "Up"]
+	#var posKeys = ["Left", "Right", "Down", "Up"]
 	for eid in activeEIDs:
 		var entityStateHandle = ppStateHandlesByEID[eid]
 		
@@ -1754,7 +1754,7 @@ func TransformPosEntityToWorld(pos, stateHandle, facingType = FACING_TYPE.Physic
 	var absolutePos = TransformPosEntityToAbsolute(pos, stateHandle, facingType)
 	return TransformPosEntityAbsoluteToWorld(absolutePos, stateHandle, facingType)
 
-func TransformPosEntityAbsoluteToWorld(absolutePos, stateHandle, facingType = FACING_TYPE.Physics):
+func TransformPosEntityAbsoluteToWorld(absolutePos, stateHandle, _facingType = FACING_TYPE.Physics):
 	var x = stateHandle.EntityGet("_PositionX")
 	var y = stateHandle.EntityGet("_PositionY")
 	if(x == null):

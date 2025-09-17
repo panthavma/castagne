@@ -85,7 +85,7 @@ func CreateState(override = false, overrideUseTemplate = false):
 	editor.ReloadEngine()
 	editor.ChangeCodePanelState(sname, curFile)
 
-func _on_StateName_text_changed(new_text):
+func _on_StateName_text_changed(_new_text):
 	$Buttons/Create.set_disabled(!IsTextValid())
 	$Buttons/Override.set_disabled(!IsTextValid(true))
 	$Buttons/OverrideTemplate.set_disabled(!IsTextValid(true))

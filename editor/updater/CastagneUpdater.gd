@@ -52,7 +52,7 @@ func CheckForUpdates(forceRetry = false):
 	
 	UpdateDisplay()
 
-func _on_HTTPRequest_request_completed(result, response_code, headers, body):
+func _on_HTTPRequest_request_completed(result, response_code, _headers, body):
 	if(result != HTTPRequest.RESULT_SUCCESS or response_code != 200):
 		print("[Updater] HTTP Request error: " + str(result) + " / Code " + str(response_code))
 		updateStatus = UPDATE_STATUS.NetworkIssue

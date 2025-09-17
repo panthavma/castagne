@@ -1756,8 +1756,6 @@ func _ParseBlockState(fileID):
 							currentSubblock[currentSubblockList][p].append_array(a)
 				else:
 					for p in PHASES_BASE:
-						var phaseToGet = p
-						
 						var args = [branch["True"][p], branch["False"][p], branch["LetterArgs"]]
 						var d = [branch["Func"], args]
 						
@@ -2003,7 +2001,7 @@ func _GetPureStateNameFromStateName(stateName):
 	return stateName.right(entity.length()+3)
 
 onready var KnownVariableTypes = {"int":Castagne.VARIABLE_TYPE.Int, "str":Castagne.VARIABLE_TYPE.Str, "bool":Castagne.VARIABLE_TYPE.Bool}
-func _ExtractVariable(line, returnIncompleteType = false):
+func _ExtractVariable(line): #, returnIncompleteType = false):
 	# Structure: var NAME int() = 5
 	var variableMutability = null
 	var variableValue = null

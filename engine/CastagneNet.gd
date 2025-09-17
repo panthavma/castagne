@@ -69,7 +69,7 @@ func Old2_StartNetworkMatch():
 	
 	yield(get_tree().create_timer(2.0), "timeout")
 	Log("Sync started, spawning engine")
-	var data = {}
+	#var data = {}
 	#SyncManager.spawn("CastagneEngine", get_tree().get_root(), engineprefab, data)
 
 func Old1_StartNetworkMatch():
@@ -94,11 +94,11 @@ func _ready():
 	_r = get_tree().connect("network_peer_disconnected", self, "_on_network_peer_disconnected")
 	_r = get_tree().connect("server_disconnected", self, "_on_server_disconnected")
 	return
-	SyncManager.connect("sync_started", self, "_on_SyncManager_sync_started")
-	SyncManager.connect("sync_stopped", self, "_on_SyncManager_sync_stopped")
-	SyncManager.connect("sync_lost", self, "_on_SyncManager_sync_lost")
-	SyncManager.connect("sync_regained", self, "_on_SyncManager_sync_regained")
-	SyncManager.connect("sync_error", self, "_on_SyncManager_sync_error")
+	#SyncManager.connect("sync_started", self, "_on_SyncManager_sync_started")
+	#SyncManager.connect("sync_stopped", self, "_on_SyncManager_sync_stopped")
+	#SyncManager.connect("sync_lost", self, "_on_SyncManager_sync_lost")
+	#SyncManager.connect("sync_regained", self, "_on_SyncManager_sync_regained")
+	#SyncManager.connect("sync_error", self, "_on_SyncManager_sync_error")
 
 func _on_network_peer_connected(peer_id: int):
 	# Use .set_network_master(peer_id) on the input provider i think

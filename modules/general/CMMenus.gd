@@ -17,14 +17,14 @@ func ModuleSetup():
 	RegisterConfig("MenuData-MainMenu", {
 		"Options":[
 			{
-			#	"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Local Versus",
-			#	"Action":"MMLocalBattle", "ActionParams":null,
-			#},{
+				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Local Versus",
+				"Action":"MMLocalBattle", "ActionParams":null,
+			},{
 				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Training",
 				"Action":"MMTraining", "ActionParams":null,
-			#},{
-			#	"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Options",
-			#	"Action":null, "ActionParams":null,
+			},{
+				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Options",
+				"Action":null, "ActionParams":null,
 			},{
 				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Quit",
 				"Action":"MCB_QuitGame", "ActionParams":null,

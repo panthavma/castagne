@@ -7,11 +7,15 @@
 ## Base-Training: Adds some behavior to manage training mode options
 ##
 ## To add new behavior, look into overriding the Training- callbacks
+:Variables-Training:
+var TRAINING_ResetMode int() = 0
+var TRAINING_ResetCornerDistance int() = 0
 :Common:
 CallParent()
 
 LTF_Training:
 	Call(Training-Common)
+	Call(Training-ResetTrigger)
 endif
 :CommonAfter:
 CallParent()
@@ -42,6 +46,27 @@ CallParent()
 
 LTF_Training:
 	Call(Training-OnReturnToNeutral)
+endif
+:OnRoundStart-Physics:
+CallParent()
+
+VTRAINING_ResetMode<0:
+	Mul(_PositionX, -1)
+	Flag(ResetModeInverted)
+	Mul(TRAINING_ResetMode, -1)
+endif
+
+VTRAINING_ResetMode==2:
+	Add(_PositionX, TRAINING_ResetCornerDistance)
+#	Sub(_PositionX, _PhysicsStartPosX)
+endif
+VTRAINING_ResetMode==3:
+	Sub(_PositionX, TRAINING_ResetCornerDistance)
+#	Add(_PositionX, _PhysicsStartPosX)
+endif
+
+LResetModeInverted:
+	Mul(TRAINING_ResetMode, -1)
 endif
 :StandardState:
 CallParent()
@@ -74,6 +99,47 @@ endif
 _Category(Custom/Training)
 _Helper()
 _Overridable(If you want to add training-specific behavior)
+:Training-ResetTrigger:
+IResetPress:
+	IUp:
+		BroadcastFlag(ResetInverse)
+		BroadcastFlag(ResetModeChange)
+		IRight:
+			BroadcastFlag(ResetRight)
+		else
+			ILeft:
+				BroadcastFlag(ResetLeft)
+			endif
+		endif
+	else
+		IDown:
+			BroadcastFlag(ResetModeChange)
+			IRight:
+				BroadcastFlag(ResetRight)
+			else
+				ILeft:
+					BroadcastFlag(ResetLeft)
+				endif
+			endif
+		endif
+	endif
+	BroadcastEvent(Reset)
+endif
+
+PReaction:
+	LResetModeChange:
+		Set(TRAINING_ResetMode, 1)
+		LResetRight:
+			Set(TRAINING_ResetMode, 2)
+		endif
+		LResetLeft:
+			Set(TRAINING_ResetMode, 3)
+		endif
+		LResetInverse:
+			Mul(TRAINING_ResetMode, -1)
+		endif
+	endif
+endif
 :Training-StandardState:
 ## Training callback for the StandardState state
 _Category(Custom/Training)

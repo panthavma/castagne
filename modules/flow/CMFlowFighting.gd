@@ -25,13 +25,14 @@ func GetBaseBattleInitData(configData):
 		var p = bid["players"][0].duplicate(true)
 		var eBase = p["entities"][0]
 		
-		eBase["overrides"]["_PositionX"] = (-1 if pid == 0 else 1)*configData.Get("StartingDistance")
+		eBase["overrides"]["_PhysicsStartPosX"] = (-1 if pid == 0 else 1)*configData.Get("StartingDistance")
+		eBase["overrides"]["TRAINING_ResetCornerDistance"] = configData.Get("ArenaSize")
 		
 		if(pid == 0):
 			eBase["overrides"]["_ModelZOrder"] = 100
 			# :TODO:20250320:Panthavma:Maybe not the best code, good hacky thing for now
 		
-		for eid in range(configData.Get("CharactersPerPlayer")):
+		for _eid in range(configData.Get("CharactersPerPlayer")):
 			var e = {}
 			p["entities"] += [e]
 		bid["players"] += [p]

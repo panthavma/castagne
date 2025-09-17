@@ -1,0 +1,90 @@
+:Character:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+:Variables:
+def AI_TransitionToAttackState bool() = 1
+:AI-Init:
+## Initial AI
+_Category(AI/Internals)
+
+Call(AI-Multiplexer-Neutral)
+:AI-Multiplexer-Neutral:
+## Chooses a new state when in neutral
+_Category(AI/Internals)
+
+PAI,Reaction:
+	AITransition(AI-Neutral-WalkAround)
+endif
+:AI-Neutral-WalkAround:
+## Walks randomly around
+_Category(AI/Neutral)
+
+PAI:
+F1%38:
+	R50:
+		Flag(RightWalk)
+	R50
+		Unflag(RightWalk)
+	endif
+endif
+
+F16%46:
+	R35:
+		LRightWalk:
+			Unflag(RightWalk)
+		else
+			Flag(RightWalk)
+		endif
+	R60
+	endif
+endif
+
+
+LRightWalk:
+	InputPress(Right)
+	FlagNext(RightWalk)
+else
+	InputPress(Left)
+endif
+
+endif
+:AttackReactEvents-Defender:
+#Overriden from AttackReactEvents-Defender
+# CallParent() allows you to extend the overriden state by adding your behavior.
+# Remove it to replace the default behavior with yours instead
+CallParent()
+
+AITransition(Hitstun)
+:AttackState:
+#Overriden from AttackState
+# CallParent() allows you to extend the overriden state by adding your behavior.
+# Remove it to replace the default behavior with yours instead
+CallParent()
+
+EEnter:
+VAI_TransitionToAttackState:
+	AITransitionHere()
+endif
+endif
+:HitstunEnd:
+#Overriden from HitstunEnd
+# CallParent() allows you to extend the overriden state by adding your behavior.
+# Remove it to replace the default behavior with yours instead
+CallParent()
+
+Call(AI-Multiplexer-Neutral)
+:Init:
+#Overriden from Init
+# CallParent() allows you to extend the overriden state by adding your behavior.
+# Remove it to replace the default behavior with yours instead
+CallParent()
+
+AITransition(AI-Init)
+:OnReturnToNeutral:
+#Overriden from OnReturnToNeutral
+# CallParent() allows you to extend the overriden state by adding your behavior.
+# Remove it to replace the default behavior with yours instead
+CallParent()
+
+Call(AI-Multiplexer-Neutral)

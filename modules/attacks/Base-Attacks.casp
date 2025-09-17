@@ -206,6 +206,12 @@ _Category(Animations/Reacts/Blockstun)
 _Overridable(If you want to put your own animation logic instead)
 _Helper()
 _Category(Animations/Reacts/Blockstun)
+:AnimDead:
+_Helper()
+_Overridable()
+_Category(Animations/Reacts)
+
+Anim(ANIM_Reacts_Dead)
 :AnimHitstun:
 ## Helper state to select which hitstun animation to play
 _Category(Animations/Reacts/Hitstun)
@@ -594,8 +600,12 @@ _Category(Internals/Attacks/React)
 _Helper()
 
 EOnGetHit:
-	AttackRecievedGetParam(TransitionTo, CAST_REG_A_STR)
-	Transition(CAST_REG_A_STR, ATK_HITSTUN_PRIORITY, 1)
+	VHP<=0:
+		Transition(Dead, ATK_HITSTUN_PRIORITY, 1)
+	else
+		AttackRecievedGetParam(TransitionTo, CAST_REG_A_STR)
+		Transition(CAST_REG_A_STR, ATK_HITSTUN_PRIORITY, 1)
+	endif
 endif
 
 EOnBlocking:
@@ -1183,6 +1193,12 @@ Call(AttackReactEvents)
 CallParent()
 
 Call(AttackState-After)
+:Dead:
+Flag(NoHurtbox)
+SetColboxPhantom()
+Call(Common)
+
+Call(AnimDead)
 :Hitstun:
 ## Hitstun state, for when you have been hit by an attack.
 
@@ -1256,15 +1272,6 @@ else
 		Call(StartGroundTech)
 	endif
 endif
-:Init:
-CallParent()
-
-Call(Init-Attacks)
-:Init-Attacks:
-## Init callback for the attack module
-_Helper()
-
-Set(HP, HPMax)
 :NeutralStateCommon:
 CallParent()
 
@@ -1276,6 +1283,12 @@ _Helper()
 CallParent()
 
 AttackResetDoneCancels()
+:OnRoundStart:
+CallParent()
+Call(OnRoundStart-Attacks)
+:OnRoundStart-Attacks:
+_Helper()
+Set(HP, HPMax)
 :SimpleAttack-Standard:
 ## Helper for the simple attack system, which allows edition of attacks through custom editors easily.
 ## CASTDO

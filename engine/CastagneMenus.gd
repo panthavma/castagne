@@ -20,7 +20,7 @@ func _ready():
 func _MODefault(data, field, default):
 	if(!data.has(field)):
 		data[field] = default
-func _AddMenuOptionInternal(optionName, defaultMenu, data):
+func _AddMenuOptionInternal(optionName, _defaultMenu, data):
 	_MODefault(data, "DisplayName", optionName)
 	_menuOptions[optionName] = data
 

@@ -100,7 +100,7 @@ func SFXPlay(args, stateHandle):
 	var sfxParams = stateHandle.EntityGet("_SFXParams")
 	SFXPlay_Callback(stateHandle, audioData[sfxName], sfxParams)
 
-func SFXPlay_Callback(stateHandle, sfxData, sfxParams):
+func SFXPlay_Callback(stateHandle, sfxData, _sfxParams):
 	var soundStream = Castagne.Loader.Load(sfxData["Filepath"])
 	var soundNode = AudioStreamPlayer.new()
 	soundNode.set_stream(soundStream)

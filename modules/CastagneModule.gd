@@ -243,13 +243,20 @@ func RegisterFunction(functionName, nbArguments, flags = null, documentation = n
 	if(flags.has("AllPhases")):
 		flags += ["Init", "Action", "Reaction"]
 	
-	if(!flags.has("Reaction") and !flags.has("Action") and !flags.has("Init") and !flags.has("NoFunc")):
+	if(!flags.has("Reaction") and !flags.has("Action") and !flags.has("Init") and !flags.has("NoFunc") and !flags.has("AI")):
 		flags += ["Init", "Action"]
 	if(!flags.has("NoManual")):
 		flags += ["Manual"]
 	
 	if(flags.has("Action") and !flags.has("NoSubentity")):
 		flags += ["Subentity"]
+	
+	var flagsToRemove = []
+	for f in flags:
+		if "No"+f in flags:
+			flagsToRemove.push_back(f)
+	for f in flagsToRemove:
+		flags.erase(f)
 	
 	if(has_method("Parse"+functionName)):
 		parseFunc = funcref(self, "Parse"+functionName)
@@ -452,9 +459,11 @@ func SetVariableInTarget(stateHandle, varTargetEntity, value):
 		"Variable":varTargetEntity, "Value": value,
 	}
 	stateHandle.GlobalAdd("_CopyToBuffer", [copyData])
-func SetFlagInTarget(stateHandle, flagName, value = true):
+func SetFlagInTarget(stateHandle, flagName, value = true, target = null):
+	if(target == null):
+		target = stateHandle.GetTargetEntity()
 	var flagData = {
-		"OriginEID": stateHandle.GetEntityID(), "TargetEID": stateHandle.GetTargetEntity(),
+		"OriginEID": stateHandle.GetEntityID(), "TargetEID": target,
 		"Flag":flagName, "Value": value,
 	}
 	stateHandle.GlobalAdd("_FlagTargetBuffer", [flagData])

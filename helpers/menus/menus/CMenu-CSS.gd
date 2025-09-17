@@ -10,8 +10,13 @@ var devices
 export var MenuCSSGridPath = "Characters/Rows"
 export var MenuPlayerSlotsPath = "Players/PlayersRoot"
 
+var stageSelected = 0
+var stageSelectPlayer = null
+var nbStages
+
 func Setup(menuData, menuParams):
 	devices = menuParams["Devices"]
+	nbStages = Castagne.SplitStringToArray(_configData.Get("StagePaths")).size()
 	GatherCharacterList()
 	CreateCharacterGrid()
 	CreatePlayerSlots()
@@ -208,15 +213,7 @@ func CreateCSSGridRow():
 	return nRow
 
 func CreateCharacterIcon(gridSlot):
-<<<<<<< HEAD
-	var n = Castagne.Loader.Load("res://castagne/helpers/menus/aux/css/default/CMenu-CSS-Icon.tscn").instance()
-=======
-<<<<<<< HEAD
-	var n = Castagne.Loader.Load("res://castagne/helpers/menus/aux/css/default/CMenu-CSS-Icon.tscn").instance()
-=======
 	var n = Castagne.Loader.Load("res://castagne/helpers/menus/helpers/css/default/CMenu-CSS-Icon.tscn").instance()
->>>>>>> dev
->>>>>>> unstable
 	n.InitIcon(gridSlot[0], self, gridSlot[1])
 	return n
 
@@ -227,6 +224,9 @@ func CreateCharacterIcon(gridSlot):
 
 func CreatePlayerSlots():
 	var playerSlotsRoot = get_node(MenuPlayerSlotsPath)
+	if(characterList.size() == 0):
+		Castagne.Error("No characters for the CSS!")
+		return
 	var defaultCharacter = characterList[0]
 	playerSlots = []
 	for pid in range(2):
@@ -264,6 +264,7 @@ func Advance():
 		
 		_menuParams["CallbackAdvance"].call_func({
 			"SelectData": selectData,
+			"Stage":stageSelected,
 			"CallbackParams": cbParams,
 			"Devices": devices,
 			"CSSParams": _menuParams,

@@ -241,7 +241,7 @@ func GizmoStraight(emodule, speed, color, lineWidth, offset = Vector2(), nbFrame
 	notchesFrames += [0, nbFramesSimul]
 	for f in notchesFrames:
 		var x = speed.x*f + offset.x
-		var y = speed.y*f + offset.y
+		var _y = speed.y*f + offset.y
 		emodule.GizmoLine([x, -g_NotchSize+offset.y, 0], [x,g_NotchSize+offset.y,0], color, lineWidth)
 
 func GizmoJump(emodule, baseMomentum, gravity, airFriction, color, lineWidth, grounded=true):

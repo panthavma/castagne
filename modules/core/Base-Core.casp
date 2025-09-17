@@ -27,16 +27,24 @@ _BaseState()
 ## CASTDO Somewhat temporary, only works because of fighting flow forcing the main target opponent
 TargetSave()
 
+Call(ResetHandling)
 Call(Custom-Common)
 
 CallAfter(CommonAfter)
 
-:Custom-Common:
-## Custom override point for the Common helper, which is called in all states (apart from a few specific exceptions).
-## This happens at the beginning of the function.
+:ResetHandling:
 _Helper()
-_Category(Custom/Core)
-_Overridable(If you want to add behavior common to all regular states)
+
+EReset:
+	Flag(Reset)
+	FlagNext(Reset)
+endif
+
+LReset:
+	Unflag(Reset)
+	UnflagNext(Reset)
+	Call(OnRoundStart)
+endif
 :CommonAfter:
 ## This state is called after every script that links back to :Common:. It's purpose it to hold some helpers, like putting default hurtboxes on characters.
 
@@ -46,8 +54,12 @@ _Category(Internals)
 Call(Custom-CommonAfter)
 
 TargetRecall()
-
-
+:Custom-Common:
+## Custom override point for the Common helper, which is called in all states (apart from a few specific exceptions).
+## This happens at the beginning of the function.
+_Helper()
+_Category(Custom/Core)
+_Overridable(If you want to add behavior common to all regular states)
 :Custom-CommonAfter:
 ## Custom override point for the CommonAfter helper, which is called in all states (apart from a few specific exceptions) and happens at the end.
 ## This happens at the beginning of the function.
@@ -71,7 +83,7 @@ _Overridable(If you want to add custom behavior when returning to a neutral stat
 
 _Category(Internals)
 
-Transition(CORE_InitialState)
+Call(OnRoundStart)
 :NeutralState:
 ## Base state for neutral states, meaning those where the character is considered free to act, like in the Stand state.
 ## Being neutral allows for instance to refresh attack cancels, and so should be carefully given.
@@ -103,6 +115,12 @@ _Category(States/Neutral)
 _Helper()
 
 Call(Custom-OnReturnToNeutral)
+:OnRoundStart:
+## Called when a new round begins, including the first one
+
+Call(OnRoundStart-Core)
+:OnRoundStart-Core:
+Transition(CORE_InitialState)
 :StandardState:
 ## Basic base state that almost all controllable states should point to. It uses some constants to alter behavior.
 

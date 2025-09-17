@@ -177,9 +177,11 @@ func EngineTick(previousMemory, playerInputs):
 	var _filteredMEIDs = SeparateFrozenEntities(memory, allMEIDs)
 	var activeMEIDs = _filteredMEIDs[0]
 	var frozenMEIDs = _filteredMEIDs[1]
+	var aiMEIDs = SeparateAIControlledEntities(memory, activeMEIDs)[0]
 	
 	# AI Script Phase
-	ExecuteScriptPhase("AI", activeMEIDs, gameStateHandle)
+	## TODO: limit MEIDs to players with AI control, use different state
+	ExecuteScriptPhase("AI", aiMEIDs, gameStateHandle)
 	
 	# Input Internal Phase
 	ExecuteInternalPhase("Input", allMEIDs, gameStateHandle, _inputPhaseFunction)
@@ -272,6 +274,18 @@ func SeparateFrozenEntities(memory, eids):
 		else:
 			unfrozen.push_back(eid)
 	return [unfrozen, frozen]
+
+func SeparateAIControlledEntities(memory, eids):
+	var ai = []
+	var human = []
+	for eid in eids:
+		var pid = memory.EntityGet(eid, "_Player")
+		var inputDevice = GetInputDevice(pid)
+		if(inputDevice == "ai"):
+			ai.push_back(eid)
+		else:
+			human.push_back(eid)
+	return [ai, human]
 
 func DoEntityInit(gameStateHandle, listName):
 	var entitiesToInit = gameStateHandle.GlobalGet(listName)
@@ -511,7 +525,6 @@ func AddNewEntity(gameStateHandle, playerID, fighterID, entityName = null):
 
 	gameStateHandle.GlobalSet("_CurrentEntityID", newEID)
 	var parsedFighter = instancedData["ParsedFighters"][fighterID]
-	var variablesEntity = {}
 	var parsedFighterVariables = parsedFighter["Variables"]
 	if(parsedFighterVariables.has(entityName)):
 		for vName in parsedFighterVariables[entityName]:
@@ -638,7 +651,7 @@ var _prefabMemory = preload("res://castagne/engine/CastagneMemory.gd")
 var _memories = []
 var MAX_MEMORIES_IN_MEMORY = 16
 var _nextMemoryID = 0
-func CreateMemory(copyFrom = null):
+func CreateMemory(_copyFrom = null):
 	if(_memories.empty()):
 		var newMemory = Node.new()
 		newMemory.set_script(_prefabMemory)

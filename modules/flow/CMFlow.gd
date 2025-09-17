@@ -61,6 +61,8 @@ func ModuleSetup():
 	RegisterConfig("BID-Custom-Player", "", {"Description":"Additional fields for the player BID."})
 	RegisterConfig("BID-Custom-Entity", "", {"Description":"Additional fields for the entity BID."})
 	
+	RegisterCASPEvent("Reset")
+	
 	# _NbPlayers?
 
 func GetBaseBattleInitData(configData):
@@ -90,17 +92,21 @@ func GetBaseBattleInitData(configData):
 
 func GetBattleInitDataFromCSS(cssData):
 	var bid = GetBaseBattleInitData(cssData["ConfigData"])
+	var stage = cssData["Stage"]
+	bid["map"] = stage
 	for pid in range(cssData["Devices"].size()):
 		var device = cssData["Devices"][pid]
 		if(device == null):
 			device = "empty"
 		var selectData = cssData["SelectData"][pid]
 		var characters = selectData["Characters"]
+		var palettes = selectData["Palettes"]
 		
 		bid["players"][pid+1]["inputdevice"] = device
 		for eid in range(characters.size()):
 			var c = characters[eid]
 			bid["players"][pid+1]["entities"][eid+1]["scriptpath"] = c["Character"]["Filepath"]
+			bid["players"][pid+1]["entities"][eid+1]["overrides"] = {"_PaletteID": palettes[eid]}
 	return bid
 
 func BattleInit(stateHandle, battleInitData):
@@ -175,7 +181,7 @@ func _BattleInit_CreateEntities(stateHandle, entities, playerID):
 			stateHandle.Memory().EntitySet(newEID, key, e["overrides"][key], true)
 
 
-func EditorCreateFlowWindow(editor, root):
+func EditorCreateFlowWindow(_editor, root):
 	# If not overwritten, lock the custom panel
 	var trueRoot = root.get_node("../..")
 	var button = trueRoot.get_node("FlowAdvanced")

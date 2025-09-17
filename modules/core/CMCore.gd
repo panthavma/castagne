@@ -232,12 +232,20 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		"Flags":["Intermediate"],
 		"Types": ["str"],
 	})
+	RegisterFunction("BroadcastFlag", [1], null, {
+		"Description":"Sets a flag in all targets. This will be applied at the end of the phase, but doesn't carry over to the next frame, meaning you'll most likely only access it in Reaction phase.",
+		"Arguments":["Flag Name"],
+	})
+	RegisterFunction("BroadcastUnflag", [1], null, {
+		"Description":"Unsets a flag in all targets. This will be applied at the end of the phase, but doesn't carry over to the next frame, meaning you'll most likely only access it in Reaction phase.",
+		"Arguments":["Flag Name"],
+	})
 	
 	RegisterVariableGlobal("_CopyToBuffer", [], null, {
 		"Description":"Global buffer to hold the variables entities set to each other.",
 		"Flags":["Expert"],
 		})
-	RegisterVariableGlobal("_FlagTargetBuffer", [], ["ResetEachFrame"], {
+	RegisterVariableGlobal("_FlagTargetBuffer", [], null, {
 		"Description":"Global buffer to hold the flags entities set to each other.",
 		"Flags":["Expert"],
 		})
@@ -304,13 +312,13 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		"Flags":["Expert"],
 		})
 	
-	RegisterFunction("Call", [1], ["Init", "Action", "Reaction", "Freeze", "Events"], {
+	RegisterFunction("Call", [1], ["Init", "Action", "Reaction", "Freeze", "AI", "Events"], {
 		"Description": "Executes another script/state. Script must be known at compile time.",
 		"Arguments": ["Name of the state to call"],
 		"Flags":["Basic"],
 		"Types": ["str"],
 		})
-	RegisterFunction("CallParent", [0], ["Init", "Action", "Reaction", "Freeze", "Events"], {
+	RegisterFunction("CallParent", [0], ["Init", "Action", "Reaction", "Freeze", "AI", "Events"], {
 		"Description": "Execute the same script on the parent skeleton.",
 		"Arguments": [],
 		"Flags":["Intermediate"],
@@ -323,12 +331,27 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		"Types": ["str"],
 		})
 		
-	RegisterFunction("CallAfter", [1], ["Init", "Action", "Reaction", "Freeze", "Events"], {
+	RegisterFunction("CallAfter", [1], ["Init", "Action", "Reaction", "Freeze", "AI", "Events"], {
 		"Description": "Adds a static call at the end of the state.",
 		"Arguments":["Name of state to call"],
 		"Flags":["Intermediate"],
 		"Types": ["str"],
 	})
+	
+	RegisterFunction("CallEvent", [1], null, {
+		"Description": "Calls an event on this entities at the end of the phase.",
+		"Arguments":["Name of the event"],
+	})
+	RegisterFunction("CallEventOnTarget", [1], null, {
+		"Description": "Calls an event on the target entity at the end of the phase.",
+		"Arguments":["Name of the event"],
+	})
+	RegisterFunction("BroadcastEvent", [1], null, {
+		"Description": "Calls an event on all entities at the end of the phase.",
+		"Arguments":["Name of the event"],
+	})
+	
+	RegisterVariableGlobal("_EventQueue", [])
 	
 	
 	
@@ -513,13 +536,14 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		)
 	var castagneStandardModules = {
 		# Coreset
-		"coreset":"editor, functions, attacks, audio, input, menus",
+		"coreset":"editor, functions, attacks, audio, input, ai, menus",
 		"editor":"res://castagne/modules/editor/CMEditor.gd",
 		"functions":"res://castagne/modules/general/CMFunctions.gd",
 		"audio":"res://castagne/modules/general/CMAudio.gd",
 		"attacks":"res://castagne/modules/attacks/CMAttacks.gd",
 		"input":"res://castagne/modules/general/CMInput.gd",
 		"menus":"res://castagne/modules/general/CMMenus.gd",
+		"ai": "res://castagne/modules/general/CMAI.gd",
 		
 		# Flow
 		"flow": "flowfighting",
@@ -618,6 +642,7 @@ func ActionPhaseEnd(stateHandle):
 	var activeEIDs = stateHandle.GlobalGet("_ActiveEntities")
 	_HandleCopyToBuffer(stateHandle.Memory(), activeEIDs)
 	_HandleFlagTargetBuffer(stateHandle, activeEIDs)
+	_HandleEventQueue(stateHandle, activeEIDs)
 
 func ReactionPhaseStartEntity(stateHandle):
 	CommonPhaseStartEntity(stateHandle)
@@ -630,15 +655,16 @@ func ReactionPhaseEnd(stateHandle):
 	var activeEIDs = stateHandle.GlobalGet("_ActiveEntities")
 	_HandleCopyToBuffer(stateHandle.Memory(), activeEIDs)
 	_HandleFlagTargetBuffer(stateHandle, activeEIDs)
+	_HandleEventQueue(stateHandle, activeEIDs)
 
 func FreezePhaseStartEntity(stateHandle):
 	stateHandle.EntityAdd("_FreezeFrames", -1)
 	stateHandle.EntitySetFlag("Frozen", true)
 	_HandleFlagNext(stateHandle, false)
 
-func CommonPhaseStartEntity(stateHandle):
+func CommonPhaseStartEntity(_stateHandle):
 	pass
-func CommonPhaseEndEntity(stateHandle):
+func CommonPhaseEndEntity(_stateHandle):
 	pass
 
 func _HandleFlagNext(stateHandle, eraseList = true):
@@ -689,14 +715,30 @@ func _HandleFlagTargetBuffer(stateHandle, eidsToHandle):
 	
 	for ftb in flagTargetBuffer:
 		var targetEID = ftb["TargetEID"]
-		if(targetEID in eidsToHandle):
-			var originalEID = ftb["OriginEID"]
-			var flagName = ftb["Flag"]
-			var value = ftb["Value"]
-			
-			stateHandle.PointToEntity(targetEID)
-			stateHandle.EntitySetFlag(flagName, value)
+		var flagName = ftb["Flag"]
+		var value = ftb["Value"]
+		if(targetEID == -1):
+			for t in eidsToHandle:
+				if(stateHandle.PointToEntity(t)):
+					stateHandle.EntitySetFlag(flagName, value)
+		elif(targetEID in eidsToHandle):
+			if(stateHandle.PointToEntity(targetEID)):
+				stateHandle.EntitySetFlag(flagName, value)
 	stateHandle.GlobalSet("_FlagTargetBuffer", [])
+
+func _HandleEventQueue(stateHandle, eidsToHandle):
+	var eq = stateHandle.GlobalGet("_EventQueue")
+	for e in eq:
+		var eventName = e[0]
+		var target = e[1]
+		var caller = e[2]
+		if(target == -1):
+			for eid in eidsToHandle:
+				if(stateHandle.PointToEntity(eid)):
+					engine.ExecuteCASPEvent(eventName, stateHandle, caller)
+		elif(stateHandle.PointToEntity(target)):
+			engine.ExecuteCASPEvent(eventName, stateHandle, caller)
+	stateHandle.GlobalSet("_EventQueue", [])
 
 func _CopyToBufferSort(a, b):
 	return a["OriginEID"] < b["OriginEID"]
@@ -847,6 +889,11 @@ func FlagInTarget(args, stateHandle, flagValue = true):
 	SetFlagInTarget(stateHandle, flagName, flagValue)
 func UnflagInTarget(args, stateHandle):
 	FlagInTarget(args, stateHandle, false)
+func BroadcastFlag(args, stateHandle, flagValue = true):
+	var flagName = ArgStr(args, stateHandle, 0)
+	SetFlagInTarget(stateHandle, flagName, flagValue, -1)
+func BroadcastUnflag(args, stateHandle):
+	BroadcastFlag(args, stateHandle, false)
 
 # --------------------------------------------------------------------------------------------------
 # States
@@ -940,8 +987,19 @@ func CallParent(args, stateHandle):
 	engine.ExecuteFighterScript(fighterScript, stateHandle)
 	stateHandle.EntitySet("_CallParentLevel", level - 1)
 
-func CallAfter(args, stateHandle):
+func CallAfter(_args, _stateHandle):
 	return
+
+func CallEvent(args, stateHandle):
+	_QueueEvent(stateHandle, ArgRaw(args, 0), stateHandle.GetEntityID())
+func CallEventOnTarget(args, stateHandle):
+	_QueueEvent(stateHandle, ArgRaw(args, 0), stateHandle.GetTargetEID())
+func BroadcastEvent(args, stateHandle):
+	_QueueEvent(stateHandle, ArgRaw(args, 0))
+func _QueueEvent(stateHandle, eventName, eid=-1, caller=-1):
+	if(caller == -1):
+		caller = stateHandle.GetEntityID()
+	stateHandle.GlobalAdd("_EventQueue", [[eventName, eid, caller]])
 
 # --------------------------------------------------------------------------------------------------
 # Debug

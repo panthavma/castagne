@@ -193,7 +193,7 @@ func GetDisplayName():
 		return _specblockName
 	return _displayName
 
-func InitDefineValues(defineValuesList):
+func InitDefineValues(_defineValuesList):
 	_extraValues = {}
 	
 

@@ -87,8 +87,8 @@ func CreateState():
 	editor.ReloadEngine()
 	editor.ChangeCodePanelState(actionStateName, curFile)
 
-func _on_StateName_text_changed(new_text):
-	var t = $StateName.get_text().strip_edges()
+func _on_StateName_text_changed(_new_text):
+	#var t = $StateName.get_text().strip_edges()
 	$Buttons/Create.set_disabled(!IsTextValid())
 	
 func IsTextValid():

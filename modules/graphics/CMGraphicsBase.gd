@@ -709,7 +709,7 @@ func _CameraOverrides_GatherOverrides(stateHandle):
 		stateHandle.EntityGet("_CameraOverride_LookAtX"), stateHandle.EntityGet("_CameraOverride_LookAtY"), stateHandle.EntityGet("_CameraOverride_LookAtZ"),
 		stateHandle.EntityGet("_CameraOverride_FOV"), stateHandle.EntityGet("_CameraOverride_Roll")
 	]
-func _CameraOverrides_OverrideMergeExtra(cameraExtra, cameraOverride):
+func _CameraOverrides_OverrideMergeExtra(cameraExtra, _cameraOverride):
 	return cameraExtra
 
 
@@ -736,8 +736,8 @@ func ModelMove(args, stateHandle):
 func ModelMoveAbsolute(args, stateHandle):
 	stateHandle.EntityAdd("_ModelPositionX", ArgInt(args, stateHandle, 0))
 	stateHandle.EntityAdd("_ModelPositionY", ArgInt(args, stateHandle, 1, 0))
-func ModelSwitchFacing(_args, stateHandle):
-	return
+#func ModelSwitchFacing(_args, stateHandle):
+#	stateHandle.EntitySet("_ModelFacing") # In physics maybe ?
 
 func ModelZOrder(args, stateHandle):
 	var zOrderCoarse = ArgInt(args, stateHandle, 0)
@@ -1028,7 +1028,7 @@ func CameraOverridePriority(args, stateHandle):
 	stateHandle.EntitySet("_CameraOverride_Priority", ArgInt(args, stateHandle, 0))
 func CameraOverrideStrength(args, stateHandle):
 	stateHandle.EntitySet("_CameraOverride_Strength", ArgInt(args, stateHandle, 0))
-func CameraOverrideStop(args, stateHandle):
+func CameraOverrideStop(_args, stateHandle):
 	stateHandle.EntitySet("_CameraOverride_Strength", 0)
 
 func CameraShake(args, stateHandle):
@@ -1077,7 +1077,7 @@ func VFXSprite(args, stateHandle):
 func VFXTime(args, stateHandle):
 	var time = ArgInt(args, stateHandle, 0)
 	_VFXSetSingle(stateHandle, "TimeRemaining", time)
-func VFXPerpetual(args, stateHandle):
+func VFXPerpetual(_args, stateHandle):
 	_VFXSetSingle(stateHandle, "TimeRemaining", null)
 func _VFXPosFunction(args, stateHandle, polynomialDegree, physicsSpace):
 	var x = ArgInt(args, stateHandle, 0)
@@ -1101,7 +1101,7 @@ func VFXPositionAbsolute(args, stateHandle):
 	_VFXPosFunction(args, stateHandle, 0, Castagne.PHYSICS_SPACES.ABSOLUTE)
 func VFXPositionWorld(args, stateHandle):
 	_VFXPosFunction(args, stateHandle, 0, Castagne.PHYSICS_SPACES.WORLD)
-func GizmoVFXPosition(emodule, args, lineActive, stateHandle):
+func GizmoVFXPosition(emodule, args, lineActive, _stateHandle):
 	if(args.size() >= 2):
 		var pos = [int(args[0]),int(args[1]),0]
 		if(args.size() >= 3):
@@ -1189,7 +1189,7 @@ func GizmoVFXModelCreate(emodule, args, lineActive, stateHandle):
 	if(args.size() >= 4):
 		var argsPos = [args[2], args[3]]
 		GizmoVFXPosition(emodule, argsPos, lineActive, stateHandle)
-func VFXCreate(args, stateHandle):
+func VFXCreate(_args, stateHandle):
 	var vfxData = stateHandle.EntityGet("_PreparingVFX").duplicate(true)
 	
 	var isSprite = (vfxData["IsSprite"])
@@ -1442,7 +1442,7 @@ func _CreateSprite_Instance(stateHandle):
 func _UpdateSprite(sprite, stateHandle):
 	sprite.UpdateSprite(stateHandle)
 
-func _UpdateCamera(stateHandle, camera, cameraPos, cameraLookAt, cameraFOV, cameraRoll, cameraShake, cameraExtra):
+func _UpdateCamera(stateHandle, camera, cameraPos, cameraLookAt, cameraFOV, cameraRoll, cameraShake, _cameraExtra):
 	#camera.set_translation(cameraPos)
 	#var fwd = (cameraPos - cameraLookAt).normalized()
 	#var up = Vector3(0,1,0)
@@ -1453,7 +1453,8 @@ func _UpdateCamera(stateHandle, camera, cameraPos, cameraLookAt, cameraFOV, came
 	
 	camera.look_at_from_position(cameraPos, cameraLookAt, Vector3(0,1,0))
 	camera.rotate_z(cameraRoll)
-	camera.set_fov(cameraFOV)
+	if(cameraFOV >= 1 and cameraFOV <= 179):
+		camera.set_fov(cameraFOV)
 	
 	var cameraShakeBase = stateHandle.ConfigData().Get("CameraShake_BaseStrength") * POSITION_SCALE
 	cameraShake = (cameraShake / 1000.0) * cameraShakeBase

@@ -172,14 +172,14 @@ func _on_MusicPlay_toggled(button_pressed):
 		cMusicPlayer.stop()
 
 
-func _on_MusicLoop_toggled(button_pressed):
+func _on_MusicLoop_toggled(_button_pressed):
 	pass # Replace with function body.
 
 
 
 func _on_PlaySlider_drag_started():
 	isCurrentlyScrollingTrack = true
-func _on_PlaySlider_drag_ended(value_changed):
+func _on_PlaySlider_drag_ended(_value_changed):
 	isCurrentlyScrollingTrack = false
 	currentTrackPosition = cMusicBar.get_value()
 	$MusicInfo/MusicLabels/LabelCurrent.set_text("Current: "+str(currentTrackPosition))

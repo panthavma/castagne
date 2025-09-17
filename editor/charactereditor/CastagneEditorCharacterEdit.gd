@@ -69,7 +69,7 @@ func EnterMenu(bid):
 	
 	ReloadCodePanel()
 	var filePath = character[character["NbFiles"]-1]["Path"]
-	var lastState = null
+	#var lastState = null
 	if(filePath in lastFiles):
 		ChangeCodePanelState(lastFiles[filePath])
 	ReloadEngine()
@@ -287,7 +287,7 @@ func SetCurrentStateCode(newCode):
 func ChangeCodePanelState(newState = null, newFile = -1, newLine = 1):
 	var changedState = false
 	var oldFile = curFile
-	var oldState = curState
+	#var oldState = curState
 	if(newFile >= 0):
 		curFile = newFile
 		changedState = true
@@ -310,7 +310,7 @@ func ChangeCodePanelState(newState = null, newFile = -1, newLine = 1):
 	var filePath = file["Path"]
 	var lockedFile = IsFileLocked(filePath)
 	var lockedCode = lockedFile
-	var entity = Castagne.Parser._GetEntityNameFromStateName(curState)
+	var _entity = Castagne.Parser._GetEntityNameFromStateName(curState)
 	var isVariablesBlock = curStatePureName.begins_with("Variables")
 	var isSpecBlock = curStatePureName.begins_with("Specs-")
 	if(!file["States"].has(curState)):
@@ -331,7 +331,7 @@ func ChangeCodePanelState(newState = null, newFile = -1, newLine = 1):
 			curState = "Character"
 			isSpecBlock = false
 			isVariablesBlock = false
-			entity = Castagne.Parser._GetEntityNameFromStateName(curState)
+			_entity = Castagne.Parser._GetEntityNameFromStateName(curState)
 		curStatePureName = Castagne.Parser._GetPureStateNameFromStateName(curState)
 	
 	var state = file["States"][curState]
@@ -1303,7 +1303,7 @@ func CompileGizmos():
 	
 	# Temporary, but good enough for now
 	var currentGizmos = []
-	var functions = editor.configData.GetModuleFunctions()
+	var moduleFunctions = editor.configData.GetModuleFunctions()
 	for i in range(codeWindow.get_line_count()):
 		var line = codeWindow.get_line(i).strip_edges()
 		if(line.empty() || line.begins_with("#") || !Castagne.Parser._IsLineFunction(line)):
@@ -1311,9 +1311,9 @@ func CompileGizmos():
 		var funcParsed = Castagne.Parser._ExtractFunction(line)
 		var funcName = funcParsed[0]
 		var funcArgs = funcParsed[1]
-		if(!functions.has(funcName)):
+		if(!moduleFunctions.has(funcName)):
 			continue
-		var f = functions[funcName]
+		var f = moduleFunctions[funcName]
 		var gizmoFunc = f["GizmoFunc"]
 		if(gizmoFunc == null):
 			continue
@@ -1362,12 +1362,12 @@ func UpdateDocumentation():
 	var funcName = line
 	if(Castagne.Parser._IsLineFunction(line)):
 		funcName = Castagne.Parser._ExtractFunction(line)[0]
-	var functions = editor.configData.GetModuleFunctions()
+	var moduleFunctions = editor.configData.GetModuleFunctions()
 	
-	if(!functions.has(funcName)):
+	if(!moduleFunctions.has(funcName)):
 		var potentialMatches = []
 		var potentialMatchesFuzzy = []
-		for f in functions.keys():
+		for f in moduleFunctions.keys():
 			if(f.begins_with(funcName)):
 				potentialMatches += [f]
 			elif(f.find(funcName) >= 0):
@@ -1386,7 +1386,7 @@ func UpdateDocumentation():
 		nDocText.set_text(t)
 		return
 	
-	var f = functions[funcName]
+	var f = moduleFunctions[funcName]
 	var fDoc = f["Documentation"]
 	
 	var fArgs = fDoc["Arguments"]

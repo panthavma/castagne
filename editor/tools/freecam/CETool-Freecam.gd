@@ -65,7 +65,7 @@ func EngineTick_UpdateGraphics(stateHandle):
 	else:
 		camGT = null
 
-func _process(delta):
+func _process(_delta):
 	if(overrideButton.is_pressed() and camRef != null and camGT != null):
 		camRef.call_deferred("set_global_transform",camGT)
 

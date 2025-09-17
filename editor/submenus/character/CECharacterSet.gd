@@ -88,7 +88,7 @@ func SortCharacters(key = "ID", reversed = false):
 	
 	# Update indexes
 	cidToPosInArray = []
-	for i in range(characters.size()):
+	for _i in range(characters.size()):
 		cidToPosInArray.push_back(-1)
 	for i in range(characters.size()):
 		var c = characters[i]

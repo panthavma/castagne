@@ -39,7 +39,7 @@ func UpdateBID():
 func UpdateBIDDictionary(root, d):
 	for key in d:
 		var data = d[key]
-		var t = typeof(data)
+		#var t = typeof(data)
 		
 		var l = Label.new()
 		l.set_text(key + " / " + str(typeof(data)))

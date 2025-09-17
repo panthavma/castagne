@@ -264,5 +264,5 @@ func _on_LoadCurrentState_pressed():
 	RefreshState()
 
 
-func _on_EventName_item_selected(index):
+func _on_EventName_item_selected(_index):
 	ChangePhase("Event")

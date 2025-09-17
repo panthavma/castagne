@@ -5,7 +5,7 @@
 extends Node
 
 var _isMirrored = false
-func UIInitialize(stateHandle, battleInitData, pid, mirror = false):
+func UIInitialize(_stateHandle, _battleInitData, _pid, mirror = false):
 	_isMirrored = mirror
 	if(mirror):
 		ApplyMirror()
