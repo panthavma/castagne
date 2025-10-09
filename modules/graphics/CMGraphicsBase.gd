@@ -555,7 +555,8 @@ func InitPhaseStartEntity(stateHandle):
 	
 	# UI
 	var uiData = stateHandle.IDEntityGet("TD_UI")
-	if(uiData["Defines"]["UI_UseWidgets"]):
+	var entityName = stateHandle.EntityGet("_Entity")
+	if(uiData["Defines"]["UI_UseWidgets"] and entityName == null):
 		var widgetsData = uiData["Widgets"]
 		for wName in widgetsData:
 			var w = widgetsData[wName]
@@ -1301,7 +1302,8 @@ func _VFXUpdate_UpdateGraphics(stateHandle, vfxData):
 	
 	if(vfxData["AnimationPlayer"] != null):
 		var animPlayer = vfxNode.get_node(vfxData["AnimationPlayer"])
-		animPlayer.seek((vfxData["TimeAlive"]+1.0)/60.0, true)
+		if(animPlayer != null):
+			animPlayer.seek((vfxData["TimeAlive"]+1.0)/60.0, true)
 	
 	var vfxPos = [vfxData["PosX"], vfxData["PosY"], vfxData["PosZ"]]
 	if(parentAlive and vfxData["LockToEntity"]):

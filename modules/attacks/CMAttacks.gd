@@ -121,6 +121,11 @@ func ModuleSetup():
 		"Flags":["Advanced"],
 		"Types":["str",],
 	})
+	RegisterFunction("AttackInflictedHasFlag", [1,2], null, {
+		"Description":"Checks if the infliced attack has a flag, and raises it if true. Target will by default have the same name as the flag with the AIF_ prefix.",
+		"Arguments":["Flag name in attack (no AF_ prefix)", "Target flag name on entity (Default: AIF_[first argument])"],
+		"Flags":["Advanced"],
+	})
 	RegisterAttackDefault("_Flags", [])
 	RegisterAttackDefault("_Unflag", [])
 	
@@ -296,7 +301,7 @@ func ModuleSetup():
 	RegisterAttackFlag("PhaseBlock", {"Description": "Attack counts as missing instead of blocked."})
 	RegisterFlag("CanBlock", {"Description":"Allows blocking using the Blocking flag."})
 	RegisterFlag("CanBlock-X", {"Description":"Allows blocking attacks using the MustBlock-[X] flag."})
-	RegisterFlag("CanBlock-All", {"Description":"Same as CanBlock-[X] for all values of [X]."})
+	RegisterFlag("4-All", {"Description":"Same as CanBlock-[X] for all values of [X]."})
 	RegisterFlag("Blocking", {"Description": "Signifies the character is attempting to block, and will do so if abled by the CanBlock flag."})
 	RegisterFlag("Blocking-X", {"Description": "Signifies the character is attempting to block [X] attacks, and will do so if abled by a corresponding CanBlock-[X] flag."})
 	RegisterFlag("Blocking-All", {"Description": "Counts as Blocking-[X] for all values of [X]."})
@@ -886,6 +891,11 @@ func AttackInflictedUnflag(args, stateHandle):
 	var flagName = ArgStr(args, stateHandle, 0)
 	if(flagName in stateHandle.EntityGet("_InflictedAttackData")["_Flags"]):
 		stateHandle.EntityGet("_InflictedAttackData")["_Flags"].erase(flagName)
+func AttackInflictedHasFlag(args, stateHandle):
+	var flagName = ArgStr(args, stateHandle, 0)
+	var flagTargetName = ArgStr(args, stateHandle, 1, "AIF_"+flagName)
+	if(flagName in stateHandle.EntityGet("_InflictedAttackData")["_Flags"]):
+		stateHandle.EntitySetFlag(flagTargetName)
 
 
 func AttackParam(args, stateHandle):

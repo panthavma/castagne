@@ -210,8 +210,6 @@ _Category(Animations/Reacts/Blockstun)
 _Helper()
 _Overridable()
 _Category(Animations/Reacts)
-
-Anim(ANIM_Reacts_Dead)
 :AnimHitstun:
 ## Helper state to select which hitstun animation to play
 _Category(Animations/Reacts/Hitstun)
@@ -649,6 +647,7 @@ _BaseState()
 
 AttackInit()
 Flag(Attacking)
+FlagNext(AttackStateLastFrame)
 
 F1:
 	Set(_AttackDuration, 180)

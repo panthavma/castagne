@@ -200,6 +200,10 @@ VANIMS_UseStandardAnims:
 	Anim(ANIM_Movement_Basic_Crouching)
 	AnimLoop(ANIM_Movement_Basic_Crouching_Loop)
 endif
+:AnimDead:
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Reacts_Dead)
+endif
 :AnimGroundTechBackward:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 

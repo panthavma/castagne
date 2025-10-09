@@ -77,6 +77,8 @@ func ModuleSetup():
 		"Description":"Stores the last opened state in each file, which is then read on startup."
 	})
 	
+	RegisterConfig("Editor-AspectRatio", "16:9")
+	
 	RegisterConfig("Updater-CheckOnStartup", true)
 	#RegisterConfig("Updater-BranchID", 0, {"Flags":["Hidden"]})
 	#RegisterConfig("Updater-Branch", "Main", {"Flags":["Hidden"]})

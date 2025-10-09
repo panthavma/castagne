@@ -64,7 +64,7 @@ func OnEngineRestarting(engine, battleInitData):
 	ClearInputPanel()
 	
 	var editorModule = engine.configData.GetModuleSlot(Castagne.MODULE_SLOTS_BASE.EDITOR)
-	editorModule.connect("EngineTick_AIStartEntity", self, "EngineTick_AIStartEntity")
+	editorModule.connect("EngineTick_InputStartEntity", self, "EngineTick_InputStartEntity")
 	editorModule.connect("EngineTick_InputEnd", self, "EngineTick_InputEnd")
 	
 	var nbPlayers = battleInitData["players"].size() - 1
@@ -97,7 +97,7 @@ func ShowPID(pidToShow):
 			g.hide()
 
 
-func EngineTick_AIStartEntity(stateHandle):
+func EngineTick_InputStartEntity(stateHandle):
 	var pid = stateHandle.EntityGet("_Player")
 	
 	# If not in input override mode, don't do anything

@@ -17,14 +17,14 @@ func ModuleSetup():
 	RegisterConfig("MenuData-MainMenu", {
 		"Options":[
 			{
-				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Local Versus",
-				"Action":"MMLocalBattle", "ActionParams":null,
-			},{
+			#	"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Local Versus",
+			#	"Action":"MMLocalBattle", "ActionParams":null,
+			#},{
 				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Training",
 				"Action":"MMTraining", "ActionParams":null,
-			},{
-				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Options",
-				"Action":null, "ActionParams":null,
+			#},{
+			#	"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Options",
+			#	"Action":null, "ActionParams":null,
 			},{
 				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Quit",
 				"Action":"MCB_QuitGame", "ActionParams":null,
@@ -50,10 +50,10 @@ func ModuleSetup():
 			{
 				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Resume",
 				"Action":"Resume", "ActionParams":null,
-			},{
+			#},{
 			#	"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Character Select",
 			#	"Action":"ReturnToCSS", "ActionParams":null,
-			#},{
+			},{
 				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Return to Main Menu",
 				"Action":"ReturnToMM", "ActionParams":null,
 			},
@@ -83,10 +83,10 @@ func ModuleSetup():
 				"Type":Castagne.MENUS_ELEMENT_TYPES.LIST, "ScenePath":null, "DisplayName":"Blocking",
 				"Action":null, "ActionParams":null, "List": ["No Blocking", "All Block", "Block High", "Block Low"], "ListDefaultOption": 0,
 				"TrainingAction":"TrainingFlagBroadcast", "TrainingParams":[null, ["Blocking", "Blocking-All"], ["Blocking", "Blocking-Overhead"], ["Blocking", "Blocking-Low"]],
-			},{
+			#},{
 			#	"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Character Select",
 			#	"Action":"ReturnToCSS", "ActionParams":null,
-			#},{
+			},{
 				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Return to Main Menu",
 				"Action":"ReturnToMM", "ActionParams":null,
 			},

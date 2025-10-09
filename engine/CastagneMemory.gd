@@ -66,10 +66,13 @@ func IsEIDValid(eid):
 	return eid >= 0 and eid < _memoryEntities.size() and _memoryEntities[eid] != null
 
 func EntityGet(eid, keyName):
-	if(_memoryEntities[eid].has(keyName)):
-		return _memoryEntities[eid][keyName]
-	Castagne.Error("Memory Entity Get ("+str(eid)+"): Key is undefined: " + str(keyName))
-	return null
+	if(!IsEIDValid(eid)):
+		Castagne.Error("Memory Entity Get ("+str(eid)+"): EID is invalid! Key: " + str(keyName))
+		return null
+	if(!_memoryEntities[eid].has(keyName)):
+		Castagne.Error("Memory Entity Get ("+str(eid)+"): Key is undefined: " + str(keyName))
+		return null
+	return _memoryEntities[eid][keyName]
 
 func EntitySet(eid, keyName, value, newValue = false):
 	if(newValue or _memoryEntities[eid].has(keyName)):

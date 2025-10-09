@@ -315,9 +315,10 @@ func CreateGodotInputActionsFromDevice(deviceName, inputMap):
 				keyboardInputs = keyboardInputs[bindingsBaseID]
 			
 			for ki in keyboardInputs:
-				var ie = InputEventKey.new()
-				ie.set_scancode(ki)
-				InputMap.action_add_event(actionName, ie)
+				if(ki != null):
+					var ie = InputEventKey.new()
+					ie.set_scancode(ki)
+					InputMap.action_add_event(actionName, ie)
 		elif(deviceType == Castagne.INPUTDEVICE_TYPES.CONTROLLER):
 			var controllerInputs = im["BindingsController"]
 			if(controllerInputs.size() <= bindingsBaseID):
@@ -327,10 +328,11 @@ func CreateGodotInputActionsFromDevice(deviceName, inputMap):
 			
 			var controllerID = device["ControllerID"]
 			for ci in controllerInputs:
-				var ie = InputEventJoypadButton.new()
-				ie.set_button_index(ci)
-				ie.set_device(controllerID)
-				InputMap.action_add_event(actionName, ie)
+				if(ci != null):
+					var ie = InputEventJoypadButton.new()
+					ie.set_button_index(ci)
+					ie.set_device(controllerID)
+					InputMap.action_add_event(actionName, ie)
 
 
 

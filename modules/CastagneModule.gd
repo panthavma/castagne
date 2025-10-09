@@ -388,11 +388,13 @@ func EntityUnsetFlag(stateHandle, flagName):
 func CallFunction(functionName, args, stateHandle):
 	stateHandle.ConfigData().GetModuleFunctions()[functionName]["ActionFunc"].call_func(args, stateHandle)
 
+func _ModuleLogEntityName(stateHandle = null):
+	return (" Entity ["+str(stateHandle.EntityGet("_EID"))+"/"+str(stateHandle.EntityGet("_State"))+"]" if stateHandle != null else "")
 func ModuleLog(text, stateHandle = null):
-	var eidName = ("Entity ["+str(stateHandle.EntityGet("_EID"))+"]" if stateHandle != null else "")
-	Castagne.Log("Module "+moduleName+" Log "+eidName+" : " + str(text))
+	var eidName = _ModuleLogEntityName(stateHandle)
+	Castagne.Log("Module "+moduleName+" Log"+eidName+": " + str(text))
 func ModuleError(text, stateHandle = null):
-	var eidName = (" Entity ["+str(stateHandle.EntityGet("_EID"))+"]" if stateHandle != null else "")
+	var eidName = _ModuleLogEntityName(stateHandle)
 	Castagne.Error("Module "+moduleName+" Error"+eidName+": " + str(text))
 
 func ArgStr(args, stateHandle, argID, default = null):

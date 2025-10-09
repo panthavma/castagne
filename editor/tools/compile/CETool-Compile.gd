@@ -113,6 +113,7 @@ func OnError(message):
 func OnLog(message):
 	AddLogOrError(message)
 
+var MAX_LOG_ENTRIES = 1200
 func AddLogOrError(message, error = false):
 	if(errorData.size() == 0):
 		ResetErrorData()
@@ -128,6 +129,10 @@ func AddLogOrError(message, error = false):
 	errorData += [ed]
 	
 	smallErrorWindow.add_item(str(message))
+	if(MAX_LOG_ENTRIES > 0 and smallErrorWindow.get_item_count() > MAX_LOG_ENTRIES):
+		smallErrorWindow.remove_item(0)
+		errorData.remove(0)
+	
 	smallErrorWindow.select(smallErrorWindow.get_item_count() - 1)
 	smallErrorWindow.ensure_current_is_visible()
 	UpdateCompilStatusButton()

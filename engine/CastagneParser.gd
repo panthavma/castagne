@@ -118,7 +118,7 @@ func _StartParsing(filePath, configData, resetErrors = true):
 	_moduleVariables = {}
 	for m in _configData.GetModules():
 		m.CopyVariablesEntityParsing(_moduleVariables)
-	
+
 	PHASES_WITH_EVENTS = PHASES_BASE.duplicate()
 	PHASES_EVENTS = []
 	for e in _caspEvents:
@@ -129,7 +129,7 @@ func _StartParsing(filePath, configData, resetErrors = true):
 	_branchFunctions = {}
 	for l in _letters:
 		_branchFunctions[l] = funcref(self, "Instruction"+l)
-	
+
 	_OpenFile(filePath)
 
 func _AbortParsing():
@@ -209,7 +209,7 @@ func _ParseFullFile(stopAfterSpecblocks = false):
 		fileID -= 1
 		if(_aborting):
 			return
-	
+
 	var moduleSpecblocksMain = _configData.GetModuleSpecblocksMainEntity()
 	for sb in moduleSpecblocksMain.values():
 		var sbDefaultDefines = sb.GetDefaultDefines()
@@ -226,21 +226,21 @@ func _ParseFullFile(stopAfterSpecblocks = false):
 			if(typeof(v["Value"]) == TYPE_INT):
 				v["Type"] = Castagne.VARIABLE_TYPE.Int
 			_specblockDefines[dName] = v
-	
+
 	for dName in _specblockDefines:
 		if(typeof(_specblockDefines[dName]["Type"]) == TYPE_INT):
 			_specblockDefines[dName]["Type"] = Castagne.VARIABLE_TYPE.Int
-	
+
 	# --- Transform defined data
 	for sbName in moduleSpecblocksMain:
 		var sb = moduleSpecblocksMain[sbName]
 		var tData = sb.TransformDefinedData(_specblockDefines)
 		if(tData != null):
 			_transformedData[sbName] = tData
-	
+
 	if(stopAfterSpecblocks):
 		return
-	
+
 	# 2. Parse the variables
 	profiling.push_back(OS.get_ticks_usec())
 	_Log(">>> Parsing the variables...")
@@ -268,16 +268,16 @@ func _ParseFullFile(stopAfterSpecblocks = false):
 		Castagne.FuseDataNoOverwrite(_variables[entityName], characterVariables)
 	for entityName in _variables:
 		Castagne.FuseDataNoOverwrite(_variables[entityName], _specblockDefines)
-	
-	
+
+
 	_subentityBaseDefines = {}
-	
+
 	for vName in _variables[null]:
 		var v = _variables[null][vName]
 		if(v["Mutability"] == Castagne.VARIABLE_MUTABILITY.Define):
 			_subentityBaseDefines[vName] = v.duplicate()
-	
-	
+
+
 	# 3. Parse the states
 	profiling.push_back(OS.get_ticks_usec())
 	_Log(">>> Parsing the states...")
@@ -331,7 +331,7 @@ func _ParseFullFile(stopAfterSpecblocks = false):
 func _PrintProfilingData(title, profiling):
 	var shortText = false
 	var t = title + " Time: " + str((profiling.back() - profiling.front())/1000000.0)
-	
+
 	var profilingTitles = [
 		"Metadata + Specblocks",
 		"            Variables",
@@ -341,7 +341,7 @@ func _PrintProfilingData(title, profiling):
 		"            State Tag",
 		"      Variable Adjust",
 	]
-	
+
 	if(shortText):
 		t += " ( "
 		for i in range(profiling.size()-1):
@@ -360,11 +360,11 @@ func _PrintProfilingData(title, profiling):
 func _OptimizeActionListPhase0():
 	var entities = _metadataSubentities.keys()
 	_optimizedEntities_Phase0 = []
-	
+
 	var statesPerEntity = {}
 	for entity in entities:
 		statesPerEntity[entity] = {}
-	
+
 	for stateName in _states:
 		var entity = _GetEntityNameFromStateName(stateName)
 		if(entity != null):
@@ -372,11 +372,11 @@ func _OptimizeActionListPhase0():
 			var np = _ExtractParentFromPureStateName(pureStateName)
 			var noParentStateName = np[0]
 			var parentLevel = np[1]
-			
+
 			if(!statesPerEntity[entity].has(noParentStateName)):
 				statesPerEntity[entity][noParentStateName] = []
 			statesPerEntity[entity][noParentStateName] += [parentLevel]
-	
+
 	for entity in entities:
 		var heritageChain = []
 		var curEntityInChain = entity
@@ -390,7 +390,7 @@ func _OptimizeActionListPhase0():
 				skeleton = chainMD["Skeleton"]
 			if(skeleton == "none" or skeleton == "None"):
 				skeleton = null
-			
+
 			if(heritageChain.has(skeleton)):
 				_Error("Subentity heritage chain: Subentity "+str(entity)+" has a cyclic dependancy ! ("+str(curEntityInChain)+" -> "+str(skeleton)+")")
 				return
@@ -400,7 +400,7 @@ func _OptimizeActionListPhase0():
 		for i in range(heritageChain.size()-1, -1, -1):
 			_OptimizeActionListPhase0_Variables(heritageChain[i])
 		_OptimizeActionListPhase0_Variables(entity)
-		
+
 		for parentEntity in heritageChain:
 			for noParentStateName in statesPerEntity[parentEntity]:
 				var parentLevels = statesPerEntity[parentEntity][noParentStateName]
@@ -408,17 +408,17 @@ func _OptimizeActionListPhase0():
 				var childBaseStateName = entity+"---"+noParentStateName
 				while(_states.has(childBaseStateName)):
 					childBaseStateName = _GetParentStateName(childBaseStateName)
-				
+
 				for pl in parentLevels:
 					var parentStateName = _GetParentStateName(parentBaseStateName, pl)
 					var childStateName = _GetParentStateName(childBaseStateName, pl)
-					
+
 					#print("Copying "+parentStateName+" as "+childStateName)
-					
+
 					var newState = _states[parentStateName].duplicate(true)
 					newState["Entity"] = entity
 					newState["Name"] = childStateName
-					
+
 					_states[childStateName] = newState
 
 var _optimizedEntities_Phase0
@@ -432,13 +432,13 @@ func _OptimizeActionListPhase0_Variables(entity):
 		skeleton = chainMD["Skeleton"]
 	if(skeleton == "none" or skeleton == "None"):
 		skeleton = null
-	
+
 	if(skeleton != null):
 		Castagne.FuseDataNoOverwrite(_variables[entity], _variables[skeleton].duplicate(true))
 	else:
 		Castagne.FuseDataNoOverwrite(_variables[entity], _subentityBaseDefines.duplicate(true))
-	
-	
+
+
 	var moduleSpecblocksSub = _configData.GetModuleSpecblocksSubEntity()
 	for sb in moduleSpecblocksSub.values():
 		var sbDefaultDefines = sb.GetDefaultDefines()
@@ -455,7 +455,7 @@ func _OptimizeActionListPhase0_Variables(entity):
 			if(typeof(v["Value"]) == TYPE_INT):
 				v["Type"] = Castagne.VARIABLE_TYPE.Int
 			_variables[entity][dName] = v
-	
+
 	# --- Transform defined data
 	#for sbName in moduleSpecblocksSub:
 	#	var sb = moduleSpecblocksSub[sbName]
@@ -468,7 +468,7 @@ var _optimizedStates_CallAfter
 func _OptimizeActionListPhase1(stateName, phasesToOptim = null):
 	if(phasesToOptim == null):
 		phasesToOptim = _OptimizeActionList_GetPhasesToOptimize(stateName)
-	
+
 	for p in phasesToOptim:
 		if(stateName in _optimizedStates[p]):
 			phasesToOptim.erase(p)
@@ -521,7 +521,7 @@ func _OptimizeActionList_Sublist(actionList, baseParentLevel, p, state):
 					callAfterState = calledStateEntity + "---" + callAfterState
 				if not (callAfterState in _optimizedStates_CallAfter[state["Name"]]):
 					_optimizedStates_CallAfter[state["Name"]].push_back(callAfterState)
-			
+
 			if(a[0] == callFuncref):
 				calledState = a[1][0]
 				var calledStateEntity = _GetEntityNameFromStateName(state["Name"])
@@ -534,11 +534,11 @@ func _OptimizeActionList_Sublist(actionList, baseParentLevel, p, state):
 				var calledStateEntity = _GetEntityNameFromStateName(state["Name"])
 				if(calledStateEntity != null):
 					calledState = calledStateEntity + "---" + calledState
-				
+
 				#calledState = state["Name"]
 				parentLevel += 1
 				calledState = _GetParentStateName(calledState, parentLevel)
-				
+
 				if(!(calledState in _states)):
 					if(!(calledState in _optimizeActionList_parentWarnings)):
 						_Error("CastagneParser: CallParent function is calling non-existing parent state "+ str(calledState) +" (Parent level "+str(parentLevel)+"). Removing Call.")
@@ -582,14 +582,14 @@ func _OptimizeActionList_Sublist(actionList, baseParentLevel, p, state):
 				_OptimizeActionListPhase1(calledState, [p])
 				var calledActionList = _states[calledState][p]
 				actionList.remove(i) # we keep attack register for registering attack properly
-				
+
 				if(a[0] in attackRegisterFuncrefs):
 					var newA = a.duplicate(true)
 					var internalFuncName = ("AttackInternalRegisterNoNotation" if a[0] == attackRegisterFuncrefs[1] else "AttackInternalRegister")
 					newA[0] = _configData.GetModuleFunctions()[internalFuncName]["ActionFunc"]
 					actionList.insert(i, newA)
 					i += 1
-				
+
 				for j in range(calledActionList.size()):
 					actionList.insert(i+j, calledActionList[j].duplicate(true))
 				loopAgain = true
@@ -625,7 +625,7 @@ func _OptimizeActionList_Sublist_After(actionList, p, state):
 				var calledStateEntity = _GetEntityNameFromStateName(state["Name"])
 				if(calledStateEntity != null):
 					calledState = calledStateEntity + "---" + calledState
-			
+
 				if(calledState != null):
 					if not calledState in _states:
 						_Error("CastagneParser: State " + state["Name"] + " is trying to call unexisting state "+calledState+".")
@@ -652,7 +652,7 @@ func _OptimizeActionListPhase2(stateName):
 	_optimizedStates2 += [stateName]
 	var state = _states[stateName]
 
-	
+
 	var entity = _GetEntityNameFromStateName(stateName)
 
 	#if(!variablesList_OptimPhase2.has(entity)):
@@ -675,7 +675,7 @@ func _OptimizeActionListPhase2(stateName):
 func _OptimizeActionListPhase3():
 	# Erase all parent states.
 	var statesExisting = _states.keys()
-	
+
 	for stateName in statesExisting:
 		var pureStateName = _GetPureStateNameFromStateName(stateName)
 		if(pureStateName.begins_with("Parent:")):
@@ -768,16 +768,16 @@ func _OptimizeActionList_StaticBranches(actionListToParse):
 			newActionList.push_back(a)
 		else:
 			newActionList.push_back(a)
-	
+
 	return newActionList
 
 func _OptimizeActionList_GetPhasesToOptimize(stateName):
 	#return ["Init", "Action", "Reaction", "Freeze", "Manual", "AI", "Subentity", "Halt"]
 	var subName = _ExtractParentFromPureStateName(_GetPureStateNameFromStateName(stateName))[0]
 	var entity = _GetEntityNameFromStateName(stateName)
-	
+
 	var phasesToOptimize = ["Action", "Reaction", "Freeze", "AI", "Halt"]
-	
+
 	if(entity != null):
 		phasesToOptimize = ["Init", "Subentity", "Freeze", "AI", "Halt"]
 	elif(subName == "Init" or subName.begins_with("Init-")):
@@ -785,7 +785,7 @@ func _OptimizeActionList_GetPhasesToOptimize(stateName):
 	elif(subName.begins_with("CCB_")):
 		phasesToOptimize = ["Manual"]
 	phasesToOptimize.append_array(PHASES_EVENTS)
-	
+
 	return phasesToOptimize
 	#return PHASES
 
@@ -861,7 +861,7 @@ func _ExtractFlagsFromActionList(actionList, metadata, level = 0):
 				f.push_back("Attack")
 				f.push_back("AttackType-"+arguments[0])
 				if(!(metadata["AttackNotations"].empty()) and metadata["AttackType"] != atkType):
-					_Error("Found several AttackRegister calls in one state ! "+metadata["NameShort"] + "(Parent level "+str(metadata["ParentLevel"])+", entity "+metadata["Entity"]+")")
+					_Error("Found several AttackRegister calls in one state ! "+str(metadata["NameShort"]) + "(Parent level "+str(metadata["ParentLevel"])+", entity "+str(metadata["Entity"])+")")
 				metadata["AttackType"] = atkType
 
 			if(atkNotation != null):
@@ -945,14 +945,14 @@ func _ParseSpecblocks(fileID):
 
 	var definesFound = {}
 	var line = _GetNextBlock(fileID)
-	
+
 	while(line != null):
 		line = line.left(line.length()-1).right(1)
 		line = _GetPureStateNameFromStateName(line)
-		
+
 		if(!line.begins_with("Specs-")):
 			break
-		
+
 		line = _GetNextLine(fileID)
 		while(line != null and !_IsLineBlock(line)):
 			if(!_IsLineVariable(line)):
@@ -980,7 +980,7 @@ func _ParseVariables(fileID):
 	var line = _GetNextBlock(fileID)
 
 	var variablesFound = {}
-	
+
 	while(line != null):
 		line = line.left(line.length()-1).right(1)
 		var stateNamePure = _GetPureStateNameFromStateName(line)
@@ -1048,7 +1048,7 @@ func _GetParentStateName(stateName, levels = 1):
 	var parentText = ""
 	for _i in range(levels):
 		parentText += "Parent:"
-	
+
 	var parentStateName = parentText+stateName
 	var entity = _GetEntityNameFromStateName(stateName)
 	if(entity != null):
@@ -1494,7 +1494,7 @@ func _ParseBlockState(fileID):
 
 	var entity = _GetEntityNameFromStateName(stateName)
 	var stateNamePure = _GetPureStateNameFromStateName(stateName)
-	
+
 	# New subentity
 	if(_currentEntity != entity):
 		if(entity == null):
@@ -1511,13 +1511,13 @@ func _ParseBlockState(fileID):
 			_metadataSubentities[entity] = {}
 			#for i in range(_filePaths.length()):
 			#	_metadataSubentities[entity][i] = {}
-			
+
 			_variables[entity] = {}
 			#_variables[entity] = _subentityBaseDefines.duplicate()
-		
+
 		# Parse subentity block
 		Castagne.FuseDataOverwrite(_metadataSubentities[entity], _ParseBlockData(fileID))
-		
+
 		var newDefines = _ParseSpecblocks(fileID)
 		for dName in newDefines:
 			var v = {
@@ -1531,18 +1531,18 @@ func _ParseBlockState(fileID):
 				v["Type"] = Castagne.VARIABLE_TYPE.Int
 			#_specblockDefines[dName] = v
 			_variables[entity][dName] = v
-		
+
 		# Parse variables
 		_ParseVariables(fileID)
-		
+
 		stateName = _GetCurrentLine(fileID)
 		if(stateName == null):
 			return null
 		stateName = stateName.left(stateName.length()-1).right(1)
 		entity = _GetEntityNameFromStateName(stateName)
 		stateNamePure = _GetPureStateNameFromStateName(stateName)
-	
-	
+
+
 
 	_currentState = {
 		"Name": stateName,
@@ -1625,20 +1625,20 @@ func _ParseBlockState(fileID):
 		else:
 			var letter = line.left(1)
 			var letterArgs = line.left(line.length()-1).right(1)
-			
+
 			if(line == "endif"):
 				var branch = currentSubblock
 				if(currentSubblock == null):
 					_Error("Endif found without a branch!")
 					line = _GetNextLine(fileID)
 					continue
-				
+
 				currentSubblock = reserveSubblocks.pop_back()
 				currentSubblockList = reserveSubblocksList.pop_back()
-				
+
 				if(branch["Letter"] == "S"):
 					# Translate the S blocks to F branches
-					
+
 					if(branch["S_AttackAutoDuration"]):
 						if(branch["S_Modulo"] != 0):
 							_Error("S Branch with modulo can't use an SATK helper!")
@@ -1655,10 +1655,10 @@ func _ParseBlockState(fileID):
 							line = _GetNextLine(fileID)
 							continue
 						branch["S_Modulo"] = branch["S_Sum"]
-					
+
 					if(branch["S_AttackAutoDuration"]):
 						stateActions["Action"] += [[_configData.GetModuleFunctions()["AttackDuration"]["ActionFunc"], [branch["S_Sum"]]]]
-					
+
 					var nbSBlocks = len(branch["S_Blocks_Start"])
 					for sbID in range(nbSBlocks):
 						var start = branch["S_Blocks_Start"][sbID]
@@ -1666,8 +1666,8 @@ func _ParseBlockState(fileID):
 						var regularActions = branch["S_"+str(sbID)]
 						var startActions = branch["S_"+str(sbID)+"*"]
 						var endActions = branch["S_"+str(sbID)+"**"]
-						
-						
+
+
 						var fLetterArgsRegular = str(start)
 						var fLetterArgsStar = str(start)
 						var fLetterArgsEnd = str(end)
@@ -1679,13 +1679,13 @@ func _ParseBlockState(fileID):
 							fLetterArgsRegular += "%"+str(branch["S_Modulo"])
 							fLetterArgsStar += "%"+str(branch["S_Modulo"])
 							fLetterArgsEnd += "%"+str(branch["S_Modulo"])
-						
+
 						for p in PHASES_WITH_EVENTS:
 							# Star before regular
 							if(!startActions[p].empty()):
 								var argsStar = [startActions[p], [], fLetterArgsStar]
 								var dStar = [_branchFunctions["F"], argsStar]
-								
+
 								if(currentSubblock == null):
 									stateActions[p] += [dStar]
 								else:
@@ -1693,7 +1693,7 @@ func _ParseBlockState(fileID):
 							if(!regularActions[p].empty()):
 								var argsReg = [regularActions[p], [], fLetterArgsRegular]
 								var dReg = [_branchFunctions["F"], argsReg]
-								
+
 								if(currentSubblock == null):
 									stateActions[p] += [dReg]
 								else:
@@ -1701,7 +1701,7 @@ func _ParseBlockState(fileID):
 							if(!endActions[p].empty()):
 								var argsEnd = [endActions[p], [], fLetterArgsEnd]
 								var dEnd = [_branchFunctions["F"], argsEnd]
-								
+
 								if(currentSubblock == null):
 									stateActions[p] += [dEnd]
 								else:
@@ -1710,15 +1710,15 @@ func _ParseBlockState(fileID):
 					var actions = branch["True"]["Manual"]
 					if(actions.empty()):
 						continue
-					
+
 					for eventName in branch["LetterArgs"].split(","):
 						var overrideAllEventCode = false
 						if(eventName.ends_with('*')):
 							overrideAllEventCode = true
 							eventName = eventName.left(eventName.length()-1)
-						
+
 						var eventPhaseName = "Event_"+eventName
-						
+
 						if(eventPhaseName in stateActions):
 							if(overrideAllEventCode):
 								stateActions[eventPhaseName] = []
@@ -1745,9 +1745,9 @@ func _ParseBlockState(fileID):
 					var phaseToGet = "Manual"
 					var actionsInPhase = branch["True"][phaseToGet]
 					var actionsOutPhase = branch["False"][phaseToGet]
-					
+
 					var inPhases = branch["LetterArgs"].split(",")
-					
+
 					for p in PHASES_BASE:
 						var a = (actionsInPhase if (p in inPhases) else actionsOutPhase)
 						if(currentSubblock == null):
@@ -1758,10 +1758,10 @@ func _ParseBlockState(fileID):
 					for p in PHASES_BASE:
 						var args = [branch["True"][p], branch["False"][p], branch["LetterArgs"]]
 						var d = [branch["Func"], args]
-						
+
 						if(args[0].empty() and args[1].empty()):
 							continue
-						
+
 						if(currentSubblock == null):
 							stateActions[p] += [d]
 						else:
@@ -1806,13 +1806,13 @@ func _ParseBlockState(fileID):
 					_Error("R followup found without an R branch!")
 					line = _GetNextLine(fileID)
 					continue
-				
+
 				letterArgs = line.left(line.length()).right(1)
 				if(!letterArgs.is_valid_integer()):
 					_Error("R followup with a non-static weight: "+letterArgs)
 					line = _GetNextLine(fileID)
 					continue
-				
+
 				var weight = int(letterArgs)
 				currentSubblockList = "R_"+str(len(currentSubblock["R_Thresholds"]))
 				currentSubblock["R_Sum"] += weight
@@ -1829,7 +1829,7 @@ func _ParseBlockState(fileID):
 					_Error("S followup found after an S+ branch!")
 					line = _GetNextLine(fileID)
 					continue
-				
+
 				letterArgs = line.left(line.length()).right(1)
 				currentSubblockList = "S_"+str(len(currentSubblock["S_Blocks_Start"]))
 				currentSubblock[currentSubblockList] = {}
@@ -1839,11 +1839,11 @@ func _ParseBlockState(fileID):
 					currentSubblock[currentSubblockList][p] = []
 					currentSubblock[currentSubblockList+"*"][p] = []
 					currentSubblock[currentSubblockList+"**"][p] = []
-				
+
 				if(letterArgs.ends_with("*")):
 					letterArgs = letterArgs.left(letterArgs.length()-1)
 					currentSubblockList += "*"
-				
+
 				currentSubblock["S_Blocks_Start"] += [currentSubblock["S_Sum"] + 1]
 				if(letterArgs == "+"):
 					currentSubblock["S_Sum"] = -1
@@ -1853,21 +1853,21 @@ func _ParseBlockState(fileID):
 						_Error("S followup with a non-static duration: "+letterArgs)
 						line = _GetNextLine(fileID)
 						continue
-					
+
 					var duration = int(letterArgs)
 					currentSubblock["S_Sum"] += duration
 					currentSubblock["S_Blocks_End"] += [currentSubblock["S_Sum"]]
-					
+
 					if(currentSubblock["S_Modulo"] > 0 and currentSubblock["S_Sum"] > currentSubblock["S_Modulo"]):
 						_Error("S Branch sum total ("+str(currentSubblock["S_Sum"])+") is superior to the modulo ("+str(currentSubblock["S_Modulo"])+")!")
 						line = _GetNextLine(fileID)
 						continue
-					
+
 			elif(letter in _branchFunctions): # Inputs
 				reserveSubblocks.push_back(currentSubblock)
 				reserveSubblocksList.push_back(currentSubblockList)
 				currentSubblockList = "True"
-				
+
 				if(!line.ends_with(":")):
 					_Error("Branch start lacks the ':' ender")
 
@@ -1882,18 +1882,18 @@ func _ParseBlockState(fileID):
 				for p in PHASES_WITH_EVENTS:
 					currentSubblock["True"][p] = []
 					currentSubblock["False"][p] = []
-				
+
 				if(letter == "E"):
 					if(reserveSubblocks.size() > 1):
 						_Error("E Branches can't exist from within another branch.")
-				
+
 				if(letter == "R"):
 					if(!letterArgs.is_valid_integer()):
 						_Error("R branch with a non-static weight: "+letterArgs)
 						line = _GetNextLine(fileID)
 						continue
-					
-					
+
+
 					var weight = int(letterArgs)
 					currentSubblock["R_Sum"] = weight
 					currentSubblock["R_Thresholds"] = [weight]
@@ -1901,13 +1901,13 @@ func _ParseBlockState(fileID):
 					currentSubblock["R_0"] = {}
 					for p in PHASES_WITH_EVENTS:
 						currentSubblock["R_0"][p] = []
-					
-				
+
+
 				if(letter == "S"):
 					# S Branch is static only, and can't exist from another branch
 					if(reserveSubblocks.size() > 1):
 						_Error("S Branches can't exist from within another branch.")
-					
+
 					currentSubblock["S_Modulo"] = 0
 					currentSubblock["S_AttackAutoDuration"] = false
 					currentSubblock["S_Blocks_Start"] = [1]
@@ -1993,7 +1993,7 @@ func _GetEntityNameFromStateName(stateName):
 		#else:
 		entity = stateName.left(sep)
 	return entity
-	
+
 func _GetPureStateNameFromStateName(stateName):
 	var entity = _GetEntityNameFromStateName(stateName)
 	if(entity == null):
@@ -2099,7 +2099,7 @@ func _ExtractVariable(line): #, returnIncompleteType = false):
 		else:
 			variableValue = 0
 			_Error("Int variable but the value isn't a valid integer.")
-	
+
 	if(variableType == Castagne.VARIABLE_TYPE.Bool):
 		if(variableValue.is_valid_integer()):
 			variableValue = (1 if variableValue.to_int() > 0 else 0)
@@ -2145,13 +2145,13 @@ func InstructionF(args, stateHandle):
 	var validFrames = []
 
 	var frameRange = _Instruction_GetRange(letterArgs)
-	
+
 	if(frameRange.size() >= 3):
 		var modulo = ArgInt(frameRange, stateHandle, 2)
 		frameID = frameID % modulo
 		if(frameID == 0):
 			frameID = modulo # More logical since F0 is special
-		
+
 	#if(frameRange.size() == 1):
 	#	validFrames += [ArgInt([frameRange[0]], stateHandle, 0)]
 	if(frameRange[1] == "+"):
@@ -2163,7 +2163,7 @@ func InstructionF(args, stateHandle):
 		var end = ArgInt(frameRange, stateHandle, 1)
 		for i in range(start, end+1):
 			validFrames += [i]
-	
+
 	letterArgs = validFrames
 	InstructionBranch(args, stateHandle, frameID in validFrames)
 func InstructionS(_args, stateHandle):
@@ -2177,7 +2177,7 @@ func _Instruction_GetRange(letterArgs):
 	if(moduloSepID > 0): # %C
 		modulo = letterArgs.right(moduloSepID+1)
 		letterArgs = letterArgs.left(moduloSepID)
-	
+
 	var r
 	if(rangeSepID > 0): # A-B
 		r = [letterArgs.left(rangeSepID), letterArgs.right(rangeSepID+1)]
@@ -2185,7 +2185,7 @@ func _Instruction_GetRange(letterArgs):
 		r = [letterArgs.left(plusSepID), "+"]
 	else: # A
 		r = [letterArgs, letterArgs]
-	
+
 	if(moduloSepID > 0): # %C
 		r += [modulo]
 	return r
@@ -2211,14 +2211,13 @@ func InstructionR(args, stateHandle):
 	var actionLists = args[0]
 	var thresholds = args[1]
 	var sum = args[2]
-	
+
 	# Not deterministic, but it's okay for now.
 	var randomNumber = randi() % sum
 	var chosenBranch = 0
 	while(randomNumber >= thresholds[chosenBranch]):
 		chosenBranch += 1
-	print(randomNumber)
-	
+
 	var phase = stateHandle.GetPhase()
 	stateHandle.Engine().ExecuteFighterScript({"Name":"Branch", phase:actionLists[chosenBranch]}, stateHandle)
 

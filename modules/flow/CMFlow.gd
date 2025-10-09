@@ -9,6 +9,14 @@ func ModuleSetup():
 		"Description":"Generic flow module, handles match entry and exit, as well as mid-match events."
 		})
 	
+	RegisterCategory("Game Flow")
+	RegisterFunction("RequestGameEnd", [0,1], null, {
+		"Description":"Requests the game to end, along with an optional argument.",
+		"Arguments":["(Optional) Additional argument"],
+	})
+	RegisterVariableGlobal("_GameEndCaller", null)
+	RegisterVariableGlobal("_GameEndArgument", 0)
+	
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "players", [], {
 		"Description":"List of player BIDs. The 0th one is the default, which the later ones may override."
 		})
@@ -28,7 +36,7 @@ func ModuleSetup():
 		"Description":"The music track to play in the background."
 		})
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "exitcallback", null, {
-		"Description":"Unsupported"
+		"Description":"Function called at the end of the game, of signature (stateHandle, caller, argument)."
 		})
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Global, "mode", Castagne.GAMEMODES.MODE_BATTLE, {
 		"Description":"The current gamemode."
@@ -180,6 +188,11 @@ func _BattleInit_CreateEntities(stateHandle, entities, playerID):
 		for key in e["overrides"]:
 			stateHandle.Memory().EntitySet(newEID, key, e["overrides"][key], true)
 
+func FrameEnd(stateHandle):
+	var gameEndCaller = stateHandle.GlobalGet("_GameEndCaller")
+	if(gameEndCaller != null):
+		stateHandle.GlobalGet("_GameEndArgument")
+
 
 func EditorCreateFlowWindow(_editor, root):
 	# If not overwritten, lock the custom panel
@@ -195,3 +208,11 @@ func EditorGetCurrentBattleInitData(editor, _root):
 	var bid = editor.configData.GetBaseBattleInitData()
 	bid["editor"] = true
 	return bid
+
+
+
+
+func RequestGameEnd(args, stateHandle):
+	# TODO Caller GetEntityID to _GameEndCaller
+	stateHandle.GlobalSet("_GameEndArgument", ArgInt(args, stateHandle, 0, 0))
+

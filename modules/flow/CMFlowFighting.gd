@@ -74,7 +74,7 @@ func _EditorCreateFlowWindow_Player(editor, pid):
 	for deviceName in editor.configData.Input().GetDevicesList():
 		var device = editor.configData.Input().GetDevice(deviceName)
 		playerInputDevice.add_item("Input Device: " + device["DisplayName"])
-	playerInputDevice.select(editor.configData.Get(cdbn+"inputdevice", pid+1))
+	playerInputDevice.select(editor.configData.Get(cdbn+"inputdevice", pid+1+1))
 	playerRoot.add_child(playerInputDevice)
 	
 	var characterList = HBoxContainer.new()
@@ -101,9 +101,12 @@ func _EditorCreateFlowWindow_Character(editor, pid, eid):
 	
 	var scriptPath = OptionButton.new()
 	scriptPath.set_text_align(Button.ALIGN_CENTER)
+	var characterIDNBDigits = str(_editorCharacterEditorData.size()).length()
 	for c in _editorCharacterEditorData:
-		var cid = c["ID"]
+		var cid = str(c["ID"])
 		var cName = c["Name"]
+		while cid.length() < characterIDNBDigits:
+			cid = "0"+cid
 		scriptPath.add_item("["+str(cid)+"] " + str(cName))
 	characterRoot.add_child(scriptPath)
 	scriptPath.select(editor.configData.Get(cdbn+"scriptpath", 0))
@@ -197,9 +200,11 @@ func EditorGetCurrentBattleInitData(editor, root):
 			var e = p["entities"][eid+1]
 			var eRoot = pRoot.get_child(pRoot.get_child_count()-1).get_child(eid*2)
 			cdbn = rememberCdbn + str(eid) + "-"
-			var scriptpath = eRoot.get_child(1).get_selected_id()
+			var scriptpathEditorID = eRoot.get_child(1).get_selected_id()
+			var scriptpath = _editorCharacterEditorData[scriptpathEditorID]["ID"]
+			
 			var paletteID = eRoot.get_child(2).get_value()-1
-			editor.configData.Set(cdbn+"scriptpath", scriptpath, true)
+			editor.configData.Set(cdbn+"scriptpath", scriptpathEditorID, true)
 			editor.configData.Set(cdbn+"palette", paletteID, true)
 			
 			# Palette duplication check, can make it more generic

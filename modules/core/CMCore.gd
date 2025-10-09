@@ -67,6 +67,19 @@ func ModuleSetup():
 		"Types": ["var", "str"],
 		})
 	
+	
+	RegisterFunction("GetConfig", [2], null, {
+		"Description": "Gets a variable from the config data",
+		"Arguments": ["Config name", "Entity variable name"],
+	})
+	RegisterFunction("GetPlayerVariable", [2], null, {
+		"Description": "Gets a variable from the player variables",
+		"Arguments": ["Player variable name", "Entity variable name"],
+	})
+	RegisterFunction("GetGlobalVariable", [2], null, {
+		"Description": "Gets a variable from the global variables",
+		"Arguments": ["Global variable name", "Entity variable name"],
+	})
 
 
 
@@ -374,7 +387,7 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		"Flags":["Intermediate"],
 		})
 	
-	
+	RegisterConfig("MissingState-FallbackState", "Stand")
 	
 	
 	
@@ -771,6 +784,27 @@ func SetStr(args, stateHandle):
 
 
 
+func GetConfig(args, stateHandle):
+	var originName = ArgRaw(args, 0)
+	var targetName = ArgRaw(args, 1)
+	if(stateHandle.ConfigData().Has(originName)):
+		stateHandle.EntitySet(targetName, stateHandle.ConfigData().Get(originName))
+	else:
+		ModuleError("GetConfig: Config variable not found! "+str(originName), stateHandle)
+func GetPlayerVariable(args, stateHandle):
+	var originName = ArgRaw(args, 0)
+	var targetName = ArgRaw(args, 1)
+	if(stateHandle.PlayerHas(originName)):
+		stateHandle.EntitySet(targetName, stateHandle.PlayerGet(originName))
+	else:
+		ModuleError("GetConfig: Player variable not found! "+str(originName), stateHandle)
+func GetGlobalVariable(args, stateHandle):
+	var originName = ArgRaw(args, 0)
+	var targetName = ArgRaw(args, 1)
+	if(stateHandle.GlobalHas(originName)):
+		stateHandle.EntitySet(targetName, stateHandle.GlobalGet(originName))
+	else:
+		ModuleError("GetConfig: Global variable not found! "+str(originName), stateHandle)
 
 
 
@@ -929,7 +963,6 @@ func _TransitionInternal(stateHandle, newStateName, priority=0, allowSelfTransit
 
 func TransitionApply(stateHandle):
 	if(stateHandle.EntityGet("_StateTarget") != null):
-		
 		engine.ExecuteCASPEvent("Exit", stateHandle)
 		var prevStateName = stateHandle.EntityGet("_State")
 		var newStateName = stateHandle.EntityGet("_StateTarget")
@@ -1005,7 +1038,8 @@ func _QueueEvent(stateHandle, eventName, eid=-1, caller=-1):
 # Debug
 
 func Log(args, stateHandle):
-	Castagne.Log("["+str(stateHandle.GlobalGet("_TrueFrameID"))+"] State Log "+str(stateHandle.EntityGet("_EID"))+" : " + ArgStr(args, stateHandle, 0))
+	Castagne.Log("["+str(stateHandle.GlobalGet("_TrueFrameID"))+"] State Log "+
+		str(stateHandle.EntityGet("_EID"))+" ("+str(stateHandle.EntityGet("_State"))+"): " + ArgStr(args, stateHandle, 0))
 func LogB(args, stateHandle):
 	Log(args, stateHandle)
 func LogR(args, stateHandle):

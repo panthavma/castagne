@@ -322,7 +322,10 @@ func GetFighterScript(fighterID, stateName):
 		return null
 	if(!fighterScripts[fighterID].has(stateName)):
 		Castagne.Error("GetFighterScript: State "+str(stateName)+" on Fighter ID " + str(fighterID) + " not found!")
-		return null
+		var fallbackState = configData.Get("MissingState-FallbackState")
+		if(stateName == fallbackState):
+			return null
+		return GetFighterScript(fighterID, fallbackState)
 
 	return fighterScripts[fighterID][stateName]
 

@@ -34,6 +34,25 @@ func EnterMenu(bid):
 	
 	$TopBar/HBoxContainer/Save.set_disabled(true)
 	
+	var aspectRatio = 16.0 / 9.0
+	var aspectRatioStr = editor.configData.Get("Editor-AspectRatio")
+	var aspectRatioSep = aspectRatioStr.find(":")
+	if(aspectRatioSep > 0):
+		var aspectRatioN = aspectRatioStr.left(aspectRatioSep)
+		var aspectRatioD = aspectRatioStr.right(aspectRatioSep+1)
+		if(aspectRatioN.is_valid_float() and aspectRatioD.is_valid_float()):
+			aspectRatioN = float(aspectRatioN)
+			aspectRatioD = float(aspectRatioD)
+			if(aspectRatioN > 0 and aspectRatioD > 0):
+				aspectRatio = aspectRatioN / aspectRatioD
+			else:
+				Castagne.Warning("Editor Aspect Ratio must be with two strictly positive numbers! ("+str(aspectRatioStr)+")")
+		else:
+			Castagne.Warning("Editor Aspect Ratio is not of two valid numbers! ("+str(aspectRatioStr)+")")
+	else:
+		Castagne.Warning("Editor Aspect Ratio is not of the form 'X:Y'! ("+str(aspectRatioStr)+")")
+	$EngineVP.set_ratio(aspectRatio)
+	
 	$BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmoRate.clear()
 	for sr in slowmoRates:
 		var srT = str(int(float(100.0*sr[0]) / sr[1])) + "%"

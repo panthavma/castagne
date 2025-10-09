@@ -12,9 +12,9 @@ export var VariableName_Max = ""
 
 # Interface
 
-func WidgetInitialize(stateHandle, battleInitData = null, caspData = null):
+func WidgetInitialize(_stateHandle, _battleInitData = null, _caspData = null):
 	pass
-func WidgetUpdate(stateHandle):
+func WidgetUpdate(_stateHandle):
 	pass
 
 # Helpers
