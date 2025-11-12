@@ -48,6 +48,9 @@ var baseConfigData = null
 var _baseEnginePrefab
 var _baseEditorPrefab
 
+var playerConfigPath = "user://castagne-playerconfig.json"
+var playerConfig = {}
+
 var modulesLoaded
 var versionInfo
 
@@ -476,3 +479,28 @@ func BattleInitData_GetValue(battleInitData, value, pid = null, eid = null):
 			Error("[BattleInitData_GetValue] Entity value "+str(value)+" (PID:"+str(pid)+", EID:"+str(eid)+") not found!")
 			return null
 		return e[value]
+
+
+
+
+func PlayerConfig_Load():
+	var f = File.new()
+	if f.file_exists(playerConfigPath):
+		f.open(playerConfigPath, File.READ)
+		playerConfig = JSON.parse(f.get_as_text()).get_result()
+		f.close()
+func PlayerConfig_Save():
+	var f = File.new()
+	f.open(playerConfigPath, File.WRITE)
+	f.store_string(JSON.print(playerConfig, "\t", true))
+	f.close()
+	if f.file_exists(playerConfigPath):
+		f.open(playerConfigPath, File.READ)
+		playerConfig = JSON.parse(f.get_as_text()).get_result()
+		f.close()
+func PlayerConfig_Has(key):
+	return key in playerConfig
+func PlayerConfig_Get(key, default=null):
+	return playerConfig[key] if PlayerConfig_Has(key) else default
+func PlayerConfig_Set(key, value):
+	playerConfig[key] = value

@@ -28,12 +28,33 @@ var selectedItem = 0
 var allowChoice = false
 
 
+func StarterParameters(isEditor):
+	Castagne.PlayerConfig_Load()
+	
+	isEditor = isEditor and !Castagne.baseConfigData.Get("LocalConfig-Editor-UsePlayerConfig")
+	
+	if isEditor:
+		OS.set_window_fullscreen(Castagne.baseConfigData.Get("LocalConfig-Editor-StartInFullscreen"))
+		return
+	
+	OS.set_window_fullscreen(Castagne.PlayerConfig_Get("fullscreen", Castagne.baseConfigData.Get("StartBuildInFullscreenByDefault")))
+	
+	for action in InputMap.get_actions():
+		if Castagne.PlayerConfig_Has("bindings-"+action):
+			InputMap.action_erase_events(action)
+			var inputEvent = InputEventKey.new()
+			inputEvent.set_scancode(Castagne.PlayerConfig_Get("bindings-"+action))
+			InputMap.action_add_event(action, inputEvent)
+
+
 func _ready():
 	if(Castagne.baseConfigData == null):
 		$TitleLabel.set_text("Castagne Config had errors.")
 		$Buttons.hide()
 		$Characters.hide()
 		return
+	
+	StarterParameters(!OS.has_feature("standalone"))
 	
 	if(!allowChoice):
 		if OS.has_feature("standalone"):

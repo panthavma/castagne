@@ -22,7 +22,7 @@ var neighboors = {
 func Setup():
 	pass
 
-func SetSelect(pid, isSelected):
+func SetSelect(_pid, _isSelected):
 	pass
 
 

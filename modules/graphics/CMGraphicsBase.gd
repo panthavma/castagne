@@ -481,6 +481,8 @@ Model functions affect the whole graphics side, so even sprites are affected her
 	RegisterConfig("UIDefaultWidget_Text", "res://castagne/helpers/ui/widgets/default/DefaultWidgetText.tscn")
 	
 	# -[CTG_INTERNALS]------------------------------------------------------------------------------
+	RegisterCategory("Internals")
+	RegisterConfig("StartBuildInFullscreenByDefault", true)
 
 func BattleInit(stateHandle, battleInitData):
 	graphicsRoot = _CreateGraphicsRootNode(engine)

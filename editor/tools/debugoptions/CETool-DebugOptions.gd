@@ -79,3 +79,35 @@ func GFX_UI_Visu_CreateNodes(uiRoot, node, pid):
 		v.set_frame_color(_debugUIVisu_PackedScene_Colors[colorID])
 		node.add_child(v)
 		_debugUIVisu_Nodes += [v]
+
+
+
+var phys_showOrigin_active = false
+func PHYS_ShowOrigin(active, hotload):
+	if(!hotload):
+		var stateHandle = GetStateHandle()
+		if(stateHandle == null):
+			return
+		var em = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.EDITOR)
+		if(em == null):
+			return
+		
+		em.connect("UpdateGizmos_DrawPoint", self, "PHYS_ShowOrigin_GizmoDraw")
+	
+	phys_showOrigin_active = active
+	
+
+func PHYS_ShowOrigin_GizmoDraw(stateHandle, em):
+	if(!phys_showOrigin_active):
+		return
+	
+	#var em = stateHandle.ConfigData().GetModuleSlot(Castagne.MODULE_SLOTS_BASE.EDITOR)
+	
+	var eids = stateHandle.GlobalGet("_ActiveEntities")
+	for eid in eids:
+		stateHandle.PointToEntity(eid)
+		var pid = stateHandle.EntityGet("_Player")
+		var colors = ["Red", "Blue", "Yellow", "Green"]
+		var c = colors[pid] if pid < colors.size() else "White"
+		var radius = 2000
+		em.GizmoCircleGlobal([0,0,0], c, 3, radius, 8, 0.0, eid)

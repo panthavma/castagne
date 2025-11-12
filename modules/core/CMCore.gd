@@ -80,6 +80,14 @@ func ModuleSetup():
 		"Description": "Gets a variable from the global variables",
 		"Arguments": ["Global variable name", "Entity variable name"],
 	})
+	RegisterFunction("SetPlayerVariable", [2], null, {
+		"Description": "Sets a player variable to a value. Note: current implementation is subject to race conditions.",
+		"Arguments": ["Player variable name", "Value"],
+	})
+	RegisterFunction("SetGlobalVariable", [2], null, {
+		"Description": "Sets a global variable to a value. Note: current implementation is subject to race conditions.",
+		"Arguments": ["Global variable name", "Value"],
+	})
 
 
 
@@ -521,18 +529,6 @@ This can be overriden by other modules (mainly, FlowFighting which will target t
 		"Flags":["Expert"],
 		"Description":"Filepath to the devtools scene."
 		})
-	RegisterConfig("PathMainMenu","res://castagne/menus/mainmenu/DefaultMainMenu.tscn", {
-		"Flags":["Advanced"],
-		"Description":"Filepath to the main menu scene."
-		})
-	RegisterConfig("PathCharacterSelect","res://castagne/menus/characterselect/DefaultCharacterSelect.tscn", {
-		"Flags":["Advanced"],
-		"Description":"Filepath to the character select screen scene."
-		})
-	RegisterConfig("PathPostBattle","res://castagne/menus/postbattle/DefaultPostBattle.tscn", {
-		"Flags":["Advanced"],
-		"Description":"Filepath to the post battle scene."
-		})
 	
 	
 	RegisterConfig("ConfigSkeleton", "", {
@@ -797,15 +793,28 @@ func GetPlayerVariable(args, stateHandle):
 	if(stateHandle.PlayerHas(originName)):
 		stateHandle.EntitySet(targetName, stateHandle.PlayerGet(originName))
 	else:
-		ModuleError("GetConfig: Player variable not found! "+str(originName), stateHandle)
+		ModuleError("GetPlayerVariable: Player variable not found! "+str(originName), stateHandle)
 func GetGlobalVariable(args, stateHandle):
 	var originName = ArgRaw(args, 0)
 	var targetName = ArgRaw(args, 1)
 	if(stateHandle.GlobalHas(originName)):
 		stateHandle.EntitySet(targetName, stateHandle.GlobalGet(originName))
 	else:
-		ModuleError("GetConfig: Global variable not found! "+str(originName), stateHandle)
-
+		ModuleError("GetGlobalVariable: Global variable not found! "+str(originName), stateHandle)
+func SetPlayerVariable(args, stateHandle):
+	var targetName = ArgRaw(args, 0)
+	var value = ArgInt(args, stateHandle, 1)
+	if(stateHandle.PlayerHas(targetName)):
+		stateHandle.PlayerSet(targetName, value)
+	else:
+		ModuleError("SetPlayerVariable: Player variable not found! "+str(targetName), stateHandle)
+func SetGlobalVariable(args, stateHandle):
+	var targetName = ArgRaw(args, 0)
+	var value = ArgInt(args, stateHandle, 1)
+	if(stateHandle.GlobalHas(targetName)):
+		stateHandle.GlobalSet(targetName, value)
+	else:
+		ModuleError("SetGlobalVariable: Global variable not found! "+str(targetName), stateHandle)
 
 
 # --------------------------------------------------------------------------------------------------

@@ -206,10 +206,6 @@ _Category(Animations/Reacts/Blockstun)
 _Overridable(If you want to put your own animation logic instead)
 _Helper()
 _Category(Animations/Reacts/Blockstun)
-:AnimDead:
-_Helper()
-_Overridable()
-_Category(Animations/Reacts)
 :AnimHitstun:
 ## Helper state to select which hitstun animation to play
 _Category(Animations/Reacts/Hitstun)
@@ -598,6 +594,10 @@ _Category(Internals/Attacks/React)
 _Helper()
 
 EOnGetHit:
+	LAF_NoDeath:
+		Max(HP, 1)
+	endif
+	
 	VHP<=0:
 		Transition(Dead, ATK_HITSTUN_PRIORITY, 1)
 	else
@@ -1192,12 +1192,6 @@ Call(AttackReactEvents)
 CallParent()
 
 Call(AttackState-After)
-:Dead:
-Flag(NoHurtbox)
-SetColboxPhantom()
-Call(Common)
-
-Call(AnimDead)
 :Hitstun:
 ## Hitstun state, for when you have been hit by an attack.
 

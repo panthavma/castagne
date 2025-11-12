@@ -98,5 +98,12 @@ func MCB_BackToMainMenu(args):
 func MCB_StartMatchFromCSS(args):
 	var bid = args["ConfigData"].GetModuleSlot(Castagne.MODULE_SLOTS_BASE.FLOW).GetBattleInitDataFromCSS(args)
 	bid["mode"] = args["CallbackParams"]["Mode"]
+	if(bid["exitcallback"] == null):
+		bid["exitcallback"] = funcref(self, "MatchExitCallback_ToPostBattle")
 	var e = Castagne.InstanceCastagneEngine(bid, args["ConfigData"])
 	get_tree().get_root().add_child(e)
+
+
+func MatchExitCallback_ToPostBattle(stateHandle, caller, argument):
+	stateHandle.Engine().queue_free()
+	get_tree().get_root().add_child(InstanceMenu("PostBattle", {"StateHandle":stateHandle, "Caller": caller, "Argument": argument}))

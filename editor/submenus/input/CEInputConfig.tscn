@@ -50,21 +50,21 @@ __meta__ = {
 }
 
 [node name="ItemList" type="ItemList" parent="InputList"]
-margin_right = 436.0
-margin_bottom = 736.0
+margin_right = 283.0
+margin_bottom = 448.0
 size_flags_vertical = 3
 
 [node name="AddNew" type="Button" parent="InputList"]
-margin_top = 740.0
-margin_right = 436.0
-margin_bottom = 772.0
+margin_top = 452.0
+margin_right = 283.0
+margin_bottom = 484.0
 rect_min_size = Vector2( 0, 32 )
 text = "Add New"
 
 [node name="DeleteInput" type="Button" parent="InputList"]
-margin_top = 776.0
-margin_right = 436.0
-margin_bottom = 800.0
+margin_top = 488.0
+margin_right = 283.0
+margin_bottom = 512.0
 rect_min_size = Vector2( 0, 24 )
 text = "Delete Input"
 
@@ -105,8 +105,8 @@ margin_left = 8.0
 margin_top = 64.0
 
 [node name="Bindings" type="VBoxContainer" parent="InputData/BindingsScroll"]
-margin_right = 517.6
-margin_bottom = 688.0
+margin_right = 338.4
+margin_bottom = 400.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -117,8 +117,8 @@ margin_top = 32.0
 margin_right = -8.0
 
 [node name="Data" type="VBoxContainer" parent="InputData/DataScroll"]
-margin_right = 517.6
-margin_bottom = 720.0
+margin_right = 338.4
+margin_bottom = 432.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 __meta__ = {
@@ -126,7 +126,7 @@ __meta__ = {
 }
 
 [node name="Title2" type="Label" parent="InputData/DataScroll/Data"]
-margin_right = 517.0
+margin_right = 338.0
 margin_bottom = 32.0
 rect_min_size = Vector2( 0, 32 )
 text = "Input Setup"
@@ -138,12 +138,12 @@ __meta__ = {
 
 [node name="Name" type="HBoxContainer" parent="InputData/DataScroll/Data"]
 margin_top = 36.0
-margin_right = 517.0
+margin_right = 338.0
 margin_bottom = 56.0
 
 [node name="Label" type="Label" parent="InputData/DataScroll/Data/Name"]
 margin_top = 3.0
-margin_right = 146.0
+margin_right = 95.0
 margin_bottom = 17.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.4
@@ -151,19 +151,19 @@ text = "Name:"
 align = 2
 
 [node name="NameField" type="LineEdit" parent="InputData/DataScroll/Data/Name"]
-margin_left = 150.0
-margin_right = 517.0
+margin_left = 99.0
+margin_right = 338.0
 margin_bottom = 20.0
 size_flags_horizontal = 3
 
 [node name="Type" type="HBoxContainer" parent="InputData/DataScroll/Data"]
 margin_top = 60.0
-margin_right = 517.0
+margin_right = 338.0
 margin_bottom = 78.0
 
 [node name="Label" type="Label" parent="InputData/DataScroll/Data/Type"]
 margin_top = 2.0
-margin_right = 146.0
+margin_right = 95.0
 margin_bottom = 16.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.4
@@ -171,20 +171,20 @@ text = "Type:"
 align = 2
 
 [node name="TypeField" type="OptionButton" parent="InputData/DataScroll/Data/Type"]
-margin_left = 150.0
-margin_right = 517.0
+margin_left = 99.0
+margin_right = 338.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 
 [node name="HSeparator" type="HSeparator" parent="InputData/DataScroll/Data"]
 margin_top = 82.0
-margin_right = 517.0
+margin_right = 338.0
 margin_bottom = 86.0
 
 [node name="Params" type="VBoxContainer" parent="InputData/DataScroll/Data"]
 margin_top = 90.0
-margin_right = 517.0
-margin_bottom = 720.0
+margin_right = 338.0
+margin_bottom = 432.0
 size_flags_vertical = 3
 
 [node name="InputSchema" type="Control" parent="."]
@@ -232,15 +232,15 @@ text = "Check Input Schema"
 
 [node name="Confirm" type="Button" parent="Buttons"]
 margin_left = 150.0
-margin_right = 761.0
+margin_right = 516.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.5
 text = "Confirm"
 
 [node name="Cancel" type="Button" parent="Buttons"]
-margin_left = 765.0
-margin_right = 1051.0
+margin_left = 520.0
+margin_right = 692.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.7

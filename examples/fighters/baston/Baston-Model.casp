@@ -66,6 +66,10 @@ def GRAPHICS_SPRITE_PALETTE_4___Extra int() = 0
 def GRAPHICS_SPRITE_PALETTE_4___ModelPath str() = res://castagne/assets/fighters/baston/model/BastonModel-Pal06.tscn
 def GRAPHICS_SPRITE_PALETTE_4___SpritePalettePath str() = res://castagne/assets/helpers/palette/PaletteManual01.png
 :Specs-Anims:
+def ANIM_Emote_Dead str() = Knockdown
+def ANIM_Emote_Intro str() = S-BatDown
+def ANIM_Emote_Timeout str() = Lose
+def ANIM_Emote_Win str() = Win
 def ANIM_Movement_Basic_AirIdle str() = AirIdle
 def ANIM_Movement_Basic_CrawlB str() = CrawlB
 def ANIM_Movement_Basic_CrawlB_Loop int() = 15

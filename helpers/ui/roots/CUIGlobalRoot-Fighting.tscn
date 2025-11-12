@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://castagne/helpers/ui/CUIRoot.gd" type="Script" id=1]
+[ext_resource path="res://castagne/helpers/ui/widgets/default/DefaultWidgetText.tscn" type="PackedScene" id=2]
 
 [node name="CUIGlobalRoot-Fighting" type="Control"]
 anchor_right = 1.0
@@ -26,3 +27,7 @@ margin_left = 4.0
 margin_right = -4.0
 margin_bottom = -4.0
 color = Color( 0.635294, 0.298039, 0.133333, 1 )
+
+[node name="DefaultWidgetText" parent="TimerRoot" instance=ExtResource( 2 )]
+VariableName_Main = "_FLOW_TimerGlobal"
+UseGlobal = true

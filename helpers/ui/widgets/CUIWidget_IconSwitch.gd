@@ -8,7 +8,7 @@ extends "../CUIWidget.gd"
 
 var root
 
-func WidgetInitialize(stateHandle, battleInitData = null, caspData = null):
+func WidgetInitialize(_stateHandle, _battleInitData = null, caspData = null):
 	if(root == null):
 		root = get_node(".")
 	

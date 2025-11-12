@@ -14,7 +14,7 @@ var root
 var iconTexture
 var iconStretchMode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 
-func WidgetInitialize(stateHandle, battleInitData = null, caspData = null):
+func WidgetInitialize(_stateHandle, _battleInitData = null, caspData = null):
 	var direction = -1
 	var directionHorizontal = false
 	var directionAlignment = BoxContainer.ALIGN_BEGIN
@@ -87,5 +87,5 @@ func CreateIconNode():
 	i.set_stretch_mode(iconStretchMode)
 	return i
 
-func UpdateSingleIcon(icon, iconID, value, sub = 0):
+func UpdateSingleIcon(icon, iconID, value, _sub = 0):
 	icon.set_visible(value > iconID)

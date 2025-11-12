@@ -31,20 +31,6 @@ Call(ResetHandling)
 Call(Custom-Common)
 
 CallAfter(CommonAfter)
-
-:ResetHandling:
-_Helper()
-
-EReset:
-	Flag(Reset)
-	FlagNext(Reset)
-endif
-
-LReset:
-	Unflag(Reset)
-	UnflagNext(Reset)
-	Call(OnRoundStart)
-endif
 :CommonAfter:
 ## This state is called after every script that links back to :Common:. It's purpose it to hold some helpers, like putting default hurtboxes on characters.
 
@@ -120,7 +106,24 @@ Call(Custom-OnReturnToNeutral)
 
 Call(OnRoundStart-Core)
 :OnRoundStart-Core:
+Call(OnRoundStart-GoToFirstState)
+
+:OnRoundStart-GoToFirstState:
+_Helper()
 Transition(CORE_InitialState)
+:ResetHandling:
+_Helper()
+
+EReset:
+	Flag(Reset)
+	FlagNext(Reset)
+endif
+
+LReset:
+	Unflag(Reset)
+	UnflagNext(Reset)
+	Call(OnRoundStart)
+endif
 :StandardState:
 ## Basic base state that almost all controllable states should point to. It uses some constants to alter behavior.
 

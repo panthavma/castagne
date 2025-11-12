@@ -18,7 +18,7 @@ var directions = [
 var rootMain = null
 var rootSub = null
 
-func WidgetInitialize(stateHandle, battleInitData = null, caspData = null):
+func WidgetInitialize(_stateHandle, _battleInitData = null, caspData = null):
 	_FetchVariableNamesFromCASPData(caspData)
 	
 	var fillMode = null

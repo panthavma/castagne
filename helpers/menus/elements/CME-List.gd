@@ -26,7 +26,7 @@ func Setup():
 	SetMenuAction("Right", funcref(self, "SelectNextOption"), null)
 	SetMenuAction("Left", funcref(self, "SelectPreviousOption"), null)
 
-func SelectOption(optionID):
+func SelectOption(optionID, _extra=null):
 	selectedListOption = optionID
 	if(selectedListOption < 0):
 		selectedListOption = 0
@@ -34,14 +34,18 @@ func SelectOption(optionID):
 		selectedListOption = listOptions.size()-1
 	UpdateOptionDisplay()
 
-func SelectNextOption(_p):
+func SelectNextOption(_p, _extra=null):
 	SelectOption(selectedListOption+1)
-func SelectPreviousOption(_p):
+func SelectPreviousOption(_p, _extra=null):
 	SelectOption(selectedListOption-1)
 
 func UpdateOptionDisplay():
 	pass
 
+func UseMenuAction(actionType, extraData = null):
+	if(extraData == null):
+		extraData = selectedListOption
+	.UseMenuAction(actionType, extraData)
 
 func MCB_TrainingFlagBroadcast(params, cbData):
 	var stateHandle = cbData["StateHandle"]

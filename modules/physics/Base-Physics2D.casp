@@ -987,6 +987,10 @@ endif
 IDownRelease:
 	Set(MOVE_Dashes_FramesSinceInputD, 0)
 endif
+:Dead:
+Flag(NoHurtbox)
+SetColboxPhantom()
+CallParent()
 :GroundTech-Backward:
 ## Grounded backward tech state. Can be disabled or altered with variables from the Variables-Physics-Reactions-Techs block
 _Category(States/Reacts/Techs)

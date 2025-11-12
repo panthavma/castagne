@@ -134,22 +134,14 @@ var editorModule = null
 var engineErrorScreen = null
 var inputProvider = null
 func ReloadEngine():
-	_engineRunning_InternalStop = true
-	if(engine != null):
-		engine.runAutomatically = false
-		engine.renderGraphics = false
-		engine.queue_free()
-	if(engineErrorScreen != null):
-		engineErrorScreen.queue_free()
-		engineErrorScreen = null
-	
+	StopEngine()
 	HidePopups()
 	
 	if(safeMode):
 		return
 	
 	var bid = _baseBID.duplicate(true)
-	RestartOptionsBID()
+	RestartOptionsBID(bid)
 	
 	
 	engine = Castagne.InstanceCastagneEngine(bid, editor.configData)
@@ -179,6 +171,26 @@ func ReloadEngine():
 	
 	for t in _tools:
 		t["Tool"].OnEngineRestarted(engine)
+func StopEngine():
+	_engineRunning_InternalStop = true
+	UnfocusGame()
+	if(engine != null):
+		engine.runAutomatically = false
+		engine.renderGraphics = false
+		engine.queue_free()
+		engine = null
+	if(engineErrorScreen != null):
+		engineErrorScreen.queue_free()
+		engineErrorScreen = null
+func ShowCustomErrorScreen(message):
+	var label = Label.new()
+	label.set_align(Label.ALIGN_CENTER)
+	label.set_valign(Label.VALIGN_CENTER)
+	label.set_text(message)
+	ShowCustomErrorScreenScene(label)
+func ShowCustomErrorScreenScene(scene):
+	$EngineVP.add_child(scene)
+	engineErrorScreen = scene
 
 func _input(event):
 	if(event is InputEventMouseButton and event.is_pressed()):
@@ -288,6 +300,7 @@ func _on_HotReload_pressed():
 	engine.HotReloadFighterScript(character[character["NbFiles"]-1]["Path"], 0)
 	ReloadCodePanel(false)
 	FocusGame()
+
 
 func _on_QuickReset_pressed():
 	pass # Replace with function body.
@@ -1497,7 +1510,10 @@ func _physics_process(_delta):
 	if(engine != null):
 		var stateHandle = engine.CreateStateHandle()
 		editorModule.UpdateGizmos(stateHandle)
-
+func CastagneEditor_MatchExitCallback(_stateHandle, caller, argument):
+	StopEngine()
+	var message = "Game end request recieved. Reload the engine to restart.\nCaller: "+str(caller)+"\nArgument: "+str(argument)
+	ShowCustomErrorScreen(message)
 
 
 
@@ -1522,8 +1538,12 @@ var restartResetMode = RESTART_RESET.Normal
 var restartState = null
 var restartStateFrames = 0
 var restartBIDMode = "training"
-func RestartOptionsBID():
-	pass
+func RestartOptionsBID(bid):
+	if($BottomPanel/BMiniPanel/HBox/FlowSettings/TrainingNormal.is_pressed()):
+		bid["mode"] = Castagne.GAMEMODES.MODE_BATTLE
+	else:
+		bid["mode"] = Castagne.GAMEMODES.MODE_EDITOR
+	bid["exitcallback"] = funcref(self, "CastagneEditor_MatchExitCallback")
 func RestartOptions():
 	_engineRunning_InternalStop = true
 	engine.LocalStepNoInput()
@@ -1820,3 +1840,9 @@ func _on_CompilStatus_pressed():
 
 
 
+
+
+
+
+func _on_TrainingNormal_pressed():
+	_on_Reload_pressed()

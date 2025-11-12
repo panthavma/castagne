@@ -202,7 +202,7 @@ VANIMS_UseStandardAnims:
 endif
 :AnimDead:
 VANIMS_UseStandardAnims:
-	Anim(ANIM_Reacts_Dead)
+	Anim(ANIM_Emote_Dead)
 endif
 :AnimGroundTechBackward:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
@@ -330,6 +330,10 @@ EEnter:
 		endif
 	endif
 endif
+:AnimIntro:
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Emote_Intro)
+endif
 :AnimJumpB:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
 
@@ -389,6 +393,10 @@ _Overridable(If you wish to use a custom animation instead of the standard syste
 
 VANIMS_UseStandardAnims:
 	Anim(ANIM_Movement_Basic_Landing)
+endif
+:AnimLose:
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Emote_Timeout)
 endif
 :AnimRun:
 _Overridable(If you wish to use a custom animation instead of the standard system.)
@@ -459,6 +467,10 @@ _Overridable(If you wish to use a custom animation instead of the standard syste
 VANIMS_UseStandardAnims:
 	Anim(ANIM_Movement_Basic_WalkF)
 	AnimLoop(ANIM_Movement_Basic_WalkF_Loop)
+endif
+:AnimWin:
+VANIMS_UseStandardAnims:
+	Anim(ANIM_Emote_Win)
 endif
 :AttackReactEvents-Attacker:
 CallParent()

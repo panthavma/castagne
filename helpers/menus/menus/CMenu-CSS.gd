@@ -14,7 +14,7 @@ var stageSelected = 0
 var stageSelectPlayer = null
 var nbStages
 
-func Setup(menuData, menuParams):
+func Setup(_menuData, menuParams):
 	devices = menuParams["Devices"]
 	nbStages = Castagne.SplitStringToArray(_configData.Get("StagePaths")).size()
 	GatherCharacterList()

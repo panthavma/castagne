@@ -10,6 +10,8 @@
 :Variables-Training:
 var TRAINING_ResetMode int() = 0
 var TRAINING_ResetCornerDistance int() = 0
+
+def TRAINING_NoDeath bool() = 1
 :Common:
 CallParent()
 
@@ -47,6 +49,14 @@ CallParent()
 LTF_Training:
 	Call(Training-OnReturnToNeutral)
 endif
+:OnRoundStart:
+#Overriden from OnRoundStart
+# CallParent() allows you to extend the overriden state by adding your behavior.
+# Remove it to replace the default behavior with yours instead
+LTF_Training:
+	Call(OnRoundStart-Training)
+endif
+CallParent()
 :OnRoundStart-Physics:
 CallParent()
 
@@ -68,6 +78,15 @@ endif
 LResetModeInverted:
 	Mul(TRAINING_ResetMode, -1)
 endif
+:OnRoundStart-Training:
+## Training callback for the Init state
+_Category(Custom/Training)
+_Helper()
+_Overridable(If you want to add training-specific behavior)
+
+PInit,Action:
+	Flag(SkipIntro)
+endif
 :StandardState:
 CallParent()
 
@@ -80,6 +99,13 @@ endif
 _Category(Custom/Training)
 _Helper()
 _Overridable(If you want to add training-specific behavior)
+
+
+VTRAINING_NoDeath:
+	Flag(AF_NoDeath)
+endif
+
+Flag(TimerFreeze)
 :Training-CommonAfter:
 ## Training callback for the CommonAfter state
 _Category(Custom/Training)

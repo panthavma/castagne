@@ -10,6 +10,9 @@ func MCB_MMTraining(_args):
 	StartDeviceSelect(funcref(self, "TrainingStart"))
 func MCB_MMLocalBattle(_args):
 	StartDeviceSelect(funcref(self, "LocalBattleStart"))
+func MCB_MMOptions(_args):
+	queue_free()
+	get_tree().get_root().add_child(Castagne.Menus.InstanceMenu("Options", null, _configData))
 
 
 func _MatchCSSParamsCommon(devices, mode):

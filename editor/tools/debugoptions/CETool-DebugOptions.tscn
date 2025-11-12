@@ -61,6 +61,14 @@ size_flags_horizontal = 3
 text = "Visualize UI"
 align = 2
 
+[node name="PHYS_ShowOrigin" type="CheckButton" parent="Small/Scroll/List"]
+margin_top = 62.0
+margin_right = 638.0
+margin_bottom = 102.0
+size_flags_horizontal = 3
+text = "Show Entity Origins"
+align = 2
+
 [node name="Full" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0

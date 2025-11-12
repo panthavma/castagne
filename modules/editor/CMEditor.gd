@@ -40,6 +40,8 @@ signal EngineTick_FreezeEndEntity
 signal EngineTick_FreezeEnd
 signal EngineTick_UpdateGraphics
 
+signal UpdateGizmos_DrawPoint
+
 func ModuleSetup():
 	RegisterModule("Editor", Castagne.MODULE_SLOTS_BASE.EDITOR, {
 		"Description":"Castagne Editor related functions"
@@ -78,6 +80,8 @@ func ModuleSetup():
 	})
 	
 	RegisterConfig("Editor-AspectRatio", "16:9")
+	RegisterConfig("LocalConfig-Editor-StartInFullscreen", false)
+	RegisterConfig("LocalConfig-Editor-UsePlayerConfig", false)
 	
 	RegisterConfig("Updater-CheckOnStartup", true)
 	#RegisterConfig("Updater-BranchID", 0, {"Flags":["Hidden"]})
@@ -235,6 +239,7 @@ func UpdateGizmos(stateHandle):
 		return
 	
 	gizmosDraw = []
+	emit_signal("UpdateGizmos_DrawPoint", stateHandle, self)
 	for g in currentGizmos:
 		var f = g["Func"]
 		var lineActive = currentLine == g["Line"]
@@ -243,6 +248,9 @@ func UpdateGizmos(stateHandle):
 	var drawList = []
 	for g in gizmosDraw:
 		var d = g.duplicate(true)
+		var eid = d["EID"] if d.has("EID") else mainEID
+		eid = 0 if eid == null else eid
+		stateHandle.PointToEntity(eid)
 		if(g["Type"] == GIZMO_TYPE.Line || g["Type"] == GIZMO_TYPE.Rect):
 			d["A"] = TranslatePointToDraw(d["A"], stateHandle)
 			d["B"] = TranslatePointToDraw(d["B"], stateHandle)

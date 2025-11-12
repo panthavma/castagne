@@ -62,7 +62,7 @@ func AddToMenu(menuOption):
 	get_node(MenuRootPath).add_child(menuOption)
 	return menuOption
 
-func Select(option):
+func Select(option, _extra=null):
 	if(_selectedOption != null):
 		_selectedOption.OnUnselect()
 	_selectedOption = option

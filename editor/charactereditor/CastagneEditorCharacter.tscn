@@ -51,27 +51,28 @@ margin_top = 32.0
 ratio = 1.778
 
 [node name="EngineVPC" type="ViewportContainer" parent="EngineVP"]
-margin_top = 92.0405
-margin_right = 1152.0
-margin_bottom = 739.959
+margin_top = 56.027
+margin_right = 768.0
+margin_bottom = 487.973
 stretch = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Viewport" type="Viewport" parent="EngineVP/EngineVPC"]
-size = Vector2( 1152, 647 )
+size = Vector2( 768, 431 )
 handle_input_locally = false
 render_target_update_mode = 3
 gui_disable_input = true
 
 [node name="FocusEngine" type="ToolButton" parent="EngineVP"]
-margin_top = 92.0405
-margin_right = 1152.0
-margin_bottom = 739.959
+margin_top = 56.027
+margin_right = 768.0
+margin_bottom = 487.973
 action_mode = 0
 
 [node name="SpecblockMainWindowRoot" type="PanelContainer" parent="."]
+visible = false
 anchor_right = 0.6
 anchor_bottom = 0.8
 margin_top = 32.0
@@ -98,7 +99,7 @@ text = "Save"
 
 [node name="Label" type="Label" parent="TopBar/HBoxContainer"]
 margin_left = 99.0
-margin_right = 1152.0
+margin_right = 768.0
 margin_bottom = 32.0
 size_flags_horizontal = 3
 size_flags_vertical = 1
@@ -147,25 +148,23 @@ margin_left = 16.0
 margin_top = 8.0
 margin_right = -16.0
 margin_bottom = -8.0
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
 [node name="Match" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
+visible = false
 margin_right = 148.0
-margin_bottom = 200.0
+margin_bottom = 128.0
 
 [node name="ResetExecuteMove" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match"]
 margin_right = 148.0
-margin_bottom = 110.0
+margin_bottom = 38.0
 size_flags_vertical = 3
 disabled = true
 text = "Execute Move"
 
 [node name="ExecuteMoveData" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 114.0
+margin_top = 42.0
 margin_right = 148.0
-margin_bottom = 134.0
+margin_bottom = 62.0
 
 [node name="MoveToExec" type="LineEdit" parent="BottomPanel/BMiniPanel/HBox/Match/ExecuteMoveData"]
 margin_right = 64.0
@@ -185,9 +184,9 @@ allow_lesser = true
 editable = false
 
 [node name="Reset1" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 138.0
+margin_top = 66.0
 margin_right = 148.0
-margin_bottom = 156.0
+margin_bottom = 84.0
 
 [node name="ResetGround" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset1"]
 margin_right = 72.0
@@ -213,9 +212,9 @@ __meta__ = {
 }
 
 [node name="Reset2" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 160.0
+margin_top = 88.0
 margin_right = 148.0
-margin_bottom = 178.0
+margin_bottom = 106.0
 
 [node name="ResetCorner" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/Reset2"]
 margin_right = 72.0
@@ -241,9 +240,9 @@ toggle_mode = true
 text = "Focus on character"
 
 [node name="MatchType" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Match"]
-margin_top = 182.0
+margin_top = 110.0
 margin_right = 148.0
-margin_bottom = 200.0
+margin_bottom = 128.0
 
 [node name="ResetMatchTraining" type="Button" parent="BottomPanel/BMiniPanel/HBox/Match/MatchType"]
 margin_right = 148.0
@@ -263,18 +262,37 @@ margin_right = 136.0
 margin_bottom = 20.0
 text = "Normal"
 
+[node name="FlowSettings" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
+margin_right = 106.0
+margin_bottom = 128.0
+
+[node name="DisableAI" type="Button" parent="BottomPanel/BMiniPanel/HBox/FlowSettings"]
+visible = false
+margin_right = 106.0
+margin_bottom = 62.0
+size_flags_vertical = 3
+toggle_mode = true
+text = "Disable AI"
+
+[node name="TrainingNormal" type="Button" parent="BottomPanel/BMiniPanel/HBox/FlowSettings"]
+margin_right = 106.0
+margin_bottom = 128.0
+size_flags_vertical = 3
+toggle_mode = true
+text = "Normal Match"
+
 [node name="Middle" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
-margin_left = 152.0
-margin_right = 1030.0
-margin_bottom = 200.0
+margin_left = 110.0
+margin_right = 646.0
+margin_bottom = 128.0
 size_flags_horizontal = 3
 
 [node name="TopBar" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle"]
-margin_right = 878.0
+margin_right = 536.0
 margin_bottom = 18.0
 
 [node name="Flow" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_right = 617.0
+margin_right = 275.0
 margin_bottom = 18.0
 size_flags_horizontal = 3
 
@@ -311,8 +329,8 @@ margin_bottom = 18.0
 text = "Next Frame"
 
 [node name="VSeparator" type="VSeparator" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_left = 621.0
-margin_right = 625.0
+margin_left = 279.0
+margin_right = 283.0
 margin_bottom = 18.0
 
 [node name="Phase" type="Label" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
@@ -338,8 +356,8 @@ margin_bottom = 20.0
 text = "T"
 
 [node name="Other" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar"]
-margin_left = 629.0
-margin_right = 878.0
+margin_left = 287.0
+margin_right = 536.0
 margin_bottom = 18.0
 
 [node name="CompilStatus" type="Button" parent="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other"]
@@ -364,19 +382,19 @@ text = "Mute"
 
 [node name="MiniTool" type="Control" parent="BottomPanel/BMiniPanel/HBox/Middle"]
 margin_top = 22.0
-margin_right = 878.0
-margin_bottom = 200.0
+margin_right = 536.0
+margin_bottom = 128.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Reload" type="VBoxContainer" parent="BottomPanel/BMiniPanel/HBox"]
-margin_left = 1034.0
-margin_right = 1120.0
-margin_bottom = 200.0
+margin_left = 650.0
+margin_right = 736.0
+margin_bottom = 128.0
 
 [node name="Reload" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
 margin_right = 86.0
-margin_bottom = 116.0
+margin_bottom = 61.0
 size_flags_vertical = 3
 shortcut = SubResource( 4 )
 text = "Reload"
@@ -392,26 +410,26 @@ shortcut = SubResource( 4 )
 text = "Reset"
 
 [node name="HotReload" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 120.0
+margin_top = 65.0
 margin_right = 86.0
-margin_bottom = 156.0
+margin_bottom = 84.0
 size_flags_vertical = 3
 size_flags_stretch_ratio = 0.3
 shortcut = SubResource( 5 )
 text = "Hot Reload"
 
 [node name="ChangeTool" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 160.0
+margin_top = 88.0
 margin_right = 86.0
-margin_bottom = 178.0
+margin_bottom = 106.0
 rect_pivot_offset = Vector2( 10, 10 )
 size_flags_horizontal = 3
 text = "Tools"
 
 [node name="Expand" type="HBoxContainer" parent="BottomPanel/BMiniPanel/HBox/Reload"]
-margin_top = 182.0
+margin_top = 110.0
 margin_right = 86.0
-margin_bottom = 200.0
+margin_bottom = 128.0
 
 [node name="SpecblockExpand" type="Button" parent="BottomPanel/BMiniPanel/HBox/Reload/Expand"]
 margin_right = 41.0
@@ -476,21 +494,21 @@ anchor_bottom = 1.0
 margin_top = 24.0
 
 [node name="Arguments" type="ScrollContainer" parent="CodePanel/Documentation/DocZone"]
-margin_right = 201.0
-margin_bottom = 184.0
+margin_right = 133.0
+margin_bottom = 112.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 0.5
 
 [node name="ArgList" type="VBoxContainer" parent="CodePanel/Documentation/DocZone/Arguments"]
-margin_right = 201.0
-margin_bottom = 184.0
+margin_right = 133.0
+margin_bottom = 112.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
 [node name="Doc" type="TextEdit" parent="CodePanel/Documentation/DocZone"]
-margin_left = 205.0
-margin_right = 608.0
-margin_bottom = 184.0
+margin_left = 137.0
+margin_right = 403.0
+margin_bottom = 112.0
 size_flags_horizontal = 3
 text = "Function description
 
@@ -549,8 +567,8 @@ scroll_horizontal_enabled = false
 
 [node name="PanelContainer" type="PanelContainer" parent="CodePanel/CustomEditor"]
 self_modulate = Color( 0.701961, 0.517647, 0.0235294, 1 )
-margin_right = 752.0
-margin_bottom = 676.0
+margin_right = 496.0
+margin_bottom = 424.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -722,8 +740,8 @@ scroll_horizontal_enabled = false
 
 [node name="PanelContainer" type="PanelContainer" parent="CodePanel/SpecblockCode"]
 self_modulate = Color( 0.701961, 0.517647, 0.0235294, 1 )
-margin_right = 752.0
-margin_bottom = 676.0
+margin_right = 496.0
+margin_bottom = 424.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
@@ -756,8 +774,8 @@ __meta__ = {
 }
 
 [node name="List" type="VBoxContainer" parent="CodePanel/WarningsList"]
-margin_right = 728.0
-margin_bottom = 522.0
+margin_right = 472.0
+margin_bottom = 324.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 2
@@ -851,7 +869,7 @@ __meta__ = {
 }
 
 [node name="List" type="VBoxContainer" parent="CodePanel/Navigation/ChooseState/StateList/Scroll"]
-margin_right = 1108.0
+margin_right = 724.0
 size_flags_horizontal = 3
 __meta__ = {
 "_edit_use_anchors_": false
@@ -863,8 +881,8 @@ anchor_right = 1.0
 anchor_bottom = 0.8
 
 [node name="Menu" type="VBoxContainer" parent="CodePanel/Navigation/ChooseState/MenuScroll"]
-margin_right = 372.0
-margin_bottom = 752.0
+margin_right = 244.0
+margin_bottom = 584.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 1
@@ -1772,6 +1790,7 @@ margin_bottom = -8.0
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/Reset2/ResetCornerReverse" to="." method="_on_ResetCornerReverse_pressed"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/MatchType/ResetMatchTraining" to="." method="_on_ResetMatchTraining_pressed"]
 [connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/Match/MatchType/ResetMatchNormal" to="." method="_on_ResetMatchNormal_pressed"]
+[connection signal="pressed" from="BottomPanel/BMiniPanel/HBox/FlowSettings/TrainingNormal" to="." method="_on_TrainingNormal_pressed"]
 [connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowPlay" to="." method="_on_FlowPlay_toggled"]
 [connection signal="toggled" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmo" to="." method="_on_FlowSlowmo_toggled"]
 [connection signal="item_selected" from="BottomPanel/BMiniPanel/HBox/Middle/TopBar/Flow/FlowSlowmoRate" to="." method="_on_FlowSlowmoRate_item_selected"]

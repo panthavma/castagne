@@ -68,6 +68,7 @@ func ModuleSetup():
 	RegisterConfig("BID-Custom-Global", "", {"Description":"Additional fields for the global BID."})
 	RegisterConfig("BID-Custom-Player", "", {"Description":"Additional fields for the player BID."})
 	RegisterConfig("BID-Custom-Entity", "", {"Description":"Additional fields for the entity BID."})
+	RegisterConfig("Flow-AllowSamePalette", false)
 	
 	RegisterCASPEvent("Reset")
 	
@@ -102,6 +103,10 @@ func GetBattleInitDataFromCSS(cssData):
 	var bid = GetBaseBattleInitData(cssData["ConfigData"])
 	var stage = cssData["Stage"]
 	bid["map"] = stage
+	
+	var avoidSamePalette = !(cssData["ConfigData"].Get("Flow-AllowSamePalette"))
+	var characterPaletteIndex = {}
+	
 	for pid in range(cssData["Devices"].size()):
 		var device = cssData["Devices"][pid]
 		if(device == null):
@@ -113,8 +118,18 @@ func GetBattleInitDataFromCSS(cssData):
 		bid["players"][pid+1]["inputdevice"] = device
 		for eid in range(characters.size()):
 			var c = characters[eid]
-			bid["players"][pid+1]["entities"][eid+1]["scriptpath"] = c["Character"]["Filepath"]
-			bid["players"][pid+1]["entities"][eid+1]["overrides"] = {"_PaletteID": palettes[eid]}
+			var characterFilepath = c["Character"]["Filepath"]
+			var characterPalette = palettes[eid]
+			if not (characterFilepath in characterPaletteIndex):
+				characterPaletteIndex[characterFilepath] = []
+			if avoidSamePalette and (characterPalette in characterPaletteIndex[characterFilepath]):
+				characterPalette = 0
+				while(characterPalette in characterPaletteIndex[characterFilepath]):
+					characterPalette += 1
+			characterPaletteIndex[characterFilepath].push_back(characterPalette)
+			
+			bid["players"][pid+1]["entities"][eid+1]["scriptpath"] = characterFilepath
+			bid["players"][pid+1]["entities"][eid+1]["overrides"] = {"_PaletteID": characterPalette}
 	return bid
 
 func BattleInit(stateHandle, battleInitData):
@@ -191,7 +206,35 @@ func _BattleInit_CreateEntities(stateHandle, entities, playerID):
 func FrameEnd(stateHandle):
 	var gameEndCaller = stateHandle.GlobalGet("_GameEndCaller")
 	if(gameEndCaller != null):
-		stateHandle.GlobalGet("_GameEndArgument")
+		var gameEndArgument = stateHandle.GlobalGet("_GameEndArgument")
+		var bid = stateHandle.IDGlobalGet("BattleInitData")
+		var exitcallback = bid["exitcallback"]
+		if(exitcallback == null):
+			ModuleError("Game End: Exit callback is unset!")
+			exitcallback = funcref(self, "DefaultExitCallback")
+		exitcallback.call_func(stateHandle, gameEndCaller, gameEndArgument)
+
+func DefaultExitCallback(stateHandle, _caller, _argument):
+	stateHandle.Engine().queue_free()
+
+func _IsTrainingMode(stateHandle):
+	var battleInitData = stateHandle.IDGlobalGet("BattleInitData")
+	return (battleInitData["mode"] == Castagne.GAMEMODES.MODE_TRAINING or battleInitData["mode"] == Castagne.GAMEMODES.MODE_EDITOR)
+func _IsEditorMode(stateHandle):
+	var battleInitData = stateHandle.IDGlobalGet("BattleInitData")
+	return (battleInitData["mode"] == Castagne.GAMEMODES.MODE_EDITOR)
+
+func InitPhaseStartEntity(stateHandle):
+	if(_IsTrainingMode(stateHandle)):
+		stateHandle.EntitySetFlag("TF_Training")
+	if(_IsEditorMode(stateHandle)):
+		stateHandle.EntitySetFlag("EF_Editor")
+
+func ActionPhaseStartEntity(stateHandle):
+	if(_IsTrainingMode(stateHandle)):
+		stateHandle.EntitySetFlag("TF_Training")
+	if(_IsEditorMode(stateHandle)):
+		stateHandle.EntitySetFlag("EF_Editor")
 
 
 func EditorCreateFlowWindow(_editor, root):
@@ -213,6 +256,6 @@ func EditorGetCurrentBattleInitData(editor, _root):
 
 
 func RequestGameEnd(args, stateHandle):
-	# TODO Caller GetEntityID to _GameEndCaller
 	stateHandle.GlobalSet("_GameEndArgument", ArgInt(args, stateHandle, 0, 0))
+	stateHandle.GlobalSet("_GameEndCaller", stateHandle.GetEntityID())
 

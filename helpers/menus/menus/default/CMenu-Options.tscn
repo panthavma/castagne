@@ -1,0 +1,36 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://castagne/helpers/menus/menus/CMenu-Options.gd" type="Script" id=1]
+[ext_resource path="res://castagne/helpers/menus/helpers/options/CMenu-Options-Rebind.gd" type="Script" id=2]
+
+[node name="Options" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0.356863, 0.0705882, 0.388235, 1 )
+
+[node name="Menu" type="VBoxContainer" parent="."]
+anchor_left = 0.25
+anchor_right = 0.75
+anchor_bottom = 1.0
+margin_left = 32.0
+margin_top = 32.0
+margin_right = -32.0
+margin_bottom = -32.0
+alignment = 1
+
+[node name="Rebind" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 2 )
+MenuRootPath = "RebindMenu"
+
+[node name="RebindMenu" type="VBoxContainer" parent="Rebind"]
+anchor_left = 0.25
+anchor_right = 0.75
+anchor_bottom = 1.0
+alignment = 1

@@ -17,14 +17,14 @@ func ModuleSetup():
 	RegisterConfig("MenuData-MainMenu", {
 		"Options":[
 			{
-			#	"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Local Versus",
-			#	"Action":"MMLocalBattle", "ActionParams":null,
-			#},{
+				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Local Versus",
+				"Action":"MMLocalBattle", "ActionParams":null,
+			},{
 				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Training",
 				"Action":"MMTraining", "ActionParams":null,
-			#},{
-			#	"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Options",
-			#	"Action":null, "ActionParams":null,
+			},{
+				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Options",
+				"Action":"MMOptions", "ActionParams":null,
 			},{
 				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Quit",
 				"Action":"MCB_QuitGame", "ActionParams":null,
@@ -38,8 +38,29 @@ func ModuleSetup():
 		"Options":[],
 	})
 	
+	RegisterCategory("Post Battle")
+	RegisterConfig("MenuScene-PostBattle", "res://castagne/helpers/menus/menus/default/CMenu-PostBattle.tscn")
+	RegisterConfig("MenuData-PostBattle", {
+		"Options":[],
+	})
+	
 	
 	RegisterCategory("Options")
+	RegisterConfig("MenuScene-Options", "res://castagne/helpers/menus/menus/default/CMenu-Options.tscn")
+	RegisterConfig("MenuData-Options", {
+		"Options":[
+			{
+				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Toggle Full Screen",
+				"Action":"OMFullScreen", "ActionParams":null,
+			},{
+				"Type":Castagne.MENUS_ELEMENT_TYPES.LIST, "ScenePath":null, "DisplayName":"Rebind Controls",
+				"Action":"OMRebind", "ActionParams":null,
+			},{
+				"Type":Castagne.MENUS_ELEMENT_TYPES.ACTION, "ScenePath":null, "DisplayName":"Return",
+				"Action":"OMReturn", "ActionParams":null,
+			},
+		],
+	})
 	
 	
 	

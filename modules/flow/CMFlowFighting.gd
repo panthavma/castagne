@@ -10,6 +10,8 @@ func ModuleSetup():
 		"Description":"Flow module for fighting games, handles match entry and exit, as well as mid-match events.\nThis offers better interfaces for regular fighting game matches.",
 		"docname":"flowfighting",
 		})
+	RegisterBaseCaspFile("res://castagne/modules/flow/Base-Flow.casp", -8000)
+	RegisterSpecblock("FlowBattle", "res://castagne/modules/flow/CMFlowFightingSBFlow.gd")
 	
 	RegisterBattleInitData(Castagne.MEMORY_STACKS.Entity, "palette", 0, {"Description":"The color to use for the character."})
 	
@@ -17,6 +19,8 @@ func ModuleSetup():
 	RegisterConfig("CharactersPerPlayer", 1, {"Description":"Number of characters to spawn per player. Useful for team fighters."})
 	
 	RegisterConfig("StartingDistance", 20000, {"Description":"The starting distance between the two players."})
+	
+	RegisterVariableGlobal("_FLOW_TimerGlobal", 60)
 
 func GetBaseBattleInitData(configData):
 	var bid = .GetBaseBattleInitData(configData)

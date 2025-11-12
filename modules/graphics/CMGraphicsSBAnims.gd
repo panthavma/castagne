@@ -65,7 +65,6 @@ func SetupSpecblock(_argument):
 	AddDefine("ANIM_Reacts_Hitstun_Airborne", "ANIM_Reacts_Hitstun_Airborne", "Hitstun (Airborne)")
 	
 	AddDefine("ANIM_Reacts_Knockdown", "ANIM_Reacts_Knockdown", "Knockdown")
-	AddDefine("ANIM_Reacts_Dead", "ANIM_Reacts_Dead", "Dead")
 	
 	AddDefine("ANIM_Reacts_Blockstun_Standing", "ANIM_Reacts_Blockstun_Standing", "Blockstun (Standing)")
 	AddDefine("ANIM_Reacts_Blockstun_Crouching", "ANIM_Reacts_Blockstun_Crouching", "Blockstun (Crouching)")
@@ -97,11 +96,18 @@ func SetupSpecblock(_argument):
 	AddDefine("ANIM_Reacts_Tech_Knockdown_Up", "ANIM_Reacts_Tech_Knockdown_Up", "Recover Up (Knockdown)")
 	
 	
+	AddCategory("Emote")
+	AddDefine("ANIM_Emote_Intro", "ANIM_Emote_Intro", "Intro")
+	AddDefine("ANIM_Emote_Win", "ANIM_Emote_Win", "Win")
+	AddDefine("ANIM_Emote_Dead", "ANIM_Emote_Dead", "Dead")
+	AddDefine("ANIM_Emote_Timeout", "ANIM_Emote_Timeout", "Timeout")
+	
+	
 	
 	
 	
 	AddStructure("SpriteAnimations", "GRAPHICS_SPRITE_ANIMATIONS_", "Sprite Animations")
-	for i in range(10):
+	for i in range(50):
 		AddStructureSeparator("Keyframe "+str(i+1))
 		AddStructureDefine(str(i+1)+"_Duration", 0, "("+str(i+1)+") Duration")
 		AddStructureDefine(str(i+1)+"_Spritesheet", "", "("+str(i+1)+") Spritesheet")

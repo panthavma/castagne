@@ -10,6 +10,8 @@ export var VariableName_Main = ""
 export var VariableName_Sub = ""
 export var VariableName_Max = ""
 
+export var UseGlobal = false
+
 # Interface
 
 func WidgetInitialize(_stateHandle, _battleInitData = null, _caspData = null):
@@ -37,8 +39,10 @@ func _FetchValuesFromState(stateHandle):
 func _FetchSingleValueFromState(stateHandle, VariableName, defaultValue = 0):
 	if(VariableName.empty()):
 		return _FetchSingleValueFromState_PostProcess(defaultValue)
-	if(stateHandle.EntityHas(VariableName)):
+	if(!UseGlobal and stateHandle.EntityHas(VariableName)):
 		return _FetchSingleValueFromState_PostProcess(stateHandle.EntityGet(VariableName))
+	if(UseGlobal and stateHandle.GlobalHas(VariableName)):
+		return _FetchSingleValueFromState_PostProcess(stateHandle.GlobalGet(VariableName))
 	return _FetchSingleValueFromState_PostProcess(VariableName)
 func _FetchSingleValueFromState_PostProcess(v):
 	v = str(v)

@@ -1,0 +1,215 @@
+:Character:
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+## Base-Flow: Handles transitioning in and out of fights
+:Specs-UI:
+def UI_Widgets_Rounds int() = 0
+def UI_Widgets_Rounds___Asset1 str() = 
+def UI_Widgets_Rounds___Asset1Mirror str() = 
+def UI_Widgets_Rounds___Asset2 str() = 
+def UI_Widgets_Rounds___Asset2Mirror str() = 
+def UI_Widgets_Rounds___Asset3 str() = 
+def UI_Widgets_Rounds___Asset3Mirror str() = 
+def UI_Widgets_Rounds___DefaultColor int() = 3
+def UI_Widgets_Rounds___Direction int() = 1
+def UI_Widgets_Rounds___HookPoint str() = Rounds
+def UI_Widgets_Rounds___ScenePath str() = res://
+def UI_Widgets_Rounds___Type int() = 2
+def UI_Widgets_Rounds___UseWidget bool() = 1
+def UI_Widgets_Rounds___Variable1 str() = FLOW_Rounds
+def UI_Widgets_Rounds___Variable2 str() = 
+def UI_Widgets_Rounds___Variable3 str() =
+:Variables:
+var FLOW_Timer int() = 120
+var FLOW_Rounds int() = 0
+:AnimDead:
+_Helper()
+_Overridable()
+_Category(Animations/Emote)
+:AnimIntro:
+_Helper()
+_Overridable()
+_Category(Animations/Emote)
+:AnimLose:
+_Helper()
+_Overridable()
+_Category(Animations/Emote)
+:AnimTimeout:
+_Helper()
+
+LTimeoutWin:
+	Call(AnimWin)
+else
+	Call(AnimLose)
+endif
+:AnimWin:
+_Helper()
+_Overridable()
+_Category(Animations/Emote)
+:CommonAfter:
+CallParent()
+
+Call(Timer-Check)
+
+LOpponentDead:
+	Transition(Win)
+endif
+:Dead:
+## Death state: stops control of character, and starts post-match behavior
+
+Call(Common)
+
+Call(AnimDead)
+
+Flag(TimerFreeze)
+BroadcastFlag(TimerFreeze)
+BroadcastFlag(OpponentDead)
+TargetRecall()
+FlagInTarget(DeadDoubleDeath)
+
+PReaction:
+	Unflag(OpponentDead)
+endif
+
+
+LDeadDoubleDeath:
+	FFLOW_WinDelay:
+		Call(Round-EndRequest)
+	endif
+	PReaction:
+		FlagNext(DeadDoubleDeath)
+	endif
+endif
+FFLOW_WinDelay:
+	#Call(Round-EndRequest)
+endif
+:Intro:
+## Small emote state done at the start of a round
+
+Call(StandardState)
+
+Call(Intro-End)
+Call(AnimIntro)
+
+Set(FLOW_Timer, FLOW_TimerUnits)
+Mul(FLOW_Timer, FLOW_TimerFramesPerUnit)
+
+Flag(TimerFreeze)
+:Intro-End:
+_Helper()
+
+FFLOW_IntroTime:
+	Transition(CORE_InitialState)
+endif
+:OnRoundStart-GoToFirstState:
+LSkipIntro:
+	CallParent()
+else
+	Transition(FLOW_IntroState)
+endif
+:Round-EndRequest:
+## Called on round end to decide what's next
+_Helper()
+
+PAction:
+	VFLOW_Rounds>=FLOW_NbRoundsToWin:
+		RequestGameEnd()
+	else
+		BroadcastEvent(Reset)
+	endif
+endif
+:Timeout:
+Call(Common)
+
+Call(AnimTimeout)
+Flag(TimerFreeze)
+
+F1:
+	LTimeoutWin:
+		Add(FLOW_Rounds, 1)
+	endif
+endif
+
+LTimeoutWin:
+	FlagNext(TimeoutWin)
+endif
+LTimeoutRequest:
+	FFLOW_WinDelay:
+		Call(Round-EndRequest)
+	endif
+	
+	FlagNext(TimeoutRequest)
+endif
+:Timer-Check:
+## CASTDO: Before you get the bright idea to have a super freeze the timer, this is just a quick hack so flow works before going to Castagne v0.7. You'll have to handle syncing the timers or writing a global one.
+
+LTimerFreeze:
+else
+	Sub(FLOW_Timer, 1)
+	
+	VFLOW_Timer<=0:
+		Call(Timer-Timeout)
+	endif
+endif
+
+# If all is well, this should set the global value several times to the same value from the different entities. This is just for display purposes
+Set(CAST_REG_A, FLOW_Timer)
+Div(CAST_REG_A, FLOW_TimerFramesPerUnit)
+SetGlobalVariable(_FLOW_TimerGlobal, CAST_REG_A)
+:Timer-Timeout:
+_Helper()
+Transition(Timeout)
+
+# Get State of opponent to determine win and lose
+TargetRecall()
+
+# Get HP difference
+CopyFromTarget(CAST_REG_A, HP)
+Sub(CAST_REG_A, HP)
+
+# Get rounds to win
+CopyFromTarget(CAST_REG_B, FLOW_Rounds)
+Sub(FLOW_NbRoundsToWin, CAST_REG_B, CAST_REG_B)
+Sub(FLOW_NbRoundsToWin, FLOW_Rounds, CAST_REG_C)
+
+VCAST_REG_A<0:
+	# Win
+	Flag(TimeoutWin)
+	Flag(TimeoutRequest)
+else
+	VCAST_REG_A>0:
+		# Lose
+	else
+		# Tie: both gain a point but can't win
+		VCAST_REG_C>1:
+			Flag(TimeoutWin)
+			Flag(TimeoutRequest)
+		endif
+		VCAST_REG_B<=1:
+			Flag(TimeoutRequest)
+			# If both are at max, both will request the round start
+		endif
+	endif
+endif
+
+LTimeoutWin:
+	FlagNext(TimeoutWin)
+endif
+LTimeoutRequest:
+	FlagNext(TimeoutRequest)
+endif
+:Win:
+Call(Common)
+Call(AnimWin)
+Flag(TimerFreeze)
+
+
+F1:
+		Add(FLOW_Rounds, 1)
+endif
+
+FFLOW_WinDelay:
+	Call(Round-EndRequest)
+endif

@@ -146,7 +146,7 @@ func SaveConfigFile(configFilePath = null, localConfigFilePath = null):
 			else:
 				savedData[key] = _configData[key]
 	
-	var jsonData = to_json(savedData)
+	var jsonData = JSON.print(savedData, "\t", true) #to_json(savedData)
 	file.open(configFilePath, File.WRITE)
 	file.store_string(jsonData)
 	file.close()
