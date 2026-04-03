@@ -85,12 +85,12 @@ Let's add a new constant here, to change the walk speed of the character. Copy t
 
 ```
 # Let's make him FAST!
-def MOVE_Basic_WalkFSpeed int() = 5000
+def MOVE_Walk_SpeedF int() = 5000
 ```
 
 Now you might notice the little 5x increase in speed when walking forward if you focus enough, but let's analyze this line in more detail:
 - `def`: This small word tells Castagne that this is a *constant*. Constants don't change during the game, and thus are used to keep the parameters you'll want to balance, as opposed to internal variables. You can read the language reference for more information.
-- `MOVE_Basic_WalkFSpeed`: This is the name of the constant! Since we're overriding an existing variable, we need its exact name to be taken into account. I'll show you how to find them later!
+- `MOVE_Walk_SpeedF`: This is the name of the constant! Since we're overriding an existing variable, we need its exact name to be taken into account. I'll show you how to find them later!
 - `int()`: This is the type of the variable! We have 'int' (Number), 'str' (String of characters), and 'bool' (true/false). In parenthesis, you can add additional data, but this is currently unused.
 - `= 5000`: We give a value to the constant! Here that means that the character will move 5000 physics units per frame when walking forward. You can change the value to change the speed!
 
