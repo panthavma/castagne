@@ -152,7 +152,7 @@ Anim(N-BackhandJab)
 
 `Anim` will play a previously set animation using Godot's animation player node. Baston has already a few of them available for us, so we'll use this one.
 
-> If you are using sprites, at the moment it's a bit trickier, and you'll use the Sprite function. Let's conitinue with models.
+> If you are using sprites, at the moment it's a bit trickier, and you'll use the Sprite function. Let's continue with models.
 
 Now, last part. We'll add our hitbox, so that the attack may hit. We however don't want it to be active all the time, so we'll use a branch!
 
