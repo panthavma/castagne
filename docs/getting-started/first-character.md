@@ -132,7 +132,7 @@ Let's analyze it. There are two parts: the function name, `AttackRegister`, and 
 `AttackRegister` here is a special function that tells Castagne that this state is an attack. It takes two arguments:
 
 - The type of the attack, which are user defined. By default, Castagne provides a few: Light, Medium, and Heavy for normals, Special, EX, and Super for specials, and also has Throw and ThrowFollowup for, well, throws. You can also add 'Air' before any of these for the air version. Here, we will use `Light`.
-- The attack's notation. This is an *Optional Argument*, and in this case it will take the current state name. This is why I recommended you to use the notation as a name, otherwise you would have to specify it here.
+- The attack's notation. This is an *Optional Argument*, and in this case it will take the current state name. This is why I recommended you to use the notation as a name, otherwise you would have to specify it here: AttackRegister(Light, 5L)
 
 Functions are given by the modules you load, and you can find the whole list in [the Modules pages](../../modules). They are classified by difficulty, and you can take a look after this tutorial if you want.
 
