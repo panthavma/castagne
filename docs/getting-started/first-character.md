@@ -314,7 +314,7 @@ Let's make this a bit friendlier. Add this line to the code, and Reload (Ctrl+R)
 ## TODO Add the hitboxes
 ```
 
-See that we started not with just one '#', but two? This is a **State Comment**, which will show up in the navigation panel when you click on a state! This helps communicate information and place stuff to remember. The first line will show under the
+See that we started not with just one '#', but two? This is a **State Comment**, which will show up in the navigation panel when you click on a state! This helps communicate information and place stuff to remember. If you navigate to your j5H under "uncategorized",  you can see the first line under move name.
 
 You might also have seen the small 'TODO' icon. This is a **State Flag**, and they allow you to find states quickly by filtering! Some are already defined for you and you can see them in the navigation panel, and you can make your own with `_StateFlag`, even if it doesn't have an icon yet. 'TODO' is a special flag, which appears if you have a 'TODO' in your state comments! All of Castagne's base states are labeled like this, so you can find what you need.
 
