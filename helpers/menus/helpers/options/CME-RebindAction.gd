@@ -51,6 +51,18 @@ func _input(event):
 		Castagne.PlayerConfig_Set("bindings-"+optionData["GodotAction"], event.get_scancode())
 		Castagne.PlayerConfig_Save()
 		EndRebind()
+	if event is InputEventJoypadButton and event.is_pressed():
+		InputMap.action_erase_events(optionData["GodotAction"])
+		InputMap.action_add_event(optionData["GodotAction"], event)
+		Castagne.PlayerConfig_Set("bindings-"+optionData["GodotAction"], event.get_button_index())
+		Castagne.PlayerConfig_Save()
+		EndRebind()
+	if event is InputEventJoypadMotion and event.is_pressed():
+		InputMap.action_erase_events(optionData["GodotAction"])
+		InputMap.action_add_event(optionData["GodotAction"], event)
+		Castagne.PlayerConfig_Set("bindings-"+optionData["GodotAction"], event.get_axis())
+		Castagne.PlayerConfig_Save()
+		EndRebind()
 
 func EndRebind():
 	RefreshBind()

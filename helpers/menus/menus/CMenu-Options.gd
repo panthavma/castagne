@@ -46,10 +46,8 @@ func SetupMouseRebindSelect():
 	var sceneRoot = VBoxContainer.new()
 	var label = Label.new()
 	label.set_text("Rebind Controls of Device:")
-	label.set_align(Label.ALIGN_CENTER)
 	sceneRoot.add_child(label)
 	var root = HFlowContainer.new()
-	root.set_alignment(FlowContainer.ALIGN_CENTER)
 	sceneRoot.add_child(root)
 	
 	for dID in range(deviceList.size()):
