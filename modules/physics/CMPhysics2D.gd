@@ -727,7 +727,7 @@ func SetMomentumAbsolute(args, stateHandle):
 	stateHandle.EntitySet("_MomentumX", ArgInt(args, stateHandle, 0))
 	stateHandle.EntitySet("_MomentumY", ArgInt(args, stateHandle, 1))
 func SetMomentumX(args, stateHandle):
-	SetMomentumAbsolute([stateHandle.EntityGet("_FacingHPhysics")*ArgInt(args, stateHandle, 0)], stateHandle)
+	SetMomentumXAbsolute([stateHandle.EntityGet("_FacingHPhysics")*ArgInt(args, stateHandle, 0)], stateHandle)
 func SetMomentumXAbsolute(args, stateHandle):
 	stateHandle.EntitySet("_MomentumX", ArgInt(args, stateHandle, 0))
 func SetMomentumY(args, stateHandle):
