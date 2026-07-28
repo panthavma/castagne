@@ -85,12 +85,12 @@ Let's add a new constant here, to change the walk speed of the character. Copy t
 
 ```
 # Let's make him FAST!
-def MOVE_Basic_WalkFSpeed int() = 5000
+def MOVE_Walk_SpeedF int() = 5000
 ```
 
 Now you might notice the little 5x increase in speed when walking forward if you focus enough, but let's analyze this line in more detail:
 - `def`: This small word tells Castagne that this is a *constant*. Constants don't change during the game, and thus are used to keep the parameters you'll want to balance, as opposed to internal variables. You can read the language reference for more information.
-- `MOVE_Basic_WalkFSpeed`: This is the name of the constant! Since we're overriding an existing variable, we need its exact name to be taken into account. I'll show you how to find them later!
+- `MOVE_Walk_SpeedF`: This is the name of the constant! Since we're overriding an existing variable, we need its exact name to be taken into account. I'll show you how to find them later!
 - `int()`: This is the type of the variable! We have 'int' (Number), 'str' (String of characters), and 'bool' (true/false). In parenthesis, you can add additional data, but this is currently unused.
 - `= 5000`: We give a value to the constant! Here that means that the character will move 5000 physics units per frame when walking forward. You can change the value to change the speed!
 
@@ -132,7 +132,7 @@ Let's analyze it. There are two parts: the function name, `AttackRegister`, and 
 `AttackRegister` here is a special function that tells Castagne that this state is an attack. It takes two arguments:
 
 - The type of the attack, which are user defined. By default, Castagne provides a few: Light, Medium, and Heavy for normals, Special, EX, and Super for specials, and also has Throw and ThrowFollowup for, well, throws. You can also add 'Air' before any of these for the air version. Here, we will use `Light`.
-- The attack's notation. This is an *Optional Argument*, and in this case it will take the current state name. This is why I recommended you to use the notation as a name, otherwise you would have to specify it here.
+- The attack's notation. This is an *Optional Argument*, and in this case it will take the current state name. This is why I recommended you to use the notation as a name, otherwise you would have to specify it here: `AttackRegister(Light, 5L)`
 
 Functions are given by the modules you load, and you can find the whole list in [the Modules pages](../../modules). They are classified by difficulty, and you can take a look after this tutorial if you want.
 
@@ -152,7 +152,7 @@ Anim(N-BackhandJab)
 
 `Anim` will play a previously set animation using Godot's animation player node. Baston has already a few of them available for us, so we'll use this one.
 
-> If you are using sprites, at the moment it's a bit trickier, and you'll use the Sprite function. Let's conitinue with models.
+> If you are using sprites, at the moment it's a bit trickier, and you'll use the Sprite function. Let's continue with models.
 
 Now, last part. We'll add our hitbox, so that the attack may hit. We however don't want it to be active all the time, so we'll use a branch!
 
@@ -314,7 +314,7 @@ Let's make this a bit friendlier. Add this line to the code, and Reload (Ctrl+R)
 ## TODO Add the hitboxes
 ```
 
-See that we started not with just one '#', but two? This is a **State Comment**, which will show up in the navigation panel when you click on a state! This helps communicate information and place stuff to remember. The first line will show under the
+See that we started not with just one '#', but two? This is a **State Comment**, which will show up in the navigation panel when you click on a state! This helps communicate information and place stuff to remember. If you navigate to your j5H under "uncategorized",  you can see the first line under move name.
 
 You might also have seen the small 'TODO' icon. This is a **State Flag**, and they allow you to find states quickly by filtering! Some are already defined for you and you can see them in the navigation panel, and you can make your own with `_StateFlag`, even if it doesn't have an icon yet. 'TODO' is a special flag, which appears if you have a 'TODO' in your state comments! All of Castagne's base states are labeled like this, so you can find what you need.
 

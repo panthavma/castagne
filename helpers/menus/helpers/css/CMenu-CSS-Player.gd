@@ -129,6 +129,9 @@ func _process(delta):
 				UpdateDisplay()
 			if(i["Right"]):
 				selectedPalette += 1
+				var paletteNumber = selectedCharacter["TransformedData"]["Graphics"]["Palettes"].size()
+				if(selectedPalette > paletteNumber):
+					selectedPalette = paletteNumber
 				UpdateDisplay()
 			
 	elif(menuState == MENUSTATE.CHARACTER):
