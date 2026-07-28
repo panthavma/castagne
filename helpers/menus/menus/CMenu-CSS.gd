@@ -10,13 +10,19 @@ var devices
 export var MenuCSSGridPath = "Characters/Rows"
 export var MenuPlayerSlotsPath = "Players/PlayersRoot"
 
+var musicSelected = 0
 var stageSelected = 0
 var stageSelectPlayer = null
 var nbStages
+var musicNames = []
 
 func Setup(_menuData, menuParams):
 	devices = menuParams["Devices"]
 	nbStages = Castagne.SplitStringToArray(_configData.Get("StagePaths")).size()
+	musicNames = ["No Music"]
+	for md in _configData.Get("MusicData"):
+		musicSelected = 1
+		musicNames += [md["Name"]]
 	GatherCharacterList()
 	CreateCharacterGrid()
 	CreatePlayerSlots()
@@ -265,6 +271,7 @@ func Advance():
 		_menuParams["CallbackAdvance"].call_func({
 			"SelectData": selectData,
 			"Stage":stageSelected,
+			"Music":musicSelected,
 			"CallbackParams": cbParams,
 			"Devices": devices,
 			"CSSParams": _menuParams,

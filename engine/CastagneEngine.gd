@@ -153,6 +153,7 @@ func EngineTick(previousMemory, playerInputs):
 	var haltingEntityIsMainEntity = true
 	if(haltingEntity >= 0):
 		gameStateHandle.PointToEntity(haltingEntity)
+		gameStateHandle.EntitySetFlag("TimerFreeze")
 		haltingEntityIsMainEntity = (gameStateHandle.EntityGet("_Entity") == null)
 		gameStateHandle.EntityAdd("_HaltFrames", -1)
 	

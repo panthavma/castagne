@@ -269,6 +269,13 @@ _Category(Animations/Reacts/Hitstun)
 _Category(Internals/Attacks/Helpers)
 _Helper()
 
+# v0.58
+EOnBlocking:
+	LCrouching:
+		FlagNext(Crouching)
+	endif
+endif
+
 ## CASTDO: Make more flexible and add crossup protection
 VATTACK_HoldBackToBlock:
 	IBack:
@@ -280,10 +287,13 @@ LPF_Airborne:
 	Flag(Blocking-Low)
 	Flag(Blocking-Overhead)
 else
+	LTF_Blocking:
+	else
 	IDown:
 		Flag(Blocking-Low)
 	else
 		Flag(Blocking-Overhead)
+	endif
 	endif
 endif
 :Attack-CanBlock:
@@ -599,7 +609,11 @@ EOnGetHit:
 	endif
 	
 	VHP<=0:
-		Transition(Dead, ATK_HITSTUN_PRIORITY, 1)
+		LTF_Training:
+			# Training mode kill
+		else
+			Transition(Dead, ATK_HITSTUN_PRIORITY, 1)
+		endif
 	else
 		AttackRecievedGetParam(TransitionTo, CAST_REG_A_STR)
 		Transition(CAST_REG_A_STR, ATK_HITSTUN_PRIORITY, 1)
@@ -607,7 +621,12 @@ EOnGetHit:
 endif
 
 EOnBlocking:
-	Transition(Blockstun, ATK_BLOCKSTUN_PRIORITY, 1)
+	LArmor:
+		FlagNext(ArmorPunish)
+		Call(OnArmor)
+	else
+		Transition(Blockstun, ATK_BLOCKSTUN_PRIORITY, 1)
+	endif
 endif
 :AttackReactEvents-Overrides:
 ## Helper state that will activate attack overrides
@@ -1271,6 +1290,10 @@ CallParent()
 Call(Attack-CanBlock)
 
 Call(AttackCancels-All)
+:OnArmor:
+## Callback for when an armored move has been triggered. 'ArmorPunish' is also raised for the next frame only.
+_Overridable(If you want to add specific behavior when armor is triggered)
+_Helper()
 :OnReturnToNeutral:
 _Helper()
 CallParent()

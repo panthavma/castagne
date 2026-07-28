@@ -512,14 +512,23 @@ EOnGetHit:
 	## TODO: Update anim system since it won't need frame zero anymore with the transition. Plus new freeze system
 
 	## TODO: VFX
+	LAF_NoVFX:
+	else
 	Call(VFXHit)
+	endif
 
 	## CASTDO: Configurable ?
+	LAF_NoShake:
+	else
 	CameraShake()
+	endif
 endif
 
 EOnBlocking:
+	LAF_NoVFX:
+	else
 	Call(VFXBlock)
+	endif
 endif
 :Common:
 CallParent()

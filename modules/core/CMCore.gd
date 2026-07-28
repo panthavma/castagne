@@ -1014,6 +1014,8 @@ func CallFromMain(_args, _stateHandle):
 	engine.ExecuteFighterScript(fighterScript, _stateHandle)
 
 func CallParent(args, stateHandle):
+	ModuleError("CALL PARENT DETECTED")
+	return
 	# Should never get called in theory
 	var stateName = ArgStr(args, stateHandle, 0)
 	var level = stateHandle.EntityGet("_CallParentLevel") + 1

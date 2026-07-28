@@ -171,6 +171,8 @@ func ReloadEngine():
 	
 	for t in _tools:
 		t["Tool"].OnEngineRestarted(engine)
+	
+	_on_Mute_toggled($BottomPanel/BMiniPanel/HBox/Middle/TopBar/Other/Mute.is_pressed())
 func StopEngine():
 	_engineRunning_InternalStop = true
 	UnfocusGame()

@@ -103,6 +103,7 @@ func GetBattleInitDataFromCSS(cssData):
 	var bid = GetBaseBattleInitData(cssData["ConfigData"])
 	var stage = cssData["Stage"]
 	bid["map"] = stage
+	bid["music"] = cssData["Music"]
 	
 	var avoidSamePalette = !(cssData["ConfigData"].Get("Flow-AllowSamePalette"))
 	var characterPaletteIndex = {}
@@ -110,7 +111,10 @@ func GetBattleInitDataFromCSS(cssData):
 	for pid in range(cssData["Devices"].size()):
 		var device = cssData["Devices"][pid]
 		if(device == null):
-			device = "empty"
+			if cssData["CallbackParams"]["Mode"] == 0:
+				device = "ai"
+			else:
+				device = "empty"
 		var selectData = cssData["SelectData"][pid]
 		var characters = selectData["Characters"]
 		var palettes = selectData["Palettes"]

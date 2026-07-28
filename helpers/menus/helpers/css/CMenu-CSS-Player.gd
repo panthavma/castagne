@@ -18,7 +18,7 @@ var _isReady
 var DEFAULT_TIMEOUT = 0.1
 var _timeout
 var menuState = 0
-enum MENUSTATE {CHARACTER, PALETTE, READY, STAGE}
+enum MENUSTATE {CHARACTER, PALETTE, READY, STAGE, MUSIC}
 
 # Callback to override
 func Setup():
@@ -82,14 +82,13 @@ func _process(delta):
 		if(i["Back"]):
 			_isReady = false
 			if(css.stageSelectPlayer == self):
-				menuState = MENUSTATE.STAGE
+				menuState = MENUSTATE.MUSIC
 			else:
 				menuState = MENUSTATE.PALETTE
 			UpdateDisplay()
 	elif(menuState == MENUSTATE.STAGE):
 		if(i["Confirm"]):
-			_isReady = true
-			menuState = MENUSTATE.READY
+			menuState = MENUSTATE.MUSIC
 			UpdateDisplay()
 			css.TryAdvance()
 		elif(i["Back"]):
@@ -106,6 +105,26 @@ func _process(delta):
 				css.stageSelected += 1
 				if(css.stageSelected >= css.nbStages):
 					css.stageSelected = css.nbStages-1
+				UpdateDisplay()
+	elif(menuState == MENUSTATE.MUSIC):
+		if(i["Confirm"]):
+			_isReady = true
+			menuState = MENUSTATE.READY
+			UpdateDisplay()
+			css.TryAdvance()
+		elif(i["Back"]):
+			menuState = MENUSTATE.STAGE
+			UpdateDisplay()
+		else:
+			if(i["Left"]):
+				css.musicSelected -= 1
+				if(css.musicSelected < 0):
+					css.musicSelected = 0
+				UpdateDisplay()
+			if(i["Right"]):
+				css.musicSelected += 1
+				if(css.musicSelected >= css.musicNames.size()):
+					css.musicSelected = css.musicNames.size()-1
 				UpdateDisplay()
 	elif(menuState == MENUSTATE.PALETTE):
 		if(i["Confirm"]):

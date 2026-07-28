@@ -24,5 +24,12 @@ func UpdateDisplay():
 		if(menuState == MENUSTATE.STAGE):
 			stage = "< "+stage+" >"
 		t += "\n"+stage
+
+		var music = "Music: "+str(css.musicNames[css.musicSelected])
+		if(menuState == MENUSTATE.MUSIC):
+			music = "< "+music+" >"
+			t += "\n"+music
+		elif(menuState != MENUSTATE.STAGE):
+			t += "\n"+music
 	
 	$Label.set_text(t)

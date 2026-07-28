@@ -7,10 +7,19 @@ extends "../CME-Action.gd"
 
 func Setup():
 	.Setup()
-	get_node(".").set_text(optionData["DisplayName"])
+	SetAllText(optionData["DisplayName"])
 
 func OnSelect():
-	get_node(".").set_text(">> "+optionData["DisplayName"]+" <<")
+	SetAllText(">> "+optionData["DisplayName"]+" <<")
 
 func OnUnselect():
-	get_node(".").set_text(optionData["DisplayName"])
+	SetAllText(optionData["DisplayName"])
+
+
+func SetAllText(t, n = null):
+	if n == null:
+		n = get_node(".")
+	if n.has_method("set_text"):
+		n.set_text(t)
+	for c in n.get_children():
+		SetAllText(t, c)

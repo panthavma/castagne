@@ -27,7 +27,7 @@ func InitPlayer(postBattle, _pid, device, winner, menuParams):
 	UpdateDisplay()
 	
 	if(isNullDevice):
-		_postBattle.TryRematch()
+		_postBattle.call_deferred("TryRematch")
 
 
 

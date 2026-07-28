@@ -35,7 +35,8 @@ var MOVE_Dashes_FramesSinceInputF int() = 120
 var MOVE_Dashes_FramesSinceInputB int() = 120
 var MOVE_Dashes_FramesSinceInputD int() = 120
 var MOVE_AirActionsRemaining int() = 0
-
+var HasFBeenReleased int() = 0
+var HasBBeenReleased int() = 0
 
 #--- Transitions
 def ATTACK_Tech_Priority int() = 20000
@@ -176,18 +177,16 @@ _Category(Movement/Dashes/Helper)
 _Helper()
 
 VMOVE_AirActionsRemaining>0:
-	IForwardPress:
-		VMOVE_Dashes_CanAirdashF:
-			VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:
+	LCantDash:
+	else
+		LDoubleTapForward:
+			VMOVE_Dashes_CanAirdashF:
 				Transition(AirdashF)
 			endif
 		endif
-	else
-		IBackPress:
+		LDoubleTapBack:
 			VMOVE_Dashes_CanAirdashB:
-				VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:
-					Transition(AirdashB)
-				endif
+				Transition(AirdashB)
 			endif
 		endif
 	endif
@@ -978,14 +977,38 @@ VMOVE_Dashes_FramesSinceInputD<120:
 	Add(MOVE_Dashes_FramesSinceInputD, 1)
 endif
 
-IForwardRelease:
+
+
+
+IForwardPress:
+	VHasFBeenReleased:
+		VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:
+			Flag(DoubleTapForward)
+		endif
+	endif
+	Set(HasFBeenReleased, 0)
 	Set(MOVE_Dashes_FramesSinceInputF, 0)
 endif
-IBackRelease:
+IBackPress:
+	VHasBBeenReleased:
+		VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:
+			Flag(DoubleTapBack)
+		endif
+	endif
+	Set(HasBBeenReleased, 0)
 	Set(MOVE_Dashes_FramesSinceInputB, 0)
 endif
+
 IDownRelease:
 	Set(MOVE_Dashes_FramesSinceInputD, 0)
+endif
+
+IForwardRelease:
+		Set(HasFBeenReleased, 1)
+endif
+
+IBackRelease:
+		Set(HasBBeenReleased, 1)
 endif
 :Dead:
 Flag(NoHurtbox)
@@ -1050,23 +1073,18 @@ _Helper()
 
 LCantDash:
 else
-	IForwardPress:
-		VMOVE_Dashes_FramesSinceInputF<=MOVE_Dashes_DoubleTapTime:
-			VMOVE_Dashes_CanRun:
-				Transition(RunStart)
-			else
-				VMOVE_Dashes_CanStepDash:
-					Transition(StepDash)
-				endif
+	LDoubleTapForward:
+		VMOVE_Dashes_CanRun:
+			Transition(RunStart)
+		else
+			VMOVE_Dashes_CanStepDash:
+				Transition(StepDash)
 			endif
 		endif
-	else
-		IBackPress:
-			VMOVE_Dashes_CanBackdash:
-				VMOVE_Dashes_FramesSinceInputB<=MOVE_Dashes_DoubleTapTime:
-					Transition(Backdash)
-				endif
-			endif
+	endif
+	LDoubleTapBack:
+		VMOVE_Dashes_CanBackdash:
+			Transition(Backdash)
 		endif
 	endif
 endif

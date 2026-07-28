@@ -32,9 +32,9 @@ void fragment() {
 		}
 		
 		if(paletteMode == PALETTEMODE_MANUAL) {
-			int r = int(0.5+spriteColor.r * 8.0);
-			int g = int(0.5+spriteColor.g * 8.0);
-			int b = int(0.5+spriteColor.b * 4.0);
+			int r = int(0.2+spriteColor.r * 8.0);
+			int g = int(0.2+spriteColor.g * 8.0);
+			int b = int(0.2+spriteColor.b * 4.0);
 			colorID = r + g*8 + b*64;
 		}
 		

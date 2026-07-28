@@ -59,6 +59,9 @@ endif
 :Dead:
 ## Death state: stops control of character, and starts post-match behavior
 
+Flag(NoHurtbox)
+SetColboxPhantom()
+
 Call(Common)
 
 Call(AnimDead)

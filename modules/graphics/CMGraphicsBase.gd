@@ -644,7 +644,8 @@ func UpdateGraphics(stateHandle):
 		var p1X = stateHandle.EntityGet("_PositionX")
 		stateHandle.PointToPlayerMainEntity(1)
 		var p2X = stateHandle.EntityGet("_PositionX")
-		playerDist = abs(p1X - p2X)
+		if p1X != null and p2X != null:
+			playerDist = abs(p1X - p2X)
 	
 	if(playerPosCenter.y < 0):
 		playerPosCenter.y = 0.0
@@ -1432,6 +1433,7 @@ func _EnsureRootIsSet(stateHandle):
 
 func _InitCamera(_stateHandle, _battleInitData):
 	var cam = Camera.new()
+	cam.set_zfar(400.0)
 	return cam
 
 func _CreateSprite_Instance(stateHandle):
